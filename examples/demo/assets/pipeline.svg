@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Diagram: content, parser, components, static site">
+  <rect width="1440" height="900" fill="#ffffff"/>
+  <g font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-size="34" font-weight="600" text-anchor="middle">
+    <g fill="#f4f5fb" stroke="#4f5bd5" stroke-width="3">
+      <rect x="80" y="370" width="260" height="160" rx="24"/>
+      <rect x="440" y="370" width="260" height="160" rx="24"/>
+      <rect x="800" y="370" width="260" height="160" rx="24"/>
+      <rect x="1160" y="370" width="200" height="160" rx="24" fill="#4f5bd5"/>
+    </g>
+    <g fill="#1b1f2a">
+      <text x="210" y="462">Content</text>
+      <text x="570" y="462">Parser</text>
+      <text x="930" y="462">Components</text>
+    </g>
+    <text x="1260" y="462" fill="#ffffff">Site</text>
+  </g>
+  <g stroke="#4f5bd5" stroke-width="4" fill="#4f5bd5">
+    <path d="M345 450H425"/><path d="M425 440l14 10-14 10z"/>
+    <path d="M705 450H785"/><path d="M785 440l14 10-14 10z"/>
+    <path d="M1065 450H1145"/><path d="M1145 440l14 10-14 10z"/>
+  </g>
+</svg>
