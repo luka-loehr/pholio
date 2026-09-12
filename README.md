@@ -95,14 +95,29 @@ into a temporary directory, diff, refuse anything stale.
 | `verify/` | Node development tooling for the four stages, never shipped |
 | `docs/` | This project's own documentation, written in Pholio's format |
 | `docs/assets/` | Banner and other repository images |
-| `examples/consumer/` | A runnable consumer example |
+| `examples/demo/` | A neutral demo site covering every component, in English |
+| `examples/consumer/` | Placeholder for the first real consumer's setup |
 | `scripts/` | Local checks, run by hand |
 | `pholio.config.example.php` | The documented configuration schema |
 
 `src/`, `theme/`, `verify/` and `examples/consumer/` currently hold only a
-README describing what lands there.
+README describing what lands there. `examples/demo/` is complete content that
+waits only for the generator.
 
 ## 4. Quickstart
+
+The fastest way to see the format is the demo site in
+[`examples/demo/`](examples/demo/): ten pages documenting a fictional tool,
+covering every component and Markdown extra. Once the generator is wired it
+builds with:
+
+```bash
+cd examples/demo
+php ../../bin/pholio build --config pholio.config.php
+php -S localhost:8080 -t out
+```
+
+For your own project:
 
 ```bash
 # 1. Bring Pholio into your project
@@ -235,6 +250,8 @@ same information as comments.
 | [`docs/architecture.md`](docs/architecture.md) | The pipeline, the design rules, the known limits |
 | [`docs/verification.md`](docs/verification.md) | The four stages and what each one catches |
 | [`docs/roadmap.md`](docs/roadmap.md) | Current state, next steps, non-goals |
+| [`examples/demo/`](examples/demo/README.md) | The demo site, its component coverage table and build instructions |
+| [`docs/assets/og.png`](docs/assets/og.png) | 1200x630 social preview, source in `docs/assets/og.svg` |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Commit rules, code rules, acceptance |
 | [`src/README.md`](src/README.md), [`theme/README.md`](theme/README.md), [`verify/README.md`](verify/README.md) | What lands in each folder |
 
