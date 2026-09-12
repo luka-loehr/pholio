@@ -6,10 +6,12 @@ icon: map
 
 ## Now
 
-The generator is being written inside the project it was built for, and moved
-here once the first phase is accepted. This repository currently holds the
-skeleton: documentation, configuration schema, licence, checks and the CLI
-entry point.
+**Status: generator move pending.** The generator is written and verified
+inside the project it was built for, and moves here by subtree split once its
+first phase is accepted. This repository currently holds everything around it:
+documentation, configuration schema, licence, checks, the CLI entry point, and
+a complete demo site in `examples/demo/` whose content exercises every
+component and waits only for the generator.
 
 <Callout type="warn" title="Pre-release">
 Nothing here is versioned yet. Treat every path and every key as settled but
@@ -22,8 +24,8 @@ the code as absent.
    one-file-per-commit history survives rather than landing as one import.
 2. **Wire the CLI.** `php bin/pholio build --config <file>`, plus `--check`,
    `--dev` and `--only`.
-3. **Dogfood.** Build this documentation with Pholio and publish it, which is
-   also the first test that the package works from outside.
+3. **Dogfood.** Build the demo site and this documentation with Pholio, which
+   is also the first test that the package works from outside.
 4. **The component catalogue.** Tabs, accordions, steps, file trees, type
    tables, banners, inline tables of contents, image zoom, and code blocks with
    titles, line numbers and highlighting.
