@@ -1,0 +1,16 @@
+{
+  "title": "Pholio",
+  "description": "Beautiful PHP documentation, generated from your code.",
+  "icon": "book-open",
+  "root": true,
+  "pages": [
+    "index",
+    "getting-started",
+    "content-format",
+    "configuration",
+    "---Background---",
+    "architecture",
+    "verification",
+    "roadmap"
+  ]
+}
