@@ -13,7 +13,7 @@ npm-debug.log*
 /verify/test-results/
 
 # Local config and scratch
-pholio.config.php
+/pholio.config.php
 *.local.php
 /tmp/
 /.scratch/
