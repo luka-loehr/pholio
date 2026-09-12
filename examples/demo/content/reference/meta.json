@@ -1,0 +1,13 @@
+{
+  "title": "Reference",
+  "description": "Code blocks, typed APIs and the Markdown extras.",
+  "icon": "library",
+  "root": true,
+  "pages": [
+    "index",
+    "code-blocks",
+    "api-types",
+    "---Markdown---",
+    "markdown-extras"
+  ]
+}
