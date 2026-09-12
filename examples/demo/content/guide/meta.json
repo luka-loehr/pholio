@@ -1,0 +1,15 @@
+{
+  "title": "Guide",
+  "description": "Install, write and structure a documentation site.",
+  "icon": "book-open",
+  "root": true,
+  "pages": [
+    "index",
+    "installation",
+    "writing-pages",
+    "---Components---",
+    "callouts-and-cards",
+    "tabs-and-accordions",
+    "steps-and-files"
+  ]
+}
