@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Pholio CLI entry point.
+ *
+ * The generator itself is not in this repository yet: it is moved here from
+ * its original repository with `git subtree split`, so that the
+ * one-file-per-commit history survives the move. Until then this stub exists
+ * only so the entry point, its path and its exit codes are already fixed.
+ *
+ * Planned commands:
+ *   pholio build [--config <file>] [--check] [--dev] [--only <slug>]
+ *   pholio serve [--port 8080]
+ *   pholio init  [--config <file>]
+ */
+
+fwrite(STDERR, <<<TXT
+pholio: not yet wired.
+
+The generator source (src/, theme/) has not been moved into this repository
+yet. See README.md, section 7 "Decision record", and docs/roadmap.md.
+
+TXT);
+
+exit(1);
