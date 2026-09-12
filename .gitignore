@@ -1,0 +1,26 @@
+# Build output
+/out/
+/build/
+/dist/
+/examples/*/out/
+
+# Dev tooling (Node lives only in verify/)
+node_modules/
+npm-debug.log*
+/verify/.cache/
+/verify/reference/
+/verify/report/
+/verify/test-results/
+
+# Local config and scratch
+pholio.config.php
+*.local.php
+/tmp/
+/.scratch/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
