@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Pholio — Beautiful PHP documentation, generated from your code.">
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0d10"/>
+      <stop offset="0.55" stop-color="#111418"/>
+      <stop offset="1" stop-color="#0a0c0f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.08" cy="0.1" r="0.9">
+      <stop offset="0" stop-color="#7c8cff" stop-opacity="0.30"/>
+      <stop offset="0.6" stop-color="#7c8cff" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#7c8cff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c8cff" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#7c8cff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#ground)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.04">
+    <path d="M0 105.5H1200M0 525.5H1200"/>
+    <path d="M80.5 0V630M1119.5 0V630"/>
+  </g>
+
+  <!-- document mark: three stacked sheets -->
+  <g transform="translate(846 170)" stroke="#7c8cff" fill="none" stroke-width="2.5" stroke-linejoin="round">
+    <rect x="44" y="0" width="184" height="216" rx="17" stroke-opacity="0.22"/>
+    <rect x="22" y="15" width="184" height="216" rx="17" stroke-opacity="0.45"/>
+    <rect x="0" y="30" width="184" height="216" rx="17" stroke-opacity="0.9" fill="#0f1319"/>
+    <g stroke="#8ea0ff" stroke-opacity="0.7" stroke-linecap="round">
+      <path d="M30 78H154M30 112H154M30 146H128M30 180H106"/>
+    </g>
+  </g>
+
+  <g font-family="'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <text x="80" y="160" font-size="16" fill="#7c8cff" letter-spacing="6">DOCUMENTATION GENERATOR</text>
+  </g>
+
+  <g font-family="'Inter', 'Helvetica Neue', Arial, sans-serif">
+    <text x="76" y="300" font-size="132" font-weight="700" fill="#f2f4f8" letter-spacing="-3">Pholio</text>
+    <text x="80" y="386" font-size="36" font-weight="500" fill="#c9d0db">Beautiful PHP documentation,</text>
+    <text x="80" y="432" font-size="36" font-weight="500" fill="#c9d0db">generated from your code.</text>
+  </g>
+
+  <rect x="82" y="330" width="220" height="2" fill="url(#rule)"/>
+
+  <g font-family="'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <text x="80" y="570" font-size="17" fill="#5c6675" letter-spacing="5.4">luka-loehr · PHP · zero dependencies · MIT</text>
+  </g>
+</svg>
