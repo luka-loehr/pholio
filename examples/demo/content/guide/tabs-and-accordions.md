@@ -7,9 +7,10 @@ icon: panels-top-left
 ## Tabs
 
 `items` lists the labels, separated by `|`. Each `Tab` takes its `value` from
-the matching label.
+the matching label. With `updateAnchor`, choosing a tab also updates the URL
+hash, so the link you copy opens that tab.
 
-<Tabs items="macOS|Linux|Windows">
+<Tabs items="macOS|Linux|Windows" updateAnchor>
 <Tab value="macOS">
 Archives live in `~/Library/Application Support/Lanternfly`.
 </Tab>
@@ -37,30 +38,31 @@ Pay once a year and get two months free.
 Tabs with the same `groupId` switch together. With `persist`, the choice is
 remembered across pages and visits.
 
-<Tabs groupId="language" items="JavaScript|Python" persist>
+<Tabs groupId="language" items="JavaScript|PHP" persist>
 <Tab value="JavaScript">
 ```js
 import { open } from 'lanternfly';
 const archive = await open('notes');
 ```
 </Tab>
-<Tab value="Python">
-```python
-from lanternfly import open_archive
-archive = open_archive("notes")
+<Tab value="PHP">
+```php
+<?php
+$archive = Lanternfly\open('notes');
 ```
 </Tab>
 </Tabs>
 
-<Tabs groupId="language" items="JavaScript|Python" persist>
+<Tabs groupId="language" items="JavaScript|PHP" persist>
 <Tab value="JavaScript">
 ```js
 const hits = await archive.search('invoice');
 ```
 </Tab>
-<Tab value="Python">
-```python
-hits = archive.search("invoice")
+<Tab value="PHP">
+```php
+<?php
+$hits = $archive->search('invoice');
 ```
 </Tab>
 </Tabs>
