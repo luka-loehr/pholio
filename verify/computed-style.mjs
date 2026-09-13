@@ -24,6 +24,12 @@
 // normalised identically (the same dropped elements as in golden-dom.mjs, including the
 // Next runtime nodes) and then aligned element by element by index.
 //
+// With --states every entry of `states` is compared as well: `actions` hovers or focuses
+// the element matched by `selector`; `steps` instead runs a sequence in the format of
+// pixel-states.json ({click|hover: selector}, {press: key}, {mouse: [x, y]}, {wait: ms},
+// {waitFor: selector}) for states that change the page, such as a collapsed sidebar, and
+// loads the page again afterwards. `widths` limits a state to the listed widths.
+//
 // Structure itself is the job of golden-dom.mjs. If it differs, this tool aborts the page
 // with a hard error instead of reporting a thousand follow-up differences.
 //
@@ -153,6 +159,19 @@ function compare(ref, cand, { properties, customProperties }) {
 // about the appearance.
 const STATE_MARKER = 'data-verify-state-target';
 
+// Steps of a state with `steps` instead of hover or focus, in the format of pixel-states.json.
+async function runSteps(page, steps) {
+  for (const step of steps) {
+    if (step.wait !== undefined) await page.waitForTimeout(step.wait);
+    else if (step.click) await page.locator(step.click).first().click({ timeout: 8000 });
+    else if (step.hover) await page.locator(step.hover).first().hover({ timeout: 8000 });
+    else if (step.press) await page.keyboard.press(step.press);
+    else if (step.mouse) await page.mouse.move(step.mouse[0], step.mouse[1]);
+    else if (step.waitFor) await page.locator(step.waitFor).first().waitFor({ state: 'visible', timeout: 10000 });
+    else throw new Error(`unknown step ${JSON.stringify(step)}`);
+  }
+}
+
 async function applyState(page, state, action) {
   if ((await page.locator(state.selector).count()) === 0) return false;
   const locator = page.locator(state.selector).first();
@@ -160,7 +179,11 @@ async function applyState(page, state, action) {
     for (const el of document.querySelectorAll(`[${marker}]`)) el.removeAttribute(marker);
   }, STATE_MARKER);
   await locator.evaluate((el, marker) => el.setAttribute(marker, ''), STATE_MARKER);
-  if (action === 'hover') {
+  if (action === 'steps') {
+    const theme = await page.evaluate(() => (document.documentElement.classList.contains('dark') ? 'dark' : 'light'));
+    page.__stepsReset = { url: page.url(), theme };
+    await runSteps(page, state.steps);
+  } else if (action === 'hover') {
     await locator.hover({ timeout: 5000 });
   } else {
     await locator.evaluate((el) => el.focus({ preventScroll: false }));
@@ -171,6 +194,14 @@ async function applyState(page, state, action) {
 }
 
 async function resetState(page) {
+  // A state with steps changed the page itself (a click); only loading it again undoes that.
+  if (page.__stepsReset) {
+    const { url, theme } = page.__stepsReset;
+    delete page.__stepsReset;
+    await loadPage(page, url, { theme, settle: settleMs });
+    await settleAnimations(page);
+    return;
+  }
   await page.mouse.move(0, 0);
   await page.evaluate((marker) => {
     if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
@@ -235,7 +266,8 @@ async function main() {
 
             for (const state of states) {
               if (state.pages && !new RegExp(state.pages).test(urls.path)) continue;
-              for (const action of state.actions ?? ['hover']) {
+              if (state.widths && !state.widths.includes(width)) continue;
+              for (const action of state.steps ? ['steps'] : (state.actions ?? ['hover'])) {
                 const name = `${state.name}:${action}`;
                 let okRef;
                 let okCand;
