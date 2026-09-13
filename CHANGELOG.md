@@ -15,13 +15,18 @@ or the configuration schema; such changes are listed under **Changed**.
 - Release workflow that publishes `pholio-<version>.tar.gz`, `.zip` and `SHA256SUMS` for every `v*.*.*` tag.
 - `scripts/install.sh`, a one-command install of a release with checksum, PHP and PCRE2 checks.
 - `scripts/release.sh`, which bumps `VERSION`, dates the changelog, runs the checks and tags a release.
-- `verify/search-query.mjs`, which prints the top results of one query against a built search index.
+- `verify/search-query.mjs`, which prints the top results of one query against a built search index,
+  with `--explain` for the score of every term.
+- `keywords` frontmatter key: comma-separated search terms a page does not use in its text, such as
+  synonyms, weighted just below the title.
 
 ### Changed
 
-- Search has its own ranking: title and phrase matches first, all terms before some terms,
-  prefix matching on the last term, umlaut and `ß` folding, hyphen, space and compound
-  equivalence, typo tolerance only when nothing matches exactly, results grouped per page.
+- Search has its own ranking: title and phrase matches first, then a score over title, keywords,
+  description, headings and text, weighted by word rarity and by how much of the query a page
+  covers. Stopwords are dropped; prefix, compound, inflection and typo matching, umlaut and `ß`
+  folding and hyphen, space and joined spellings are equivalent. Results are grouped per page,
+  at most 8 pages with 3 headings each.
 - The search index is a compact inverted index (format version 2) without body text; it loads
   on the first hover, focus or open of a search trigger, and queries run in a Web Worker.
 
