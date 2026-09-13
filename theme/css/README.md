@@ -3,7 +3,7 @@
 Everything in this directory is derived from the frozen reference stylesheet,
 the reference export's compiled stylesheet
 `css/[root-of-the-server]__1br6yta._.css`: 4655 lines, Tailwind v4 output of
-`next build` of the Fumadocs reference build. The line numbers below refer to
+`next build` of the reference build. The line numbers below refer to
 exactly this file, so a review can cross-check with `sed -n 'FROM,TOp'`.
 
 ## Cascade
@@ -34,7 +34,7 @@ strongest: the `--tw-*` fallback values in it (such as
 
 ## Site palette
 
-`tokens.css` carries the Fumadocs defaults only. The line
+`tokens.css` carries the reference design's defaults only. The line
 
     /* @pholio:palette */
 
@@ -51,18 +51,18 @@ the reference build's palette has in the reference stylesheet (lines
 | File | Reference lines | Content |
 | --- | --- | --- |
 | `tokens.css` | 2–73 | `@layer properties`: fallback initial values of the `--tw-*` variables (Safari branch) |
-| | 75–171 | `@layer theme`: Tailwind theme + `fumadocs-ui/css/lib/default-colors.css` + `@supports (color: lab(…))` follow-ups |
+| | 75–171 | `@layer theme`: Tailwind theme + the reference UI's `css/lib/default-colors.css` + `@supports (color: lab(…))` follow-ups |
 | | 3894–3926 | unlayered: default `.dark` palette, `.dark #nd-sidebar` (`neutral.css`), `--fd-sidebar-drawer-offset` including `[dir="rtl"]` |
 | | 4090–4136 | not in the file: the reference build's palette from `app/theme.css` (`data-preset`) for `:root` and `.dark`, plus `#nd-sidebar` and `.dark #nd-sidebar`; a site supplies its own through the palette marker |
 | | 4147–4502 | 66 `@property` registrations of the `--tw-*` variables |
-| `reset.css` | 173–430 | `@layer base`: Tailwind v4 preflight, at the end the two additions from `fumadocs-ui/css/lib/base.css` (`border-color: var(--color-fd-border, currentColor)`, `body { background-color/color }`) |
+| `reset.css` | 173–430 | `@layer base`: Tailwind v4 preflight, at the end the two additions from the reference UI's `css/lib/base.css` (`border-color: var(--color-fd-border, currentColor)`, `body { background-color/color }`) |
 | | 4138–4145 | unlayered: `html { scrollbar-gutter: stable }` and `html > body[data-scroll-locked]` from `app/global.css` |
 | `fonts.css` | 4579–4654 | the seven Inter `@font-face` blocks from `next/font/google`, `Inter Fallback` with the four metrics, and the class rule `font-family: Inter, Inter Fallback`, here directly on `html` |
 | `animations.css` | 4504–4576 | the nine `@keyframes`: `pulse`, `fd-sidebar-in/out`, `fd-dialog-in/out`, `fd-popover-in/out`, `fd-fade-in/out` |
 | `prose.css` | 451–485 | `.fd-step:before`, `.fd-steps` (+ `@media (min-width: 40rem)`, which reaches to 485) from `base.css` |
-| | 777–1210 | the 76 `.prose` rules from `@fumadocs/tailwind/typography`, plus `.prose-no-margin` |
+| | 777–1210 | the 76 `.prose` rules from the reference typography plugin (`tailwind/typography`), plus `.prose-no-margin` |
 | | 1276–1292 | `.fd-scroll-container::-webkit-scrollbar*` |
-| | 3935–4088 | the `.shiki` rules from `fumadocs-ui/css/lib/shiki.css` (unlayered) |
+| | 3935–4088 | the `.shiki` rules from the reference UI's `css/lib/shiki.css` (unlayered) |
 | `layout.css` | 434–3892 (per rule in the comment) | `@layer components`: grid, header, section tabs, sidebar, article frame, TOC column, TOC popover frame, start page scaffold |
 | `components.css` | 434–3892 (per rule in the comment) | `@layer components`: buttons, search trigger, theme toggle, section switcher, breadcrumbs, footer navigation, TOC entries, headings, callout, cards, images, tables, hero and section cards |
 | | 3884–3890 | `@layer utilities`: `button[data-search-full]`, `figure.shiki` |
