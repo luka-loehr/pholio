@@ -18,11 +18,11 @@ concurrency:
 
 # The PHP matrix runs on the stable ubuntu-latest image, whose PHP links PCRE2 10.42: that is what users on
 # stable distributions have, so the highlighter's pre-10.43 fallback is exercised there (and forced in
-# tests/HighlightFallbackTest.php). The ubuntu-26.04 jobs (PCRE2 10.43 or newer) are the full-fidelity check:
-# scripts/check.sh with the byte-exact highlight references and the demo snapshot.
+# tests/HighlightFallbackTest.php). The ubuntu-26.04 jobs (PCRE2 10.43 or newer, PHOLIO_REQUIRE_PCRE2=1) are the
+# required full-fidelity gate: scripts/check.sh with the byte-exact highlight references and the demo snapshot.
 jobs:
   php:
-    name: PHP ${{ matrix.php }} – lint, tests, demo build (ubuntu-latest)
+    name: PHP ${{ matrix.php }} – check.sh and fallback demo build (ubuntu-latest)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -50,15 +50,10 @@ jobs:
           php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", ">=") ? 0 : 1);' \
             || echo "::warning::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43: highlighting of a few languages is simplified"
 
-      - name: Lint
-        run: ./scripts/lint.sh
-
-      # HighlightTest, PipelineTest and BuildTest compare output byte for byte with references made on PCRE2 10.43+.
-      # They run in the full-fidelity job until they skip themselves on an older PCRE2.
-      - name: Tests (without the byte-exact highlight and snapshot tests)
-        run: |
-          only="$(ls tests/*Test.php | sed 's#^tests/##; s#Test\.php$##' | grep -vxE 'Highlight|Pipeline|Build' | paste -sd, -)"
-          php tests/run.php --only "$only"
+      # On PCRE2 older than 10.43 the byte-exact highlight tests and the snapshot check skip themselves;
+      # the ubuntu-26.04 jobs below set PHOLIO_REQUIRE_PCRE2=1, which turns those skips into failures.
+      - name: Check (lint, tests, demo; PCRE2 10.43+ comparisons skip on older PCRE2)
+        run: ./scripts/check.sh
 
       - name: Demo build with this PCRE2
         run: |
@@ -105,9 +100,8 @@ jobs:
         run: ./scripts/check.sh
 
   verify:
-    name: Verify tier 2 – Node 26 (ubuntu-26.04)
-    # Tier 2 runs scripts/check.sh, which compares the demo with its PCRE2 10.43+ snapshot.
-    runs-on: ubuntu-26.04
+    name: Verify tier 2 – Node 26 (ubuntu-latest)
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Check out
