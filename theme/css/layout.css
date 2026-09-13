@@ -61,6 +61,38 @@
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
+  /* Collapsed sidebar: an intentional difference from the reference (Luka's decision).
+     The reference only drops the sidebar column, so the page column grows to the left
+     edge and a wide dead zone opens before the table of contents. Here the page column
+     is only as wide as the article (900px) plus its padding, and never closer than a
+     48px gutter to the window. The two outer 1fr columns share the rest, which
+     centres content and table of contents as one group. The sidebar area still starts
+     at the window edge (it spans the first column), so the hover zone and peek stay put.
+     It overrides only the columns of the inline grid-template, so it applies at first
+     paint once sidebar-restore.js sets the attribute, and it animates with the
+     data-column-changed transition above. Below 768px there is no desktop sidebar. */
+  @media (min-width: 48rem) {
+    .nd-layout[data-sidebar-collapsed="true"] {
+      --fd-collapsed-page-width: calc(900px + var(--spacing) * 16);
+      --fd-collapsed-gutter: calc(var(--spacing) * 12);
+      grid-template-columns:
+        minmax(min-content, 1fr) 0px
+        minmax(0, min(var(--fd-collapsed-page-width), calc(100% - var(--fd-toc-width) - 2 * var(--fd-collapsed-gutter))))
+        var(--fd-toc-width) minmax(min-content, 1fr) !important;
+    }
+    /* The header keeps the span it has with the sidebar expanded (the full window, at
+       most the layout width): only content and table of contents move, and the
+       collapse trigger stays under the pointer instead of moving with the group.
+       Size containment keeps the spanning header's min-content width out of the
+       outer minmax(min-content, 1fr) columns, which it would otherwise inflate. */
+    .nd-layout[data-sidebar-collapsed="true"] > .nd-header {
+      grid-column: 1 / -1;
+      justify-self: center;
+      width: min(100%, var(--fd-layout-width, 97rem));
+      contain: inline-size;
+    }
+  }
+
   /* ====================================================================
      Header
      ==================================================================== */
