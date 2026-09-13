@@ -7,7 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * Table, the `table` override from the reference UI's `dist/mdx.js`: a scrollable
+ * Table: a scrollable
  * frame around the unchanged table.
  */
 function nd_table(array $props, string $children): string
