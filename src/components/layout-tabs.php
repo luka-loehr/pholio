@@ -7,8 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * The section tabs in the second header row (`LayoutHeaderTabs` from
- * `layouts/notebook/index.js`, mode `tabMode: navbar`).
+ * The section tabs in the second header row (mode `tabMode: navbar`).
  *
  * One tab per `root: true` folder; `Tree::tabsFor()` computes which one is
  * active and where it points (the current page's projection, otherwise the
