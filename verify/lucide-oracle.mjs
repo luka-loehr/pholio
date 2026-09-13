@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Lucide oracle: renders lucide icons with lucide-react itself (react-dom/server,
-// renderToStaticMarkup), so src/lib/Icons.php is checked against the original
+// renderToStaticMarkup), so src/lib/Icons.php is checked against lucide itself
 // rather than against its own expectations.
 //
 //   echo '[{"name":"archive","className":"size-4"},{"name":"moon","fill":"currentColor"}]' \
@@ -11,8 +11,8 @@
 //
 // Render mode (stdin): a list of { name (kebab-case or alias), className?, fill? }.
 // Output (stdout): a list of the same length of { markup } or { error }.
-// Empty child elements (`<path …></path>`) are written as `<path …/>`, as in the
-// reference export and in Icons.php; the DOM is the same.
+// Empty child elements (`<path …></path>`) are written as `<path …/>`, as Icons.php
+// writes them; the DOM is the same.
 //
 // Check mode: draws a seeded random sample of names from Icons::names() (--all takes every
 // name; the seed, 1 by default, still pairs names with extra classes), renders each with
