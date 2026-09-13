@@ -1,6 +1,6 @@
 {
   "title": "Pholio",
-  "description": "Beautiful PHP documentation, generated from your code.",
+  "description": "Beautiful documentation, powered by Markdown.",
   "icon": "book-open",
   "root": true,
   "pages": [
