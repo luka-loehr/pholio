@@ -4,7 +4,7 @@
 //   import { t } from './i18n.js';
 //   button.setAttribute('aria-label', t('Close Sidebar(sidebar)(aria-label)'));
 //
-// Keys are the reference design's translation keys, identical to the keys in
+// Keys are Pholio's translation keys, identical to the keys in
 // src/i18n/<language>.php: the English source text followed by its context
 // notes. The values below are copies of those tables for the keys the modules
 // use; keep both in sync.
