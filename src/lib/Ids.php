@@ -5,18 +5,13 @@ declare(strict_types=1);
 namespace Pholio;
 
 /**
- * Hydration ids in the Base UI format.
+ * Element ids in the Base UI format.
  *
- * Base UI assigns its ids with React's `useId` and writes them into the DOM as
- * `base-ui-_R_<random>_` or `base-ui-_R_<random>_-viewport`. The random part
- * changes with every hydration, so verify/golden-dom.mjs replaces it (regex
- * `/_R_[0-9a-z]*_/g`) with `#id1`, `#id2`, … in order of first appearance in
- * the document.
- *
- * For the comparison only this counts: the same number of distinct ids, the
- * same order of first appearance, the same references (`aria-controls`,
- * `data-id`). The generator therefore assigns `base-ui-_R_1_`, `base-ui-_R_2_`,
- * … in document order and resets the counter before every page.
+ * Components link elements through ids (`aria-controls`, `aria-labelledby`,
+ * `data-id`), written as `base-ui-_R_<n>_` or `base-ui-_R_<n>_-viewport`. The
+ * generator assigns `base-ui-_R_1_`, `base-ui-_R_2_`, … in document order and
+ * resets the counter before every page, so a page's ids are stable across
+ * builds.
  */
 final class Ids
 {
