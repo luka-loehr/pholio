@@ -234,7 +234,7 @@ return [
         'sitemap' => true,          // needs site.url
         'structured_data' => true,  // JSON-LD in every page
         'headers' => true,          // Link headers and content negotiation
-        'page_actions' => true,     // "Copy Markdown" and "Open" below the description
+        'page_actions' => true,     // "Copy page" and its menu next to the page title
         'instructions' => null,     // "## Agent Instructions" in llms.txt and skill.md
         'exclude' => [],            // globs on page URLs and content files, e.g. 'internal/*'
     ],
