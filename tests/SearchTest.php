@@ -5,7 +5,7 @@ declare(strict_types=1);
 // Search index: shape, slots and flags over the demo content, section anchors against the table
 // of contents, component and description texts, normalisation, codecs, drafts, page order and the
 // recorded tokenizer profile. With Node, also the PHP/JavaScript selftest and the consistency check
-// over the demo (tier 2 runs the same commands).
+// over the demo (node verify/run.mjs runs the same commands).
 
 require __DIR__ . '/run.php';
 require_once dirname(__DIR__) . '/src/lib/SearchIndex.php';
@@ -273,14 +273,14 @@ test('sections: description skipped when a text repeats it; frontmatter heading 
     assert_same([2, 1], $index['lengths']);
 });
 
-/** Runs verify/search-parity.mjs with Node; skips when Node is missing. */
+/** Runs verify/search-check.mjs with Node; skips when Node is missing. */
 function search_node(array $args): array
 {
     exec('command -v node 2>/dev/null', $found, $status);
     if ($status !== 0) {
         skip('node: not on PATH');
     }
-    $command = 'node ' . escapeshellarg(dirname(__DIR__) . '/verify/search-parity.mjs') . ' '
+    $command = 'node ' . escapeshellarg(dirname(__DIR__) . '/verify/search-check.mjs') . ' '
         . implode(' ', array_map('escapeshellarg', $args)) . ' 2>&1';
     exec($command, $output, $status);
 
