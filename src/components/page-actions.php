@@ -20,8 +20,10 @@ require_once __DIR__ . '/../lib/Icons.php';
  * hidden`, so they share one border and radius and a 1 px divider. The menu is a
  * `<template data-page-actions-popup>` after the trigger, like the section
  * switcher's, and js/popover.js mounts it. The chat links get their `href` in
- * JavaScript: the prompt names the absolute URL of the Markdown twin, which only
- * the browser knows when `site.url` is not set.
+ * JavaScript: the prompt names absolute URLs, which only the browser knows when
+ * `site.url` is not set. Claude's prompt names the Markdown twin; ChatGPT's names
+ * the page itself and mentions the twin, because ChatGPT's reader handles HTML
+ * reliably and Markdown only as plain text.
  *
  * The OpenAI and Claude marks are the Simple Icons SVGs in vendor-data/brands/,
  * inlined with their path data unchanged (THIRD_PARTY_NOTICES.md).
@@ -69,6 +71,7 @@ function nd_page_actions(array $actions): string
         'data-page-actions' => true,
         'data-markdown-url' => $actions['markdownUrl'],
         'data-prompt' => I18n::t('Read {url}, I want to ask questions about it.(page actions)'),
+        'data-prompt-chatgpt' => I18n::t('Read {url}, I want to ask questions about it. A Markdown version of the page is at {markdown}.(page actions)'),
     ], Html::tag('div', ['class' => 'nd-page-actions-group'], $copy . $open)
         . Html::tag('template', ['data-page-actions-popup' => true], $items));
 }
