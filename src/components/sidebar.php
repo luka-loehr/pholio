@@ -28,7 +28,7 @@ function nd_item_offset(int $depth): string
  * The sidebar of the notebook layout (`layouts/notebook/slots/sidebar.js`) in
  * both variants.
  *
- * From 768 px Fumadocs renders only the desktop sidebar, below that only the
+ * From 768 px the reference renders only the desktop sidebar, below that only the
  * drawer (`SidebarDrawer` behind `SidebarContent`). The static page doesn't know
  * the window width and therefore prints both: the desktop sidebar open in its
  * placeholder, then the overlay as a template and the closed drawer
@@ -334,7 +334,7 @@ function nd_sidebar_panel(
         'class' => [
             'nd-sidebar-panel',
             // `depth` in the original is the folder depth (here $depth + 1);
-            // Fumadocs draws the vertical line only at depth 1.
+            // the reference draws the vertical line only at depth 1.
             $depth === 0 ? 'nd-sidebar-panel-line' : null,
         ],
         'style' => $style,
