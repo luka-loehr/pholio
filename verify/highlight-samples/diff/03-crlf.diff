@@ -1,0 +1,46 @@
+diff --git a/theme/css/theme.css b/theme/css/theme.css
+index 5d41402..7f8e9a0 100644
+--- a/theme/css/theme.css
++++ b/theme/css/theme.css
+@@ -1,12 +1,14 @@
+ /* Theme (patch with CRLF line endings) */
+ :root {
+-  --color-accent: #0b5cad;
++  --color-accent: oklch(48% 0.14 255);
++  --color-accent-light: color-mix(in srgb, var(--color-accent) 20%, white);
+   --space: 1rem;
+ }
+ 
+ body {
+   margin: 0;
+-  font-family: system-ui, sans-serif;
++  font-family: "Source Sans 3", system-ui, sans-serif;
+   line-height: 1.6;
+ }
+ 
+@@ -40,9 +42,12 @@ a:hover {
+ .toc-rail {
+   position: sticky;
+   top: 4.5rem;
+-  display: block;
++  display: none;
+ }
++
++@media (width >= 75em) {
++  .toc-rail { display: block; }
++}
+ 
+ .search input[type="search"] {
+   width: 100%;
+diff --git a/theme/js/toc.js b/theme/js/toc.js
+index e69de29..3b18e51 100644
+--- a/theme/js/toc.js
++++ b/theme/js/toc.js
+@@ -1,6 +1,6 @@
+ // Table of contents rail
+ const rail = document.querySelector('.toc-rail');
+-const headings = document.querySelectorAll('h2');
++const headings = document.querySelectorAll('h2, h3');
+ const observer = new IntersectionObserver((entries) => {
+   for (const e of entries) rail?.classList.toggle('active', e.isIntersecting);
+ }, { rootMargin: '0px 0px -70% 0px' });
