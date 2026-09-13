@@ -113,7 +113,7 @@ require_once __DIR__ . '/I18n.php';
  *     light: array<string,string>,  token (without --color-fd-) => CSS colour
  *     dark: array<string,string>,
  *     paletteCss: ?string,          absolute path of a stylesheet inserted at the palette marker
- *     preset: string,               built-in color preset (Config::PRESETS), also <html data-preset>, default "neutral"
+ *     preset: string,               initial color preset (Config::PRESETS) as <html data-preset>, default "neutral"
  *     fontClass: string,            extra class on <html>, default ""
  *     hotkey: string,               theme toggle key, default "d"
  *     defaultScheme: 'system',
@@ -150,7 +150,7 @@ require_once __DIR__ . '/I18n.php';
  *     robotsTxt: bool, sitemap: bool, structuredData: bool,
  *     headers: bool,                Link and X-Llms-Txt headers and content negotiation (.htaccess, _headers)
  *     pageActions: bool,            "Copy page" and its menu next to the title; false when markdown is off
- *     instructions: ?string,        "## Agent Instructions" block of llms.txt and skill.md
+ *     instructions: ?string,        "## Notes for agents" block of llms.txt and skill.md (heading in the site language)
  *     exclude: list<string>,        fnmatch globs on page URLs and content file paths
  *   },                              every flag is false when agents.enabled is false
  * }
@@ -164,7 +164,7 @@ final class Config
     public const ASSETS_DIR = 'assets';
     public const OUTPUT_DIR = 'public';
 
-    /** Built-in color presets, one stylesheet each in theme/presets/<name>.css. The first is the default. */
+    /** Built-in color presets, one stylesheet each in theme/presets/<name>.css, all in every build. The first is the default. */
     public const PRESETS = [
         'neutral', 'black', 'vitepress', 'dusk', 'catppuccin', 'ocean', 'purple', 'solar', 'emerald', 'ruby', 'aspen',
     ];
