@@ -16,7 +16,7 @@ npx playwright install chromium-headless-shell   # only for browser-based tools
 ```
 
 Dependencies are pinned to exact versions: `playwright`, `shiki`, `fumadocs-core`,
-`lucide-react`, `react`, `react-dom` and `zbsearch`, the versions the reference uses.
+`lucide-react`, `react` and `react-dom`, the versions the reference uses.
 
 ## Tiers
 
@@ -96,6 +96,7 @@ first hit:
 | `verify/catalogue-states.mjs` | Static, interactive and layered states of the component catalogue | `--mode`, `--site <dir>`, `--out <dir>`; `--reference <export dir>` and `--cuts <file>` for `static` and `states` |
 | `verify/search-parity.mjs` | `theme/js/search.js` against `src/lib/SearchIndex.php` (normalisation, codecs, the rebuilt index), relevance cases and performance budgets | `--selftest`, `--consistency --content <dir> --base-url <path>`, `--relevance` or `--perf` with `--fixture <file>` and `--index <file>` or `--content` |
 | `verify/search-query.mjs` | One query against a built index, printing the top pages as the search dialog ranks them: title, breadcrumbs, matched headings | `--index <search-index.json> "query"`, optional `--limit <n>`, `--json`, `--explain` (per-term weights, matched words and scores) |
+| `verify/search-dialog.mjs` | The real search dialog in Chromium, Firefox and WebKit, with the demo served under `/docs/` and the headers of its `.htaccess`: hotkeys, results, index and worker paths, arrow keys and Enter, the main-thread fallback | optional `--browsers chromium,firefox,webkit` |
 | `verify/lucide-oracle.mjs` | Icon markup against lucide-react | `--check --all` or `--check --sample <n>`, optional `--seed <n>` |
 | `verify/fixtures/demo/` | Demo site data: search queries, behaviour scenarios and pixel states | |
 | `verify/class-map.json` | Utility class to `nd-*` component class translation, so the DOM diff keeps working after the CSS is rewritten | |
