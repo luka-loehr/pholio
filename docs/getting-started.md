@@ -24,8 +24,11 @@ PHP and PCRE2, and installs Pholio for your user: the release goes into
 which needs to be on your `PATH`.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh
+curl -fsSL https://pholio.lukaloehr.com/install.sh | sh
 ```
+
+The same script is in the repository, so a tag or branch URL works too:
+`https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh`.
 
 Options go after `sh -s --`: `--version vX.Y.Z` installs a specific release,
 `--system` installs into `/usr/local` (may need `sudo`), and `--prune` removes
@@ -35,7 +38,7 @@ To keep Pholio inside one project instead, install it into a directory and call
 it through PHP:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh -s -- --dir vendor/pholio
+curl -fsSL https://pholio.lukaloehr.com/install.sh | sh -s -- --dir vendor/pholio
 php vendor/pholio/bin/pholio init my-docs
 ```
 
