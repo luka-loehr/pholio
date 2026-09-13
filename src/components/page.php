@@ -10,13 +10,11 @@ require_once __DIR__ . '/breadcrumb.php';
 require_once __DIR__ . '/footer.php';
 
 /**
- * The article itself (`layouts/notebook/page/slots/container.js` plus
- * `DocsTitle`, `DocsDescription`, `DocsBody` from `layouts/notebook/page`).
+ * The article itself: breadcrumb, title, description, body, "last updated" line
+ * and footer navigation.
  *
- * The "last updated" line isn't a reference design component; it comes from the
- * reference's docs page template. There the label (`Last updated(page)`) and
- * the value are two separate JSX expressions and therefore two text nodes; the
- * empty comment produces the same split.
+ * In the "last updated" line the label (`Last updated(page)`) and the value are
+ * two separate text nodes, split by an empty comment.
  *
  * @param array{title:string, description:?string, updated:?string, full:bool} $page
  * @param list<array{name:string, url:?string}> $breadcrumb
