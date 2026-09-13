@@ -1,0 +1,49 @@
+
+From 2ae95ef2c0ffee00000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Docs Team <team@example.com>
+Date: Sat, 12 Sep 2026 14:32:10 +0200
+Subject: [PATCH 1/2] =?UTF-8?q?test(docs):=20check=20content=20tr=C3=A9e?=
+
+Checks redirect targets and internal links.
+---
+ tests/links_test.php | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/tests/links_test.php b/tests/links_test.php
+index 1111111..2222222 100644
+--- a/tests/links_test.php
++++ b/tests/links_test.php
+@@ -1,8 +1,16 @@
+ <?php
+ declare(strict_types=1);
+ 
+-function test_links(): void
++/**
++ * @covers \Acme\Docs\Links
++ */
++function test_links(array $pages = []): void
+ {
+-    assert(true);
++    foreach ($pages as $path => $html) {
++        preg_match_all('/href="([^"]+)"/', $html, $matches);
++        foreach ($matches[1] as $target) {
++            assert(str_starts_with($target, '/guide/'), "External link in $path: $target");
++        }
++    }
+ }
+ 
+ test_links();
+-- 
+2.46.0
+
+diff --git "a/content/r\303\251sum\303\251.md" "b/content/r\303\251sum\303\251.md"
+index 3333333..4444444 100644
+--- "a/content/r\303\251sum\303\251.md"
++++ "b/content/r\303\251sum\303\251.md"
+@@ -3,2 +3,3 @@ Résumé
+ Line with tab:	end
+-Last line without newline
+\ No newline at end of file
++Last line without newline
++New last line, also without newline
+\ No newline at end of file
