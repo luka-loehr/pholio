@@ -9,7 +9,7 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * Type table, `TypeTable` and `Item` from `fumadocs-ui/dist/components/type-table.js`.
+ * Type table, `TypeTable` and `Item` from the reference UI's `dist/components/type-table.js`.
  *
  * Every row is a Base UI collapsible. While closed the panel isn't mounted and
  * sits in `<template data-collapsible-panel>` (js/collapsible.js). The original's
