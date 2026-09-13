@@ -30,7 +30,7 @@ final class Cli
     public const INTERNAL = 70;
 
     private const SHORT_HELP = <<<'TEXT'
-Pholio – static documentation sites from Markdown.
+Pholio – beautiful documentation, powered by Markdown.
 
   pholio init [dir]     Create a project: content/, assets/, pholio.config.php
   pholio dev [dir]      Build, serve at http://127.0.0.1:8080, rebuild on changes
@@ -41,7 +41,7 @@ Pholio – static documentation sites from Markdown.
 TEXT;
 
     private const USAGE_TEXT = <<<'TEXT'
-Pholio – static documentation sites from Markdown.
+Pholio – beautiful documentation, powered by Markdown.
 
 Usage:
   pholio init   [dir] [--name <site name>] [--lang en|de] [--force]
