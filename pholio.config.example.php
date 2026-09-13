@@ -87,8 +87,8 @@ return [
             'title' => 'Where do I start?',
             'from_tree' => true,
             'items' => [
-                // ['title' => 'Users', 'description' => 'Day-to-day guides.',
-                //  'href' => '/docs/basics/', 'icon' => 'book-open'],
+                // ['title' => 'Guide', 'description' => 'Day-to-day guides.',
+                //  'href' => '/docs/guide/', 'icon' => 'book-open'],
             ],
         ],
     ],
