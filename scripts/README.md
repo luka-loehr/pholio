@@ -32,4 +32,4 @@ cancels its older run.
 matches `VERSION` and has a `CHANGELOG.md` section, runs the same stable and
 full-fidelity jobs, and only when both pass builds the archives with
 `release.sh --package` and publishes the GitHub release that `install.sh`
-downloads. See [`docs/testing.md`](../docs/testing.md).
+downloads. See the checks in [`CONTRIBUTING.md`](../CONTRIBUTING.md#checks).
