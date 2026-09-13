@@ -364,6 +364,8 @@ async function tier2() {
   await check(...scriptStep('verify/search-parity.mjs', [
     '--relevance', ...demoContent, '--fixture', 'verify/fixtures/demo/search-relevance.json',
   ]));
+  // The real dialog under a subpath with the site's CSP, in Chromium, Firefox and WebKit.
+  await check(...scriptStep('verify/search-dialog.mjs'));
   // Every icon with an explicit seed, which fixes the class names paired with each icon:
   // a failure reproduces on every run.
   await check(...scriptStep('verify/lucide-oracle.mjs', ['--check', '--all', '--seed', '1']));
