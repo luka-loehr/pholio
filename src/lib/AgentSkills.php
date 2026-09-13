@@ -6,6 +6,7 @@ namespace Pholio;
 
 require_once __DIR__ . '/../Exceptions.php';
 require_once __DIR__ . '/SearchIndex.php';
+require_once __DIR__ . '/LlmsTxt.php';
 
 /**
  * Agent Skills and the A2A agent card.
@@ -21,6 +22,9 @@ require_once __DIR__ . '/SearchIndex.php';
  * - The A2A agent card (`.well-known/agent-card.json`, protocol 0.3), which points
  *   agents at the same skills. The site is static, so the card advertises no
  *   endpoint beyond the documentation itself.
+ *
+ * Headings and sentences follow the site language; field names the specifications
+ * define (`name`, `description`, `protocolVersion`, …) stay as they are.
  */
 final class AgentSkills
 {
@@ -58,10 +62,11 @@ final class AgentSkills
     {
         $title = self::line($site['title']);
         $covers = implode(', ', array_map(static fn(array $s): string => self::line($s['name']), $site['sections']));
-        $description = $title . ' documentation.'
+        $description = self::documentation($title) . '.'
             . ($site['description'] !== null ? ' ' . self::line($site['description']) : '')
-            . ' Use it to answer questions about ' . $title . ' or to work with it'
-            . ($covers === '' ? '.' : '; it covers ' . $covers . '.');
+            . ' ' . ($covers === ''
+                ? LlmsTxt::t('Use it to answer questions about {title} or to work with it.(agent files)', ['{title}' => $title])
+                : LlmsTxt::t('Use it to answer questions about {title} or to work with it; it covers {sections}.(agent files)', ['{title}' => $title, '{sections}' => $covers]));
         if (mb_strlen($description) > self::MAX_DESCRIPTION) {
             $description = rtrim(mb_substr($description, 0, self::MAX_DESCRIPTION - 1)) . '…';
         }
@@ -70,51 +75,63 @@ final class AgentSkills
         if ($site['description'] !== null) {
             $out .= "\n\n" . self::line($site['description']);
         }
-        $out .= "\n\nUse this skill when a task involves " . $title . '. Read the documentation instead of relying on memory, and name the pages you used.';
+        $out .= "\n\n" . LlmsTxt::t('Use this skill when a task involves {title}. Read the documentation instead of relying on memory, and name the pages you used.(agent files)', ['{title}' => $title]);
 
         if ($site['instructions'] !== null && trim($site['instructions']) !== '') {
-            $out .= "\n\n## Instructions\n\n" . trim($site['instructions']);
+            $out .= "\n\n## " . LlmsTxt::t('Notes for agents(agent files)') . "\n\n" . trim($site['instructions']);
         }
 
         if ($site['sections'] !== []) {
-            $out .= "\n\n## What the documentation covers\n";
+            $out .= "\n\n## " . LlmsTxt::t('What the documentation covers(agent files)') . "\n";
             foreach ($site['sections'] as $section) {
-                $out .= "\n- **" . self::line($section['name']) . '** (' . $section['pages'] . ($section['pages'] === 1 ? ' page)' : ' pages)')
+                $out .= "\n- **" . self::line($section['name']) . '** (' . LlmsTxt::pages($section['pages']) . ')'
                     . ($section['description'] !== null ? ': ' . self::line($section['description']) : '');
             }
         }
 
+        $source = LlmsTxt::t('Source(agent files)');
         $steps = [];
         if ($site['llmsTxt'] !== null) {
-            $steps[] = 'Start with the index at ' . $site['llmsTxt'] . '. It lists every page with a one-line summary, grouped by section.';
+            $steps[] = LlmsTxt::t('Start with the index at {url}. It lists every page with a one-line summary, grouped by section.(agent files)', ['{url}' => $site['llmsTxt']]);
         }
         if ($site['example'] !== null) {
-            $steps[] = 'Fetch a page as Markdown by appending `.md` to its URL, for example ' . $site['example']['markdownUrl']
-                . ' for ' . $site['example']['url'] . ', or request the page URL with the header `Accept: text/markdown`.';
+            $steps[] = LlmsTxt::t(
+                'Fetch a page as Markdown by appending `.md` to its URL, for example {markdownUrl} for {url}, or request the page URL with the header `Accept: text/markdown`.(agent files)',
+                ['{markdownUrl}' => $site['example']['markdownUrl'], '{url}' => $site['example']['url']],
+            );
         }
         if ($site['llmsFullTxt'] !== null) {
-            $steps[] = 'To read everything at once, fetch ' . $site['llmsFullTxt'] . '. Each page in it starts with a `# ` heading and a `Source:` line.';
+            $steps[] = LlmsTxt::t(
+                'To read everything at once, fetch {url}. Each page in it starts with a `# ` heading and a `{source}:` line.(agent files)',
+                ['{url}' => $site['llmsFullTxt'], '{source}' => $source],
+            );
         }
         if ($steps === []) {
-            $steps[] = 'Start at ' . $site['home'] . ' and follow the links.';
+            $steps[] = LlmsTxt::t('Start at {url} and follow the links.(agent files)', ['{url}' => $site['home']]);
         }
-        $out .= "\n\n## Fetching pages\n";
+        $out .= "\n\n## " . LlmsTxt::t('Fetching pages(agent files)') . "\n";
         foreach ($steps as $i => $step) {
             $out .= "\n" . ($i + 1) . '. ' . $step;
         }
 
         $search = [];
         if ($site['llmsTxt'] !== null) {
-            $search[] = 'Match the task against the page titles and summaries in the index first, then fetch the pages that fit.';
+            $search[] = LlmsTxt::t('Match the task against the page titles and summaries in the index first, then fetch the pages that fit.(agent files)');
         }
         if ($site['llmsFullTxt'] !== null) {
-            $search[] = 'For an exact phrase, option or error message, search the text of ' . $site['llmsFullTxt'] . ' and follow the `Source:` line of the page it appears in.';
+            $search[] = LlmsTxt::t(
+                'For an exact phrase, option or error message, search the text of {url} and follow the `{source}:` line of the page it appears in.(agent files)',
+                ['{url}' => $site['llmsFullTxt'], '{source}' => $source],
+            );
         }
         if ($site['example'] !== null) {
-            $search[] = 'Every Markdown page ends with "Related topics": the other pages of its section and the previous and next page.';
+            $search[] = LlmsTxt::t(
+                'Every Markdown page ends with "{related}": the other pages of its section and the previous and next page.(agent files)',
+                ['{related}' => LlmsTxt::t('Related topics(agent files)')],
+            );
         }
         if ($search !== []) {
-            $out .= "\n\n## Searching\n\n- " . implode("\n- ", $search);
+            $out .= "\n\n## " . LlmsTxt::t('Searching(agent files)') . "\n\n- " . implode("\n- ", $search);
         }
 
         return $out;
@@ -197,7 +214,7 @@ final class AgentSkills
         return json_encode([
             'protocolVersion' => '0.3',
             'name' => $site['title'],
-            'description' => $site['description'] ?? $site['title'] . ' documentation',
+            'description' => $site['description'] ?? self::documentation(self::line($site['title'])),
             'url' => $site['url'],
             'preferredTransport' => 'HTTP+JSON',
             'provider' => ['organization' => $site['title'], 'url' => $site['origin']],
@@ -213,6 +230,12 @@ final class AgentSkills
                 'tags' => ['documentation'],
             ], $skills),
         ], self::JSON);
+    }
+
+    /** "{title} documentation" in the site language. */
+    private static function documentation(string $title): string
+    {
+        return LlmsTxt::t('{title} documentation(agent files)', ['{title}' => $title]);
     }
 
     private static function yaml(string $value): string
