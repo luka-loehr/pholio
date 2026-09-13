@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * German user interface strings.
  *
- * Same keys as en.php. Values are the German texts of the reference build.
+ * Same keys as en.php, with German values.
  */
 
 return [
