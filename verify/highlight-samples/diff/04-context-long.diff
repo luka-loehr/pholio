@@ -1,0 +1,40 @@
+*** content/topics.md	2026-09-01 08:00:00
+--- content/topics.md	2026-09-12 14:32:10
+***************
+*** 1,8 ****
+  # Topics
+  
+! The following topics are covered:
+  
+- - Algebra
+- - Geometry
+  - Astronomy
+  
+--- 1,9 ----
+  # Topics
+  
+! The following topics are covered (edition 2026/27):
+  
+  - Astronomy
++ - Façade Design  (from chapter 6)
++ - Computing 💻
++ - Science & Technology (S&T)
+  
+***************
+*** 20,23 ****
+--- 21,25 ----
+  ## Schedule
+  
++ The complete list as code:
++ 
+  See appendix.
+diff --git a/content/topics.js b/content/topics.js
+index 0a1b2c3..4d5e6f7 100644
+--- a/content/topics.js
++++ b/content/topics.js
+@@ -1,3 +1,3 @@
+ // List of topics – café, naïve, façade, 🎉 𝔄
+-const TOPICS = ['Algebra', 'Geometry'];
++const TOPICS = ['Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry', 'Astronomy', 'Façade Design', 'Botany', 'Physics', 'Chemistry', 'Biology', 'History', 'Civics', 'Geography', 'Fine Arts', 'Music', 'Sports', 'Computing', 'Philosophy', 'Ethics', 'Economics', 'Spanish', 'Linguistics', 'Robotics', 'Film & Theatre', 'Algebra', 'Geometry'];
+ export default TOPICS;
+
