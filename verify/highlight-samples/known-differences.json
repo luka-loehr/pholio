@@ -1,0 +1,4 @@
+{
+  "_comment": "Samples whose committed reference provably does not depend on the input alone. Empty: since the oracle produces every reference in a fresh process without a time limit, there are no exceptions (see README.md). tests/HighlightTest.php proves every entry with an isolated oracle run.",
+  "entries": []
+}
