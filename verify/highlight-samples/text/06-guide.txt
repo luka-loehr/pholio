@@ -1,0 +1,67 @@
+How to: open a support ticket
+=============================
+
+Updated: September 2026
+Audience: viewers and editors
+
+
+1. Sign in
+----------
+
+Open https://example.com/ and sign in with your
+account. If you belong to several teams, pick the
+right team in the top right corner.
+
+
+2. Fill in the ticket
+---------------------
+
+Click “Tickets” in the menu and fill in the form:
+
+  Field           Required  Example
+  --------------  --------  ------------------------------
+  Date from       yes       15.09.2026
+  Date to         yes       16.09.2026
+  Reason          no        Broken export
+  Note            no        Call back after 10:30
+
+Important: tickets must arrive by the second working day (48 hours).
+After that they are closed automatically.
+
+
+3. Confirmation
+---------------
+
+After sending you see the message:
+
+    Saved: ticket #1234
+
+You also receive an email. The team lead is informed
+automatically.
+
+
+4. Common errors
+----------------
+
+  * "Date to is before date from" – dates swapped.
+  * "Name must not be empty" – no team selected.
+  * Error 422 – form incomplete; please check the required fields.
+  * Error 500 – please try again later or write to support@example.com
+    instead.
+
+
+5. Attach a file
+----------------
+
+From the third day a log file is required. Upload it as
+PDF or photo (JPG, PNG, max. 10 MB) under “Documents”.
+
+> Tip: photograph the screen on a dark background
+> so the text is easy to read.
+
+
+Contact
+-------
+Front desk: +33 1 23 45 67 89
+Email:      office@example.com
+Hours:      Mon–Fri, 7:30–13:00
