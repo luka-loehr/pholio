@@ -15,19 +15,12 @@ use Pholio\Fs;
 const BUILD_DEMO_CONFIG = __DIR__ . '/../examples/demo/pholio.config.php';
 
 /**
- * Whether this PHP links PCRE2 10.43 or newer. Older versions simplify some syntax colours and warn about it
- * on stderr. With PHOLIO_REQUIRE_PCRE2=1 in the environment an old PCRE2 counts as a failure, not a reason to
- * relax an assertion.
+ * stderr without the PCRE2 fallback warnings, which a PCRE2 older than 10.43 prints even with --quiet. With
+ * PHOLIO_REQUIRE_PCRE2=1 in the environment the warnings stay, so an old PCRE2 fails instead of passing.
  */
-function build_full_pcre2(): bool
-{
-    return version_compare(explode(' ', PCRE_VERSION)[0], '10.43', '>=') || getenv('PHOLIO_REQUIRE_PCRE2') === '1';
-}
-
-/** stderr without the PCRE2 fallback warnings, which an old PCRE2 prints even with --quiet. */
 function build_without_pcre2_warnings(string $err): string
 {
-    return build_full_pcre2()
+    return pcre2_supports_full_highlighting() || getenv('PHOLIO_REQUIRE_PCRE2') === '1'
         ? $err
         : (string) preg_replace('/^pholio: PCRE2 \S+ is older than 10\.43; some syntax colours are simplified \([^)]*\)\n/m', '', $err);
 }
