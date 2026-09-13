@@ -6,23 +6,32 @@ CI.
 | Script | What it does |
 | --- | --- |
 | `scripts/lint.sh` | `php -l` over every tracked PHP file, except the deliberately invalid highlighter samples |
-| `scripts/check.sh` | Tier 1: the lint, `php tests/run.php`, and `pholio check` of the demo against `tests/snapshots/demo` (a plain demo build while no snapshot exists). Exits non-zero on the first failure |
-| `scripts/update-snapshots.sh` | Rebuilds `tests/snapshots/demo` from the demo and checks it; commit the result as one run |
+| `scripts/check.sh` | Tier 1: the lint, `php tests/run.php`, and `pholio check` of the demo against `tests/snapshots/demo` (a plain demo build while no snapshot exists). Exits non-zero on the first failure. The byte-exact highlighter tests and the snapshot check need PCRE2 10.43 or newer. On an older PCRE2 they skip with a message and `check.sh` builds the demo instead; `PHOLIO_REQUIRE_PCRE2=1` turns those skips into failures |
+| `scripts/update-snapshots.sh` | Rebuilds `tests/snapshots/demo` from the demo and checks it; run it with PCRE2 10.43 or newer and commit the result as one run |
 | `scripts/serve-demo.sh` | `pholio dev` for the demo at `http://127.0.0.1:8080`; passes `--port`, `--host` and `--no-watch` through |
 | `scripts/release.sh` | `release.sh <version> [--push]` bumps `VERSION`, dates `CHANGELOG.md`, runs the checks, commits and tags `v<version>`. `--package` writes the release archives and `SHA256SUMS`, `--notes` prints a version's changelog section |
-| `scripts/install.sh` | The one-line install for users: downloads a release, verifies its checksum, checks PHP and PCRE2 and installs Pholio |
+| `scripts/install.sh` | The one-line install for users: downloads a release and verifies its checksum, checks PHP and PCRE2 (an older PCRE2 only warns), installs into `~/.local/share/pholio` and links `pholio` into `~/.local/bin`. `--system` installs into `/usr/local`, `--dir` makes a per-project copy, `--prune` removes old versions |
 
 ## CI
 
-`.github/workflows/ci.yml` runs on every push and pull request to `main`: a PHP
-job that requires PCRE2 10.43 and runs `lint.sh`, `php tests/run.php` and
-`check.sh`, and a Node job that runs `node verify/run.mjs --tier 2` with
-Chromium headless shell.
+`.github/workflows/ci.yml` runs on every push and pull request to `main`. Each
+commit on `main` keeps its run; only a newer push to the same pull request
+cancels its older run.
+
+- **PHP 8.2 to 8.5 on `ubuntu-latest`** (PCRE2 10.42, like stable
+  distributions): `check.sh`, whose PCRE2 10.43+ comparisons skip there, and a
+  demo build that must print the PCRE2 fallback warning.
+- **Full fidelity, PHP 8.2 and 8.5 on `ubuntu-26.04`**: `check.sh` with
+  `PHOLIO_REQUIRE_PCRE2=1`, so the byte-exact highlight references and the demo
+  snapshot must match and nothing may skip.
+- **Verify, Node 26**: `node verify/run.mjs --tier 2` with Chromium headless
+  shell.
 
 `.github/workflows/release.yml` runs on a `v*.*.*` tag: it checks that the tag
-matches `VERSION` and has a `CHANGELOG.md` section, runs `check.sh`, builds the
-archives with `release.sh --package` and publishes the GitHub release that
-`install.sh` downloads.
+matches `VERSION` and has a `CHANGELOG.md` section, runs the same stable and
+full-fidelity jobs, and only when both pass builds the archives with
+`release.sh --package` and publishes the GitHub release that `install.sh`
+downloads.
 
 Tier 3, the comparison against a reference build, needs a reference export and
 runs on a real machine, not in CI. See [`docs/verification.md`](../docs/verification.md).
