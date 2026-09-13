@@ -1,8 +1,8 @@
 # `src/` — the generator
 
-Empty on purpose. The PHP generator is moved here from
-its original repository with `git subtree split`, so that its
-one-file-per-commit history arrives intact rather than as one squashed import.
+Empty on purpose. The PHP generator is moved here from the repository it was
+first developed in, with `git subtree split`, so that its one-file-per-commit
+history arrives intact rather than as one squashed import.
 
 Layout once the move has happened:
 
