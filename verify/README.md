@@ -31,7 +31,9 @@ Tier 3 compares the golden DOM against the export directory and computed style, 
 behaviour against the running reference app. `--reference` and `--reference-url` can also come
 from `PHOLIO_REFERENCE` and `PHOLIO_REFERENCE_URL`. `--allow` (repeatable) is passed to
 `golden-dom.mjs`, which otherwise uses `verify/allow/golden-dom.json`. `--scenarios`
-(repeatable) and `--states` default to the demo fixtures in `verify/fixtures/demo/`.
+(repeatable) defaults to the demo layout and overlays scenarios and `--states` to the demo
+pixel states, all in `verify/fixtures/demo/`. The demo catalogue scenarios are pending
+verification against the reference, so no tier runs them unless passed with `--scenarios`.
 
 A tier runs every lower tier first. Tier 0 is a selftest of `verify/lib`: syntax of every
 module, argument and rewrite handling, page lists, PNG round trip, pixel diff, colour
