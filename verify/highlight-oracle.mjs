@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Highlight oracle: runs the real fumadocs-core rehypeCode (Shiki 4, JavaScript regex engine, github-light and
+// Highlight oracle: runs the reference core's real rehypeCode (Shiki 4, JavaScript regex engine, github-light and
 // github-dark, defaultColor false, notation transformers, icon) from verify/node_modules and writes the expected
 // <pre> HTML (hast-util-to-html) next to each sample.
 //
