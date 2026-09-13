@@ -22,7 +22,7 @@ require_once __DIR__ . '/Highlight/LanguageIcons.php';
 require_once __DIR__ . '/Highlight/Shiki.php';
 
 /**
- * Syntax highlighting like Fumadocs rehype-code (Shiki 4.4.3, JavaScript regex engine, github-light/github-dark,
+ * Syntax highlighting like the reference rehype-code (Shiki 4.4.3, JavaScript regex engine, github-light/github-dark,
  * defaultColor false), in plain PHP: real TextMate grammars and themes from `vendor-data/shiki`.
  *
  * Input is a `code_block` from Markdown.php: `lang` and `meta` {raw, title?, lineNumbers?, noCopy?, tab?,
@@ -34,12 +34,12 @@ require_once __DIR__ . '/Highlight/Shiki.php';
  * - preClass, preStyle: classes and CSS variables of the `pre` (the component puts them on the `figure`)
  * - title, lang, lineNumbers (false|true|int), tab, icon (SVG or null), allowCopy
  *
- * Unknown languages throw, as in Fumadocs (where the build aborts with "Language `x` not found").
+ * Unknown languages throw, as in the reference build (which aborts with "Language `x` not found").
  */
 final class Highlight
 {
     /**
-     * Meta line (info string without the language) like Fumadocs: remark-code-tab takes out tab/tab-group, then
+     * Meta line (info string without the language) like the reference build: remark-code-tab takes out tab/tab-group, then
      * parseMetaString (title, tab, noCopy, lineNumbers). Result in the shape of Markdown.php.
      *
      * @return array<string,mixed>
