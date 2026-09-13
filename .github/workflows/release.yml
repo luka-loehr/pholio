@@ -13,7 +13,8 @@ concurrency:
 
 # The PHP matrix runs on the stable ubuntu-latest image, whose PHP links PCRE2 10.42: that is what users on
 # stable distributions have, so the highlighter's pre-10.43 fallback is exercised there (and forced in
-# tests/HighlightFallbackTest.php). One job on ubuntu-26.04 (PCRE2 10.43 or newer) is the full-fidelity check.
+# tests/HighlightFallbackTest.php). The ubuntu-26.04 jobs (PCRE2 10.43 or newer) are the full-fidelity check:
+# scripts/check.sh with the byte-exact highlight references and the demo snapshot.
 jobs:
   tag:
     name: Tag matches VERSION and CHANGELOG
@@ -38,7 +39,7 @@ jobs:
         run: ./scripts/release.sh --notes "${GITHUB_REF_NAME#v}" > /dev/null
 
   test:
-    name: PHP ${{ matrix.php }} – check
+    name: PHP ${{ matrix.php }} – lint, tests, demo build (ubuntu-latest)
     needs: tag
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -66,24 +67,44 @@ jobs:
           php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", ">=") ? 0 : 1);' \
             || echo "::warning::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43: highlighting of a few languages is simplified"
 
-      - name: Check (lint, tests, demo against snapshot)
-        run: ./scripts/check.sh
+      - name: Lint
+        run: ./scripts/lint.sh
+
+      # HighlightTest, PipelineTest and BuildTest compare output byte for byte with references made on PCRE2 10.43+.
+      # They run in the full-fidelity job until they skip themselves on an older PCRE2.
+      - name: Tests (without the byte-exact highlight and snapshot tests)
+        run: |
+          only="$(ls tests/*Test.php | sed 's#^tests/##; s#Test\.php$##' | grep -vxE 'Highlight|Pipeline|Build' | paste -sd, -)"
+          php tests/run.php --only "$only"
+
+      - name: Demo build with this PCRE2
+        run: |
+          out="$(mktemp -d)"
+          php bin/pholio build --config examples/demo/pholio.config.php --out "$out" 2> build.err
+          cat build.err
+          if php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", "<") ? 0 : 1);'; then
+            grep -q 'older than 10.43' build.err || { echo "::error::no PCRE2 fallback warning on $(php -r 'echo PCRE_VERSION;')"; exit 1; }
+          fi
 
   highlight:
-    name: PHP 8.5 – full-fidelity highlighting (PCRE2 10.43+, ubuntu-26.04)
+    name: PHP ${{ matrix.php }} – full fidelity, byte-exact highlight and snapshot (ubuntu-26.04)
     needs: tag
     runs-on: ubuntu-26.04
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.5']
     steps:
       - name: Check out
         uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - name: Set up PHP 8.5
+      - name: Set up PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: ${{ matrix.php }}
           extensions: mbstring, ctype
           coverage: none
           tools: none
