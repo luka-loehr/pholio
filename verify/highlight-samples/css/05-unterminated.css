@@ -1,0 +1,65 @@
+/* Site layout: header, sidebar, content */
+@supports (display: grid) and (not (display: inline-grid)) {
+  .layout { display: block; }
+}
+
+@supports (container-type: inline-size) {
+  .page {
+    container: page / inline-size;
+  }
+
+  @container page (min-width: 60rem) {
+    .layout {
+      grid-template-columns: 16rem minmax(0, 1fr) 14rem;
+      grid-template-areas:
+        "header header header"
+        "nav    main   toc";
+    }
+  }
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "header" "main";
+  min-height: 100dvh;
+}
+
+.header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(8px) saturate(180%);
+  background: rgb(255 255 255 / 0.85);
+  border-bottom: 1px solid light-dark(#d0d7de, #30363d);
+}
+
+.sidebar {
+  grid-area: nav;
+  overflow-y: auto;
+  max-height: calc(100dvh - var(--header-height, 4rem));
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.main { grid-area: main; padding: 2rem clamp(1rem, 4vw, 3rem); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-text: #e6edf3;
+    --color-ground: #0d1117;
+  }
+}
+
+@scope (.main) to (.example) {
+  img { border-radius: 4px; }
+}
+
+@property --progress {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+/* End of file – this comment is deliberately never closed
+   .toc-rail { display: none; }
