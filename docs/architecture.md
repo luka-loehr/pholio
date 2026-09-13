@@ -53,8 +53,11 @@ that renders something wrong is worse than one that refuses to build.
 compact JSON: an inverted index from normalised words to pages and sections,
 without the body text. The browser loads it the first time a search trigger is
 hovered, focused or opened and ranks in a Web Worker: title and phrase matches
-first, then every term before some terms, with prefix, compound and light typo
-matching. The ranking weights are constants at the top of `theme/js/search.js`.
+first, then a score over fields (title, keywords, description, headings, text)
+weighted by how rare each query word is and how much of the query a page covers,
+with stopwords dropped and prefix, compound, inflection and typo matching. The
+ranking weights are the `WEIGHTS` object in `theme/js/search.js`;
+`node verify/search-query.mjs --explain` shows how a query was scored.
 
 **Configuration is data.** One array, validated against a schema before
 anything runs. Components never read the public keys; they read the normalised
