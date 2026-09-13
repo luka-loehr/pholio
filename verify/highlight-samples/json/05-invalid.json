@@ -1,0 +1,22 @@
+{
+  // line comments are not allowed in JSON
+  "name": "broken-config",
+  /* block comments neither */
+  "list": [1, 2, 3,],
+  "object": {"a": 1, "b": 2,},
+  'single': 'quotes – café',
+  unquoted: "key without quotes",
+  "hex": 0x1F,
+  "leadingZero": 007,
+  "dot": .5,
+  "end": 1.,
+  "plus": +1,
+  "undefined": undefined,
+  "nan": NaN,
+  "infinite": -Infinity,
+  "twice": "a" "b",
+  "missingComma": true
+  "next": false,
+  "newline": "Line 1
+Line 2",
+  "unterminated": "this string never ends
