@@ -10,8 +10,8 @@ use InvalidArgumentException;
  * Language and theme registry over `vendor-data/shiki` (grammars from @shikijs/langs, themes from @shikijs/themes).
  *
  * As in Shiki, aliases from the grammars (`aliases`) are resolved; an unknown language is an error with the same
- * message as in Shiki ("Language `x` not found, you may need to load it first"), because the reference aborts the build
- * in that case instead of falling back to plain text.
+ * message as in Shiki ("Language `x` not found, you may need to load it first"), and the build stops
+ * instead of falling back to plain text.
  */
 final class Registry
 {
