@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Reference export of a Fumadocs app: freezes what Pholio is compared against.
+// Reference export of the reference app: freezes what Pholio is compared against.
 //
 //   node verify/export-reference.mjs --lab-dir <app dir> --lab-url http://127.0.0.1:3000
 //   node verify/export-reference.mjs --lab-dir <app dir> --lab-url <url> --preset notebook --out <dir>
@@ -37,7 +37,7 @@
 // the server response (ssr.html) and the hydrated DOM (dom.html) of every page, the
 // compiled stylesheet, the font files with their fallback metrics, brand images, the page
 // tree, the table of contents per page, the search answers to a fixed query set, the lucide
-// icons Fumadocs uses as SVG and the exact package versions.
+// icons the reference uses as SVG and the exact package versions.
 //
 // Requirements: the app's server is running, and Playwright with Chromium is available
 // (see lib/browser.mjs). Otherwise Node built-ins only.
@@ -442,7 +442,7 @@ function renderIcon(icon) {
   return `<svg${head}>\n${children.join('\n')}\n</svg>\n`;
 }
 
-// React name in Fumadocs → file in lucide-react/dist/esm/icons.
+// React name in the reference app → file in lucide-react/dist/esm/icons.
 // The mapping comes from the re-exports in lucide-react.mjs; the three surprising cases
 // (Sidebar, Text, Edit) are verified there.
 const ICONS = {
@@ -657,7 +657,7 @@ async function main() {
   await write(
     'icons/ALIASES.txt',
     [
-      '# React name in Fumadocs -> file in the export -> rendered class list',
+      '# React name in the reference app -> file in the export -> rendered class list',
       '# Source: lucide-react/dist/esm/lucide-react.mjs (re-exports) and',
       '#         lucide-react/dist/esm/shared/src/build/buildLucideIconNode.mjs (classes, attribute order).',
       '# Watch out: Sidebar -> panel-left, Text -> text-align-start, Edit -> square-pen.',
@@ -719,7 +719,7 @@ async function main() {
       '| `tree.json` | answer of `/<preset>/api/tree` |',
       '| `toc/<path>.json` | table of contents per document page as `{ depth, title, url }` from `#nd-toc` |',
       '| `search/` | answers of `/<preset>/api/search` to the `--queries` file, `index.json` maps query → file |',
-      '| `icons/` | the lucide icons Fumadocs uses as SVG, exactly as lucide-react renders them; `ALIASES.txt` records the mapping |',
+      '| `icons/` | the lucide icons the reference uses as SVG, exactly as lucide-react renders them; `ALIASES.txt` records the mapping |',
       '| `versions.json` | package versions of the app plus commit and tag |',
       '',
       '## Notes',
