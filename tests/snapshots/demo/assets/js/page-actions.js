@@ -17,7 +17,7 @@
 
 import { createPopover } from './popover.js';
 
-// Classes of the popup (verify/CLASS-MAP.md).
+// Classes of the popup.
 const POPUP_CLASS = 'nd-popover nd-page-actions-popup';
 const CHECKED_MS = 2000;
 

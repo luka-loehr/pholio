@@ -3,27 +3,25 @@
 // Usage (ES module in the browser, no bundler):
 //   import { clientId, transitionStatus, isTypingTarget, onClickOutside } from './util.js';
 //
-// Each function reproduces a concrete behaviour of @base-ui/react or the reference UI.
-// The source is named in the comment above it, so deviations stay checkable.
+// Several functions follow a concrete behaviour of @base-ui/react; the source is
+// named in the comment above them.
 
 // ---- Ids -------------------------------------------------------------------
 //
-// In the browser React assigns ids of the form `_r_0_`, `_r_1_`, … (useId after
-// hydration); on the server ids look like `_R_15knel9etb_`. The golden DOM
-// comparison normalises `_R_…_` away (HYDRATION_ID in verify/golden-dom.mjs), so
-// elements that already exist in the static HTML carry the `_R_` form, and
-// elements created only on opening carry the `_r_` form – exactly as measured in
-// the reference (portal `_r_0_`, dialog title `base-ui-_r_1_`).
+// Two id forms: elements that already exist in the static HTML carry ids of the
+// form `_R_15knel9etb_`, elements created in the browser only on opening carry
+// `_r_0_`, `_r_1_`, … (portal `_r_0_`, dialog title `base-ui-_r_1_`), so the two
+// never collide.
 
 let clientCounter = 0;
 let hydrationCounter = 0;
 
-// Next client id in React format `_r_<n>_`.
+// Next client id `_r_<n>_`.
 export function clientId(prefix = '') {
   return `${prefix}_r_${clientCounter++}_`;
 }
 
-// Id in the format of server-side React ids; normalised by the golden DOM.
+// Id in the static form `_R_<n>nb_`.
 export function hydrationId(prefix = '') {
   return `${prefix}_R_${(hydrationCounter++).toString(36)}nb_`;
 }
@@ -51,7 +49,7 @@ export function afterTwoFrames(fn) {
 // In the DOM: always `data-open` or `data-closed`, plus briefly
 // `data-starting-style`, or `data-ending-style` until unmount.
 
-// Open: set the attributes in exactly the measured order.
+// Open: set the attributes in Base UI's order.
 export function markOpen(el) {
   el.removeAttribute('data-closed');
   el.removeAttribute('data-ending-style');
@@ -88,7 +86,7 @@ export function animationsFinished(el, done) {
 
 // ---- Keyboard --------------------------------------------------------------
 //
-// Original: reference UI dist/provider/base.js – isTypingTarget
+// Whether a key press goes into a text field or a dialog.
 export function isTypingTarget(target) {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
@@ -127,7 +125,7 @@ export function focusableWithin(container) {
 }
 
 // The two invisible guards Base UI (FloatingFocusManager) places around every
-// modal content. Style and attributes are taken from the reference.
+// modal content, with its style and attributes.
 export function createFocusGuard() {
   const span = document.createElement('span');
   span.setAttribute('data-type', 'inside');
@@ -143,8 +141,8 @@ export function createFocusGuard() {
 
 // Focus trap like FloatingFocusManager: the key press is not intercepted;
 // instead the two guards receive focus and pass it on. The browser therefore
-// moves focus itself first – the same order as in the reference, where right
-// after the keydown the previously focused element still applies.
+// moves focus itself first; right after the keydown the previously focused
+// element still applies.
 export function wireFocusGuards(guards, container) {
   const [before, after] = guards;
   const toLast = () => {
@@ -165,7 +163,7 @@ export function wireFocusGuards(guards, container) {
 
 // ---- Scrolling -------------------------------------------------------------
 //
-// Replacement for `scroll-into-view-if-needed` with the options the original uses
+// Replacement for `scroll-into-view-if-needed` with the options the theme uses
 // (scrollMode "if-needed", block "nearest", boundary = parent element):
 // only the given container scrolls, and only as far as needed.
 export function scrollIntoViewIfNeeded(el, boundary) {

@@ -1,11 +1,10 @@
-// banner.js — notice banner: reference UI components/banner.js.
+// banner.js — notice banner.
 //
-// The original writes an inline <script> that sets `html.nd-banner-<id>` before
-// first paint when the banner was already closed; the <style> rule
-// `.nd-banner-<id> #<id> { display: none }` then hides it.
-// The CSP forbids inline scripts, so this module takes over:
+// A closed banner stays closed: the <style> rule `.nd-banner-<id> #<id> { display: none }`
+// hides it once `html.nd-banner-<id>` is set. The CSP forbids an inline script that
+// could set the class before first paint, so this module does it:
 //   · on start: localStorage[<key>] === "true" → set the class on <html> and
-//     remove the banner (useEffect → setOpen(false) → return null),
+//     remove the banner,
 //   · click on the close button: remove the banner, localStorage[<key>] = "true".
 // Deviation: a closed banner is briefly visible until this module has loaded.
 //

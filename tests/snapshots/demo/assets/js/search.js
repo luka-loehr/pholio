@@ -3,7 +3,7 @@
 // runs in search-worker.js, on the main thread as a fallback, and in Node for the
 // verify tools.
 //
-// Normalisation, identical to SearchIndex.php (verify/search-parity.mjs checks it):
+// Normalisation, identical to SearchIndex.php (a verify check compares both):
 //   lowercase → FOLDING (ä→a, ß→ss, æ→ae …) → drop combining marks U+0300–U+036F
 //   → german only: ae/oe/ue read as a/o/u, so "Passwörter", "Passwoerter" and
 //   "passworter" meet → split at everything but a–z and 0–9. Hyphen and underscore

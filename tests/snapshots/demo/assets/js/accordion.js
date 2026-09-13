@@ -1,5 +1,5 @@
-// accordion.js — accordion list: reference UI components/accordion.js (Accordions,
-// Accordion, CopyButton) on Base UI Accordion (@base-ui/react 1.8.0:
+// accordion.js — accordion list (Accordions, Accordion, copy link button) with the
+// behaviour of Base UI Accordion (@base-ui/react 1.8.0:
 // accordion/root/AccordionRoot.js, accordion/item/AccordionItem.js,
 // accordion/trigger/AccordionTrigger.js, accordion/panel/AccordionPanel.js,
 // collapsible/panel/useCollapsiblePanel.js).
@@ -8,11 +8,11 @@
 // (hiddenUntilFound); closed ones carry hidden="until-found" and data-starting-style.
 //
 // Behaviour:
-//   · Click on the trigger: handleValueChange with multiple = false (the reference only passes
-//     `type` through as an attribute) → at most one item is open; a click on
+//   · Click on the trigger: handleValueChange with multiple = false (`type` is only
+//     written as an attribute) → at most one item is open; a click on
 //     the open one closes it.
 //   · On start: if the hash holds the id of a header in this list, its value is
-//     prepended to the open values (useEffect in Accordions).
+//     prepended to the open values.
 //   · beforematch (find-in-page hits text in a closed panel) opens without motion.
 //   · Panel animation like useCollapsiblePanel with css-transition: measure the height, one frame
 //     data-starting-style, then the transition, at the end --accordion-panel-height:auto.

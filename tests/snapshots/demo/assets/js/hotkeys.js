@@ -4,13 +4,12 @@
 //   import { initHotkeys } from './hotkeys.js';
 //   initHotkeys({ searchHandle, theme });
 //
-// Original:
-//   reference UI dist/contexts/search.js – SearchProvider.onKeyDown with
-//     DEFAULT_HOT_KEYS = [{ key: e => e.metaKey || e.ctrlKey }, { key: 'k' }];
-//     both conditions must hold (`hotKey.every`), then the open state is
+// Behaviour:
+//   search – hot keys [{ key: e => e.metaKey || e.ctrlKey }, { key: 'k' }]:
+//     both conditions must hold, then the open state is
 //     toggled and the event is prevented. Input fields are explicitly NOT
 //     excluded here – ⌘K also works inside the search field.
-//   reference UI dist/provider/base.js – ThemeHotKey with hotKey "d":
+//   theme – hot key "d":
 //     bails out on defaultPrevented, isComposing, keyCode 229, on typing
 //     targets (isTypingTarget, which includes anything inside [role="dialog"])
 //     and whenever Meta, Ctrl or Alt is pressed.

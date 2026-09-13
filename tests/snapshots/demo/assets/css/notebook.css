@@ -5,25 +5,18 @@
  * browser makes one request; the @import form here is the source and works
  * directly in the browser during development.
  *
- * The layer order has to come before the imports, because it applies the same way
- * in the compiled reference stylesheet: whatever is unlayered (site palette,
- * html/body rules, Shiki) wins against every layer.
+ * The layer order has to come before the imports. Layers rank by the order they
+ * are first declared, from properties (lowest) to utilities (highest); whatever is
+ * unlayered (site palette, html/body rules, Shiki) wins against every layer.
  *
- * The reference stylesheet doesn't declare the layers as a list; it fixes them by
- * the order of first appearance:
- *   l.   2  @layer properties {   (lowest priority)
- *   l.  75  @layer theme {
- *   l. 173  @layer base {
- *   l. 432  @layer components;
- *   l. 434  @layer utilities {    (highest priority)
- * `properties` must therefore come first. If it were missing from the list,
+ * `properties` must come first. If it were missing from the list,
  * tokens.css would open the layer itself and it would be the last declared, and so
  * the strongest: the --tw-* fallback values in it (e.g. --tw-border-style: solid)
  * would then beat the values that utilities set later.
  *
  * catalogue.css (catalogue components) comes last. Its rules live in
  * `@layer components`; within that layer they therefore come after layout.css and
- * components.css. The image zoom rules are unlayered, as in the reference.
+ * components.css. The image zoom rules are unlayered.
  */
 
 @layer properties, theme, base, components, utilities;
@@ -31,28 +24,24 @@
 /* ---- tokens.css ---- */
 /* tokens.css — design tokens of the notebook theme
  *
- * Copied verbatim from the compiled Tailwind v4 stylesheet of the reference export:
- *   css/[root-of-the-server]__1br6yta._.css
- *
- * Order and cascade are exactly as in the original:
- *   1. @layer properties  (l. 2–73)    – fallback initial values of the --tw-* variables
- *                                        for browsers without @property (Safari branch)
- *   2. @layer theme       (l. 75–171)  – Tailwind theme plus the reference default
- *                                        colours from its css/lib/default-colors.css
- *   3. unlayered          (l. 3894–3926) – the default dark palette and sidebar overrides
- *                                        from css/neutral.css and --fd-sidebar-drawer-offset
+ * Order and cascade:
+ *   1. @layer properties  – fallback initial values of the --tw-* variables
+ *                           for browsers without @property (Safari branch)
+ *   2. @layer theme       – Tailwind theme plus the default (neutral) colours
+ *   3. unlayered          – the default dark palette and sidebar overrides
+ *                           and --fd-sidebar-drawer-offset
  *   4. unlayered          – the site palette, inserted by the build at the
- *                                        `@pholio:palette` marker (theme.light, theme.dark,
- *                                        theme.palette_css)
- *   5. @property          (l. 4147–4502) – registered --tw-* variables
+ *                           `@pholio:palette` marker (theme.preset, theme.light,
+ *                           theme.dark, theme.palette_css)
+ *   5. @property          – registered --tw-* variables
  *
- * Important: blocks 3 and 4 are unlayered in the original and therefore win against
+ * Important: blocks 3 and 4 are unlayered and therefore win against
  * every @layer rule. The @layer theme palette still stays, because it defines tokens
  * a site palette usually doesn't override (--color-fd-info/warning/error/success/idea,
  * --color-fd-diff-*, --color-fd-overlay, --animate-*).
  *
- * Not included: --fd-layout-width. The token isn't global in the reference; only the
- * start page sets it as a utility (1400px, l. 2953). The notebook layout uses the
+ * Not included: --fd-layout-width. The token isn't global; only the
+ * start page sets it (1400px). The notebook layout uses the
  * fallback var(--fd-layout-width, 97rem).
  */
 
@@ -227,7 +216,7 @@
   }
 }
 
-/* --- Default dark palette and sidebar overrides (unlayered, l. 3894–3926) --- */
+/* --- Default dark palette and sidebar overrides (unlayered) --- */
 
 .dark {
   --color-fd-background: #121212;
@@ -263,6 +252,7 @@
   --fd-sidebar-drawer-offset: -100%;
 }
 
+/* neutral: the default look. Its tokens are the defaults in theme/css/tokens.css, so it adds nothing. */
 :root {
   --color-fd-primary: hsl(234 61% 57%);
 }
@@ -270,7 +260,7 @@
   --color-fd-primary: hsl(230 100% 78%);
 }
 
-/* --- @property: registered --tw-* variables (l. 4147–4502) --- */
+/* --- @property: registered --tw-* variables --- */
 
 @property --tw-border-style {
   syntax: "*";
@@ -630,20 +620,17 @@
 }
 
 /* ---- reset.css ---- */
-/* reset.css — Tailwind v4 preflight of the reference
+/* reset.css — Tailwind v4 preflight
  *
- * Verbatim from the compiled reference stylesheet, @layer base (l. 173–430):
- *   css/[root-of-the-server]__1br6yta._.css
- *
- * The end of the block already contains the two additions of the reference
- * design from its css/lib/base.css:
+ * The preflight in @layer base, unchanged. The end of the block adds the theme's
+ * two base rules:
  *   *, ::after, ::before, ::backdrop { border-color: var(--color-fd-border, currentColor) }
  *   body { background-color/color }
  *
- * After it, unlayered, the two rules from app/global.css (l. 4138–4145):
+ * After it, unlayered, two page rules:
  *   html { scrollbar-gutter: stable }
  *   html > body[data-scroll-locked] { … }
- * They are unlayered in the original too and must stay so; otherwise the
+ * They must stay unlayered; otherwise the
  * scrollbar-gutter rule, which has no !important, loses against layout utilities.
  */
 
@@ -906,7 +893,7 @@
   }
 }
 
-/* --- app/global.css (unlayered, l. 4138–4145) --- */
+/* --- Page rules (unlayered) --- */
 
 html {
   scrollbar-gutter: stable;
@@ -920,21 +907,12 @@ html > body[data-scroll-locked] {
 /* ---- fonts.css ---- */
 /* fonts.css — Inter (variable) plus fallback metrics
  *
- * Verbatim from the compiled reference stylesheet (l. 4579–4654):
- *   css/[root-of-the-server]__1br6yta._.css
- * The blocks were generated by next/font/google (module inter_5972bc34);
- * font-weight: 100 900, font-display: swap and every unicode-range stay unchanged.
- *
- * File mapping (reference name → readable name, content byte for byte identical):
- *   2c55a0e60120577a-s.0-dom-5bn10r2.woff2    → inter-cyrillic-ext.woff2
- *   9c72aa0f40e4eef8-s.1y4-pdgsjb-pw.woff2    → inter-cyrillic.woff2
- *   ad66f9afd8947f86-s.3lvt2whj97whp.woff2    → inter-greek-ext.woff2
- *   5476f68d60460930-s.2uwcyprjm3xu3.woff2    → inter-greek.woff2
- *   2bbe8d2671613f1f-s.0k62hbripvv8p.woff2    → inter-vietnamese.woff2
- *   1bffadaabf893a1e-s.3-6t-g6q0vh0a.woff2    → inter-latin-ext.woff2
- *   83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2  → inter-latin.woff2
- * The names follow the Google Fonts subsets, derived from each unicode-range; the
- * order of the @font-face blocks stays as in the original.
+ * One @font-face block per Google Fonts subset of Inter 4 (variable),
+ * font-weight: 100 900, font-display: swap, each with its unicode-range. The file
+ * names follow the subsets: inter-latin.woff2, inter-latin-ext.woff2,
+ * inter-cyrillic(-ext).woff2, inter-greek(-ext).woff2, inter-vietnamese.woff2.
+ * `Inter Fallback` adjusts a local Arial to Inter's metrics, so the text doesn't
+ * shift when the web font arrives.
  *
  * The url() values are relative to the delivered notebook.css. With the CSS at
  * assets/css/notebook.css, the fonts live at assets/fonts/inter/.
@@ -1012,11 +990,9 @@ html > body[data-scroll-locked] {
   size-adjust: 107.12%;
 }
 
-/* In the reference, <html> carries the class generated by next/font,
- * .inter_5972bc34-module__OU16Qa__className (l. 4651–4654), with exactly these two
- * declarations. This theme sets them directly on html; font-feature-settings and
- * font-variation-settings stay unset, just as in the original (the preflight in
- * reset.css sets them to `normal` through the variable fallback).
+/* The font family, directly on html. font-feature-settings and
+ * font-variation-settings stay unset (the preflight in reset.css sets them to
+ * `normal` through the variable fallback).
  */
 html {
   font-family: Inter, Inter Fallback;
@@ -1026,8 +1002,7 @@ html {
 /* ---- animations.css ---- */
 /* animations.css — every @keyframes of the theme
  *
- * Verbatim from the compiled reference stylesheet (l. 4504–4576):
- *   css/[root-of-the-server]__1br6yta._.css
+ * Tailwind v4 output, unchanged.
  *
  * The matching shorthands --animate-fd-* and --animate-pulse live in tokens.css
  * (@layer theme), because Tailwind defines them there. So does
@@ -1112,32 +1087,22 @@ html {
 /* layout.css — grid, header, sidebar, table of contents, TOC popover,
  * article frame and the start page scaffold.
  *
- * Origin of every rule: the frozen reference stylesheet
- *   css/[root-of-the-server]__1br6yta._.css of the reference export.
- * Every nd- class names in its comment the utility classes the reference emits on
- * the same element; the declarations below are exactly the ones Tailwind generated
- * for those utilities — value by value, including the
- * `@supports (color: color-mix(in lab, …))` pairs (fallback hex value first,
- * `color-mix(in oklab, …)` after it) and the `rtl:` variants.
+ * Every nd- class names in its comment the Tailwind utilities its declarations are
+ * written from; the declarations are Tailwind v4's output for those utilities,
+ * value by value, including the `@supports (color: color-mix(in lab, …))` pairs
+ * (fallback hex value first, `color-mix(in oklab, …)` after it) and the `rtl:`
+ * variants.
  *
- * Mapping from utility list to nd- classes: class-map.json in the verify tooling.
- * The golden DOM comparison uses this table to check that every element carries
- * exactly the classes intended here.
+ * Layer: `components`. The typography rules from prose.css (layer `utilities`)
+ * must win against the component classes: `.prose :where(figure)` beats the
+ * screenshot's `my-6`. The only element that must win against `.prose` the other
+ * way round is a table of contents entry; it doesn't carry the `prose` class and
+ * gets the declarations it needs directly in `.nd-toc-item` (see components.css).
  *
- * Layer: `components`. The reference puts its utilities in `utilities`, above
- * `prose`. For this theme `components` is right, because there the typography
- * rules from prose.css (layer `utilities`) win against the component classes as in
- * the original: `.prose :where(figure)` beats the screenshot's `my-6` in the
- * reference because it comes later in the stylesheet. The only element that must
- * win against `.prose` the other way round is a table of contents entry; this
- * theme drops its `prose` class and writes the four declarations it contributes
- * directly into `.nd-toc-item` (see components.css).
- *
- * States live on `data-*`/`aria-*` attributes and pseudo-classes, as in the
- * reference, not on modifier classes. Where the reference emits a state as a
- * utility class of its own (active section tab, closed folder chevron), a second
- * component class or a rule on the parent element stands in for it; each of these
- * places is commented below.
+ * States live on `data-*`/`aria-*` attributes and pseudo-classes, not on modifier
+ * classes. Where a state has no attribute (active section tab, closed folder
+ * chevron), a second component class or a rule on the parent element stands in
+ * for it; each of these places is commented below.
  */
 
 @layer components {
@@ -1172,9 +1137,9 @@ html {
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
-  /* Collapsed sidebar: an intentional difference from the reference (Luka's decision).
-     The reference only drops the sidebar column, so the page column grows to the left
-     edge and a wide dead zone opens before the table of contents. Here the page column
+  /* Collapsed sidebar. Dropping only the sidebar column would let the page column
+     grow to the left edge and open a wide dead zone before the table of contents.
+     Instead the page column
      is only as wide as the article (900px) plus its padding, and never closer than a
      48px gutter to the window. The two outer 1fr columns share the rest, which
      centres content and table of contents as one group. The sidebar area still starts
@@ -1506,14 +1471,9 @@ html {
   /* ------------------------------------------------------------------
      Sidebar states that only JavaScript establishes
 
-     `js/sidebar.js` currently rebuilds the class list of `aside#nd-sidebar`
-     from a table of utility classes on every state change. Those classes no
-     longer exist in this theme. The states are in the DOM as attributes anyway
-     – `data-collapsed`, `data-hovered` and `data-collapse-transition` on the
-     `aside` –, so the rules here hang on them. The class lists in
-     js/sidebar.js can therefore be dropped without replacement, leaving only
-     the attributes.
-     Reference lines: 523, 1925, 2052, 1929, 1505, 2756, 1671, 1661, 2894, 2870.
+     The states are attributes on the `aside`: `data-collapsed`,
+     `data-hovered` and `data-collapse-transition`, set by js/sidebar.js. The
+     rules here hang on them.
      ------------------------------------------------------------------ */
 
   #nd-sidebar[data-collapsed="true"] {
@@ -1526,10 +1486,9 @@ html {
   }
 
   /* After a collapse or expand click, width, height, offset and colour transition.
-     In the reference the class `transition-[width,inset-block,translate,background-color]`
-     stays until the sidebar's next state change (usually the next hover),
-     because the reference derives it from the previous `data-collapsed`.
-     js/sidebar.js reproduces exactly this lifetime with `data-collapse-transition`;
+     The transition (`transition-[width,inset-block,translate,background-color]`)
+     stays until the sidebar's next state change (usually the next hover):
+     js/sidebar.js sets `data-collapse-transition` for exactly that lifetime;
      `data-column-changed` lasts only ~2 frames and drives nothing but the
      transition of the grid columns on the layout. The duration comes from
      `duration-250` in `.nd-sidebar`. */
@@ -1575,7 +1534,6 @@ html {
      Opening and closing hang on `data-state="open|closed"`, which
      js/sidebar.js sets; after `animationend` it toggles `nd-invisible`.
      Header and entries use the classes of the desktop sidebar.
-     Source: the reference drawer at 390 px (reference export dom-390.html).
      ------------------------------------------------------------------ */
 
   /* .nd-drawer  <-  fixed text-[0.9375rem] flex flex-col shadow-lg border-s end-0 inset-y-0 w-[85%] max-w-[380px] z-40 bg-fd-background data-[state=open]:animate-fd-sidebar-in data-[state=closed]:animate-fd-sidebar-out */
@@ -1673,8 +1631,7 @@ html {
   }
 
   /* js/scroll-area.js creates the scrollbar and thumb of the ScrollArea. The bar
-     is visible only while Base UI sets `data-hovering`; the reference has
-     `opacity-0` as a class for it (reference UI dist/components/ui/scroll-area.js). */
+     is visible only while `data-hovering` is set, as in Base UI's ScrollArea. */
 
   /* .nd-scroll-bar  <-  flex select-none transition-opacity h-full w-1.5 */
   .nd-scroll-bar {
@@ -1860,11 +1817,9 @@ html {
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
-  /* The chevron of a closed folder. The reference attaches the utilities
-   * `-rotate-90 rtl:rotate-90` as classes of their own (reference l. 1696 and
-   * 3751) and swaps them when collapsing and expanding. This theme reads the
-   * state from the trigger instead: Base UI sets `data-panel-open` there while
-   * the panel is open. Same declaration, same moment. */
+  /* The chevron of a closed folder (`-rotate-90 rtl:rotate-90`). The state comes
+   * from the trigger: js/collapsible.js sets `data-panel-open` there while the
+   * panel is open, so no class has to be swapped. */
   :not([data-panel-open]) > .nd-sidebar-chevron {
     rotate: -90deg;
   }
@@ -1961,8 +1916,8 @@ html {
   }
   /* The width of the article children lives in utilities.css: the child `div.prose`
    * carries `.prose { max-width: none }` from prose.css, which lives in the
-   * `utilities` layer. In the reference `*:max-w-[900px]` (l. 3017) wins because
-   * it comes later in the stylesheet; here it wins through the layer. */
+   * `utilities` layer. `*:max-w-[900px]` wins through its place after prose.css
+   * in the same layer. */
   @media (min-width: 48rem) {
     .nd-page {
       padding-inline: calc(var(--spacing) * 6);
@@ -2347,10 +2302,9 @@ html {
      (components/home-header.php); js/collapsible.js inserts it and sets
      `--collapsible-panel-height` and the phases `data-starting-style` /
      `data-ending-style`. When open, `header#nd-nav` carries `data-open` and
-     the trigger `data-panel-open`. The reference attaches `max-lg:shadow-lg
-     max-lg:rounded-b-2xl` to `nav` and `rotate-180` to the chevron for it;
-     here the rules read these attributes. Source: reference export
-     states/home-menu-open-settled.html.
+     the trigger `data-panel-open`. The rules for the open menu
+     (`max-lg:shadow-lg max-lg:rounded-b-2xl` on `nav`, `rotate-180` on the
+     chevron) read these attributes.
      ------------------------------------------------------------------ */
 
   /* .nd-home-menu-panel  <-  overflow-hidden [&[hidden]:not([hidden='until-found'])]:hidden h-(--collapsible-panel-height) transition-[height,opacity] data-starting-style:opacity-0 data-starting-style:h-0 data-ending-style:h-0 data-ending-style:opacity-0 mx-auto max-w-(--fd-layout-width) lg:hidden */
@@ -2689,8 +2643,7 @@ html {
      ==================================================================== */
 
   /* Source of the utility lists: the class constants and templates in
-     js/search-dialog.js, taken over word for word from the reference UI
-     (search/dialog). The active result hangs on `aria-selected="true"`. */
+     js/search-dialog.js. The active result hangs on `aria-selected="true"`. */
 
   /* .nd-dialog  <-  fixed left-1/2 top-4 md:top-[calc(50%-250px)] z-50 w-[calc(100%-1rem)] max-w-screen-sm -translate-x-1/2 rounded-xl border bg-fd-popover text-fd-popover-foreground shadow-2xl overflow-hidden data-closed:animate-fd-dialog-out data-open:animate-fd-dialog-in focus-visible:outline-none *:border-b *:has-[+:last-child[data-empty=true]]:border-b-0 *:data-[empty=true]:border-b-0 *:last:border-b-0 */
   .nd-dialog {
@@ -2856,7 +2809,7 @@ html {
   }
 
   /* Separator between the breadcrumbs of a result: `ChevronRight` with
-     `size-4 rtl:rotate-180` (reference UI search.js, SearchDialogListItem). */
+     `size-4 rtl:rotate-180`. */
   /* .nd-search-crumb-sep  <-  size-4 rtl:rotate-180 */
   .nd-search-crumb-sep {
     width: calc(var(--spacing) * 4);
@@ -3159,8 +3112,7 @@ html {
   /* Popup of the section switcher (Base UI popover, created by js/popover.js)
      and the content from <template data-nd-tabs-popup>. Open/closed through
      `data-open` / `data-closed`; the inactive option carries `nd-invisible`
-     on its check mark. Source: reference export states/tabs-open-settled.html,
-     states/tabs-popup-template.html. */
+     on its check mark. */
 
   /* .nd-popover-positioner  <-  z-50 */
   .nd-popover-positioner {
@@ -3207,7 +3159,7 @@ html {
   }
 
   /* Page menu next to the page title (components/page-actions.php,
-     js/page-actions.js). Not in the reference design: modelled on Mintlify's page
+     js/page-actions.js), modelled on Mintlify's page
      menu, built from buttonVariants secondary and the popover above. */
 
   /* .nd-btn-text-sm  <-  rounded-md gap-1 px-2 py-1.5 text-xs (buttonVariants size sm) */
@@ -3626,13 +3578,11 @@ html {
      Table of contents: entries and lines
      ==================================================================== */
 
-  /* In the reference the entry also carries the class `prose` (reference l. 777).
-   * This theme drops it and writes its five declarations here: in prose.css the
-   * typography rules live in the `utilities` layer and would otherwise beat the
-   * component layer, instead of being beaten by `text-sm` and
-   * `text-fd-muted-foreground` as in the reference. The 76 descendant rules of
-   * `.prose` don't apply here: the entry contains only text and the line
-   * graphic. */
+  /* The entry takes the five declarations of `.prose` directly instead of the
+   * class: in prose.css the typography rules live in the `utilities` layer and
+   * would beat `text-sm` and `text-fd-muted-foreground` of the component layer.
+   * The descendant rules of `.prose` aren't needed: the entry contains only text
+   * and the line graphic. */
   .nd-toc-item {
     --tw-prose-size: 1;
     color: var(--tw-prose-body);
@@ -3663,9 +3613,8 @@ html {
     color: var(--color-fd-primary);
   }
 
-  /* The first and last entries lose their outer padding. The reference computes
-   * this from the index and attaches `pt-0` or `pb-0` (reference l. 2501 and
-   * 2525). In this theme the element type decides: js/toc.js puts the thumb
+  /* The first and last entries lose their outer padding (`pt-0`, `pb-0`). The
+   * element type decides: js/toc.js puts the thumb
    * track as the first child (`div`) in front of the entries (`a`), hence
    * `:first-of-type`/`:last-of-type` instead of `:first-child`/`:last-child` –
    * otherwise the first entry would keep its 6 px at the top after insertion. */
@@ -3802,8 +3751,8 @@ html {
   }
 
   /* Page title and active heading lie on top of each other. js/toc-popover.js
-     decides which one is visible without an attribute – in the reference also
-     only through classes. Initial state: page title with `nd-tocpop-label-up`. */
+     decides which one is visible through a class, as there is no attribute
+     for it. Initial state: page title with `nd-tocpop-label-up`. */
   /* .nd-tocpop-label-page  <-  transition-[opacity,translate,color] truncate */
   .nd-tocpop-label-page {
     text-overflow: ellipsis;
@@ -3849,9 +3798,8 @@ html {
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
-  /* Open state of the collapsible bar. The reference attaches `shadow-lg`,
-     `text-fd-primary`, `rotate-180` and `text-fd-foreground` as classes;
-     here the rule reads `data-open` on the root, which js/collapsible.js
+  /* Open state of the collapsible bar (`shadow-lg`, `text-fd-primary`,
+     `rotate-180`, `text-fd-foreground`): the rule reads `data-open` on the root, which js/collapsible.js
      sets like Base UI. */
   /* [data-toc-popover][data-open] .nd-tocpop-header  <-  shadow-lg */
   [data-toc-popover][data-open] .nd-tocpop-header {
@@ -4378,11 +4326,9 @@ html {
 
   /* The secondary hero button sits over image and gradient with a 70 % opaque
      background and `backdrop-blur`. Chromium rasterises such an element
-     differently once a transition of its background colour has run: in the
-     reference that happens during hydration, here theme-init.js sets the
-     theme before the first paint and no transition runs. The result was two
-     differing corner pixels at 1024 px dark, although every computed style
-     matches. `@starting-style` runs the same transition (`transition-colors`,
+     differently once a transition of its background colour has run, and
+     theme-init.js sets the theme before the first paint, so none runs on
+     load. `@starting-style` runs the same transition (`transition-colors`,
      150 ms) once on the first style resolution; the final value stays the
      same. */
   @starting-style {
@@ -4495,18 +4441,16 @@ html {
   }
 }
 
-/* Two rules from the reference stylesheet hang on attribute and element
- * names instead of utilities and sit at the end of the `utilities` layer
- * there (l. 3884–3890). They must beat the component layer – which is why
+/* Two rules hang on attribute and element names instead of utilities and
+ * sit at the end of the `utilities` layer. They must beat the component layer – which is why
  * the full search field is opaque and not `bg-fd-secondary/50`.
  *
- * On hover `hover:bg-fd-accent` still wins in the reference: both live in
- * `utilities`, and `.hover\:bg-fd-accent:hover` (0,2,0) is more specific than
- * `button[data-search-full]` (0,1,1). The hover colour of `.nd-search` lives
- * in `components` otherwise and would lose against this rule through the
- * layer; the background would stay and its transition would never run. That
- * is why the hover colour appears here once more, in the same layer as in
- * the reference. */
+ * On hover the accent background must still win. The hover colour of
+ * `.nd-search` lives in `components` and would lose against this rule through
+ * the layer; the background would stay and its transition would never run.
+ * That is why the hover colour appears here once more, in `utilities`, where
+ * `.nd-search:hover` (0,2,0) is more specific than `button[data-search-full]`
+ * (0,1,1). */
 @layer utilities {
   button[data-search-full] {
     background-color: var(--color-fd-background);
@@ -4523,8 +4467,7 @@ html {
   }
 }
 
-/* Unlayered as in the reference stylesheet (l. 3928–3933); needed by the
- * component catalogue. */
+/* Unlayered; needed by the component catalogue. */
 .fd-page-tree-item-name {
   align-items: center;
   gap: var(--spacing);
@@ -4535,26 +4478,19 @@ html {
 /* ---- prose.css ---- */
 /* prose.css — typography of the article body, steps utilities and Shiki rules
  *
- * Verbatim from the compiled reference stylesheet:
- *   css/[root-of-the-server]__1br6yta._.css
+ * The .prose rules are Tailwind typography plugin output and live in
+ * @layer utilities, so rules that must lose against them go into
+ * @layer components (layout.css, components.css).
  *
- * The .prose rules come from the reference typography plugin; they live in
- * @layer utilities there and stay in the same layer here, so the later
- * components.css (unlayered or @layer components) can override them as in the
- * original.
+ * Contents, in order:
+ *   .fd-step:before, .fd-steps (with @media 40rem)
+ *   .prose … .prose-no-margin
+ *   .fd-scroll-container::-webkit-scrollbar*
+ *   .shiki rules (unlayered)
  *
- * Ranges taken over:
- *   l.  451–485   .fd-step:before, .fd-steps (+ @media 40rem, l. 477–485)
- *   l.  777–1210  .prose … .prose-no-margin      (the 76 .prose rules)
- *   l. 1276–1292  .fd-scroll-container::-webkit-scrollbar*
- *   l. 3935–4088  .shiki rules (unlayered, from the reference UI's css/lib/shiki.css)
- *
- * Two traps when updating the ranges:
- *   - The @media block ends at l. 485, not 484. If the closing brace is missing,
- *     the file stays syntactically valid, but every .prose rule is out of effect
- *     below 40rem.
- *   - The Shiki rules start at l. 3935. Up to l. 3933 there is still
- *     .fd-page-tree-item-name, which belongs in components.css.
+ * Trap when editing: check the braces of the @media 40rem block. With one missing
+ * the file stays valid, but every .prose rule slides into the media query and is
+ * out of effect below 40rem.
  */
 
 @layer utilities {
@@ -5048,7 +4984,7 @@ html {
   }
 }
 
-/* --- reference UI css/lib/shiki.css (unlayered, l. 3935–4088) --- */
+/* --- Code blocks: .shiki (unlayered) --- */
 
 .shiki:not(.not-pholio-codeblock *) {
   --padding-left: calc(var(--spacing) * 4);
@@ -5210,25 +5146,24 @@ code.shiki:not(.not-pholio-code *) span {
  * JavaScript switches them on and off at runtime.
  *
  * Everything that describes a state the DOM already knows lives in layout.css or
- * components.css instead, on the `data-*` or `aria-*` attribute that the reference
- * already puts on the element. What remains are the two visibility switches that
+ * components.css instead, on the `data-*` or `aria-*` attribute the element
+ * already carries. What remains are the two visibility switches that
  * have no attribute: Base UI hides a portal element with `invisible` after the
  * exit animation and hides the empty result list of the search dialog with
  * `hidden`.
  *
- * `.not-prose`, `.prose-no-margin` and `.fd-scroll-container` keep their reference
+ * `.not-prose`, `.prose-no-margin` and `.fd-scroll-container` keep their
  * names and live in prose.css; they aren't utilities of this theme but hooks the
  * typography rules themselves point at.
  *
- * Layer `utilities` as in the reference stylesheet: these helpers must beat the
- * component rules, otherwise they couldn't hide anything.
- * Reference lines: `hidden` 1310, `invisible` 444.
+ * Layer `utilities`: these helpers must beat the component rules, otherwise they
+ * couldn't hide anything.
  *
  * Two more rules aren't helpers but need the same layer and the same place in the
  * cascade: the width of the article children. The first child of the article is
  * `div.nd-prose.prose`, and prose.css sets `max-width: none` there, also in the
- * `utilities` layer. In the reference `*:max-w-[900px]` (reference l. 3017) wins
- * because it comes later in the stylesheet. Only this file is included after
+ * `utilities` layer. `*:max-w-[900px]` has to come later in that layer to win.
+ * Only this file is included after
  * prose.css, which is why the two rules live here and not in layout.css.
  */
 
@@ -5255,22 +5190,18 @@ code.shiki:not(.not-pholio-code *) span {
  * tabs, code tabs, accordion, file tree, type table, banner, inline table of
  * contents, code block shell and image zoom.
  *
- * Origin, layer and how to read the comments as in layout.css and components.css:
- * every nd- class names the utilities the reference emits on the same element; the
- * declarations are the ones Tailwind generated for them, in the order of their
- * lines in the reference stylesheet (l. = line in the reference export's
- * css/[root-of-the-server]__1br6yta._.css).
- * Mapping from utility list to nd- classes: class-map-catalogue.json in the verify tooling.
+ * Layer and how to read the comments as in layout.css and components.css: every
+ * nd- class names the Tailwind utilities its declarations are written from, in
+ * Tailwind's output order.
  *
  * Not here, because they already exist: `.fd-steps`/`.fd-step` (prose.css), card and
  * callout icons (components.css), `.shiki` line rules (prose.css).
- * Without a rule, as in the reference: `sr-only` (Tailwind didn't generate it),
+ * Deliberately without a rule: `sr-only`,
  * `footnotes`, `data-footnote-backref`, `contains-task-list`, `task-list-item`.
  *
  * Included after utilities.css; the rules live in `@layer components`, except
- * `[&>figure:only-child]:-m-4` (in `@layer utilities`, so it wins against prose.css as
- * in the reference). The image zoom rules are unlayered, like their own stylesheet in
- * the reference.
+ * `[&>figure:only-child]:-m-4` (in `@layer utilities`, so it wins against prose.css).
+ * The image zoom rules are unlayered.
  */
 
 @layer components {
@@ -5387,8 +5318,7 @@ code.shiki:not(.not-pholio-code *) span {
   }
 
   /* .nd-codetabs-trigger  <-  [&_svg]:size-3.5 font-medium gap-2 group inline-flex items-center px-2 py-1.5 relative text-nowrap text-sm transition-colors
-     + active text-fd-primary, otherwise hover:text-fd-accent-foreground (two class lists in the original,
-     here on the trigger's data-active) */
+     + active text-fd-primary, otherwise hover:text-fd-accent-foreground (on the trigger's data-active) */
   .nd-codetabs-trigger {
     position: relative;
     display: inline-flex;
@@ -5669,9 +5599,8 @@ code.shiki:not(.not-pholio-code *) span {
   }
 
   /* Collapsible panel (CollapsibleContent in components/ui/collapsible.js) of file tree,
-     type table and inline table of contents: the same class list as the panel of the
-     collapsible TOC bar; class-map.json already maps it to `nd-collapsible-panel`
-     (rule in layout.css). */
+     type table and inline table of contents: the same styles as the panel of the
+     collapsible TOC bar, so it reuses `nd-collapsible-panel` (rule in layout.css). */
 
   /* ====================================================================
      File tree (files.js)
@@ -5927,7 +5856,7 @@ code.shiki:not(.not-pholio-code *) span {
     background-color: var(--color-fd-background);
   }
 
-  /* .nd-banner-flow  <-  -z-1 absolute inset-0 (gradient and animation are inline, as in the original) */
+  /* .nd-banner-flow  <-  -z-1 absolute inset-0 (gradient and animation are inline) */
   .nd-banner-flow {
     position: absolute;
     inset: 0;
@@ -6016,7 +5945,7 @@ code.shiki:not(.not-pholio-code *) span {
   }
 }
 
-/* After prose.css, as in the reference (l. 3872 in utilities, after `.prose :where(figure)` l. 1080):
+/* In `utilities`, after prose.css, so it beats `.prose :where(figure)`:
    a single figure without not-prose in the panel keeps -1rem instead of a 2em margin. */
 @layer utilities {
   /* .nd-tabbox-panel  <-  [&>figure:only-child]:-m-4 */
@@ -6026,10 +5955,8 @@ code.shiki:not(.not-pholio-code *) span {
 }
 
 /* ======================================================================
-   Image zoom: the reference UI's dist/components/image-zoom2.css (react-medium-image-zoom),
-   its own unlayered stylesheet in the reference. It is missing from the reference
-   export's css/; the values are copied verbatim from node_modules and confirmed
-   through computed style in the reference browser window.
+   Image zoom: the stylesheet of react-medium-image-zoom, unlayered, for
+   js/image-zoom.js.
    ====================================================================== */
 
 [data-rmiz] {

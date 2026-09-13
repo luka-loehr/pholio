@@ -1,22 +1,20 @@
 // toc.js — table of contents: active headings and the clerk thumb.
 //
-// Sources:
-//   reference core dist/toc.js       – class Observer (IntersectionObserver,
-//                                          threshold 0.9, single=false, fallback,
-//                                          timestamp `t`), TOCItem (data-active,
-//                                          auto scroll of the most recently activated
-//                                          entry, initially `instant`, then `smooth`)
-//   reference UI dist/components/toc/clerk.js – TOCItems/ThumbTrack: SVG path from
-//                                          offsetTop/clientHeight/paddings via
-//                                          ResizeObserver, --track-top/--track-bottom,
-//                                          clip-path with transition-[clip-path]
+// Parts:
+//   TOCObserver        – IntersectionObserver, threshold 0.9, single=false, fallback,
+//                        timestamp `t`; entries get data-active, the most recently
+//                        activated entry is scrolled into view, initially `instant`,
+//                        then `smooth`
+//   clerk thumb        – SVG path from offsetTop/clientHeight/paddings via
+//                        ResizeObserver, --track-top/--track-bottom,
+//                        clip-path with transition-[clip-path]
 //
 // The SVGs of the individual entries depend only on the depths and are
 // therefore already in the HTML; only the moving thumb is created here.
 
 import { scrollIntoViewIfNeeded } from './scroll-into-view.js';
 
-/** Classes of the clerk thumb this module creates itself (verify/CLASS-MAP.md). */
+/** Classes of the clerk thumb this module creates itself. */
 export const CLASSES = {
   thumbTrack: 'nd-toc-thumb',
   thumbSvg: 'nd-toc-thumb-svg',
@@ -26,14 +24,14 @@ export const CLASSES = {
 export const THRESHOLD = 0.9;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/** getLineOffset() from clerk.js (BASE = 8). */
+/** Horizontal offset of the line per heading depth (base 8). */
 export function getLineOffset(depth) {
   if (depth <= 2) return 8;
   if (depth === 3) return 20;
   return 32;
 }
 
-/** Heading observer — a 1:1 port of the class `Observer` from the reference core toc module. */
+/** Heading observer: which headings are active while the page scrolls. */
 export class TOCObserver {
   constructor() {
     this.items = [];
@@ -186,10 +184,9 @@ class TOCList {
     const { width, height, d } = this.computed;
     // Only this module creates the thumb: path and height depend on the
     // measured offsetTop/clientHeight of the entries, i.e. on line wrapping
-    // with the actual font metrics; static HTML cannot know that. The generator
-    // doesn't emit it (golden-dom lists it in the allow file). If one is already
-    // there anyway – in the frozen reference DOM React rendered it during
-    // hydration – it is adopted instead of creating a second one.
+    // with the actual font metrics; static HTML cannot know that, so the generator
+    // doesn't emit it. If one is already there anyway, it is adopted instead of
+    // creating a second one.
     if (!this.track) {
       const existing = this.container.firstElementChild;
       if (existing && existing.tagName === 'DIV' && existing.querySelector(':scope > svg')) {
@@ -202,7 +199,7 @@ class TOCList {
       const svg = document.createElementNS(SVG_NS, 'svg');
       svg.setAttribute('xmlns', SVG_NS);
       svg.setAttribute('class', CLASSES.thumbSvg);
-      // Order of the inline properties as React writes them: sizes first.
+      // Order of the inline properties: sizes first.
       svg.style.width = '0px';
       svg.style.height = '0px';
       svg.style.clipPath = 'polygon(0 var(--track-top,0), 100% var(--track-top,0), 100% var(--track-bottom,0), 0 var(--track-bottom,0))';
@@ -283,8 +280,8 @@ export class TOC {
 
   /**
    * Attaches another entry list to the same observer. Needed for the TOC
-   * popover: its panel is mounted only on opening, and the reference renders its
-   * own TOCItems inside (data-active, auto scroll, clerk thumb).
+   * popover: its panel is mounted only on opening and has its
+   * own entries inside (data-active, auto scroll, clerk thumb).
    */
   addList(root) {
     const first = root.querySelector('a[href^="#"]');

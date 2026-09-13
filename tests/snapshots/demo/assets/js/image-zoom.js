@@ -1,9 +1,9 @@
-// image-zoom.js — image zoom: react-medium-image-zoom 5.4.9 (dist/controlled.js and
-// dist/utils/*) with the settings from reference UI components/image-zoom.js
-// (zoomMargin 20, wrapElement span, zoomImg.src = src of the image, zoomImg.sizes undefined).
+// image-zoom.js — image zoom with the behaviour of react-medium-image-zoom 5.4.9
+// (dist/controlled.js and dist/utils/*), with zoomMargin 20, wrapElement span,
+// zoom source = src of the image and no sizes.
 //
 // Static DOM (components/image-zoom.php): span[data-rmiz] > span[data-rmiz-content="not-found"] > img.
-// Once the image is decoded, as in the original:
+// Once the image is decoded:
 //   · data-rmiz-content="found" and next to it span[data-rmiz-ghost] with the zoom button
 //     (position from offsetTop/Left/Width/Height, kept up to date via ResizeObserver),
 //   · at the end of <body> div[data-rmiz-portal] with the <dialog> (overlay, content,

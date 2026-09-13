@@ -5,8 +5,7 @@
 //   const theme = initTheme();            // reads storage, attaches listeners
 //   theme.set('dark');                    // with view transition and transition lock
 //
-// Original: node_modules/next-themes/dist/index.mjs with the options from
-// the reference UI's dist/provider/base.js:
+// Options:
 //   attribute "class", defaultTheme "system", enableSystem, enableColorScheme,
 //   disableTransitionOnChange.
 //
@@ -20,7 +19,7 @@
 //     <head>, `getComputedStyle(document.body)` forces the reflow, and a
 //     `setTimeout(…, 1)` removes it again
 //   · the change itself runs inside `document.startViewTransition` when available
-//     (reference UI: ThemeSwitch.handleThemeChange and ThemeHotKey)
+//     (theme switch and hotkey)
 
 const STORAGE_KEY = 'theme';
 const THEMES = ['light', 'dark'];
@@ -89,8 +88,8 @@ export function initTheme() {
       icons.forEach((svgIcon, i) => {
         const key = i === 0 ? 'light' : 'dark';
         const active = key === value;
-        // The base class nd-theme-icon stays; the reference has no attribute for
-        // this, so exactly one state class (verify/CLASS-MAP.md, theme.js).
+        // The base class nd-theme-icon stays; there is no attribute for the active
+        // icon, so it gets exactly one state class.
         svgIcon.classList.toggle('nd-theme-icon-active', active);
       });
     }

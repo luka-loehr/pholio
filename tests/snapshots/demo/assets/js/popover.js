@@ -4,10 +4,8 @@
 //   import { createPopover } from './popover.js';
 //   createPopover({ trigger, popupClass: '…', content: () => element });
 //
-// Ported is the feature set the reference UI uses
-// (components/ui/popover.js): side "bottom", sideOffset 4, align "center",
-// flip and shift, portal at the end of <body>. Measured in the reference
-// (states/tabs-*.html of the reference export):
+// Ported is the part of Base UI's popover the theme needs: side "bottom",
+// sideOffset 4, align "center", flip and shift, portal at the end of <body>:
 //
 //   positioner     <div data-open data-side="bottom" data-align="center"
 //                       role="presentation" class="nd-popover-positioner"
@@ -25,8 +23,7 @@
 //   the positioner gets `pointer-events: none`; the animation fd-popover-out
 //   (100 ms) still runs, then the portal is unmounted.
 //
-// Computed values (derived from the reference numbers, viewport 900 × 900,
-// anchor 236 × 38, popup 240 wide, sideOffset 4, collisionPadding 5):
+// Computed values (sideOffset 4, collisionPadding 5):
 //   --anchor-width/-height   size of the trigger
 //   --available-width        viewport width − 2 × padding
 //   --available-height       viewport height − popup top edge − padding
@@ -67,7 +64,7 @@ export function createPopover({
 
     // Anchor size as in Base UI (internals/useAnchorPositioning.mjs, size.apply): round
     // both edges to device pixels, then take the difference – not the width itself.
-    // With x = 75.5 and width 298.5 that gives 374 − 76 = 298 (reference), not 299.
+    // With x = 75.5 and width 298.5 that gives 374 − 76 = 298, not 299.
     const anchorWidth = (Math.round((anchor.left + anchor.width) * dpr) - Math.round(anchor.left * dpr)) / dpr;
     const anchorHeight = (Math.round((anchor.top + anchor.height) * dpr) - Math.round(anchor.top * dpr)) / dpr;
 
@@ -145,9 +142,8 @@ export function createPopover({
   function open() {
     if (isOpen) return;
     isOpen = true;
-    // Reference (states/tabs-open-*.html): while open the trigger also carries
-    // data-pressed and aria-controls with the popup's id; both are dropped on
-    // closing (states/tabs-close-esc-settled.html).
+    // While open the trigger also carries data-pressed and aria-controls with
+    // the popup's id; both are dropped on closing.
     trigger.setAttribute('aria-expanded', 'true');
     trigger.setAttribute('data-popup-open', '');
     trigger.setAttribute('data-pressed', '');
@@ -185,7 +181,7 @@ export function createPopover({
     requestAnimationFrame(() => {
       if (!isOpen) return;
       measure();
-      // React leaves an empty style attribute behind when `transition: none` is dropped.
+      // Dropping `transition: none` leaves an empty style attribute behind.
       popup.setAttribute('style', '');
       const first = focusableWithin(popup)[0];
       (first ?? popup).focus();

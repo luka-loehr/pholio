@@ -6,10 +6,9 @@
 //   const dialog = createDialog({ popup, backdrop, handle, initialFocus: () => input });
 //   dialog.addTrigger(document.querySelector('[data-search-full]'));
 //
-// Ported is @base-ui/react/dialog with the feature set the reference UI
-// (components/dialog/search.js) uses: modal, with backdrop, without description,
-// with its own `initialFocus`. All attributes and orderings come from
-// measurements of the reference (states/search-*.html of the reference export):
+// Ported is the part of @base-ui/react/dialog the search dialog needs: modal, with
+// backdrop, without description, with its own `initialFocus`. Attributes and their
+// order follow Base UI, because the CSS and the animations hang on them:
 //
 //   Click on the trigger (synchronous):
 //     · the trigger gets aria-expanded="true"
@@ -23,8 +22,8 @@
 //   Close (synchronous): data-closed + data-ending-style, scroll lock gone,
 //     inert gone; after the animations end the portal is removed and focus returns.
 //
-// In the reference the scroll lock is only `overflow: hidden` on <body>: thanks to
-// `scrollbar-gutter` Base UI needs no margin compensation.
+// The scroll lock is only `overflow: hidden` on <body>: thanks to
+// `scrollbar-gutter` no margin compensation is needed.
 
 import { clientId, markOpen, markClosed, createFocusGuard, wireFocusGuards, onClickOutside } from './util.js';
 
@@ -93,8 +92,7 @@ export function createDialog({ popup, backdrop = null, handle = null, initialFoc
   }
 
   // `source` is the trigger that opened the dialog. Only it gets aria-expanded="true";
-  // when opening through the handle (hotkey ⌘K) all triggers stay "false",
-  // exactly as measured in the reference.
+  // when opening through the handle (hotkey ⌘K) all triggers stay "false".
   function open(source = null) {
     if (isOpen) return;
     isOpen = true;
@@ -109,7 +107,7 @@ export function createDialog({ popup, backdrop = null, handle = null, initialFoc
       markOpen(backdrop);
     }
 
-    // Focus one frame after mounting – that is how it measures in the reference.
+    // Focus one frame after mounting, once the popup is laid out.
     requestAnimationFrame(() => {
       if (!isOpen) return;
       const target = typeof initialFocus === 'function' ? initialFocus() : initialFocus;
@@ -141,7 +139,7 @@ export function createDialog({ popup, backdrop = null, handle = null, initialFoc
     releaseOutside = null;
 
     // On closing, the internal backdrop swaps its inert form and aria-hidden,
-    // and the focus guards lose data-base-ui-inert (measured so in the reference).
+    // and the focus guards lose data-base-ui-inert.
     if (internalBackdrop) {
       internalBackdrop.removeAttribute('data-base-ui-inert');
       internalBackdrop.removeAttribute('aria-hidden');

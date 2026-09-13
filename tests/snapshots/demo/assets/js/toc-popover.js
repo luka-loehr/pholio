@@ -1,22 +1,22 @@
 // toc-popover.js — the table of contents as a collapsible bar below xl.
 //
-// Source: reference UI dist/layouts/notebook/page/slots/toc.js
-//   TOCPopover               – Collapsible, click outside closes, click on
+// Parts:
+//   popover                  – Collapsible, click outside closes, click on
 //                              an entry closes; the header row background
 //                              is fixed (transparentMode "none"), its shadow hangs
 //                              in the CSS on `[data-toc-popover][data-open]`
-//   PageTOCPopoverTrigger    – progress circle, two stacked spans, chevron
-//   ProgressCircle           – size 18, strokeWidth 1.5, max 1
+//   trigger                  – progress circle, two stacked spans, chevron
+//   progress circle          – size 18, strokeWidth 1.5, max 1
 //
 // The circle's value is (index of the **last** active entry + 1) / count.
 
 import { Collapsible } from './collapsible.js';
 
 /**
- * Classes this module toggles (verify/CLASS-MAP.md). Header shadow, circle
+ * Classes this module toggles. Header shadow, circle
  * colour, chevron rotation and page title colour hang on the `data-open` of
  * `[data-toc-popover]` (set by collapsible.js). Only the swap of the two
- * stacked spans has no attribute in the reference and stays a class.
+ * stacked spans has no attribute and stays a class.
  */
 export const CLASSES = {
   labelUp: 'nd-tocpop-label-up',     // page title moved up and away while a heading is shown
@@ -59,7 +59,7 @@ export class TOCPopover {
     });
     this.open = this.collapsible?.open ?? false;
 
-    // A click outside the header row closes (window listener as in the original).
+    // A click outside the header row closes (window listener).
     window.addEventListener('click', (event) => {
       if (!this.open || !(event.target instanceof HTMLElement)) return;
       if (this.header && !this.header.contains(event.target)) this.setOpen(false);
@@ -106,7 +106,7 @@ export class TOCPopover {
     }
     this.progress?.setAttribute('aria-valuenow', String(value));
 
-    // In the original `selectedIdx` is the **first** active entry.
+    // `selectedIdx` is the **first** active entry.
     const selectedIdx = items.findIndex((item) => item.active);
     const showItem = selectedIdx !== -1 && !this.open;
     this.titleSpan?.classList.toggle(CLASSES.labelUp, showItem);

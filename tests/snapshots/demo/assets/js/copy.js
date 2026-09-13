@@ -4,12 +4,10 @@
 //   import { initCopyButtons } from './copy.js';
 //   initCopyButtons();
 //
-// Original:
-//   reference UI dist/components/heading.js – the button next to each heading
-//     copies the current address with `#id` as hash.
-//   reference UI dist/utils/use-copy-button.js – after a successful copy the
-//     check mark shows for 1500 ms; a running timer is cancelled first.
-//     `LinkIcon` becomes `CopyCheckIcon` and back.
+// Behaviour:
+//   · the button next to each heading copies the current address with `#id` as hash.
+//   · after a successful copy the check mark shows for 1500 ms; a running timer is
+//     cancelled first. The link icon becomes the check icon and back.
 
 import { icon } from './util.js';
 
@@ -35,7 +33,7 @@ function copyButton(button, copy, onChecked, onReset) {
 }
 
 export function initCopyButtons(root = document) {
-  // Headings with a copy button carry nd-heading (verify/CLASS-MAP.md).
+  // Headings with a copy button carry nd-heading.
   for (const heading of root.querySelectorAll('.nd-heading')) {
     const button = heading.querySelector('button[aria-label]');
     const anchor = heading.querySelector('a[data-card]');
