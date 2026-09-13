@@ -15,7 +15,7 @@ you, keyboard shortcuts and instant search. You write Markdown; Pholio takes
 care of the rest.
 
 <Callout type="info" title="Status">
-Pholio 0.1.0 builds complete documentation sites. The content format and the
+Pholio 0.2.0 builds complete documentation sites. The content format and the
 configuration schema are settled; what comes next is on the
 [roadmap](/docs/roadmap).
 </Callout>
