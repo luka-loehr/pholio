@@ -385,22 +385,23 @@ Switch the theme to see both.
 
 ### Image zoom
 
-`ImageZoom` opens the image enlarged on click.
+`ImageZoom` opens the image enlarged on click. This SVG follows the color scheme
+by itself, so one file works in light and dark.
 
-<ImageZoom src="./assets/components/pipeline-light.svg" alt="The build pipeline, enlarged on click" width="720" height="200" />
+<ImageZoom src="./assets/components/pipeline.svg" alt="The build pipeline, enlarged on click" width="720" height="200" />
 
 ````text
-<ImageZoom src="./assets/components/pipeline-light.svg" alt="The build pipeline, enlarged on click" width="720" height="200" />
+<ImageZoom src="./assets/components/pipeline.svg" alt="The build pipeline, enlarged on click" width="720" height="200" />
 ````
 
 ### Markdown image
 
 A plain Markdown image renders as one bordered image, sized from the file.
 
-![The build pipeline](./assets/components/pipeline-light.svg)
+![The build pipeline](./assets/components/pipeline.svg)
 
 ````text
-![The build pipeline](./assets/components/pipeline-light.svg)
+![The build pipeline](./assets/components/pipeline.svg)
 ````
 
 ## Code blocks
