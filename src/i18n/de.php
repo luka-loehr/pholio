@@ -1,0 +1,66 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * German user interface strings.
+ *
+ * Same keys as en.php. Values are the German texts of the reference build.
+ */
+
+return [
+    'displayName' => 'Deutsch',
+    'Ask AI(AI chat button)' => 'KI fragen',
+    'Back to Home(404 not found page)' => 'Zur Startseite',
+    'Back to reference(footnote)(aria-label)' => 'Back to reference',
+    'Choose a language(language switcher)' => 'Sprache wählen',
+    'Choose a language(language switcher)(aria-label)' => 'Sprache wählen',
+    'Close Banner(banner)(aria-label)' => 'Hinweis schließen',
+    'Close Search(search dialog)(aria-label)' => 'Suche schließen',
+    'Close Sidebar(aria-label)' => 'Seitenleiste schließen',
+    'Close Sidebar(sidebar)(aria-label)' => 'Seitenleiste schließen',
+    'Collapse Sidebar(sidebar)(aria-label)' => 'Seitenleiste einklappen',
+    'Copied Text(code block)(aria-label)' => 'Kopiert',
+    'Copy Anchor Link(heading anchor)(aria-label)' => 'Link zum Abschnitt kopieren',
+    'Copy Link(accordion)(aria-label)' => 'Link kopieren',
+    'Copy Markdown(page actions)' => 'Als Markdown kopieren',
+    'Copy Text(code block)(aria-label)' => 'Kopieren',
+    'Dark(theme switcher)(aria-label)' => 'Dunkel',
+    'Default(type table)' => 'Standard',
+    'Edit on GitHub(edit page)' => 'Auf GitHub bearbeiten',
+    'Hide Sidebar(sidebar)' => 'Seitenleiste ausblenden',
+    'Last updated on(page footer)' => 'Zuletzt aktualisiert am',
+    'Last updated(page)' => 'Stand: ',
+    'Layout Tab(layout tab trigger)' => 'Bereich',
+    'Light(theme switcher)(aria-label)' => 'Hell',
+    'Next Page(pagination)' => 'Weiter',
+    'No Headings(table of contents)' => 'Keine Abschnitte',
+    'No results found(search dialog)' => 'Keine Treffer',
+    'On this page(table of contents)' => 'Auf dieser Seite',
+    'Open Search(search trigger)(aria-label)' => 'Suche öffnen',
+    'Open Sidebar(aria-label)' => 'Seitenleiste öffnen',
+    'Open Sidebar(sidebar)(aria-label)' => 'Seitenleiste öffnen',
+    'Open in ChatGPT(page actions)' => 'In ChatGPT öffnen',
+    'Open in Claude(page actions)' => 'In Claude öffnen',
+    'Open in Cursor(page actions)' => 'In Cursor öffnen',
+    'Open in GitHub(page actions)' => 'Auf GitHub öffnen',
+    'Open in Scira AI(page actions)' => 'In Scira AI öffnen',
+    'Open(home card)' => 'Öffnen',
+    'Open(page actions)' => 'Öffnen',
+    'Page Not Found(404 not found page)' => 'Seite nicht gefunden',
+    'Parameters(type table)' => 'Parameter',
+    'Previous Page(pagination)' => 'Zurück',
+    'Prop(type table)' => 'Eigenschaft',
+    'Read {url}, I want to ask questions about it.(page actions)' => 'Lies {url}, ich möchte Fragen dazu stellen.',
+    'Returns(type table)' => 'Rückgabe',
+    'Search(search dialog)' => 'Suchen',
+    'Search(search trigger)' => 'Suchen',
+    'Show Sidebar(sidebar)' => 'Seitenleiste einblenden',
+    'System(theme switcher)(aria-label)' => 'System',
+    'Table of Contents(inline table of contents)' => 'Inhalt',
+    'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.(404 not found page)' => 'Die gesuchte Seite wurde möglicherweise entfernt, umbenannt oder ist vorübergehend nicht verfügbar.',
+    'Toggle Menu(home layout header)(aria-label)' => 'Menü umschalten',
+    'Toggle Theme(theme switcher)(aria-label)' => 'Design umschalten',
+    'Type(type table)' => 'Typ',
+    'View as Markdown(page actions)' => 'Als Markdown anzeigen',
+];
