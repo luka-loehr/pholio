@@ -41,8 +41,7 @@ runtime in production.
 
 **No dependencies.** The only external ingredients are vendored with their
 licence files: the Inter font, the lucide icon paths, the Shiki grammars and
-themes, the values derived from the compiled Tailwind output and the search
-tokenizer and ranking ported from zbsearch. `verify/` may use Node and
+themes and the values derived from the compiled Tailwind output. `verify/` may use Node and
 Playwright because it is never deployed.
 
 **Fail loud.** Unknown Markdown, an unknown component, attribute, icon or code
@@ -51,9 +50,11 @@ the file and line. There is no silent fallback, because a documentation site
 that renders something wrong is worse than one that refuses to build.
 
 **Search without a backend.** The index is built at compile time and shipped as
-JSON. The browser tokenizes and ranks with the same parameters as the
-reference, so results and their order match. The cost is one download the first
-time the dialog opens.
+compact JSON: an inverted index from normalised words to pages and sections,
+without the body text. The browser loads it the first time a search trigger is
+hovered, focused or opened and ranks in a Web Worker: title and phrase matches
+first, then every term before some terms, with prefix, compound and light typo
+matching. The ranking weights are constants at the top of `theme/js/search.js`.
 
 **Configuration is data.** One array, validated against a schema before
 anything runs. Components never read the public keys; they read the normalised
