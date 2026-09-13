@@ -222,7 +222,7 @@ the discovery headers. [Agents](agents.md) describes each file.
 | `agents.sitemap` | `true` | `sitemap.xml` (needs `site.url`) |
 | `agents.structured_data` | `true` | JSON-LD in every page's `<head>` |
 | `agents.headers` | `true` | The `Link` and `X-Llms-Txt` headers and content negotiation in `.htaccess`, the `_headers` file and `pholio dev` |
-| `agents.page_actions` | `true` | "Copy Markdown" and "Open" below the page description. Off when `agents.markdown` is off |
+| `agents.page_actions` | `true` | "Copy page" next to the page title, with a menu to copy the page or open it in ChatGPT or Claude. Off when `agents.markdown` is off |
 | `agents.instructions` | `null` | Text of the `## Agent Instructions` section in `llms.txt` and `skill.md` |
 | `agents.exclude` | `[]` | Globs matched against page URLs (`/guide/internal/*`) and content file paths (`internal/*.md`); matching pages stay out of `llms.txt`, `llms-full.txt` and `skill.md`. `*` also matches `/` |
 
