@@ -147,6 +147,22 @@ No classes. Only sets `data-open`, `data-closed`, `data-starting-style`, `data-e
 | `popupClass` | from the caller | see notebook.js |
 | States | `data-popup-open`, `data-open`, `data-closed`, `data-side`, `data-align`, `data-starting-style` | unchanged; the `nd-popover` animation hangs on `data-open`/`data-closed` |
 
+## page-actions.js
+
+`MarkdownCopyButton` and `ViewOptionsPopover` from the reference UI's
+`layouts/shared/page-actions.js`, in the row of the docs template. The class lists are
+in `class-map.json`; the rules in `theme/css/components.css`.
+
+| Place | Reference | Port |
+| --- | --- | --- |
+| Row | `flex flex-row gap-2 items-center border-b pb-6` | `nd-page-actions`, plus `flex-wrap -mt-4 mb-8` because the description above keeps `mb-8` |
+| Copy button | `buttonVariants({ color: 'secondary', size: 'sm' })` + `gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground` | `nd-btn nd-btn-secondary nd-btn-text-sm nd-page-copy` |
+| Open button | `buttonVariants({ color: 'secondary', size: 'sm' })` + `gap-2 data-[popup-open]:bg-fd-accent data-[popup-open]:text-fd-accent-foreground` | `nd-btn nd-btn-secondary nd-btn-text-sm nd-page-open`; `data-popup-open` is set by popover.js |
+| Checked icon | React state swaps `Copy` for `Check` for 1500 ms (`useCopyButton`) | both icons in the markup, `data-checked` on the button for 1500 ms, CSS shows `nd-page-copy-done` |
+| `popupClass` | `PopoverContent` with `flex flex-col` | `'nd-popover nd-page-actions-popup'` |
+| Menu item | `text-sm p-2 rounded-lg inline-flex items-center gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4` | `nd-page-actions-item` |
+| Not in the reference | | Copy llms.txt URL item; ArrowDown, ArrowUp, Home and End between items |
+
 ## notebook.js
 
 | Place | Reference | Port |
