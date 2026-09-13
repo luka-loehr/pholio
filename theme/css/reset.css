@@ -1,17 +1,14 @@
-/* reset.css — Tailwind v4 preflight of the reference
+/* reset.css — Tailwind v4 preflight
  *
- * Verbatim from the compiled reference stylesheet, @layer base (l. 173–430):
- *   css/[root-of-the-server]__1br6yta._.css
- *
- * The end of the block already contains the two additions of the reference
- * design from its css/lib/base.css:
+ * The preflight in @layer base, unchanged. The end of the block adds the theme's
+ * two base rules:
  *   *, ::after, ::before, ::backdrop { border-color: var(--color-fd-border, currentColor) }
  *   body { background-color/color }
  *
- * After it, unlayered, the two rules from app/global.css (l. 4138–4145):
+ * After it, unlayered, two page rules:
  *   html { scrollbar-gutter: stable }
  *   html > body[data-scroll-locked] { … }
- * They are unlayered in the original too and must stay so; otherwise the
+ * They must stay unlayered; otherwise the
  * scrollbar-gutter rule, which has no !important, loses against layout utilities.
  */
 
@@ -274,7 +271,7 @@
   }
 }
 
-/* --- app/global.css (unlayered, l. 4138–4145) --- */
+/* --- Page rules (unlayered) --- */
 
 html {
   scrollbar-gutter: stable;
