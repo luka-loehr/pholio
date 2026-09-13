@@ -28,7 +28,8 @@
 //   · empty input → items = null → data-empty="true", viewport hidden
 //   · no hits → "No results found"
 //   · ↑/↓ cycle through `items.at(idx % items.length)`, Enter navigates (Enter while
-//     the answer for the current input is pending navigates once it arrives),
+//     the answer for the current input is pending navigates once it arrives); a new
+//     query selects its first result, a late answer for the same input keeps the selection,
 //     pointer movement sets the active item, the active item is scrolled
 //     `nearest` into the viewport
 //   · answers are cached per query
@@ -200,6 +201,7 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
   let frame = 0;
   let loadingTimer = 0;
   let enterPending = false;
+  let navigatedQuery = null;   // the input value the selection was last moved in
   const cache = new Map();
 
   function setLoading(on) {
@@ -222,7 +224,10 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
   function show(query, result) {
     items = result;
     itemsQuery = query;
-    activeId = result && result.length ? result[0].id : null;
+    // A new query starts at the first result; a late answer for the input the user is
+    // already navigating in keeps their selection.
+    const keep = query === navigatedQuery && result?.some((item) => item.id === activeId);
+    if (!keep) activeId = result && result.length ? result[0].id : null;
     scheduleRender();
   }
 
@@ -311,7 +316,9 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
   };
   viewport.addEventListener('pointermove', (event) => {
     const item = rowItem(event.target);
-    if (item) setActive(item.id);
+    if (!item) return;
+    navigatedQuery = input.value;
+    setActive(item.id);
   });
   viewport.addEventListener('click', (event) => {
     const item = rowItem(event.target);
@@ -333,6 +340,7 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
       if (idx === -1) idx = 0;
       else if (event.key === 'ArrowDown') idx += 1;
       else idx -= 1;
+      navigatedQuery = input.value;
       setActive(items.at(idx % items.length)?.id ?? null);
       event.preventDefault();
     }
