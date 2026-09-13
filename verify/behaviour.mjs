@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Behaviour and motion comparison: a Fumadocs reference app against a Pholio build.
+// Behaviour and motion comparison: a reference app against a Pholio build.
 //
 //   node verify/behaviour.mjs --reference http://127.0.0.1:3000 --candidate http://127.0.0.1:4000 \
 //        --scenarios verify/fixtures/demo/behaviour-scenarios-overlays.json --rewrites <file.json>
