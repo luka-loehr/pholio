@@ -263,7 +263,7 @@ pholio build my-docs
 ## Accordions
 
 With `type="single"` one item is open at a time; `defaultValue` opens items
-at the start. With `type="multiple"` any number can be open.
+at the start. With `type="multiple"` any number can be open at once.
 
 <Accordions type="single" defaultValue="What does Pholio need?">
 <Accordion title="What does Pholio need?">
@@ -272,9 +272,6 @@ PHP 8.2 with `mbstring` and `ctype`. Nothing else.
 <Accordion title="Where does the output run?">
 On any static host. An `.htaccess` for Apache is written alongside.
 </Accordion>
-</Accordions>
-
-<Accordions type="multiple">
 <Accordion title="Search">
 Built at compile time, ranked in the browser.
 </Accordion>
@@ -291,9 +288,6 @@ PHP 8.2 with `mbstring` and `ctype`. Nothing else.
 <Accordion title="Where does the output run?">
 On any static host. An `.htaccess` for Apache is written alongside.
 </Accordion>
-</Accordions>
-
-<Accordions type="multiple">
 <Accordion title="Search">
 Built at compile time, ranked in the browser.
 </Accordion>
