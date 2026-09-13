@@ -1,6 +1,6 @@
-/* dusk: built-in color preset, selected with theme.preset. */
+/* dusk: built-in color preset, active while <html data-preset="dusk">; theme.preset sets the initial value. */
 
-:root {
+:where(:root[data-preset="dusk"]) {
   --color-fd-background: hsl(250, 20%, 92%);
   --color-fd-primary: hsl(340, 40%, 48%);
   --color-fd-border: hsl(240, 40%, 90%);
@@ -19,7 +19,7 @@
   --color-fd-ring: hsl(340, 40%, 48%);
 }
 
-.dark {
+:where(:root[data-preset="dusk"]).dark {
   --color-fd-ring: hsl(340, 100%, 90%);
   --color-fd-primary-foreground: hsl(240, 40%, 4%);
   --color-fd-popover: hsl(240, 20%, 5%);
@@ -38,10 +38,10 @@
   --color-fd-accent-foreground: hsl(340, 5%, 90%);
 }
 
-#nd-sidebar {
+:where(:root[data-preset="dusk"]) #nd-sidebar {
   background-color: hsl(250 20% 90%);
 }
 
-.dark #nd-sidebar {
+:where(:root[data-preset="dusk"]).dark #nd-sidebar {
   background-color: hsl(240 20% 5%);
 }
