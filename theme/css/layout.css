@@ -1,0 +1,1325 @@
+/* layout.css — grid, header, sidebar, table of contents, TOC popover,
+ * article frame and the start page scaffold.
+ *
+ * Origin of every rule: the frozen reference stylesheet
+ *   css/[root-of-the-server]__1br6yta._.css of the reference export.
+ * Every nd- class names in its comment the utility classes the reference emits on
+ * the same element; the declarations below are exactly the ones Tailwind generated
+ * for those utilities — value by value, including the
+ * `@supports (color: color-mix(in lab, …))` pairs (fallback hex value first,
+ * `color-mix(in oklab, …)` after it) and the `rtl:` variants.
+ *
+ * Mapping from utility list to nd- classes: class-map.json in the verify tooling.
+ * The golden DOM comparison uses this table to check that every element carries
+ * exactly the classes intended here.
+ *
+ * Layer: `components`. The reference puts its utilities in `utilities`, above
+ * `prose`. For this theme `components` is right, because there the typography
+ * rules from prose.css (layer `utilities`) win against the component classes as in
+ * the original: `.prose :where(figure)` beats the screenshot's `my-6` in the
+ * reference because it comes later in the stylesheet. The only element that must
+ * win against `.prose` the other way round is a table of contents entry; this
+ * theme drops its `prose` class and writes the four declarations it contributes
+ * directly into `.nd-toc-item` (see components.css).
+ *
+ * States live on `data-*`/`aria-*` attributes and pseudo-classes, as in the
+ * reference, not on modifier classes. Where the reference emits a state as a
+ * utility class of its own (active section tab, closed folder chevron), a second
+ * component class or a rule on the parent element stands in for it; each of these
+ * places is commented below.
+ */
+
+@layer components {
+
+  /* ====================================================================
+     Document and grid
+     ==================================================================== */
+
+  /* .nd-body  <-  flex flex-col min-h-screen */
+  .nd-body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  /* .nd-layout  <-  [--fd-docs-height:100dvh] [--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px] auto-cols-auto auto-rows-auto data-[column-changed=true]:transition-[grid-template-columns] grid min-h-(--fd-docs-height) overflow-x-clip */
+  .nd-layout {
+    display: grid;
+    min-height: var(--fd-docs-height);
+    grid-auto-columns: auto;
+    grid-auto-rows: auto;
+    overflow-x: clip;
+    --fd-docs-height: 100dvh;
+    --fd-header-height: 0px;
+    --fd-sidebar-width: 0px;
+    --fd-toc-popover-height: 0px;
+    --fd-toc-width: 0px;
+  }
+  .nd-layout[data-column-changed="true"] {
+    transition-property: grid-template-columns;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  /* ====================================================================
+     Header
+     ==================================================================== */
+
+  /* .nd-header  <-  [grid-area:header] backdrop-blur-sm data-[transparent=false]:bg-fd-background/80 flex flex-col sticky top-(--fd-docs-row-1) transition-colors z-10 layout:[--fd-header-height:--spacing(14)] */
+  .nd-header {
+    position: sticky;
+    top: var(--fd-docs-row-1);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    --tw-backdrop-blur: blur(var(--blur-sm));
+    -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+    grid-area: header;
+  }
+  .nd-header[data-transparent="false"] {
+    background-color: #f5f5f5cc;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .nd-header[data-transparent="false"] {
+      background-color: color-mix(in oklab, var(--color-fd-background) 80%, transparent);
+    }
+  }
+  :is(#nd-notebook-layout:has(.nd-header), #nd-home-layout:has(.nd-header)) {
+    --fd-header-height: calc(var(--spacing) * 14);
+    --fd-header-height: calc(var(--spacing) * 14);
+    --fd-header-height: calc(var(--spacing) * 14);
+    --fd-header-height: calc(var(--spacing) * 14);
+    --fd-header-height: calc(var(--spacing) * 14);
+  }
+
+  /* .nd-header-tabs  <-  lg:layout:[--fd-header-height:--spacing(24)] */
+  @media (min-width: 64rem) {
+    :is(#nd-notebook-layout:has(.nd-header-tabs), #nd-home-layout:has(.nd-header-tabs)) {
+      --fd-header-height: calc(var(--spacing) * 24);
+      --fd-header-height: calc(var(--spacing) * 24);
+      --fd-header-height: calc(var(--spacing) * 24);
+      --fd-header-height: calc(var(--spacing) * 24);
+      --fd-header-height: calc(var(--spacing) * 24);
+    }
+  }
+
+  /* .nd-header-body  <-  border-b flex gap-2 h-14 md:px-6 px-4 */
+  .nd-header-body {
+    display: flex;
+    height: calc(var(--spacing) * 14);
+    gap: calc(var(--spacing) * 2);
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+    padding-inline: calc(var(--spacing) * 4);
+  }
+  @media (min-width: 48rem) {
+    .nd-header-body {
+      padding-inline: calc(var(--spacing) * 6);
+    }
+  }
+
+  /* .nd-header-start  <-  flex flex-1 items-center */
+  .nd-header-start {
+    display: flex;
+    flex: 1;
+    align-items: center;
+  }
+
+  /* .nd-header-end  <-  flex flex-1 items-center justify-end md:gap-2 */
+  .nd-header-end {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  @media (min-width: 48rem) {
+    .nd-header-end {
+      gap: calc(var(--spacing) * 2);
+    }
+  }
+
+  /* .nd-header-mobile  <-  flex items-center md:hidden */
+  .nd-header-mobile {
+    display: flex;
+    align-items: center;
+  }
+  @media (min-width: 48rem) {
+    .nd-header-mobile {
+      display: none;
+    }
+  }
+
+  /* .nd-header-desktop  <-  flex gap-2 items-center max-md:hidden */
+  .nd-header-desktop {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+  @media not (min-width: 48rem) {
+    .nd-header-desktop {
+      display: none;
+    }
+  }
+
+  /* .nd-header-trigger  <-  -me-1.5 */
+  .nd-header-trigger {
+    margin-inline-end: calc(var(--spacing) * -1.5);
+  }
+
+  /* ====================================================================
+     Navigation title and header links
+     ==================================================================== */
+
+  /* .nd-nav-title  <-  font-semibold gap-2.5 inline-flex items-center */
+  .nd-nav-title {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2.5);
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* .nd-nav-title-inner  <-  flex gap-2 items-center */
+  .nd-nav-title-inner {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  /* .nd-nav-logo  <-  rounded-full */
+  .nd-nav-logo {
+    border-radius: 3.40282e38px;
+  }
+
+  /* .nd-strong  <-  font-semibold */
+  .nd-strong {
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* .nd-nav-links  <-  empty:hidden flex gap-6 items-center max-lg:hidden */
+  .nd-nav-links {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 6);
+  }
+  .nd-nav-links:empty {
+    display: none;
+  }
+  @media not (min-width: 64rem) {
+    .nd-nav-links {
+      display: none;
+    }
+  }
+
+  /* .nd-nav-link  <-  data-[active=true]:text-fd-primary hover:text-fd-accent-foreground text-fd-muted-foreground text-sm transition-colors */
+  .nd-nav-link {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    color: var(--color-fd-muted-foreground);
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  @media (hover: hover) {
+    .nd-nav-link:hover {
+      color: var(--color-fd-accent-foreground);
+    }
+  }
+  .nd-nav-link[data-active="true"] {
+    color: var(--color-fd-primary);
+  }
+
+  /* ====================================================================
+     Section tabs
+     ==================================================================== */
+
+  /* .nd-tabs  <-  border-b flex flex-row gap-6 h-10 items-end max-lg:hidden overflow-x-auto px-6 */
+  .nd-tabs {
+    display: flex;
+    height: calc(var(--spacing) * 10);
+    flex-direction: row;
+    align-items: flex-end;
+    gap: calc(var(--spacing) * 6);
+    overflow-x: auto;
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+    padding-inline: calc(var(--spacing) * 6);
+  }
+  @media not (min-width: 64rem) {
+    .nd-tabs {
+      display: none;
+    }
+  }
+
+  /* .nd-tab  <-  inline-flex border-b-2 transition-colors items-center pb-1.5 font-medium gap-2 text-nowrap text-sm hover:text-fd-accent-foreground border-transparent text-fd-muted-foreground */
+  .nd-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 2px;
+    border-color: #0000;
+    padding-bottom: calc(var(--spacing) * 1.5);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    text-wrap: nowrap;
+    color: var(--color-fd-muted-foreground);
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  @media (hover: hover) {
+    .nd-tab:hover {
+      color: var(--color-fd-accent-foreground);
+    }
+  }
+
+  /* .nd-tab-active  <-  border-fd-primary text-fd-primary */
+  .nd-tab-active {
+    border-color: var(--color-fd-primary);
+    color: var(--color-fd-primary);
+  }
+
+  /* ====================================================================
+     Sidebar
+     ==================================================================== */
+
+  /* .nd-sidebar-placeholder  <-  *:pointer-events-auto [grid-area:sidebar] h-[calc(var(--fd-docs-height)-var(--fd-docs-row-2))] max-md:hidden md:layout:[--fd-sidebar-width:268px] pointer-events-none sticky top-(--fd-docs-row-2) z-20 */
+  .nd-sidebar-placeholder {
+    pointer-events: none;
+    position: sticky;
+    top: var(--fd-docs-row-2);
+    z-index: 20;
+    height: calc(var(--fd-docs-height) - var(--fd-docs-row-2));
+    grid-area: sidebar;
+  }
+  :is(.nd-sidebar-placeholder > *) {
+    pointer-events: auto;
+  }
+  @media not (min-width: 48rem) {
+    .nd-sidebar-placeholder {
+      display: none;
+    }
+  }
+  @media (min-width: 48rem) {
+    :is(#nd-notebook-layout:has(.nd-sidebar-placeholder), #nd-home-layout:has(.nd-sidebar-placeholder)) {
+      --fd-sidebar-width: 268px;
+      --fd-sidebar-width: 268px;
+      --fd-sidebar-width: 268px;
+      --fd-sidebar-width: 268px;
+      --fd-sidebar-width: 268px;
+    }
+  }
+
+  /* .nd-sidebar  <-  *:w-(--fd-sidebar-width) absolute duration-250 flex flex-col inset-y-0 items-end start-0 text-sm w-full */
+  .nd-sidebar {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(var(--spacing) * 0);
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-duration: .25s;
+    transition-duration: .25s;
+  }
+  :is(.nd-sidebar > *) {
+    width: var(--fd-sidebar-width);
+  }
+
+  /* .nd-sidebar-head  <-  empty:hidden flex flex-col gap-3 p-4 pb-2 */
+  .nd-sidebar-head {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 4);
+    padding-bottom: calc(var(--spacing) * 2);
+  }
+  .nd-sidebar-head:empty {
+    display: none;
+  }
+
+  /* .nd-sidebar-foot  <-  border-t flex-row hidden items-center px-4 py-2.5 text-fd-muted-foreground */
+  .nd-sidebar-foot {
+    display: none;
+    flex-direction: row;
+    align-items: center;
+    border-top-style: var(--tw-border-style);
+    border-top-width: 1px;
+    padding-inline: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 2.5);
+    color: var(--color-fd-muted-foreground);
+  }
+
+  /* ------------------------------------------------------------------
+     Sidebar states that only JavaScript establishes
+
+     `js/sidebar.js` currently rebuilds the class list of `aside#nd-sidebar`
+     from a table of utility classes on every state change. Those classes no
+     longer exist in this theme. The states are in the DOM as attributes anyway
+     – `data-collapsed`, `data-hovered` and `data-collapse-transition` on the
+     `aside` –, so the rules here hang on them. The class lists in
+     js/sidebar.js can therefore be dropped without replacement, leaving only
+     the attributes.
+     Reference lines: 523, 1925, 2052, 1929, 1505, 2756, 1671, 1661, 2894, 2870.
+     ------------------------------------------------------------------ */
+
+  #nd-sidebar[data-collapsed="true"] {
+    inset-block: calc(var(--spacing) * 2);
+    width: var(--fd-sidebar-width);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-radius: var(--radius-xl);
+    background-color: var(--color-fd-card);
+  }
+
+  /* After a collapse or expand click, width, height, offset and colour transition.
+     In the reference the class `transition-[width,inset-block,translate,background-color]`
+     stays until the sidebar's next state change (usually the next hover),
+     because fumadocs derives it from the previous `data-collapsed`.
+     js/sidebar.js reproduces exactly this lifetime with `data-collapse-transition`;
+     `data-column-changed` lasts only ~2 frames and drives nothing but the
+     transition of the grid columns on the layout. The duration comes from
+     `duration-250` in `.nd-sidebar`. */
+  #nd-sidebar[data-collapse-transition] {
+    transition-property: width, inset-block, translate, background-color;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  /* Collapsed and without a fresh change, only the box moves. */
+  #nd-sidebar[data-collapsed="true"]:not([data-collapse-transition]) {
+    transition-property: transform, translate, scale, rotate;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  #nd-sidebar[data-collapsed="true"]:not([data-hovered="true"]) {
+    --tw-translate-x: calc(var(--fd-sidebar-width) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+
+  #nd-sidebar[data-collapsed="true"][data-hovered="true"] {
+    --tw-translate-x: calc(var(--spacing) * 2);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+    --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
+  /* The 4 px wide zone at the edge over which the collapsed sidebar opens.
+     js/sidebar.js creates the element; it needs only this one class. */
+  .nd-sidebar-hoverzone {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: calc(var(--spacing) * 4);
+  }
+
+  /* ------------------------------------------------------------------
+     Drawer below 768 px (`aside#nd-sidebar-mobile`) and its overlay
+
+     The generator emits both closed: the overlay as
+     <template data-sidebar-overlay>, the drawer with `nd-invisible`.
+     Opening and closing hang on `data-state="open|closed"`, which
+     js/sidebar.js sets; after `animationend` it toggles `nd-invisible`.
+     Header and entries use the classes of the desktop sidebar.
+     Source: the reference drawer at 390 px (reference export dom-390.html).
+     ------------------------------------------------------------------ */
+
+  /* .nd-drawer  <-  fixed text-[0.9375rem] flex flex-col shadow-lg border-s end-0 inset-y-0 w-[85%] max-w-[380px] z-40 bg-fd-background data-[state=open]:animate-fd-sidebar-in data-[state=closed]:animate-fd-sidebar-out */
+  .nd-drawer {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-end: calc(var(--spacing) * 0);
+    z-index: 40;
+    display: flex;
+    width: 85%;
+    max-width: 380px;
+    flex-direction: column;
+    border-inline-start-style: var(--tw-border-style);
+    border-inline-start-width: 1px;
+    background-color: var(--color-fd-background);
+    font-size: .9375rem;
+    --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .nd-drawer[data-state="closed"] {
+    animation: var(--animate-fd-sidebar-out);
+  }
+  .nd-drawer[data-state="open"] {
+    animation: var(--animate-fd-sidebar-in);
+  }
+
+  /* .nd-drawer-overlay  <-  fixed z-40 inset-0 backdrop-blur-xs data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out */
+  .nd-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    --tw-backdrop-blur: blur(var(--blur-xs));
+    -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+  }
+  .nd-drawer-overlay[data-state="closed"] {
+    animation: var(--animate-fd-fade-out);
+  }
+  .nd-drawer-overlay[data-state="open"] {
+    animation: var(--animate-fd-fade-in);
+  }
+
+  /* .nd-drawer-close  <-  rounded-md p-1.5 [&_svg]:size-4.5 ms-auto text-fd-muted-foreground */
+  .nd-drawer-close {
+    margin-inline-start: auto;
+    border-radius: var(--radius-md);
+    padding: calc(var(--spacing) * 1.5);
+    color: var(--color-fd-muted-foreground);
+  }
+  .nd-drawer-close svg {
+    width: calc(var(--spacing) * 4.5);
+    height: calc(var(--spacing) * 4.5);
+  }
+
+  /* .nd-drawer-foot  <-  flex-row text-fd-muted-foreground items-center border-t p-4 pt-2 justify-end flex */
+  .nd-drawer-foot {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    border-top-style: var(--tw-border-style);
+    border-top-width: 1px;
+    padding: calc(var(--spacing) * 4);
+    padding-top: calc(var(--spacing) * 2);
+    color: var(--color-fd-muted-foreground);
+  }
+
+
+  /* ====================================================================
+     Sidebar scroll area
+     ==================================================================== */
+
+  /* .nd-scroll  <-  flex-1 min-h-0 */
+  .nd-scroll {
+    min-height: 0;
+    flex: 1;
+  }
+
+  /* .nd-scroll-viewport  <-  mask-[linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)] overscroll-contain p-4 rounded-[inherit] size-full */
+  .nd-scroll-viewport {
+    width: 100%;
+    height: 100%;
+    overscroll-behavior: contain;
+    border-radius: inherit;
+    -webkit-mask-image: linear-gradient(#0000, #fff 12px calc(100% - 12px), #0000);
+    mask-image: linear-gradient(#0000, #fff 12px calc(100% - 12px), #0000);
+    padding: calc(var(--spacing) * 4);
+  }
+
+  /* .nd-sidebar-list  <-  flex flex-col gap-0.5 */
+  .nd-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * .5);
+  }
+
+  /* js/scroll-area.js creates the scrollbar and thumb of the ScrollArea. The bar
+     is visible only while Base UI sets `data-hovering`; the reference has
+     `opacity-0` as a class for it (fumadocs-ui/dist/components/ui/scroll-area.js). */
+
+  /* .nd-scroll-bar  <-  flex select-none transition-opacity h-full w-1.5 */
+  .nd-scroll-bar {
+    display: flex;
+    height: 100%;
+    width: calc(var(--spacing) * 1.5);
+    transition-property: opacity;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* .nd-scroll-bar:not([data-hovering])  <-  opacity-0 */
+  .nd-scroll-bar:not([data-hovering]) {
+    opacity: 0;
+  }
+
+  /* .nd-scroll-thumb  <-  relative flex-1 rounded-full bg-fd-border */
+  .nd-scroll-thumb {
+    position: relative;
+    flex: 1;
+    border-radius: 3.40282e38px;
+    background-color: var(--color-fd-border);
+  }
+
+
+  /* ====================================================================
+     Sidebar entries
+     ==================================================================== */
+
+  /* .nd-sidebar-item  <-  relative flex flex-row items-center gap-2 rounded-lg p-2 text-start text-fd-muted-foreground wrap-anywhere [&_svg]:size-4 [&_svg]:shrink-0 */
+  .nd-sidebar-item {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    border-radius: var(--radius-lg);
+    padding: calc(var(--spacing) * 2);
+    text-align: start;
+    overflow-wrap: anywhere;
+    color: var(--color-fd-muted-foreground);
+  }
+  .nd-sidebar-item svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    flex-shrink: 0;
+  }
+
+  /* .nd-sidebar-item-link  <-  transition-colors hover:bg-fd-accent/50 hover:text-fd-accent-foreground/80 hover:transition-none data-[active=true]:bg-fd-primary/10 data-[active=true]:text-fd-primary data-[active=true]:hover:transition-colors */
+  .nd-sidebar-item-link {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  @media (hover: hover) {
+    .nd-sidebar-item-link:hover {
+      background-color: #d1d1d140;
+    }
+  }
+  @media (hover: hover) {
+    @supports (color: color-mix(in lab, red, red)) {
+      .nd-sidebar-item-link:hover {
+        background-color: color-mix(in oklab, var(--color-fd-accent) 50%, transparent);
+      }
+    }
+  }
+  @media (hover: hover) {
+    .nd-sidebar-item-link:hover {
+      color: #171717cc;
+    }
+  }
+  @media (hover: hover) {
+    @supports (color: color-mix(in lab, red, red)) {
+      .nd-sidebar-item-link:hover {
+        color: color-mix(in oklab, var(--color-fd-accent-foreground) 80%, transparent);
+      }
+    }
+  }
+  @media (hover: hover) {
+    .nd-sidebar-item-link:hover {
+      transition-property: none;
+    }
+  }
+  .nd-sidebar-item-link[data-active="true"] {
+    background-color: #1717171a;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .nd-sidebar-item-link[data-active="true"] {
+      background-color: color-mix(in oklab, var(--color-fd-primary) 10%, transparent);
+    }
+  }
+  .nd-sidebar-item-link[data-active="true"] {
+    color: var(--color-fd-primary);
+  }
+  @media (hover: hover) {
+    .nd-sidebar-item-link[data-active="true"]:hover {
+      transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+      transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+      transition-duration: var(--tw-duration, var(--default-transition-duration));
+    }
+  }
+
+  /* .nd-sidebar-item-button  <-  transition-colors hover:bg-fd-accent/50 hover:text-fd-accent-foreground/80 hover:transition-none */
+  .nd-sidebar-item-button {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  @media (hover: hover) {
+    .nd-sidebar-item-button:hover {
+      background-color: #d1d1d140;
+    }
+  }
+  @media (hover: hover) {
+    @supports (color: color-mix(in lab, red, red)) {
+      .nd-sidebar-item-button:hover {
+        background-color: color-mix(in oklab, var(--color-fd-accent) 50%, transparent);
+      }
+    }
+  }
+  @media (hover: hover) {
+    .nd-sidebar-item-button:hover {
+      color: #171717cc;
+    }
+  }
+  @media (hover: hover) {
+    @supports (color: color-mix(in lab, red, red)) {
+      .nd-sidebar-item-button:hover {
+        color: color-mix(in oklab, var(--color-fd-accent-foreground) 80%, transparent);
+      }
+    }
+  }
+  @media (hover: hover) {
+    .nd-sidebar-item-button:hover {
+      transition-property: none;
+    }
+  }
+
+  /* .nd-sidebar-item-mark  <-  data-[active=true]:before:content-[''] data-[active=true]:before:bg-fd-primary data-[active=true]:before:absolute data-[active=true]:before:w-px data-[active=true]:before:inset-y-2.5 data-[active=true]:before:start-2.5 */
+  .nd-sidebar-item-mark[data-active="true"]:before {
+    content: var(--tw-content);
+    position: absolute;
+    content: var(--tw-content);
+    inset-block: calc(var(--spacing) * 2.5);
+  }
+  .nd-sidebar-item-mark[data-active="true"]:before {
+    content: var(--tw-content);
+    inset-inline-start: calc(var(--spacing) * 2.5);
+  }
+  .nd-sidebar-item-mark[data-active="true"]:before {
+    content: var(--tw-content);
+    width: 1px;
+    content: var(--tw-content);
+    background-color: var(--color-fd-primary);
+    --tw-content: "";
+    content: var(--tw-content);
+  }
+
+  /* .nd-sidebar-trigger  <-  w-full */
+  .nd-sidebar-trigger {
+    width: 100%;
+  }
+
+  /* .nd-sidebar-menu  <-  lg:hidden */
+  @media (min-width: 64rem) {
+    .nd-sidebar-menu {
+      display: none;
+    }
+  }
+
+  /* .nd-sidebar-menu-last  <-  mb-4 */
+  .nd-sidebar-menu-last {
+    margin-bottom: calc(var(--spacing) * 4);
+  }
+
+  /* .nd-sidebar-chevron  <-  ms-auto transition-transform */
+  .nd-sidebar-chevron {
+    margin-inline-start: auto;
+    transition-property: transform, translate, scale, rotate;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  /* The chevron of a closed folder. The reference attaches the utilities
+   * `-rotate-90 rtl:rotate-90` as classes of their own (reference l. 1696 and
+   * 3751) and swaps them when collapsing and expanding. This theme reads the
+   * state from the trigger instead: Base UI sets `data-panel-open` there while
+   * the panel is open. Same declaration, same moment. */
+  :not([data-panel-open]) > .nd-sidebar-chevron {
+    rotate: -90deg;
+  }
+  :not([data-panel-open]) > .nd-sidebar-chevron:where(:is(:lang(ae), :lang(ar), :lang(arc), :lang(bcc), :lang(bqi), :lang(ckb), :lang(dv), :lang(fa), :lang(glk), :lang(he), :lang(ku), :lang(mzn), :lang(nqo), :lang(pnb), :lang(ps), :lang(sd), :lang(ug), :lang(ur), :lang(yi)), [dir="rtl"], [dir="rtl"] *) {
+    rotate: 90deg;
+  }
+
+  /* .nd-sidebar-panel  <-  overflow-hidden [&[hidden]:not([hidden='until-found'])]:hidden h-(--collapsible-panel-height) transition-[height,opacity] data-starting-style:opacity-0 data-starting-style:h-0 data-ending-style:h-0 data-ending-style:opacity-0 relative flex flex-col gap-0.5 pt-0.5 */
+  .nd-sidebar-panel {
+    position: relative;
+    display: flex;
+    height: var(--collapsible-panel-height);
+    flex-direction: column;
+    gap: calc(var(--spacing) * .5);
+    overflow: hidden;
+    padding-top: calc(var(--spacing) * .5);
+    transition-property: height, opacity;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .nd-sidebar-panel[data-ending-style] {
+    height: 0;
+    opacity: 0;
+  }
+  .nd-sidebar-panel[data-starting-style] {
+    height: 0;
+    opacity: 0;
+  }
+  .nd-sidebar-panel[hidden]:not([hidden="until-found"]) {
+    display: none;
+  }
+
+  /* .nd-sidebar-panel-line  <-  before:content-[''] before:absolute before:w-px before:inset-y-1 before:bg-fd-border before:start-2.5 */
+  .nd-sidebar-panel-line:before {
+    content: var(--tw-content);
+    position: absolute;
+    content: var(--tw-content);
+    inset-block: var(--spacing);
+  }
+  .nd-sidebar-panel-line:before {
+    content: var(--tw-content);
+    inset-inline-start: calc(var(--spacing) * 2.5);
+  }
+  .nd-sidebar-panel-line:before {
+    content: var(--tw-content);
+    width: 1px;
+    content: var(--tw-content);
+    background-color: var(--color-fd-border);
+    --tw-content: "";
+    content: var(--tw-content);
+  }
+
+  /* .nd-sidebar-sep  <-  inline-flex items-center gap-2 mb-1.5 px-2 mt-6 empty:mb-0 [&_svg]:size-4 [&_svg]:shrink-0 */
+  .nd-sidebar-sep {
+    margin-top: calc(var(--spacing) * 6);
+    margin-bottom: calc(var(--spacing) * 1.5);
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-inline: calc(var(--spacing) * 2);
+  }
+  .nd-sidebar-sep:empty {
+    margin-bottom: 0;
+  }
+  .nd-sidebar-sep svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    flex-shrink: 0;
+  }
+
+  /* .nd-sidebar-sep-top  <-  first:mt-0 */
+  .nd-sidebar-sep-top:first-child {
+    margin-top: 0;
+  }
+
+  /* ====================================================================
+     Main column and article
+     ==================================================================== */
+
+  /* .nd-main  <-  [grid-area:main] grid */
+  .nd-main {
+    display: grid;
+    grid-area: main;
+  }
+
+  /* .nd-page  <-  *:max-w-[900px] flex flex-col gap-4 md:pt-8 md:px-6 min-w-0 px-4 py-6 xl:pt-14 xl:px-8 */
+  .nd-page {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+    padding-inline: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 6);
+  }
+  /* The width of the article children lives in utilities.css: the child `div.prose`
+   * carries `.prose { max-width: none }` from prose.css, which lives in the
+   * `utilities` layer. In the reference `*:max-w-[900px]` (l. 3017) wins because
+   * it comes later in the stylesheet; here it wins through the layer. */
+  @media (min-width: 48rem) {
+    .nd-page {
+      padding-inline: calc(var(--spacing) * 6);
+      padding-top: calc(var(--spacing) * 8);
+    }
+  }
+  @media (min-width: 80rem) {
+    .nd-page {
+      padding-inline: calc(var(--spacing) * 8);
+      padding-top: calc(var(--spacing) * 14);
+    }
+  }
+
+  /* .nd-page-title  <-  font-semibold text-[1.75em] */
+  .nd-page-title {
+    font-size: 1.75em;
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* .nd-page-desc  <-  mb-8 text-fd-muted-foreground text-lg */
+  .nd-page-desc {
+    margin-bottom: calc(var(--spacing) * 8);
+    font-size: var(--text-lg);
+    line-height: var(--tw-leading, var(--text-lg--line-height));
+    color: var(--color-fd-muted-foreground);
+  }
+
+
+  /* .nd-page-stand  <-  -mt-4 mb-6 text-fd-muted-foreground text-sm */
+  .nd-page-stand {
+    margin-top: calc(var(--spacing) * -4);
+    margin-bottom: calc(var(--spacing) * 6);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    color: var(--color-fd-muted-foreground);
+  }
+
+  /* .nd-prose  <-  flex-1 */
+  .nd-prose {
+    flex: 1;
+  }
+
+  /* ====================================================================
+     Table of contents: column
+     ==================================================================== */
+
+  /* .nd-toc  <-  [grid-area:toc] flex flex-col h-[calc(var(--fd-docs-height)-var(--fd-docs-row-3))] max-xl:hidden pb-2 pe-4 pt-12 sticky top-(--fd-docs-row-3) w-(--fd-toc-width) xl:layout:[--fd-toc-width:268px] */
+  .nd-toc {
+    position: sticky;
+    top: var(--fd-docs-row-3);
+    display: flex;
+    height: calc(var(--fd-docs-height) - var(--fd-docs-row-3));
+    width: var(--fd-toc-width);
+    flex-direction: column;
+    padding-inline-end: calc(var(--spacing) * 4);
+    padding-top: calc(var(--spacing) * 12);
+    padding-bottom: calc(var(--spacing) * 2);
+    grid-area: toc;
+  }
+  @media not (min-width: 80rem) {
+    .nd-toc {
+      display: none;
+    }
+  }
+  @media (min-width: 80rem) {
+    :is(#nd-notebook-layout:has(.nd-toc), #nd-home-layout:has(.nd-toc)) {
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+    }
+  }
+
+  /* .nd-toc-empty  <-  hidden xl:layout:[--fd-toc-width:268px] */
+  .nd-toc-empty {
+    display: none;
+  }
+  @media (min-width: 80rem) {
+    :is(#nd-notebook-layout:has(.nd-toc-empty), #nd-home-layout:has(.nd-toc-empty)) {
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+      --fd-toc-width: 268px;
+    }
+  }
+
+  /* .nd-toc-title  <-  gap-1.5 inline-flex items-center text-fd-muted-foreground text-sm */
+  .nd-toc-title {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1.5);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    color: var(--color-fd-muted-foreground);
+  }
+
+  /* .nd-toc-title-icon  <-  size-4 */
+  .nd-toc-title-icon {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+
+  /* .nd-toc-scroll  <-  [scrollbar-width:none] mask-[linear-gradient(to_bottom,transparent,white_16px,white_calc(100%-16px),transparent)] min-h-0 ms-px overflow-x-clip overflow-y-auto overscroll-contain py-3 relative text-sm */
+  .nd-toc-scroll {
+    position: relative;
+    margin-inline-start: 1px;
+    min-height: 0;
+    scrollbar-width: none;
+    overflow-x: clip;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
+    mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
+    padding-block: calc(var(--spacing) * 3);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+  }
+
+  /* .nd-toc-list  <-  flex flex-col relative */
+  .nd-toc-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ====================================================================
+     Table of contents: popover frame
+     ==================================================================== */
+
+  /* .nd-tocpop  <-  [grid-area:toc-popover] h-(--fd-toc-popover-height) max-xl:layout:[--fd-toc-popover-height:--spacing(10)] sticky top-(--fd-docs-row-2) xl:hidden z-10 */
+  .nd-tocpop {
+    position: sticky;
+    top: var(--fd-docs-row-2);
+    z-index: 10;
+    height: var(--fd-toc-popover-height);
+    grid-area: toc-popover;
+  }
+  @media (min-width: 80rem) {
+    .nd-tocpop {
+      display: none;
+    }
+  }
+  @media not (min-width: 80rem) {
+    :is(#nd-notebook-layout:has(.nd-tocpop), #nd-home-layout:has(.nd-tocpop)) {
+      --fd-toc-popover-height: calc(var(--spacing) * 10);
+      --fd-toc-popover-height: calc(var(--spacing) * 10);
+      --fd-toc-popover-height: calc(var(--spacing) * 10);
+      --fd-toc-popover-height: calc(var(--spacing) * 10);
+      --fd-toc-popover-height: calc(var(--spacing) * 10);
+    }
+  }
+
+  /* .nd-tocpop-header  <-  backdrop-blur-sm bg-fd-background/80 border-b transition-colors */
+  .nd-tocpop-header {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+    background-color: #f5f5f5cc;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .nd-tocpop-header {
+      background-color: color-mix(in oklab, var(--color-fd-background) 80%, transparent);
+    }
+  }
+  .nd-tocpop-header {
+    --tw-backdrop-blur: blur(var(--blur-sm));
+    -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  /* Panel of the collapsible TOC bar. The generator writes it as
+     <template data-collapsible-panel> into the `header`; js/collapsible.js
+     inserts it on opening and sets the phase attributes. */
+
+  /* .nd-collapsible-panel  <-  overflow-hidden [&[hidden]:not([hidden='until-found'])]:hidden h-(--collapsible-panel-height) transition-[height,opacity] data-starting-style:opacity-0 data-starting-style:h-0 data-ending-style:h-0 data-ending-style:opacity-0 */
+  .nd-collapsible-panel {
+    height: var(--collapsible-panel-height);
+    overflow: hidden;
+    transition-property: height, opacity;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .nd-collapsible-panel[data-ending-style] {
+    height: 0;
+    opacity: 0;
+  }
+  .nd-collapsible-panel[data-starting-style] {
+    height: 0;
+    opacity: 0;
+  }
+  .nd-collapsible-panel[hidden]:not([hidden="until-found"]) {
+    display: none;
+  }
+
+  /* .nd-tocpop-content  <-  flex flex-col px-4 max-h-[50vh] md:px-6 */
+  .nd-tocpop-content {
+    display: flex;
+    max-height: 50vh;
+    flex-direction: column;
+    padding-inline: calc(var(--spacing) * 4);
+  }
+  @media (min-width: 48rem) {
+    .nd-tocpop-content {
+      padding-inline: calc(var(--spacing) * 6);
+    }
+  }
+
+
+  /* ====================================================================
+     Start page: scaffold and header
+     ==================================================================== */
+
+  /* .nd-home  <-  [--fd-layout-width:1400px] flex flex-1 flex-col */
+  .nd-home {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    --fd-layout-width: 1400px;
+  }
+
+  /* .nd-home-header  <-  h-14 sticky top-0 z-40 */
+  .nd-home-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: calc(var(--spacing) * 14);
+  }
+
+  /* .nd-home-nav  <-  backdrop-blur-lg bg-fd-background/80 border-b transition-[box-shadow,background-color,border-radius] */
+  .nd-home-nav {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+    background-color: #f5f5f5cc;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .nd-home-nav {
+      background-color: color-mix(in oklab, var(--color-fd-background) 80%, transparent);
+    }
+  }
+  .nd-home-nav {
+    --tw-backdrop-blur: blur(var(--blur-lg));
+    -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    transition-property: box-shadow, background-color, border-radius;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  /* .nd-home-nav-row  <-  flex h-14 items-center max-w-(--fd-layout-width) mx-auto px-4 w-full */
+  .nd-home-nav-row {
+    margin-inline: auto;
+    display: flex;
+    height: calc(var(--spacing) * 14);
+    width: 100%;
+    max-width: var(--fd-layout-width);
+    align-items: center;
+    padding-inline: calc(var(--spacing) * 4);
+  }
+
+  /* .nd-home-nav-list  <-  flex flex-row gap-2 items-center max-sm:hidden px-6 */
+  .nd-home-nav-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-inline: calc(var(--spacing) * 6);
+  }
+  @media not (min-width: 40rem) {
+    .nd-home-nav-list {
+      display: none;
+    }
+  }
+
+  /* .nd-home-nav-item  <-  list-none text-sm */
+  .nd-home-nav-item {
+    list-style-type: none;
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+  }
+
+  /* .nd-home-nav-link  <-  [&_svg]:size-4 data-[active=true]:text-fd-primary gap-1 hover:text-fd-accent-foreground inline-flex items-center p-2 text-fd-muted-foreground transition-colors */
+  .nd-home-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing);
+    padding: calc(var(--spacing) * 2);
+    color: var(--color-fd-muted-foreground);
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  @media (hover: hover) {
+    .nd-home-nav-link:hover {
+      color: var(--color-fd-accent-foreground);
+    }
+  }
+  .nd-home-nav-link[data-active="true"] {
+    color: var(--color-fd-primary);
+  }
+  .nd-home-nav-link svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+
+  /* .nd-home-nav-wide  <-  flex flex-1 flex-row gap-1.5 items-center justify-end max-lg:hidden */
+  .nd-home-nav-wide {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: calc(var(--spacing) * 1.5);
+  }
+  @media not (min-width: 64rem) {
+    .nd-home-nav-wide {
+      display: none;
+    }
+  }
+
+  /* .nd-home-nav-icons  <-  empty:hidden flex flex-row gap-2 items-center */
+  .nd-home-nav-icons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+  .nd-home-nav-icons:empty {
+    display: none;
+  }
+
+  /* .nd-home-nav-narrow  <-  -me-1.5 flex flex-row items-center lg:hidden ms-auto */
+  .nd-home-nav-narrow {
+    margin-inline-start: auto;
+    margin-inline-end: calc(var(--spacing) * -1.5);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  @media (min-width: 64rem) {
+    .nd-home-nav-narrow {
+      display: none;
+    }
+  }
+
+  /* .nd-home-menu-chevron  <-  transition-transform */
+  .nd-home-menu-chevron {
+    transition-property: transform, translate, scale, rotate;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  /* .nd-home-main  <-  flex flex-1 flex-col */
+  .nd-home-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  /* .nd-home-section  <-  lg:max-w-7xl max-w-6xl mx-auto px-6 py-16 w-full */
+  .nd-home-section {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-6xl);
+    padding-inline: calc(var(--spacing) * 6);
+    padding-block: calc(var(--spacing) * 16);
+  }
+  @media (min-width: 64rem) {
+    .nd-home-section {
+      max-width: var(--container-7xl);
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Collapsible start page menu below `lg`
+
+     The panel is a <template data-collapsible-panel> in `nav.nd-home-nav`
+     (components/home-header.php); js/collapsible.js inserts it and sets
+     `--collapsible-panel-height` and the phases `data-starting-style` /
+     `data-ending-style`. When open, `header#nd-nav` carries `data-open` and
+     the trigger `data-panel-open`. The reference attaches `max-lg:shadow-lg
+     max-lg:rounded-b-2xl` to `nav` and `rotate-180` to the chevron for it;
+     here the rules read these attributes. Source: reference export
+     states/home-menu-open-settled.html.
+     ------------------------------------------------------------------ */
+
+  /* .nd-home-menu-panel  <-  overflow-hidden [&[hidden]:not([hidden='until-found'])]:hidden h-(--collapsible-panel-height) transition-[height,opacity] data-starting-style:opacity-0 data-starting-style:h-0 data-ending-style:h-0 data-ending-style:opacity-0 mx-auto max-w-(--fd-layout-width) lg:hidden */
+  .nd-home-menu-panel {
+    margin-inline: auto;
+    height: var(--collapsible-panel-height);
+    max-width: var(--fd-layout-width);
+    overflow: hidden;
+    transition-property: height, opacity;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .nd-home-menu-panel[data-ending-style] {
+    height: 0;
+    opacity: 0;
+  }
+  .nd-home-menu-panel[data-starting-style] {
+    height: 0;
+    opacity: 0;
+  }
+  @media (min-width: 64rem) {
+    .nd-home-menu-panel {
+      display: none;
+    }
+  }
+  .nd-home-menu-panel[hidden]:not([hidden="until-found"]) {
+    display: none;
+  }
+
+  /* .nd-home-menu  <-  flex flex-col pt-2 p-4 sm:flex-row sm:items-center sm:justify-end */
+  .nd-home-menu {
+    display: flex;
+    flex-direction: column;
+    padding: calc(var(--spacing) * 4);
+    padding-top: calc(var(--spacing) * 2);
+  }
+  @media (min-width: 40rem) {
+    .nd-home-menu {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+
+  /* .nd-home-menu-link  <-  inline-flex items-center gap-2 py-1.5 transition-colors hover:text-fd-popover-foreground/50 data-[active=true]:font-medium data-[active=true]:text-fd-primary [&_svg]:size-4 sm:hidden */
+  .nd-home-menu-link {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 1.5);
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  @media (hover: hover) {
+    .nd-home-menu-link:hover {
+      color: #27272780;
+    }
+  }
+  @media (hover: hover) {
+    @supports (color: color-mix(in lab, red, red)) {
+      .nd-home-menu-link:hover {
+        color: color-mix(in oklab, var(--color-fd-popover-foreground) 50%, transparent);
+      }
+    }
+  }
+  .nd-home-menu-link[data-active="true"] {
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fd-primary);
+  }
+  @media (min-width: 40rem) {
+    .nd-home-menu-link {
+      display: none;
+    }
+  }
+  .nd-home-menu-link svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+
+  /* .nd-home-menu-foot  <-  -ms-1.5 flex flex-row items-center gap-2 max-sm:mt-2 */
+  .nd-home-menu-foot {
+    margin-inline-start: calc(var(--spacing) * -1.5);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+  @media not (min-width: 40rem) {
+    .nd-home-menu-foot {
+      margin-top: calc(var(--spacing) * 2);
+    }
+  }
+
+  /* .nd-home-menu-sep  <-  flex-1 */
+  .nd-home-menu-sep {
+    flex: 1;
+  }
+
+  /* #nd-nav[data-open] .nd-home-nav  <-  max-lg:shadow-lg max-lg:rounded-b-2xl */
+  @media not (min-width: 64rem) {
+    #nd-nav[data-open] .nd-home-nav {
+      border-bottom-right-radius: var(--radius-2xl);
+      border-bottom-left-radius: var(--radius-2xl);
+      --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a);
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+  }
+
+  /* [data-panel-open] > .nd-home-menu-chevron  <-  rotate-180 */
+  [data-panel-open] > .nd-home-menu-chevron {
+    rotate: 180deg;
+  }
+}
