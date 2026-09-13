@@ -115,8 +115,11 @@ test('llms.txt splits into recursive indexes within the limit and never drops a 
     assert_same(['llms.txt'], array_keys(LlmsTxt::files('Site', 'About', null, [$section], [], $published)));
 
     $files = LlmsTxt::files('Site', 'About', 'Be nice.', [$section], [['title' => 'Repo', 'url' => 'https://example.org']], $published, 600);
-    assert_contains('follow the /docs/_llms/ indexes they link to recursively', $files['llms.txt']);
-    assert_contains("## Agent Instructions\n\nBe nice.", $files['llms.txt']);
+    assert_contains('The section indexes and the /docs/_llms/ indexes they link to list every page.', $files['llms.txt']);
+    assert_contains("## Notes for agents\n\nBe nice.", $files['llms.txt']);
+    foreach (['Fetch', 'Follow the indexes'] as $command) {
+        assert_true(!str_contains(implode("\n", $files), $command), 'imperative "' . $command . '" in the split indexes');
+    }
     assert_contains('- [Guide](/docs/_llms/guide.md): 31 pages. All of it', $files['llms.txt']);
     assert_contains("## Optional\n\n- [Repo](https://example.org)", $files['llms.txt']);
     assert_contains('[Deep](/docs/_llms/guide/deep.md): 30 pages', $files['_llms/guide.md']);
@@ -199,7 +202,7 @@ test('a site under /manuals: twins, llms.txt, noindex, exclude, author files, he
     assert_contains('pholio: warning: site.url is not set, so sitemap.xml and .well-known/agent-card.json are not written', $err);
 
     $llms = (string) file_get_contents($out . '/llms.txt');
-    assert_contains("# Handbook\n\n## Agent Instructions\n\nAnswer in German.", $llms);
+    assert_contains("# Handbook\n\n## Notes for agents\n\nAnswer in German.", $llms);
     assert_contains('- [Intro](/manuals/guide/intro.md): The first paragraph explains everything. See hidden and A chart.', $llms);
     foreach (['Hidden', 'Internal', 'Draft'] as $unlisted) {
         assert_true(!str_contains($llms, $unlisted), $unlisted . " in llms.txt:\n" . $llms);
@@ -208,7 +211,8 @@ test('a site under /manuals: twins, llms.txt, noindex, exclude, author files, he
     assert_true(!str_contains((string) file_get_contents($out . '/llms-full.txt'), 'Team only.'));
 
     $intro = (string) file_get_contents($out . '/guide/intro.md');
-    assert_true(str_starts_with($intro, "> ## Documentation Index\n> Fetch the complete documentation index at: /manuals/llms.txt\n"), $intro);
+    // A statement of where the index is, not an instruction an agent could take for an injected prompt.
+    assert_true(str_starts_with($intro, "> Documentation index: /manuals/llms.txt, a list of every page in this documentation.\n\n# Intro"), $intro);
     assert_contains('[hidden](/manuals/guide/hidden.md)', $intro);
     assert_contains('![A chart](/manuals/chart.svg)', str_replace('/files/', '/', $intro));
     // Its folder holds only unlisted pages, so there is nothing related to point at.
@@ -263,10 +267,10 @@ test('a site under /manuals: twins, llms.txt, noindex, exclude, author files, he
 
         [, $headers, $body] = agents_http($base . '/guide/intro/', ['Accept: text/plain']);
         assert_same('text/plain; charset=utf-8', $headers['content-type'] ?? null);
-        assert_true(str_starts_with($body, '> ## Documentation Index'));
+        assert_true(str_starts_with($body, '> Documentation index: '));
 
         [, , $body] = agents_http($base, ['User-Agent: Claude-User']);
-        assert_true(str_starts_with($body, '> ## Documentation Index'), $body);
+        assert_true(str_starts_with($body, '> Documentation index: '), $body);
         [, $headers, $body] = agents_http($base . '/guide/intro', ['Accept: text/html']);
         assert_contains('text/html', $headers['content-type'] ?? '');
         assert_true(str_starts_with($body, '<!DOCTYPE html>'));
