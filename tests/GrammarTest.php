@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 // Full content grammar: CommonMark/GFM cases (values determined against remark,
-// remark-gfm and Fumadocs remark-code-tab), component attribute values, the fail-loud
+// remark-gfm and the reference remark-code-tab), component attribute values, the fail-loud
 // rules with their hints, the feature histogram over examples/demo/content (the demo
 // must use every construct) and the AST snapshot tests/fixtures/demo-ast.json.
 //
