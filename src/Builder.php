@@ -477,11 +477,19 @@ class Builder
         }
     }
 
-    /** Generated :root and .dark token blocks followed by `theme.palette_css`. */
+    /**
+     * The site palette, in cascade order: the stylesheet of the `theme.preset` color preset
+     * (theme/presets/<name>.css), the :root and .dark token blocks generated from `theme.light`
+     * and `theme.dark`, then `theme.palette_css`. Later blocks win.
+     */
     public function palette(): string
     {
         $theme = $this->config['theme'];
-        $out = '';
+        $preset = self::root() . '/theme/presets/' . $theme['preset'] . '.css';
+        if (!is_file($preset)) {
+            throw new \LogicException('theme preset stylesheet missing: ' . $preset);
+        }
+        $out = rtrim((string) file_get_contents($preset)) . "\n";
         foreach ([':root' => $theme['light'], '.dark' => $theme['dark']] as $selector => $tokens) {
             if ($tokens === []) {
                 continue;
