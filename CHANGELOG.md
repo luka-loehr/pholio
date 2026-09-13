@@ -15,6 +15,15 @@ or the configuration schema; such changes are listed under **Changed**.
 - Release workflow that publishes `pholio-<version>.tar.gz`, `.zip` and `SHA256SUMS` for every `v*.*.*` tag.
 - `scripts/install.sh`, a one-command install of a release with checksum, PHP and PCRE2 checks.
 - `scripts/release.sh`, which bumps `VERSION`, dates the changelog, runs the checks and tags a release.
+- `verify/search-query.mjs`, which prints the top results of one query against a built search index.
+
+### Changed
+
+- Search has its own ranking: title and phrase matches first, all terms before some terms,
+  prefix matching on the last term, umlaut and `ß` folding, hyphen, space and compound
+  equivalence, typo tolerance only when nothing matches exactly, results grouped per page.
+- The search index is a compact inverted index (format version 2) without body text; it loads
+  on the first hover, focus or open of a search trigger, and queries run in a Web Worker.
 
 ## [0.1.0] - 2026-09-13
 
