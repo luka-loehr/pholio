@@ -152,9 +152,7 @@ php bin/pholio build --config examples/demo/pholio.config.php
 For your own project, in an empty directory:
 
 ```bash
-# 1. Bring Pholio into your project. While the repository is private this
-#    needs a GitHub account with access (HTTPS with a token, or
-#    git@github.com:luka-loehr/pholio.git over SSH).
+# 1. Bring Pholio into your project
 git clone https://github.com/luka-loehr/pholio.git vendor/pholio
 
 # 2. Start from the example configuration
