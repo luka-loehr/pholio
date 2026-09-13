@@ -736,10 +736,9 @@
     animation: var(--animate-fd-popover-in);
   }
 
-  /* Page actions below the description (components/page-actions.php,
-     js/page-actions.js): MarkdownCopyButton and ViewOptionsPopover of the
-     reference UI's layouts/shared/page-actions.js, in the row of the docs
-     template. Both buttons are buttonVariants({ color: 'secondary', size: 'sm' }). */
+  /* Page menu next to the page title (components/page-actions.php,
+     js/page-actions.js). Not in the reference design: modelled on Mintlify's page
+     menu, built from buttonVariants secondary and the popover above. */
 
   /* .nd-btn-text-sm  <-  rounded-md gap-1 px-2 py-1.5 text-xs (buttonVariants size sm) */
   .nd-btn-text-sm {
@@ -750,81 +749,118 @@
     line-height: var(--tw-leading, var(--text-xs--line-height));
   }
 
-  /* .nd-page-actions  <-  flex flex-row flex-wrap gap-2 items-center border-b pb-6 -mt-4 mb-8
-     The description above keeps its mb-8, so the row moves up by 4 to sit 4 below it. */
+  /* .nd-page-heading  <-  flex flex-wrap items-start justify-between gap-x-4 gap-y-3 */
+  .nd-page-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    column-gap: calc(var(--spacing) * 4);
+    row-gap: calc(var(--spacing) * 3);
+  }
+  .nd-page-heading > .nd-page-title {
+    min-width: 0;
+    flex: 1 1 16rem;
+  }
+
+  /* .nd-page-actions  <-  flex shrink-0 mt-1.5 (centers the 30 px trigger on the title's first line) */
   .nd-page-actions {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    margin-top: calc(var(--spacing) * -4);
-    margin-bottom: calc(var(--spacing) * 8);
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 1px;
-    padding-bottom: calc(var(--spacing) * 6);
+    flex-shrink: 0;
+    margin-top: calc(var(--spacing) * 1.5);
   }
 
-  /* .nd-page-copy, .nd-page-open  <-  gap-2 text-fd-secondary-foreground (color secondary;
-     nd-btn-secondary carries the muted text of the header trigger) */
-  .nd-page-copy,
-  .nd-page-open {
-    gap: calc(var(--spacing) * 2);
+  /* One bordered group, so both halves share one border and radius:
+     .nd-page-actions-group  <-  inline-flex items-stretch overflow-hidden rounded-md border bg-fd-secondary text-fd-secondary-foreground */
+  .nd-page-actions-group {
+    display: inline-flex;
+    align-items: stretch;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    background-color: var(--color-fd-secondary);
     color: var(--color-fd-secondary-foreground);
   }
+  .nd-page-actions-group > .nd-btn {
+    border-radius: 0;
+  }
+  @media (hover: hover) {
+    .nd-page-actions-group > .nd-btn:hover {
+      background-color: var(--color-fd-accent);
+      color: var(--color-fd-accent-foreground);
+    }
+  }
+  /* The group clips overflow, so the focus ring is drawn inside the half. */
+  .nd-page-actions-group > .nd-btn:focus-visible {
+    --tw-ring-inset: inset;
+  }
 
-  /* .nd-page-copy  <-  [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground */
+  /* .nd-page-copy  <-  gap-1.5 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground */
+  .nd-page-copy {
+    gap: calc(var(--spacing) * 1.5);
+  }
   .nd-page-copy svg {
     width: calc(var(--spacing) * 3.5);
     height: calc(var(--spacing) * 3.5);
     color: var(--color-fd-muted-foreground);
   }
 
-  /* .nd-page-open  <-  data-[popup-open]:bg-fd-accent data-[popup-open]:text-fd-accent-foreground */
+  /* .nd-page-open  <-  px-1.5 border-s data-[popup-open]:bg-fd-accent data-[popup-open]:text-fd-accent-foreground */
+  .nd-page-open {
+    padding-inline: calc(var(--spacing) * 1.5);
+    border-inline-start-style: var(--tw-border-style);
+    border-inline-start-width: 1px;
+  }
   .nd-page-open[data-popup-open] {
     background-color: var(--color-fd-accent);
     color: var(--color-fd-accent-foreground);
   }
 
-  /* .nd-page-open-chevron  <-  size-3.5 text-fd-muted-foreground */
+  /* .nd-page-open-chevron  <-  size-3.5 text-fd-muted-foreground transition-[rotate] duration-150, rotate-180 while open */
   .nd-page-open-chevron {
     width: calc(var(--spacing) * 3.5);
     height: calc(var(--spacing) * 3.5);
     color: var(--color-fd-muted-foreground);
+    transition-property: rotate;
+    transition-duration: .15s;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+  }
+  .nd-page-open[data-popup-open] .nd-page-open-chevron {
+    rotate: 180deg;
   }
 
-  /* Checked (useCopyButton): the check replaces the idle icon. */
+  /* Copied (2000 ms): the check replaces the copy icon, "Copied" replaces the label. */
   .nd-page-copy-done,
-  [data-checked] > .nd-page-copy-idle {
+  .nd-page-copy-copied,
+  [data-checked] .nd-page-copy-idle,
+  [data-checked] .nd-page-copy-label {
     display: none;
   }
-  [data-checked] > .nd-page-copy-done {
+  [data-checked] .nd-page-copy-done {
     display: block;
   }
-
-  /* .nd-page-actions-popup  <-  flex flex-col p-2 w-(--anchor-width) (PopoverContent) */
-  .nd-page-actions-popup {
-    display: flex;
-    width: var(--anchor-width);
-    flex-direction: column;
-    padding: calc(var(--spacing) * 2);
+  [data-checked] .nd-page-copy-copied {
+    display: inline;
   }
 
-  /* .nd-page-actions-item  <-  text-sm p-2 rounded-lg inline-flex items-center gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4 */
+  /* .nd-page-actions-popup  <-  flex flex-col w-72 p-1.5 (the width is fixed, so popover.js measures it right away) */
+  .nd-page-actions-popup {
+    display: flex;
+    width: calc(var(--spacing) * 72);
+    flex-direction: column;
+    padding: calc(var(--spacing) * 1.5);
+  }
+
+  /* .nd-page-actions-item  <-  flex w-full items-center gap-3 rounded-lg p-2 text-start hover:bg-fd-accent hover:text-fd-accent-foreground */
   .nd-page-actions-item {
-    display: inline-flex;
+    display: flex;
+    width: 100%;
     align-items: center;
-    gap: calc(var(--spacing) * 2);
+    gap: calc(var(--spacing) * 3);
     border-radius: var(--radius-lg);
     padding: calc(var(--spacing) * 2);
     text-align: start;
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-  .nd-page-actions-item svg {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    flex-shrink: 0;
   }
   @media (hover: hover) {
     .nd-page-actions-item:hover {
@@ -839,11 +875,62 @@
     outline-style: none;
   }
 
-  /* .nd-page-actions-external  <-  text-fd-muted-foreground size-3.5 ms-auto */
-  .nd-page-actions-item .nd-page-actions-external {
-    margin-inline-start: auto;
-    width: calc(var(--spacing) * 3.5);
-    height: calc(var(--spacing) * 3.5);
+  /* .nd-page-actions-tile  <-  flex size-8 shrink-0 items-center justify-center rounded-md border bg-fd-background [&_svg]:size-4 */
+  .nd-page-actions-tile {
+    display: flex;
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    background-color: var(--color-fd-background);
+    color: var(--color-fd-foreground);
+  }
+  .nd-page-actions-tile svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+
+  /* .nd-page-actions-logo  <-  text-black dark:text-white (the marks are single-color, filled with currentColor) */
+  .nd-page-actions-logo {
+    color: #000;
+  }
+  .dark .nd-page-actions-logo {
+    color: #fff;
+  }
+
+  /* .nd-page-actions-text  <-  flex min-w-0 flex-col */
+  .nd-page-actions-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  /* .nd-page-actions-title  <-  inline-flex items-center gap-1 text-sm font-medium */
+  .nd-page-actions-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+  }
+
+  /* .nd-page-actions-external  <-  size-3 text-fd-muted-foreground */
+  .nd-page-actions-external {
+    width: calc(var(--spacing) * 3);
+    height: calc(var(--spacing) * 3);
+    color: var(--color-fd-muted-foreground);
+  }
+
+  /* .nd-page-actions-desc  <-  text-xs text-fd-muted-foreground */
+  .nd-page-actions-desc {
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
     color: var(--color-fd-muted-foreground);
   }
 
