@@ -6,7 +6,7 @@ icon: map
 
 ## Now
 
-**Status: 0.1.0.** The generator, the theme, the verification
+**Status: 0.2.0.** The generator, the theme, the verification
 tooling and the tests are in this repository. `php bin/pholio build` builds the
 demo site in `examples/demo/`, `pholio check` compares a build with committed
 output, and `pholio dev` serves a site while you edit it.
