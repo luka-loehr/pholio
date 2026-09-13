@@ -9,20 +9,15 @@ require_once __DIR__ . '/../lib/Html.php';
 /**
  * The <html> shell of every page.
  *
- * Order in <head> as in the reference: charset, viewport, the scrollbar style
- * that Base UI inserts (only on pages with a ScrollArea, which means every docs
- * page), then the description. The golden DOM comparison removes `<title>`,
- * `<script>`, stylesheets and `<meta>` other than charset/viewport/description;
- * they are here anyway because they belong to the page. Favicons and the
- * manifest are `<link>`s the reference doesn't have; a site that configures
- * them lists them in its own golden DOM allow file next to
- * verify/allow/golden-dom.json.
+ * Order in <head>: charset, viewport, the scrollbar style of the scroll areas
+ * (only on pages with one, which means every docs page), the description, then
+ * title, scripts, stylesheet and the configured favicons and manifest.
  *
  * No inline script (Content Security Policy without 'unsafe-inline'):
  * - `theme-init.js` in <head>, classic and synchronous, sets the class
- *   `light`/`dark` and `color-scheme` on <html> before the first paint (the
- *   next-themes bootstrap script in the reference). The static initial state
- *   (light) is on <html>, so the page stays usable without JavaScript.
+ *   `light`/`dark` and `color-scheme` on <html> before the first paint. The
+ *   static initial state (light) is on <html>, so the page stays usable without
+ *   JavaScript.
  * - `sidebar-restore.js` is placed by components/sidebar.php after the drawer.
  * - `notebook.js` as a module at the end of <body>.
  *
@@ -31,7 +26,7 @@ require_once __DIR__ . '/../lib/Html.php';
  *   scrollArea:bool, assetBase:string, baseUrl:string, searchIndexUrl:string,
  *   icons:list<array{rel:string, type:?string, sizes:?string, href:string}>,
  *   manifest:?string, themeColor:?string, markdownUrl?:?string, robots?:?string, jsonLd?:?string
- * } $head `preset` null omits `data-preset`; `icons`, `manifest` and `themeColor`
+ * } $head `preset` names the color preset (null omits `data-preset`); `icons`, `manifest` and `themeColor`
  *   come from the `head` config and are emitted in this order after the search index,
  *   followed by the agent additions (lib/AgentSite.php): the alternate link to the
  *   page's Markdown twin, `<meta name="robots">` and the JSON-LD block.
@@ -51,11 +46,10 @@ function nd_document(array $head, string $body): string
         'data-preset' => $head['preset'] ?? null,
         // theme-init.js sets the class `light` and `color-scheme` at runtime.
         'class' => [$head['fontClass'], 'light'],
-        // A finished string instead of Html::style(): in the reference the theme
-        // script writes this value through the CSSOM (`style.colorScheme`), and the
-        // browser serialises it as `color-scheme: light;` with a space and a
-        // semicolon. Style attributes rendered by React are compact (`prop:value`)
-        // and stay with the shared serialiser.
+        // A finished string instead of Html::style(): theme-init.js writes this value
+        // through the CSSOM (`style.colorScheme`), and the browser serialises it as
+        // `color-scheme: light;` with a space and a semicolon, so the static and the
+        // scripted attribute are the same string.
         'style' => 'color-scheme: light;',
     ]) . '>';
 
