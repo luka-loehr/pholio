@@ -8,8 +8,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Callout box, rebuilt from the reference UI's `dist/components/callout.js`
- * (`Callout` = `CalloutContainer` + `CalloutTitle` + `CalloutDescription`).
+ * Callout box: container, title and description.
  *
  * Structure: a container with `--callout-color`, inside it the colour stripe
  * (`role="none"`), the type icon and a column of optional title and description.
@@ -42,7 +41,7 @@ function nd_callout(array $props, string $children): string
     );
 }
 
-/** Aliases as in `resolveAlias` in callout.js: `warn` becomes `warning`, `tip` becomes `info`. */
+/** Type aliases: `warn` becomes `warning`, `tip` becomes `info`. */
 function nd_callout_type(string $type): string
 {
     if ($type === '') {
