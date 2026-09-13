@@ -9,6 +9,8 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-13
+
 ### Added
 
 - **Markdown for every page.** Each page gets a clean Markdown twin at `<page>.md`: component tags
@@ -34,6 +36,13 @@ or the configuration schema; such changes are listed under **Changed**.
 
 - `.htaccess` and `pholio dev` serve `.md` files, the page twins; Markdown sources are never copied
   into the output.
+- **Collapsed sidebar layout**: on wide screens a collapsed sidebar centres the content and the table of
+  contents as one group instead of pushing the content to the left edge; the header keeps its full width.
+
+### Fixed
+
+- A collapsed sidebar stays collapsed when following a link or going back, and is restored before the
+  first paint; a reload still starts expanded.
 
 ## [0.2.0] - 2026-09-13
 
@@ -129,6 +138,7 @@ reproduction.
 - Documentation in `docs/`, written in Pholio's own format, and the licenses and
   notices of all vendored material.
 
-[Unreleased]: https://github.com/luka-loehr/pholio/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/luka-loehr/pholio/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/luka-loehr/pholio/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/luka-loehr/pholio/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/luka-loehr/pholio/releases/tag/v0.1.0
