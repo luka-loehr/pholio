@@ -4,7 +4,7 @@
 //   import { createPopover } from './popover.js';
 //   createPopover({ trigger, popupClass: '…', content: () => element });
 //
-// Ported is the feature set fumadocs-ui uses
+// Ported is the feature set the reference UI uses
 // (components/ui/popover.js): side "bottom", sideOffset 4, align "center",
 // flip and shift, portal at the end of <body>. Measured in the reference
 // (states/tabs-*.html of the reference export):
