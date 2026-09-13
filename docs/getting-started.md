@@ -22,9 +22,6 @@ submodule:
 git clone https://github.com/luka-loehr/pholio.git vendor/pholio
 ```
 
-While the repository is private, cloning needs a GitHub account with access:
-HTTPS with a token, or `git@github.com:luka-loehr/pholio.git` over SSH.
-
 ## Try the demo
 
 The repository contains a demo site that uses every component:
