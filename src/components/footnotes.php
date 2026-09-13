@@ -16,12 +16,10 @@ require_once __DIR__ . '/heading.php';
  * `footnoteLabel: "Footnotes"`, `footnoteLabelTagName: "h2"`,
  * `footnoteLabelProperties: {className: ["sr-only"]}`.
  *
- * In the reference the label goes through the MDX mapping `h2 → Heading`, so it
- * gets an anchor and a copy button like every heading, but keeps its fixed id
- * `footnote-label` and the class `sr-only`. The reference stylesheet has no rule
- * for `sr-only`; the label is visible in the reference. The label "Footnotes"
- * stays English, like the reference; the back link label comes from
- * `Back to reference(footnote)(aria-label)`.
+ * The label renders like every heading, with an anchor and a copy button, but
+ * keeps its fixed id `footnote-label` and the class `sr-only`. The theme has no
+ * rule for `sr-only`, so the label is visible. The label "Footnotes" stays
+ * English; the back link label comes from `Back to reference(footnote)(aria-label)`.
  */
 
 /** `normalizeUri` from micromark-util-sanitize-uri: percent-encode everything but the safe characters. */
