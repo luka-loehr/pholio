@@ -1,26 +1,25 @@
 // scroll-area.js — port of Base UI `ScrollArea` (@base-ui/react 1.8.0) to the
-// extent the reference uses it: `components/ui/scroll-area.tsx` renders
-// root, viewport, corner and exactly one vertical scrollbar with one thumb.
+// extent the theme uses it: root, viewport, corner and exactly one vertical
+// scrollbar with one thumb.
 //
 // Sources: scroll-area/root/ScrollAreaRoot.js, viewport/ScrollAreaViewport.js
 // (computeThumbPosition), scrollbar/ScrollAreaScrollbar.js, thumb/ScrollAreaThumb.js,
 // scroll-area/constants.js (SCROLL_TIMEOUT = 500, MIN_THUMB_SIZE = 16).
 //
-// Measured behaviour: the scrollbar is **not hidden with a delay**.
+// Behaviour: the scrollbar is **not hidden with a delay**.
 // `data-hovering`, and with it the visibility (`.nd-scroll-bar:not([data-hovering])`),
 // follows the pointer events on the root immediately; the fade-out comes from
 // `transition-opacity` alone. The 500 ms of `SCROLL_TIMEOUT` apply to the
 // `data-scrolling` attribute, not to visibility.
 //
-// Also measured: the scrollbar exists in the DOM only while the viewport
-// overflows (`shouldRender = keepMounted || !hiddenState.y`). The frozen
-// reference DOM at 1440x900 therefore has none.
+// The scrollbar exists in the DOM only while the viewport overflows
+// (`shouldRender = keepMounted || !hiddenState.y`).
 
 export const SCROLL_TIMEOUT = 500;
 export const MIN_THUMB_SIZE = 16;
 
 /**
- * Classes of the elements this module creates itself (verify/CLASS-MAP.md).
+ * Classes of the elements this module creates itself.
  * Visibility is not switched through classes: `.nd-scroll-bar:not([data-hovering])`
  * hides the track, the module only sets `data-hovering`.
  */
