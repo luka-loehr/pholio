@@ -6,6 +6,8 @@
 //
 //   Accept: text/markdown, or an AI assistant's user agent   the twin, as text/markdown
 //   Accept: text/plain                                        the twin, as text/plain
+//   OpenAI's agents                                           every twin and .md file as text/plain
+//   a .md file the build did not write                        404
 //   every response, 404s included                            Link, X-Llms-Txt, Vary: Accept, User-Agent
 //
 // Set BASE_PATH to base_path from pholio.config.php. Leave out Link entries for files the build
@@ -15,6 +17,11 @@ const BASE_PATH = '/';
 
 // src/AgentHeaders.php, USER_AGENTS.
 const AGENTS = /Claude-User|ChatGPT-User|OAI-SearchBot|PerplexityBot|Perplexity-User|Google-Agent|MistralAI-User|DuckAssistBot|cohere-ai/i;
+// src/AgentHeaders.php, PLAIN_USER_AGENTS: they reject text/markdown.
+const PLAIN_AGENTS = /ChatGPT-User|OAI-SearchBot|GPTBot/i;
+
+const MARKDOWN = 'text/markdown; charset=utf-8';
+const PLAIN = 'text/plain; charset=utf-8';
 
 const home = BASE_PATH.replace(/\/+$/, '');
 const HEADERS = {
@@ -31,10 +38,11 @@ const HEADERS = {
 /** The content type of the twin the request asks for, or null for the HTML page. */
 function twinType(request) {
   const accept = request.headers.get('Accept') ?? '';
-  if (/text\/markdown/i.test(accept) || AGENTS.test(request.headers.get('User-Agent') ?? '')) {
-    return 'text/markdown; charset=utf-8';
+  const agent = request.headers.get('User-Agent') ?? '';
+  if (/text\/markdown/i.test(accept) || AGENTS.test(agent)) {
+    return PLAIN_AGENTS.test(agent) ? PLAIN : MARKDOWN;
   }
-  return /text\/plain/i.test(accept) ? 'text/plain; charset=utf-8' : null;
+  return /text\/plain/i.test(accept) ? PLAIN : null;
 }
 
 function withHeaders(response, contentType = null) {
@@ -44,11 +52,30 @@ function withHeaders(response, contentType = null) {
   return out;
 }
 
+/** Whether a .md path is one the build writes: a page twin, index.md, skill.md, an _llms/ index or .well-known/. */
+async function servesMarkdown(url, request, env) {
+  if (!url.pathname.startsWith(`${home}/`)) return false;
+  const relative = url.pathname.slice(home.length + 1);
+  if (['index.md', 'skill.md'].includes(relative) || relative.startsWith('_llms/') || relative.startsWith('.well-known/')) return true;
+  const sibling = new URL(`${url.pathname.slice(0, -3)}/index.html`, url);
+  const response = await env.ASSETS.fetch(new Request(sibling, { method: 'HEAD', headers: request.headers }));
+  return response.status !== 404;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const type = twinType(request);
 
+    if (/\.md$/i.test(url.pathname)) {
+      if (!(await servesMarkdown(url, request, env))) {
+        return withHeaders(new Response('404 Not Found\n', { status: 404, headers: { 'Content-Type': PLAIN } }));
+      }
+      const response = await env.ASSETS.fetch(request);
+      const agent = request.headers.get('User-Agent') ?? '';
+      return withHeaders(response, response.ok ? (PLAIN_AGENTS.test(agent) ? PLAIN : MARKDOWN) : null);
+    }
+
+    const type = twinType(request);
     // Page URLs have no file extension. x and x/ have the twin x.md, the start page index.md.
     if (type && (request.method === 'GET' || request.method === 'HEAD') && !/\.[a-z0-9]+$/i.test(url.pathname)) {
       const path = url.pathname.replace(/\/+$/, '');
