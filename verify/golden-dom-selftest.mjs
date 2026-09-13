@@ -5,7 +5,7 @@
 //   node verify/golden-dom-selftest.mjs
 //
 // It needs no reference export: every page is generated into a temporary directory, shaped
-// like a hydrated Fumadocs page (hydration ids, a viewport meta, a navigation, a drawer at
+// like a hydrated reference page (hydration ids, a viewport meta, a navigation, a drawer at
 // the narrow width). The tool then runs against these pages in a separate process.
 //
 // 1. A reference page is copied and changed in four ways:
