@@ -10,10 +10,13 @@ require_once __DIR__ . '/I18n.php';
 require_once __DIR__ . '/Config.php';
 require_once __DIR__ . '/Htaccess.php';
 require_once __DIR__ . '/Builder.php';
+require_once __DIR__ . '/Init.php';
 
 /**
- * The `pholio` command line: argument parsing, the build, check and dev
- * commands, and the mapping of errors to exit codes.
+ * The `pholio` command line: argument parsing, the init, build, check and dev
+ * commands, and the mapping of errors to exit codes. Without --config, a
+ * command works on a project directory (default: the current one) that
+ * follows the convention described in Config.
  *
  * Exit codes: 0 success, 1 check found differences, 2 usage or configuration
  * error, 3 content error, 4 I/O error, 70 internal error (with a trace when
@@ -26,19 +29,39 @@ final class Cli
     public const USAGE = 2;
     public const INTERNAL = 70;
 
+    private const SHORT_HELP = <<<'TEXT'
+Pholio – static documentation sites from Markdown.
+
+  pholio init [dir]     Create a project: content/, assets/, pholio.config.php
+  pholio dev [dir]      Build, serve at http://127.0.0.1:8080, rebuild on changes
+  pholio build [dir]    Write the site into public/
+  pholio check [dir]    Compare a fresh build with public/
+
+[dir] defaults to the current directory. Run "pholio --help" for all options.
+TEXT;
+
     private const USAGE_TEXT = <<<'TEXT'
 Pholio – static documentation sites from Markdown.
 
 Usage:
-  pholio build  [--config <file>] [--profile <name>] [--content <dir>] [--out <dir>]
+  pholio init   [dir] [--name <site name>] [--lang en|de] [--force]
+  pholio build  [dir] [--config <file>] [--profile <name>] [--content <dir>] [--out <dir>]
                 [--only <url-part>] [--dev] [--quiet] [--set <key.path>=<value>]
-  pholio check  [--config <file>] [--profile <name>] [--content <dir>] [--against <dir>]
+  pholio check  [dir] [--config <file>] [--profile <name>] [--content <dir>] [--against <dir>]
                 [--dev] [--set <key.path>=<value>]
-  pholio dev    [--config <file>] [--profile <name>] [--content <dir>] [--host 127.0.0.1]
+  pholio dev    [dir] [--config <file>] [--profile <name>] [--content <dir>] [--host 127.0.0.1]
                 [--port 8080] [--no-watch] [--set <key.path>=<value>]
   pholio --help | <command> --help | --version
 
+Project layout ([dir], default: the current directory):
+  pholio.config.php     optional; every key has a default
+  content/              Markdown pages and meta.json files
+  assets/               images and files, published at /assets/
+  public/               the built site
+
 Commands:
+  init    Create that layout with a small sample site. Refuses to overwrite
+          existing files unless --force.
   build   Render the site into output_dir.
   check   Render into a temporary directory and compare it with --against
           (default output_dir) in both directions. Differences are printed as
@@ -47,7 +70,7 @@ Commands:
           and rebuild when content, config or copied files change.
 
 Options:
-  --config <file>        Configuration file. Default: ./pholio.config.php
+  --config <file>        Configuration file. Default: <dir>/pholio.config.php if present
   --profile <name>       Merge profiles.<name> over the configuration.
   --content <dir>        Override content_dir.
   --out <dir>            Override output_dir.
@@ -59,6 +82,9 @@ Options:
   --host <host>          dev server host. Default: 127.0.0.1
   --port <port>          dev server port. Default: 8080
   --no-watch             dev: serve without rebuilding on changes.
+  --name <site name>     init: site title. Default: the directory name
+  --lang <language>      init: UI language, en or de. Default: en
+  --force                init: overwrite existing files.
 
 Exit codes:
   0 success, 1 check found differences, 2 usage or configuration error,
@@ -67,6 +93,9 @@ TEXT;
 
     /** @var array<string, array<string, bool>> command => option => takes a value */
     private const OPTIONS = [
+        'init' => [
+            'name' => true, 'lang' => true, 'force' => false, 'help' => false,
+        ],
         'build' => [
             'config' => true, 'profile' => true, 'content' => true, 'out' => true, 'only' => true,
             'dev' => false, 'quiet' => false, 'set' => true, 'check' => false, 'help' => false,
@@ -131,12 +160,12 @@ TEXT;
     private function dispatch(array $args): int
     {
         $command = $args[0] ?? null;
-        if ($command === null || $command === '--help' || $command === '-h' || $command === 'help') {
-            if ($command === null) {
-                fwrite($this->err, self::USAGE_TEXT . "\n");
+        if ($command === null) {
+            fwrite($this->out, self::SHORT_HELP . "\n");
 
-                return self::USAGE;
-            }
+            return self::OK;
+        }
+        if ($command === '--help' || $command === '-h' || $command === 'help') {
             fwrite($this->out, self::USAGE_TEXT . "\n");
 
             return self::OK;
@@ -149,7 +178,7 @@ TEXT;
         if (!isset(self::OPTIONS[$command])) {
             throw new ConfigException(
                 (str_starts_with($command, '-') ? 'unknown option: ' : 'unknown command: ') . $command
-                . ' (commands: build, check, dev; see pholio --help)',
+                . ' (commands: init, dev, build, check; see pholio --help)',
             );
         }
 
@@ -161,6 +190,7 @@ TEXT;
         }
 
         return match ($command) {
+            'init' => $this->init($options),
             'build' => isset($options['check']) ? $this->deprecatedCheck($options) : $this->build($options),
             'check' => $this->check($options),
             'dev' => $this->dev($options),
@@ -169,7 +199,7 @@ TEXT;
 
     /**
      * @param list<string> $args
-     * @return array<string, string|true|list<string>> "set" collects a list
+     * @return array<string, string|true|list<string>> "set" collects a list, "dir" is the positional argument
      */
     public static function parseOptions(string $command, array $args): array
     {
@@ -178,7 +208,11 @@ TEXT;
         for ($i = 0; $i < count($args); $i++) {
             $arg = $args[$i];
             if (!str_starts_with($arg, '--')) {
-                throw new ConfigException("unexpected argument: {$arg} (see pholio {$command} --help)");
+                if (isset($options['dir'])) {
+                    throw new ConfigException("unexpected argument: {$arg}; only one project directory is allowed (see pholio {$command} --help)");
+                }
+                $options['dir'] = $arg;
+                continue;
             }
             $name = substr($arg, 2);
             $value = null;
@@ -224,9 +258,7 @@ TEXT;
     private function build(array $options): int
     {
         $config = $this->config($options);
-        if (!is_dir($config['contentDir'])) {
-            throw new ConfigException('content directory not found: ' . $config['contentDir']);
-        }
+        self::requireContent($config);
         $dev = isset($options['dev']);
         $result = $this->builder($config, $dev, $options['only'] ?? null)->build($config['outDir']);
 
@@ -267,9 +299,7 @@ TEXT;
     private function check(array $options): int
     {
         $config = $this->config($options);
-        if (!is_dir($config['contentDir'])) {
-            throw new ConfigException('content directory not found: ' . $config['contentDir']);
-        }
+        self::requireContent($config);
         $against = rtrim(isset($options['against']) ? Config::absolute($options['against'], (string) getcwd()) : $config['outDir'], '/');
 
         $root = Fs::tempDir();
@@ -306,6 +336,7 @@ TEXT;
         }
 
         $config = $this->config($options);
+        self::requireContent($config);
         // Measured before building: a failed build may leave partial output behind.
         $hadOutput = Fs::treeFiles($config['outDir']) !== [];
         [, $code] = $this->devBuild($options);
@@ -445,7 +476,8 @@ TEXT;
             return [$config, self::OK];
         }
 
-        $args = [PHP_BINARY, dirname(__DIR__) . '/bin/pholio', 'build', '--dev', '--config', $config['configFile']];
+        $args = [PHP_BINARY, dirname(__DIR__) . '/bin/pholio', 'build', '--dev'];
+        array_push($args, ...($config['configFile'] !== '' ? ['--config', $config['configFile']] : [$config['configDir']]));
         foreach (['profile', 'content'] as $name) {
             if (isset($options[$name])) {
                 array_push($args, '--' . $name, $options[$name]);
@@ -470,7 +502,10 @@ TEXT;
      */
     private function watchedPaths(array $config): array
     {
-        $paths = [$config['configFile'], $config['contentDir']];
+        $paths = [$config['configDir'] . '/' . Config::DEFAULT_FILE, $config['contentDir']];
+        if ($config['configFile'] !== '') {
+            $paths[] = $config['configFile'];
+        }
         foreach ($config['copy'] as $copy) {
             $paths[] = $copy['from'];
         }
@@ -526,7 +561,70 @@ TEXT;
             $overrides[$key] = $value;
         }
 
-        return Config::load($options['config'] ?? Config::DEFAULT_FILE, $options['profile'] ?? null, $overrides);
+        if (isset($options['config'])) {
+            if (isset($options['dir'])) {
+                throw new ConfigException('give either a project directory or --config, not both');
+            }
+
+            return Config::load($options['config'], $options['profile'] ?? null, $overrides);
+        }
+
+        return Config::forDirectory($options['dir'] ?? $cwd, $options['profile'] ?? null, $overrides);
+    }
+
+    /** @param array<string, mixed> $config */
+    private static function requireContent(array $config): void
+    {
+        if (is_dir($config['contentDir'])) {
+            return;
+        }
+        if ($config['configFile'] === '') {
+            throw new ConfigException(sprintf(
+                'no %s and no %s/ directory in %s; create a project with "pholio init" or pass --config <file>',
+                Config::DEFAULT_FILE,
+                Config::CONTENT_DIR,
+                $config['configDir'],
+            ));
+        }
+
+        throw new ConfigException('content directory not found: ' . $config['contentDir'], $config['configFile']);
+    }
+
+    /** @param array<string, mixed> $options */
+    private function init(array $options): int
+    {
+        $cwd = (string) getcwd();
+        $given = $options['dir'] ?? '.';
+        $dir = rtrim(Config::absolute($given, $cwd), '/');
+        $name = $options['name'] ?? self::titleFromDirectory($dir);
+        $language = $options['lang'] ?? I18n::DEFAULT_LANGUAGE;
+        if (!in_array($language, I18n::languages(), true)) {
+            throw new ConfigException("--lang: expected one of " . implode(', ', I18n::languages()) . ", got {$language}");
+        }
+
+        $files = Init::create($dir, $name, $language, isset($options['force']));
+
+        fwrite($this->out, "Created {$name} in {$dir}:\n");
+        foreach ($files as $file) {
+            fwrite($this->out, "  {$file}\n");
+        }
+        fwrite($this->out, "\nNext steps:\n");
+        if ($given !== '.' && realpath($dir) !== realpath($cwd)) {
+            fwrite($this->out, '  cd ' . (str_contains($given, ' ') ? escapeshellarg($given) : $given) . "\n");
+        }
+        fwrite($this->out, "  pholio dev      preview at http://127.0.0.1:8080, rebuilds when you save\n");
+        fwrite($this->out, "  pholio build    write the static site into public/\n");
+
+        return self::OK;
+    }
+
+    /** "my-docs" gives "My Docs". */
+    private static function titleFromDirectory(string $dir): string
+    {
+        $base = basename($dir === '' ? '/' : $dir);
+        $words = trim((string) preg_replace('/[-_.\s]+/', ' ', $base));
+
+        return $words === '' ? 'Documentation' : ucwords($words);
     }
 
     /** @param array<string, mixed> $config */
