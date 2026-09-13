@@ -1,7 +1,7 @@
 // scroll-into-view.js — replacement for the packages `scroll-into-view-if-needed` and
-// `compute-scroll-into-view`, which Fumadocs uses for the auto scroll of the sidebar
+// `compute-scroll-into-view`, which the reference uses for the auto scroll of the sidebar
 // (components/sidebar/base.js → useAutoScroll) and of the table of contents
-// (fumadocs-core/toc → TOCItem).
+// (reference core toc → TOCItem).
 //
 // Ported is exactly the part of the original computation these two calls
 // hit: collect scrollable ancestors up to the boundary, compute the target
