@@ -7,7 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * The grid of the notebook layout (`layouts/notebook/slots/container.js`) for
+ * The grid of the docs layout for
  * `nav.mode: top`.
  *
  * Three rows (header, TOC popover, main area with table of contents) and five
