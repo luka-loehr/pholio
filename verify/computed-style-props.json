@@ -1,5 +1,5 @@
 {
-  "_comment": "Property list for verify/computed-style.mjs. properties are read with getComputedStyle, customProperties with getPropertyValue. The tool always compares getBoundingClientRect() (x, y, width, height) as well, with --tolerance-px. states describes the interactions for --states; if a selector is missing on both sides the state is skipped, if it is missing on one side only the state is red. pages (optional) is a regular expression on the reference path. The selectors use Playwright's :visible because the header renders several controls twice (one for wide, one for narrow views) and the invisible one comes first in the document. The hit element is marked with data-verify-state-target during the comparison; no style targets that attribute. State selectors never use UI text, because labels depend on the site language; they rely on ids, ARIA and data attributes and structure, and where they use a class (prose) or a class substring it has to match on both sides: the reference carries Tailwind utilities, Pholio nd- component classes. A selector that matches on one side only makes the state red, never silently skipped.",
+  "_comment": "Property list for verify/computed-style.mjs. properties are read with getComputedStyle, customProperties with getPropertyValue. The tool always compares getBoundingClientRect() (x, y, width, height) as well, with --tolerance-px. states describes the interactions for --states; if a selector is missing on both sides the state is skipped, if it is missing on one side only the state is red. pages (optional) is a regular expression on the reference path. The selectors use Playwright's :visible because the header renders several controls twice (one for wide, one for narrow views) and the invisible one comes first in the document. The hit element is marked with data-verify-state-target during the comparison; no style targets that attribute. State selectors never use UI text, because labels depend on the site language; they rely on ids, ARIA and data attributes and structure, and where they use a class (prose) or a class substring it has to match on both sides: the reference carries Tailwind utilities, Pholio nd- component classes. A selector that matches on one side only makes the state red, never silently skipped. A state with steps (click, hover, press, mouse, wait, waitFor) instead of actions changes the page, compares the subtree of selector afterwards and reloads the page; widths (optional) limits it to the listed widths.",
   "properties": [
     "display",
     "position",
@@ -338,6 +338,30 @@
         "hover"
       ],
       "note": "First row of the first table."
+    },
+    {
+      "name": "sidebar-collapsed",
+      "selector": "#nd-notebook-layout",
+      "steps": [
+        { "click": "button[data-collapsed]:visible" },
+        { "wait": 600 },
+        { "mouse": [900, 700] },
+        { "wait": 300 }
+      ],
+      "widths": [1440, 1024],
+      "note": "Sidebar collapsed through its trigger, mouse far from the hover zone; the whole layout is compared. The trigger is hidden below 768 px, hence the widths. The page is loaded again afterwards."
+    },
+    {
+      "name": "sidebar-collapsed-hovered",
+      "selector": "#nd-notebook-layout",
+      "steps": [
+        { "click": "button[data-collapsed]:visible" },
+        { "wait": 600 },
+        { "hover": "[data-sidebar-placeholder] > div:first-child" },
+        { "wait": 600 }
+      ],
+      "widths": [1440, 1024],
+      "note": "Collapsed sidebar shown again through the 4 px hover zone, the first child of [data-sidebar-placeholder] on both sides while collapsed."
     }
   ]
 }
