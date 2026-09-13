@@ -22,6 +22,9 @@ submodule:
 git clone https://github.com/luka-loehr/pholio.git vendor/pholio
 ```
 
+While the repository is private, cloning needs a GitHub account with access:
+HTTPS with a token, or `git@github.com:luka-loehr/pholio.git` over SSH.
+
 ## Try the demo
 
 The repository contains a demo site that uses every component:
@@ -40,8 +43,10 @@ Then open `http://127.0.0.1:8080`.
 cp vendor/pholio/pholio.config.example.php docs.config.php
 ```
 
-Only `title`, `content_dir` and `output_dir` are required. Paths are relative to
-the configuration file. [Configuration](/docs/configuration) lists every key.
+The example builds as it is once `content/` holds a page; images, a logo and
+copied directories are commented out until those files exist. Only `title`,
+`content_dir` and `output_dir` are required. Paths are relative to the
+configuration file. [Configuration](/docs/configuration) lists every key.
 
 ```php
 <?php
