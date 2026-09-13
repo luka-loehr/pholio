@@ -1,0 +1,56 @@
+/* Print stylesheet (CRLF line endings) */
+@page {
+  size: A4 portrait;
+  margin: 20mm 15mm 25mm;
+
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font-size: 9pt;
+  }
+}
+
+@page :first {
+  margin-top: 40mm;
+}
+
+@media print {
+  nav,
+  .sidebar,
+  button,
+  .toc-rail {
+    display: none !important;
+  }
+
+  body {
+    font: 11pt/1.4 Georgia, "Times New Roman", serif;
+    color: #000;
+    background: none;
+  }
+
+  a[href]::after {
+    content: " <" attr(href) ">";
+    font-size: 0.8em;
+    word-break: break-all;
+  }
+
+  h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  pre, table, figure {
+    break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+    filter: grayscale(1) contrast(120%);
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce), (update: slow) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition: none !important;
+  }
+}
