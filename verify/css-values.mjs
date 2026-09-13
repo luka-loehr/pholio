@@ -35,6 +35,7 @@
  * with `--candidate`. Both sides lose their comments and blank lines and have
  * their lines trimmed; the expected side also gets the class renames of
  * RENAMES applied, so a stylesheet from before a rename still compares.
+ * Mode 1 applies the same renames to the reference stylesheet.
  *
  * Usage:
  *   node verify/css-values.mjs --reference <reference.css> [--palette <palette.css>]
@@ -55,7 +56,18 @@ const themeCss = resolve(here, '../theme/css');
 const PALETTE_MARKER = '/* @pholio:palette */';
 
 /** Class renames between an older delivered stylesheet and this theme. */
-const RENAMES = [['nd-tocpop-panel', 'nd-collapsible-panel']];
+const RENAMES = [
+  ['nd-tocpop-panel', 'nd-collapsible-panel'],
+  ['.not-fumadocs-codeblock ', '.not-pholio-codeblock '],
+  ['.not-fumadocs-code ', '.not-pholio-code '],
+];
+
+/** Applies RENAMES to a stylesheet from before the renames. */
+function renamed(css) {
+  let out = css;
+  for (const [from, to] of RENAMES) out = out.replaceAll(from, to);
+  return out;
+}
 
 const referencePath = arg('reference', null);
 const comparePath = arg('compare', null);
@@ -305,9 +317,7 @@ function ruleLines(css) {
 
 /** Compares a delivered notebook.css with the one built from theme/css. */
 function compare(expectedCss, candidateCss) {
-  let renamed = expectedCss;
-  for (const [from, to] of RENAMES) renamed = renamed.replaceAll(from, to);
-  const expected = ruleLines(renamed);
+  const expected = ruleLines(renamed(expectedCss));
   const actual = ruleLines(candidateCss);
   const problems = [];
   const n = Math.max(expected.length, actual.length);
@@ -329,7 +339,7 @@ function compare(expectedCss, candidateCss) {
 const problems = [];
 
 if (referencePath !== null) {
-  const referenceCss = readFileSync(referencePath, 'utf8');
+  const referenceCss = renamed(readFileSync(referencePath, 'utf8'));
   const reference = parse(referenceCss);
   const tokens = parse(withPalette(themeFile('tokens.css')));
   const animations = parse(themeFile('animations.css'));
