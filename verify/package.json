@@ -2,7 +2,7 @@
   "name": "pholio-verify",
   "version": "0.0.0",
   "private": true,
-  "description": "Development-only parity tooling for Pholio. Never shipped.",
+  "description": "Development-only Node checks for Pholio: search engine, search dialog, agent files, icons. Never shipped.",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -10,15 +10,13 @@
     "npm": ">=11.0.0"
   },
   "scripts": {
-    "selftest": "node run.mjs --tier 0",
+    "check": "node run.mjs",
     "browser": "playwright install chromium-headless-shell firefox webkit"
   },
   "devDependencies": {
-    "fumadocs-core": "16.15.9",
     "lucide-react": "1.45.0",
     "playwright": "1.61.1",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "shiki": "4.4.3"
+    "react-dom": "19.2.8"
   }
 }
