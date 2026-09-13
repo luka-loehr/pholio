@@ -117,7 +117,7 @@ final class RenderCatalogue
 
         switch ($type) {
             case 'footnote_definition':
-                // The reference renders it in the section at the end of the page, not in place.
+                // Rendered in the section at the end of the page, not in place.
                 return '';
 
             case 'list':
@@ -347,7 +347,7 @@ final class RenderCatalogue
     /**
      * GFM task list (`listItem` in mdast-util-to-hast): `ul/ol.contains-task-list`,
      * `li.task-list-item`, a disabled checkbox and a space at the start of the
-     * first paragraph. React separates that space from the following text with a comment.
+     * first paragraph. that space is separated from the following text by a comment.
      *
      * @param array<string,mixed> $block
      */
@@ -436,7 +436,7 @@ final class RenderCatalogue
         $lineNumbers = $result['lineNumbers'] ?? false;
         $attrs = [];
         if ($lineNumbers !== false) {
-            // In the original the pre properties reach the figure through `...props`.
+            // The pre properties go onto the figure.
             $attrs['data-line-numbers'] = 'true';
             if (is_int($lineNumbers)) {
                 $attrs['data-line-numbers-start'] = (string) $lineNumbers;
@@ -509,8 +509,8 @@ final class RenderCatalogue
                 return Html::tag('del', [], Render::inlines($node['inlines'], $ctx));
 
             case 'break':
-                // to-hast appends a text node "\n" to `br`; React separates it from the
-                // following text with a comment, so the DOM has two text nodes.
+                // to-hast appends a text node "\n" to `br`; a comment separates it from the
+                // following text, so the DOM has two text nodes.
                 return "<br>\n<!-- -->";
 
             case 'footnote_reference':
@@ -536,7 +536,7 @@ final class RenderCatalogue
     /**
      * The `section.footnotes` after the last block (`footer.js`). Only footnotes
      * that are referenced, in order of first reference; references inside
-     * footnote texts extend the list during the loop, as in the original.
+     * footnote texts extend the list during the loop.
      */
     public static function footnotes(Document $document, RenderContext $ctx): string
     {
