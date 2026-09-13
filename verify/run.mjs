@@ -359,9 +359,10 @@ async function tier2() {
     await check(...scriptStep(tool));
   }
   await check(...scriptStep('verify/search-parity.mjs', ['--selftest']));
+  const demoContent = ['--content', 'examples/demo/content', '--base-url', '/', '--tokenizer', 'english'];
+  await check(...scriptStep('verify/search-parity.mjs', ['--consistency', ...demoContent]));
   await check(...scriptStep('verify/search-parity.mjs', [
-    '--oracle', '--content', 'examples/demo/content', '--base-url', '/',
-    '--queries', 'verify/fixtures/demo/queries.json', '--tokenizer', 'english',
+    '--relevance', ...demoContent, '--fixture', 'verify/fixtures/demo/search-relevance.json',
   ]));
   // Every icon with an explicit seed, which fixes the class names paired with each icon:
   // a failure reproduces on every run.
