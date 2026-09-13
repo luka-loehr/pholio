@@ -526,14 +526,12 @@
     flex: 1;
   }
 
-  /* .nd-scroll-viewport  <-  mask-[linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)] overscroll-contain p-4 rounded-[inherit] size-full */
+  /* .nd-scroll-viewport  <-  overscroll-contain p-4 rounded-[inherit] size-full */
   .nd-scroll-viewport {
     width: 100%;
     height: 100%;
     overscroll-behavior: contain;
     border-radius: inherit;
-    -webkit-mask-image: linear-gradient(#0000, #fff 12px calc(100% - 12px), #0000);
-    mask-image: linear-gradient(#0000, #fff 12px calc(100% - 12px), #0000);
     padding: calc(var(--spacing) * 4);
   }
 
@@ -937,7 +935,7 @@
     height: calc(var(--spacing) * 4);
   }
 
-  /* .nd-toc-scroll  <-  [scrollbar-width:none] mask-[linear-gradient(to_bottom,transparent,white_16px,white_calc(100%-16px),transparent)] min-h-0 ms-px overflow-x-clip overflow-y-auto overscroll-contain py-3 relative text-sm */
+  /* .nd-toc-scroll  <-  [scrollbar-width:none] min-h-0 ms-px overflow-x-clip overflow-y-auto overscroll-contain py-3 relative text-sm */
   .nd-toc-scroll {
     position: relative;
     margin-inline-start: 1px;
@@ -946,8 +944,6 @@
     overflow-x: clip;
     overflow-y: auto;
     overscroll-behavior: contain;
-    -webkit-mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
-    mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
     padding-block: calc(var(--spacing) * 3);
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
