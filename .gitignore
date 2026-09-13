@@ -11,6 +11,7 @@ npm-debug.log*
 /verify/reference/
 /verify/report/
 /verify/test-results/
+.build/
 
 # Local config and scratch
 /pholio.config.php
