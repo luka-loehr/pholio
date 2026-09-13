@@ -1,0 +1,70 @@
+/* Components: tables, cards and callouts */
+@layer reset, base, components, utilities;
+
+@layer components {
+  /* [!code focus] */
+  .card {
+    display: grid;
+    grid-template-columns: [start] minmax(0, 1fr) [end];
+    gap: var(--space);
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #d0d7de;
+    border-radius: 0.5rem; /* [!code highlight] */
+    box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%);
+
+    & > h2 {
+      margin-top: 0;
+    }
+
+    &:hover {
+      border-color: var(--color-accent);
+    }
+
+    .dark & {
+      background: #161b22;
+    }
+
+    @media (width >= 48em) {
+      grid-template-columns: 12rem 1fr;
+    }
+  }
+
+  /* [!code word:table] */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #333; /* [!code --] */
+    color: var(--color-text); /* [!code ++] */
+
+    th,
+    td {
+      padding: .5em .75em;
+      text-align: start;
+    }
+
+    /* [!code highlight:3] */
+    tbody tr:nth-child(even) {
+      background-color: #f6f8fa;
+    }
+  }
+
+  .callout {
+    --callout-color: #0969da; /* [!code word:callout:2] */
+    border-inline-start: 4px solid var(--callout-color);
+    background: color-mix(in oklab, var(--callout-color) 8%, transparent);
+
+    &.callout--warning { --callout-color: #9a6700; }
+    &.callout--danger { --callout-color: #cf222e; }
+  }
+}
+
+@layer utilities {
+  .visually-hidden:not(:focus):not(:active) {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+}
