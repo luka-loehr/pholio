@@ -29,6 +29,10 @@
 // pixel-states.json ({click|hover: selector}, {press: key}, {mouse: [x, y]}, {wait: ms},
 // {waitFor: selector}) for states that change the page, such as a collapsed sidebar, and
 // loads the page again afterwards. `widths` limits a state to the listed widths.
+// `intentional: { reason, skip: [...] }` marks a deliberate design difference from the
+// reference for that state only: differences in the listed properties (and all four
+// rectangle values with "rect") are left out and counted in the report, everything else is
+// still compared.
 //
 // Structure itself is the job of golden-dom.mjs. If it differs, this tool aborts the page
 // with a hard error instead of reporting a thousand follow-up differences.
@@ -301,8 +305,17 @@ async function main() {
                 try {
                   const a = await collect(ref.page, stateOptions);
                   const b = await collect(cand.page, stateOptions);
-                  const diffs = compare(a, b, { properties, customProperties });
-                  record.states.push({ name, elements: a.rows.length, diffs });
+                  let diffs = compare(a, b, { properties, customProperties });
+                  // `intentional` marks a deliberate design difference from the reference for
+                  // this state only: the listed geometry is left out, everything else stays strict.
+                  let intentional = null;
+                  if (state.intentional) {
+                    const skip = new Set(state.intentional.skip ?? []);
+                    const kept = diffs.filter((d) => !(skip.has(d.prop) || (skip.has('rect') && d.prop.startsWith('rect.'))));
+                    intentional = { reason: state.intentional.reason, skipped: diffs.length - kept.length };
+                    diffs = kept;
+                  }
+                  record.states.push({ name, elements: a.rows.length, diffs, ...(intentional ? { intentional } : {}) });
                 } catch (err) {
                   record.states.push({ name, error: err.message, structure: err.structure ?? null });
                 }
