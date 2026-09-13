@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Computed style comparison: a Fumadocs reference app against a Pholio build.
+// Computed style comparison: a reference app against a Pholio build.
 //
 //   node verify/computed-style.mjs --reference http://127.0.0.1:3000 --candidate http://127.0.0.1:4000 \
 //        --pages <export>/tree.json --rewrites <file.json>
