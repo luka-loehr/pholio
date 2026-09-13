@@ -254,6 +254,39 @@ test('home layout leaves out hero and cards that are not configured', function (
     assert_contains('<main class="nd-home-main"><section class="nd-home-section">', $html);
 });
 
+// ------------------------------------------------------------------ content errors
+
+test('an unknown code fence language is a content error: exit 3 with file:line', function (): void {
+    $dir = render_temp_dir();
+    mkdir($dir . '/content', 0777, true);
+    file_put_contents($dir . '/content/index.md', "---\ntitle: Start\n---\n\nText\n\n```sh\nok\n```\n\n```nosuchlang title=\"x\"\na\n```\n");
+    file_put_contents($dir . '/pholio.config.php', "<?php\nreturn ['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out'];\n");
+
+    $process = proc_open(
+        [PHP_BINARY, dirname(__DIR__) . '/bin/pholio', 'build', '--config', $dir . '/pholio.config.php', '--quiet'],
+        [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+        $pipes
+    );
+    stream_get_contents($pipes[1]);
+    $err = (string) stream_get_contents($pipes[2]);
+    $code = proc_close($process);
+
+    assert_same(3, $code, $err);
+    assert_contains('pholio: ' . $dir . '/content/index.md:11: Language `nosuchlang` not found', $err);
+});
+
+test('an unknown DynamicCodeBlock language points at its tag', function (): void {
+    $dir = render_temp_dir();
+    $file = $dir . '/page.md';
+    file_put_contents($file, "Text\n\n<DynamicCodeBlock lang=\"nosuchlang\">\na\n</DynamicCodeBlock>\n");
+    $error = assert_throws(Pholio\ContentException::class, static fn() => Render::body(
+        Markdown::parse((string) file_get_contents($file), $file),
+        RenderContext::create()
+    ), 'Language `nosuchlang` not found');
+    assert_same(3, $error->exitCode());
+    assert_same([$file, 3], [$error->sourceFile, $error->sourceLine]);
+});
+
 // ------------------------------------------------------------------ demo build
 
 test('every demo page renders byte-identically in two builds', function (): void {
