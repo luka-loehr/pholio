@@ -6,27 +6,25 @@ icon: map
 
 ## Now
 
-**Status: 0.3.0.** The generator, the theme, the verification
-tooling and the tests are in this repository. `php bin/pholio build` builds the
-demo site in `examples/demo/`, `pholio check` compares a build with committed
-output, and `pholio dev` serves a site while you edit it.
-
-The content format covers the full component catalog: callouts, cards,
-screenshots, image zoom, banners, tabs, accordions, steps, file trees, type
-tables, an inline table of contents and highlighted code blocks.
+**Status: 0.1.0.** `pholio init` creates a project, `pholio dev` previews it
+while you edit, `pholio build` writes the static site and `pholio check`
+compares a build with committed output. The theme ships eleven color presets,
+the content format covers every component on the
+[components page](/docs/components), and every build publishes the files AI
+agents look for.
 
 ## Next
 
-1. **Link and image checks, after 0.1.** Stop the build on an internal link to
-   a page that doesn't exist, on a missing image and on a `Screenshot` whose
-   dark image is missing.
-2. **The planned keys.** `base_url` with canonical links, Open Graph and a
-   sitemap; `theme.default_scheme` and `theme.custom_css`; `search.enabled`;
-   icon links in `nav`; `strict_content`.
+1. **Link and image checks.** Stop the build on an internal link to a page that
+   doesn't exist, on a missing image and on a `Screenshot` whose dark image is
+   missing.
+2. **The planned keys.** `base_url` with canonical links and Open Graph;
+   `theme.default_scheme` and `theme.custom_css`; `search.enabled`; icon links
+   in `nav`; `strict_content`.
 3. **Extension points.** `slots` for sidebar, table of contents and page footer,
    and `components` for tags registered in PHP.
-4. **A neutral reference app,** so that tier 3 runs inside this repository and
-   not only in the site Pholio was first built for.
+4. **More languages.** Interface translations beyond English and German, and
+   more bundled grammars for code blocks.
 5. **More consumers,** to find the assumptions that only look general.
 
 ## Out of scope
