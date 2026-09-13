@@ -55,9 +55,7 @@ A page at `/guide/install` has its twin at `/guide/install.md`; the start page's
 `index.md`. The twin is the page's own Markdown, cleaned up:
 
 ```
-> ## Documentation Index
-> Fetch the complete documentation index at: https://docs.example.org/llms.txt
-> Use this file to discover all available pages before exploring further.
+> Documentation index: https://docs.example.org/llms.txt, a list of every page in this documentation.
 
 # Installation
 
@@ -92,10 +90,27 @@ they mean in plain Markdown:
 Links to other pages point at their twins. Notation comments in code blocks
 (`// [!code highlight]`) are removed.
 
+The first line only states where the index is. Pholio writes nothing into a twin
+that addresses the reader with a command, because assistants that read fetched
+pages treat instructions in them as a possible prompt injection and may refuse to
+follow them.
+
+### Language
+
+The headings and fixed sentences Pholio writes into these files follow
+`language`: the index line, "Related topics" with its previous and next links,
+callout labels, the type table words, the section labels of `llms.txt`, the
+`Source:` lines of `llms-full.txt`, the whole generated `skill.md` and the agent
+card's fallback description. A German site gets "Verwandte Themen", "Quelle" and
+"Hinweise für Agenten". Field names that a specification defines, such as `name`
+and `description` in `skill.md` or the keys of the agent card, stay as they are,
+and so does the `## Optional` heading of `llms.txt`, whose name has a meaning in
+the llms.txt format.
+
 ## llms.txt
 
 `llms.txt` follows [llmstxt.org](https://llmstxt.org): the site title, the site
-description as a blockquote, an `## Agent Instructions` section when
+description as a blockquote, a `## Notes for agents` section when
 `agents.instructions` is set, one section per top-level folder with a line per
 page, and the external navigation links under `## Optional`.
 
@@ -111,8 +126,8 @@ page, and the external navigation links under `## Optional`.
 
 The summary is the page's `description`, or its first paragraph cut at 300
 characters. When the file would exceed 100,000 characters, `llms.txt` lists section
-indexes below `_llms/` instead, with their page counts, and tells agents to follow
-them recursively. A section index that is still too long lists its subfolders'
+indexes below `_llms/` instead, with their page counts and a sentence saying that
+together they list every page. A section index that is still too long lists its subfolders'
 indexes, and a folder with too many pages is split into parts. No page is ever left
 out.
 
@@ -165,6 +180,18 @@ agents of AI assistants fetching a page for a user (`Claude-User`, `ChatGPT-User
 `MistralAI-User`, `DuckAssistBot`, `cohere-ai`), and as `text/plain` for
 `Accept: text/plain`. Browsers get the HTML page as before.
 
+OpenAI's agents (`ChatGPT-User`, `OAI-SearchBot`, `GPTBot`) reject the
+`text/markdown` content type, so they get every twin as
+`text/plain; charset=utf-8`, both for a page's `.md` URL and for a negotiated page.
+Everyone else gets `text/markdown`. The page menu's "Open in ChatGPT" prompt names
+the page's own URL and mentions its `.md` version; "Open in Claude" names the
+`.md` URL.
+
+Only the Markdown files the build writes are served: a page's twin (`x.md` next to
+`x/index.html`, `index.md` next to `index.html`), `skill.md`, the `_llms/` indexes
+and the files below `.well-known/`. Any other `.md` file below the site, such as a
+note left in the output directory, answers 404.
+
 **Apache.** The generated `.htaccess` does all of this with `mod_rewrite` and
 `mod_headers`.
 
@@ -182,7 +209,8 @@ the rules above are all a Netlify Edge Function has to reproduce. Without one,
 agents still find everything through `llms.txt` and the `.md` URLs.
 
 `robots.txt` only counts at the root of a host. When the site lives below a base
-path, copy its lines into the host's own `robots.txt`.
+path, the generated `robots.txt` below it is ignored by crawlers: merge its lines into
+the `robots.txt` at the host root.
 
 ## Checking a site
 
