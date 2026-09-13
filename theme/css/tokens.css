@@ -6,8 +6,8 @@
  * Order and cascade are exactly as in the original:
  *   1. @layer properties  (l. 2–73)    – fallback initial values of the --tw-* variables
  *                                        for browsers without @property (Safari branch)
- *   2. @layer theme       (l. 75–171)  – Tailwind theme plus the Fumadocs default
- *                                        colours from fumadocs-ui/css/lib/default-colors.css
+ *   2. @layer theme       (l. 75–171)  – Tailwind theme plus the reference default
+ *                                        colours from its css/lib/default-colors.css
  *   3. unlayered          (l. 3894–3926) – the default dark palette and sidebar overrides
  *                                        from css/neutral.css and --fd-sidebar-drawer-offset
  *   4. unlayered          – the site palette, inserted by the build at the
