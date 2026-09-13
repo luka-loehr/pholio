@@ -16,7 +16,7 @@ comparison tooling in `verify/`, which never reaches a published site.
 ## Install
 
 The install script downloads the latest release, verifies its checksum, checks
-PHP and PCRE2, and extracts Pholio into `vendor/pholio`:
+PHP and PCRE2, extracts Pholio and puts the `pholio` command on your `PATH`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh
@@ -24,19 +24,17 @@ curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/inst
 
 `sh -s -- --dir <path> --version vX.Y.Z` installs somewhere else or a specific
 version. Pholio is a drop-in, not a package, so cloning the repository works as
-well:
+well; then call `php <clone>/bin/pholio`, or put `<clone>/bin` on your `PATH`:
 
 ```bash
 git clone https://github.com/luka-loehr/pholio.git vendor/pholio
 ```
 
-The examples below call `php vendor/pholio/bin/pholio`. Put `vendor/pholio/bin`
-on your `PATH` to type `pholio` instead.
-
 ## Create a project
 
 ```bash
-php vendor/pholio/bin/pholio init docs
+pholio init docs
+cd docs
 ```
 
 `init` creates the project layout with a small sample site. `--name "My Docs"`
@@ -80,21 +78,23 @@ The format is described in [Content format](/docs/content-format).
 ## Build and preview
 
 ```bash
-php vendor/pholio/bin/pholio dev docs
-php vendor/pholio/bin/pholio build docs
+pholio dev
+pholio build
 ```
 
 `dev` builds with drafts, serves the site at `http://127.0.0.1:8080` and
 rebuilds when the content, the config or `assets/` changes. `build` writes the
-site into `docs/public/`. Deploy by copying that directory; nothing runs on the
-server.
+site into `public/`. Commands without a directory argument work on the current
+directory; `pholio build docs` does the same from the parent. Deploy by copying
+`public/`; nothing runs on the server.
 
 ## Try the demo
 
 The repository contains a demo site that uses every component:
 
 ```bash
-cd vendor/pholio
+git clone https://github.com/luka-loehr/pholio.git
+cd pholio
 php bin/pholio build --config examples/demo/pholio.config.php
 ./scripts/serve-demo.sh
 ```
