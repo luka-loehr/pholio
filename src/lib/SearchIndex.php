@@ -26,6 +26,7 @@ require_once __DIR__ . '/Tree.php';
  *     "crumbs":    [ [<breadcrumb>, …], … ]              shared breadcrumb lists
  *     "pages":     [ [<url>, <title>, <heading>|null, <crumbs>|-1,
  *                     <anchor>|null, <heading>|null, …], … ]
+ *     "lengths":   [ <text blocks of the page>, … ]          one per page
  *     "words":     "<front-coded word list>"
  *     "postings":  [ <posting string>, … ]               one per word
  *   }
@@ -46,9 +47,11 @@ require_once __DIR__ . '/Tree.php';
  * entry is a varint (the slot minus the previous slot minus one, starting from
  * -1) followed by one flags character. Varint digits are ALPHABET positions:
  * 32–63 carry five bits and continue, 0–31 end the number (least significant
- * digits first). Flags of a page slot: 1 title, 2 path (breadcrumb or URL
- * segment). Flags of a section slot: 4 heading, and bits 3–5 the number of
- * text blocks in the section containing the word, capped at 7.
+ * digits first). Flags of a page slot: 1 title (and frontmatter heading), 2 path
+ * (breadcrumb or URL segment), 4 description, 8 frontmatter `keywords`. Flags of
+ * a section slot: 4 heading, and bits 3–5 the number of text blocks in the
+ * section containing the word, capped at 7. The description is also the first
+ * text of the first section.
  *
  * Words come from `words()`: lowercase, diacritics and ligatures folded to ASCII
  * (FOLDING), combining marks U+0300–U+036F dropped, for `german` also ae/oe/ue
@@ -66,6 +69,9 @@ final class SearchIndex
 
     public const FIELD_TITLE = 1;
     public const FIELD_PATH = 2;
+    /** Page slot flags; FIELD_HEADING shares the value 4 on section slots. */
+    public const FIELD_DESCRIPTION = 4;
+    public const FIELD_KEYWORDS = 8;
     public const FIELD_HEADING = 4;
     public const MAX_TEXT_COUNT = 7;
 
@@ -91,7 +97,7 @@ final class SearchIndex
      * @param bool $includeDrafts Pages whose file name starts with `_` (drafts,
      *        sample pages) are only indexed with `--dev`.
      * @param string $tokenizer Normalisation profile recorded in the index, one of TOKENIZERS.
-     * @return array{v:int, base:string, tokenizer:string, crumbs:list<list<string>>, pages:list<list<mixed>>, words:string, postings:list<string>}
+     * @return array{v:int, base:string, tokenizer:string, crumbs:list<list<string>>, pages:list<list<mixed>>, lengths:list<int>, words:string, postings:list<string>}
      */
     public static function build(
         Tree $tree,
@@ -106,6 +112,7 @@ final class SearchIndex
         $crumbLists = [];
         $crumbIds = [];
         $pages = [];
+        $lengths = [];
         /** @var array<string,string> $postings word => posting string */
         $postings = [];
         /** @var array<string,int> $lastSlot word => last slot written */
@@ -129,6 +136,7 @@ final class SearchIndex
                 $entry[] = $section[1];
             }
             $pages[] = $entry;
+            $lengths[] = array_sum(array_map(static fn(array $section): int => count($section) - 2, $document['sections']));
 
             foreach (self::slotFlags($document, $baseUrl, $tokenizer) as $offset => $flags) {
                 foreach ($flags as $word => $value) {
@@ -149,6 +157,7 @@ final class SearchIndex
             'tokenizer' => $tokenizer,
             'crumbs' => $crumbLists,
             'pages' => $pages,
+            'lengths' => $lengths,
             'words' => self::frontCode(array_map('strval', array_keys($postings))),
             'postings' => array_values($postings),
         ];
@@ -161,7 +170,7 @@ final class SearchIndex
      *
      * @param callable(array{url:string,slugs:list<string>,file:string,data:array<string,mixed>}):Document $loadDocument
      * @param list<string>|null $fileOrder
-     * @return list<array{url:string, title:string, heading:?string, crumbs:?list<string>, sections:list<list<?string>>}>
+     * @return list<array{url:string, title:string, heading:?string, crumbs:?list<string>, description:?string, keywords:?string, sections:list<list<?string>>}>
      */
     public static function documents(
         Tree $tree,
@@ -184,6 +193,8 @@ final class SearchIndex
             $title = self::clean((string) ($data['title'] ?? ''));
             $heading = isset($data['heading']) ? self::clean((string) $data['heading']) : '';
             $description = isset($data['description']) ? (string) $data['description'] : null;
+            $keywords = isset($data['keywords']) ? self::clean((string) $data['keywords']) : '';
+            $summary = $description === null ? '' : self::clean($description);
 
             $documents[] = [
                 'url' => $url,
@@ -191,6 +202,8 @@ final class SearchIndex
                 'heading' => $heading !== '' && $heading !== $title ? $heading : null,
                 // A page in a tree without any names has no breadcrumbs either.
                 'crumbs' => self::breadcrumbs($tree, $url) ?: null,
+                'description' => $summary === '' ? null : $summary,
+                'keywords' => $keywords === '' ? null : $keywords,
                 'sections' => self::sections($loadDocument($page), $description),
             ];
         }
@@ -201,7 +214,7 @@ final class SearchIndex
     /**
      * Word flags per slot of one document: the page slot first, then one per section.
      *
-     * @param array{url:string, title:string, heading:?string, crumbs:?list<string>, sections:list<list<?string>>} $document
+     * @param array{url:string, title:string, heading:?string, crumbs:?list<string>, description:?string, keywords:?string, sections:list<list<?string>>} $document
      * @return list<array<string,int>>
      */
     public static function slotFlags(array $document, string $baseUrl, string $tokenizer): array
@@ -216,6 +229,12 @@ final class SearchIndex
         $mark($page, $document['title'], self::FIELD_TITLE);
         if ($document['heading'] !== null) {
             $mark($page, $document['heading'], self::FIELD_TITLE);
+        }
+        if ($document['description'] !== null) {
+            $mark($page, $document['description'], self::FIELD_DESCRIPTION);
+        }
+        if ($document['keywords'] !== null) {
+            $mark($page, $document['keywords'], self::FIELD_KEYWORDS);
         }
         foreach ($document['crumbs'] ?? [] as $crumb) {
             $mark($page, $crumb, self::FIELD_PATH);
