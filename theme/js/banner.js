@@ -1,4 +1,4 @@
-// banner.js — notice banner: fumadocs-ui components/banner.js.
+// banner.js — notice banner: reference UI components/banner.js.
 //
 // The original writes an inline <script> that sets `html.nd-banner-<id>` before
 // first paint when the banner was already closed; the <style> rule
