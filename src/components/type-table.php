@@ -9,21 +9,18 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * Type table, `TypeTable` and `Item` from the reference UI's `dist/components/type-table.js`.
+ * Type table (`TypeTable` and `TypeProp`).
  *
  * Every row is a Base UI collapsible. While closed the panel isn't mounted and
- * sits in `<template data-collapsible-panel>` (js/collapsible.js). The original's
- * classes change with the state (`shadow-sm bg-fd-background not-last:mb-2` open,
- * `border-transparent` closed); the rebuild always carries `nd-typetable-item`,
- * and the CSS keys off the root's `data-open`.
+ * sits in `<template data-collapsible-panel>` (js/collapsible.js). Every row
+ * carries `nd-typetable-item`, and the CSS styles the open and closed states
+ * from the root's `data-open`.
  *
- * According to its class `group-data-[open]:rotate-180` the arrow should rotate;
- * but the group is the trigger, which carries `data-panel-open`, never
- * `data-open`. So it doesn't rotate in the reference, and not in the rebuild.
+ * The arrow doesn't rotate: its group is the trigger, which carries
+ * `data-panel-open`, never `data-open`.
  *
- * Without an `id` on the table (the Pholio syntax has none) the rows have no id,
- * and opening by hash as well as `history.replaceState` don't happen, as in the
- * original.
+ * The table has no `id` (the Pholio syntax has none), so the rows have no id
+ * and are not opened by the URL hash.
  */
 
 /**
@@ -54,7 +51,7 @@ function nd_type_prop(array $props, string $description, array $labels): string
     $required = (bool) ($props['required'] ?? false);
     $deprecated = (bool) ($props['deprecated'] ?? false);
 
-    // `[name, !required && "?"]`: React separates the two text nodes with a comment.
+    // `[name, !required && "?"]`: the two text nodes are separated by a comment.
     $name = Html::e($props['name']) . ($required ? '' : '<!-- -->?');
     $code = Html::tag('code', [
         'class' => $deprecated ? 'nd-typetable-name-deprecated' : 'nd-typetable-name',
