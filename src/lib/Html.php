@@ -109,7 +109,7 @@ final class Html
     }
 
     /**
-     * External link? Same rule as fumadocs-core/dist/link.js:
+     * External link? Same rule as the reference core's dist/link.js:
      * a scheme at the start (`^\w+:`) or a protocol-relative path (`//`).
      */
     public static function isExternal(string $href): bool
