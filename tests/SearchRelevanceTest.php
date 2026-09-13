@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-// Search relevance and budgets over the demo: every case of verify/fixtures/demo/search-relevance.json
+// Search relevance and budgets over the demo: every case of verify/fixtures/search-relevance.json
 // ranks the expected pages first, and index size, engine start and keystroke time stay within budget,
 // on the demo and on the demo built twenty times side by side. The Node checks skip without Node;
-// tier 2 runs the same commands.
+// node verify/run.mjs runs the same commands.
 
 require __DIR__ . '/run.php';
 
 const RELEVANCE_ROOT = __DIR__ . '/..';
-const RELEVANCE_FIXTURE = RELEVANCE_ROOT . '/verify/fixtures/demo/search-relevance.json';
+const RELEVANCE_FIXTURE = RELEVANCE_ROOT . '/verify/fixtures/search-relevance.json';
 const RELEVANCE_DEMO = ['--content', RELEVANCE_ROOT . '/examples/demo/content', '--base-url', '/', '--tokenizer', 'english'];
 
-/** Runs verify/search-parity.mjs with Node; skips when Node is missing. */
+/** Runs verify/search-check.mjs with Node; skips when Node is missing. */
 function relevance_node(array $args): array
 {
     exec('command -v node 2>/dev/null', $found, $status);
     if ($status !== 0) {
         skip('node: not on PATH');
     }
-    $command = 'node ' . escapeshellarg(RELEVANCE_ROOT . '/verify/search-parity.mjs') . ' '
+    $command = 'node ' . escapeshellarg(RELEVANCE_ROOT . '/verify/search-check.mjs') . ' '
         . implode(' ', array_map('escapeshellarg', $args)) . ' 2>&1';
     exec($command, $output, $status);
 
