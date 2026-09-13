@@ -1,6 +1,6 @@
 # `verify/`: proving the rebuild is identical
 
-Development tooling that compares a Pholio build against a Fumadocs reference. It is
+Development tooling that compares a Pholio build against the reference build. It is
 the only place in the repository where Node is allowed, because nothing here is ever
 shipped. Reference exports are never committed (`verify/reference/` is ignored).
 
@@ -94,7 +94,7 @@ first hit:
 | `verify/pixel-diff.mjs` | Full-page screenshot diff, tolerance zero outside text antialiasing | as computed-style, plus optional `--states <file>` |
 | `verify/behaviour.mjs` | Keyboard, focus order, scroll lock, click-outside, animation keyframes via `getAnimations()` | `--reference <app url>`, `--candidate <url>`, `--rewrites <file>`, repeatable `--scenarios <file>` |
 | `verify/catalogue-states.mjs` | Static, interactive and layered states of the component catalogue | `--mode`, `--site <dir>`, `--out <dir>`; `--reference <export dir>` and `--cuts <file>` for `static` and `states` |
-| `verify/search-parity.mjs` | Search splitters against zbsearch, and search answers against the Fumadocs oracle or a frozen reference | `--selftest`, or `--oracle --content <dir> --base-url <path> --queries <file> --tokenizer <name>` |
+| `verify/search-parity.mjs` | Search splitters against zbsearch, and search answers against the reference oracle or a frozen reference | `--selftest`, or `--oracle --content <dir> --base-url <path> --queries <file> --tokenizer <name>` |
 | `verify/lucide-oracle.mjs` | Icon markup against lucide-react | `--check --all` or `--check --sample <n>`, optional `--seed <n>` |
 | `verify/fixtures/demo/` | Demo site data: search queries, behaviour scenarios and pixel states | |
 | `verify/class-map.json` | Utility class to `nd-*` component class translation, so the DOM diff keeps working after the CSS is rewritten | |
