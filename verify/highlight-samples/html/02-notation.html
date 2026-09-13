@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Release board</title>
+  <!-- [!code focus] -->
+  <style>
+    :root { --accent: #0b5cad; }
+    .cancelled { text-decoration: line-through; color: var(--accent); }
+    table td:first-child::before { content: "▶ "; }
+  </style>
+  <style media="print">
+    nav, button { display: none !important; }
+  </style>
+</head>
+<body>
+  <h1>Release board <small id="date"></small></h1> <!-- [!code highlight] -->
+  <!-- [!code word:Release] -->
+  <p>Release and rollback notes for today.</p>
+  <table id="board" style="width: 100%; border-collapse: collapse">
+    <thead>
+      <tr><th>Slot</th><th>Team</th><th>Service</th><th>Kind</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button onclick="load()">Reload</button> <!-- [!code --] -->
+  <button type="button" data-action="load">Reload</button> <!-- [!code ++] -->
+
+  <!-- [!code highlight:3] -->
+  <template id="row">
+    <tr><td class="slot"></td><td class="team"></td><td class="service"></td><td class="kind"></td></tr>
+  </template>
+
+  <script type="module">
+    import { fetchReleases } from './js/api.js';
+
+    const tbody = document.querySelector('#board tbody');
+    const template = document.getElementById('row');
+
+    async function load() {
+      const list = await fetchReleases(new Date());
+      tbody.replaceChildren(...list.map((r) => { // [!code word:list:2]
+        const row = template.content.cloneNode(true);
+        row.querySelector('.slot').textContent = r.slot;
+        row.querySelector('.team').textContent = r.team;
+        row.querySelector('.service').textContent = r.service;
+        const kind = row.querySelector('.kind');
+        kind.textContent = r.kind;
+        if (r.kind === 'Cancelled') kind.classList.add('cancelled');
+        return row;
+      }));
+      document.getElementById('date').textContent = `(${new Date().toLocaleDateString('en-GB')})`;
+    }
+
+    document.querySelector('[data-action="load"]').on('click', load);
+    await load();
+  </script>
+  <script>
+    // classic script: comparing a < b && c > d must not be a tag
+    if (1 < 2 && 3 > 2) console.log("</scr" + "ipt> safe");
+  </script>
+  <script type="application/json" id="config">{"interval": 300, "teams": ["red", "blue"]}</script>
+</body>
+</html>
