@@ -65,7 +65,7 @@ is one download the first time the dialog opens.
 | `theme/LICENSES/` | One licence file per vendored asset |
 | `verify/` | Node development tooling, never shipped |
 | `docs/` | This documentation, built with Pholio |
-| `examples/consumer/` | A runnable consumer example |
+| `examples/demo/` | A runnable demo site covering every component |
 | `scripts/` | Local checks, run by hand |
 
 ## Known limits
