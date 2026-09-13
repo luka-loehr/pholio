@@ -35,7 +35,7 @@ import { boot as bootImageZoom } from './image-zoom.js';
 import { boot as bootBanner } from './banner.js';
 import { boot as bootPageActions } from './page-actions.js';
 
-// Classes of the section switcher popup (verify/CLASS-MAP.md, notebook.js).
+// Classes of the section switcher popup.
 const POPUP_CLASS = 'nd-popover nd-tabsdrop-popup fd-scroll-container';
 
 let booted = false;
@@ -78,11 +78,11 @@ export function boot(doc = document) {
     });
   }
 
-  // Mobile menu of the start page (reference layouts/home/slots/header.js): a
+  // Mobile menu of the start page: a
   // Base UI Collapsible with header#nd-nav as root, the chevron button as
   // trigger and the panel from <template data-collapsible-panel> in nav.
   // collapsible.js sets phases, height and aria; here only what the header itself
-  // does: close on a click outside the header (window click as in the original)
+  // does: close on a click outside the header (a click listener on window)
   // and on a click on a menu link, the theme switcher in the panel, and after
   // mounting, marking the active theme icon.
   const homeHeader = doc.getElementById('nd-nav');
