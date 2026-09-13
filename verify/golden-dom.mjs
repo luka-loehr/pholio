@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Golden DOM comparison: a Fumadocs reference export against a Pholio build.
+// Golden DOM comparison: a reference export against a Pholio build.
 //
 //   node verify/golden-dom.mjs --reference <export> --rewrites <file.json> --candidate http://127.0.0.1:4000/docs
 //   node verify/golden-dom.mjs --reference <export> --rewrites <file.json> --candidate out --only guide/install
