@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1600" viewBox="0 0 2400 1600" role="img" aria-label="Abstract grid of stacked panels">
+  <rect width="2400" height="1600" fill="#f4f5fb"/>
+  <g fill="none" stroke="#4f5bd5" stroke-opacity="0.08" stroke-width="2">
+    <path d="M0 200H2400M0 400H2400M0 600H2400M0 800H2400M0 1000H2400M0 1200H2400M0 1400H2400"/>
+    <path d="M200 0V1600M600 0V1600M1000 0V1600M1400 0V1600M1800 0V1600M2200 0V1600"/>
+  </g>
+  <g transform="translate(1320 360)">
+    <rect x="160" y="0" width="720" height="880" rx="48" fill="#ffffff" stroke="#4f5bd5" stroke-opacity="0.18" stroke-width="4"/>
+    <rect x="80" y="60" width="720" height="880" rx="48" fill="#ffffff" stroke="#4f5bd5" stroke-opacity="0.32" stroke-width="4"/>
+    <rect x="0" y="120" width="720" height="880" rx="48" fill="#ffffff" stroke="#4f5bd5" stroke-opacity="0.7" stroke-width="4"/>
+    <g stroke="#4f5bd5" stroke-opacity="0.45" stroke-width="18" stroke-linecap="round">
+      <path d="M90 280H520M90 400H630M90 520H560M90 640H430M90 760H600"/>
+    </g>
+  </g>
+</svg>

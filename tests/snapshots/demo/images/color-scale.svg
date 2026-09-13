@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="600" viewBox="0 0 1600 600" role="img" aria-label="Eleven swatches of an indigo colour scale">
+  <rect width="1600" height="600" fill="#ffffff"/>
+  <g font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="22" fill="#5c6675" text-anchor="middle">
+    <rect x="60"   y="160" width="120" height="220" rx="16" fill="#eef0fd"/><text x="120"  y="430">50</text>
+    <rect x="200"  y="160" width="120" height="220" rx="16" fill="#dde1fb"/><text x="260"  y="430">100</text>
+    <rect x="340"  y="160" width="120" height="220" rx="16" fill="#c0c7f6"/><text x="400"  y="430">200</text>
+    <rect x="480"  y="160" width="120" height="220" rx="16" fill="#9ea9f0"/><text x="540"  y="430">300</text>
+    <rect x="620"  y="160" width="120" height="220" rx="16" fill="#7c8ae6"/><text x="680"  y="430">400</text>
+    <rect x="760"  y="160" width="120" height="220" rx="16" fill="#5f6ddc"/><text x="820"  y="430">500</text>
+    <rect x="900"  y="160" width="120" height="220" rx="16" fill="#4f5bd5"/><text x="960"  y="430">600</text>
+    <rect x="1040" y="160" width="120" height="220" rx="16" fill="#3f49b3"/><text x="1100" y="430">700</text>
+    <rect x="1180" y="160" width="120" height="220" rx="16" fill="#323a8e"/><text x="1240" y="430">800</text>
+    <rect x="1320" y="160" width="120" height="220" rx="16" fill="#262c69"/><text x="1380" y="430">900</text>
+    <rect x="1460" y="160" width="80"  height="220" rx="16" fill="#171b40"/><text x="1500" y="430">950</text>
+  </g>
+</svg>
