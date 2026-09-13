@@ -9,7 +9,7 @@ require_once __DIR__ . '/Exceptions.php';
 /**
  * User interface strings.
  *
- * Keys are the Fumadocs translation keys: the English source text followed by
+ * Keys are the reference design's translation keys: the English source text followed by
  * the context note that `useTranslations({ note })` appends, for example
  * `Search(search dialog)` next to `Search(search trigger)`. Each shipped
  * language is one file in `src/i18n/<language>.php` returning key => text;
