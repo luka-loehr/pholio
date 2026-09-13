@@ -1,5 +1,5 @@
 // catalogue-collapsible.js — the catalogue components built on Base UI Collapsible:
-// file tree (fumadocs-ui components/files.js, Folder), type table
+// file tree (reference UI components/files.js, Folder), type table
 // (components/type-table.js, Item) and inline table of contents (components/inline-toc.js).
 //
 // Opening, closing, the height animation and mounting from <template data-collapsible-panel>
