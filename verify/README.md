@@ -25,7 +25,13 @@ Dependencies are pinned to exact versions: `playwright`, `shiki`, `fumadocs-core
 | 0 | Node | `node verify/run.mjs --tier 0` |
 | 1 | + PHP 8.2 | `node verify/run.mjs --tier 1` |
 | 2 | + `npm ci` and Chromium | `node verify/run.mjs --tier 2` |
-| 3 | + a reference export and its rewrites file | `node verify/run.mjs --tier 3 --reference <dir> --rewrites <file.json> --candidate <url>` |
+| 3 | + a reference export, the running reference app and a rewrites file | `node verify/run.mjs --tier 3 --reference <export dir> --reference-url <app url> --candidate <url> --rewrites <file.json>` |
+
+Tier 3 compares the golden DOM against the export directory and computed style, pixels and
+behaviour against the running reference app. `--reference` and `--reference-url` can also come
+from `PHOLIO_REFERENCE` and `PHOLIO_REFERENCE_URL`. `--allow` (repeatable) is passed to
+`golden-dom.mjs`, which otherwise uses `verify/allow/golden-dom.json`. `--scenarios`
+(repeatable) and `--states` default to the demo fixtures in `verify/fixtures/demo/`.
 
 A tier runs every lower tier first. Tier 0 is a selftest of `verify/lib`: syntax of every
 module, argument and rewrite handling, page lists, PNG round trip, pixel diff, colour
@@ -78,14 +84,17 @@ first hit:
 
 ## Parity tools
 
-| Path | What it does |
-| --- | --- |
-| `verify/export-reference.mjs` | Freezes the reference: server-rendered and hydrated HTML per page, table of contents, search answers, icons, fonts, compiled CSS, page tree |
-| `verify/golden-dom.mjs` | Element tree and attribute diff per page, with a documented allow-list for unavoidable differences such as hydration ids |
-| `verify/computed-style.mjs` | About 70 CSS properties per element, at three widths, light and dark, including hover and focus states |
-| `verify/pixel-diff.mjs` | Full-page screenshot diff, tolerance zero outside text antialiasing |
-| `verify/behaviour.mjs` | Keyboard, focus order, scroll lock, click-outside, animation keyframes via `getAnimations()` |
-| `verify/fixtures/demo/queries.json` | The fixed question set the search comparison must answer identically on the demo |
-| `verify/class-map.json` | Utility class to `nd-*` component class translation, so the DOM diff keeps working after the CSS is rewritten |
+| Path | What it does | Required input |
+| --- | --- | --- |
+| `verify/export-reference.mjs` | Freezes the reference: server-rendered and hydrated HTML per page, table of contents, search answers, icons, fonts, compiled CSS, page tree | `--lab-dir <app dir>` and `--lab-url <url>` (or `PHOLIO_LAB_DIR`, `PHOLIO_LAB_URL`) |
+| `verify/golden-dom.mjs` | Element tree and attribute diff per page, with a documented allow-list for unavoidable differences such as hydration ids | `--reference <export dir>`, `--candidate <url or dir>`, `--rewrites <file>`, optional repeatable `--allow <file>` |
+| `verify/computed-style.mjs` | About 70 CSS properties per element, at three widths, light and dark, including hover and focus states | `--reference <app url>`, `--candidate <url>`, `--pages <export dir or tree.json>`, `--rewrites <file>` |
+| `verify/pixel-diff.mjs` | Full-page screenshot diff, tolerance zero outside text antialiasing | as computed-style, plus optional `--states <file>` |
+| `verify/behaviour.mjs` | Keyboard, focus order, scroll lock, click-outside, animation keyframes via `getAnimations()` | `--reference <app url>`, `--candidate <url>`, `--rewrites <file>`, repeatable `--scenarios <file>` |
+| `verify/catalogue-states.mjs` | Static, interactive and layered states of the component catalogue | `--mode`, `--site <dir>`, `--out <dir>`; `--reference <export dir>` and `--cuts <file>` for `static` and `states` |
+| `verify/search-parity.mjs` | Search splitters against zbsearch, and search answers against the Fumadocs oracle or a frozen reference | `--selftest`, or `--oracle --content <dir> --base-url <path> --queries <file> --tokenizer <name>` |
+| `verify/lucide-oracle.mjs` | Icon markup against lucide-react | `--check --all` or `--check --sample <n>`, optional `--seed <n>` |
+| `verify/fixtures/demo/` | Demo site data: search queries, behaviour scenarios and pixel states | |
+| `verify/class-map.json` | Utility class to `nd-*` component class translation, so the DOM diff keeps working after the CSS is rewritten | |
 
 All stages must be green. A stage reports a diff, never a score.
