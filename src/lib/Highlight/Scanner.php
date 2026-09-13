@@ -19,7 +19,10 @@ use RuntimeException;
  */
 final class Scanner
 {
-    /** @var list<array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>}> */
+    /** Scanners built so far that contain a pattern disabled by the pre-10.43 fallback (see OnigRegex::run()). */
+    public static int $withDisabledPatterns = 0;
+
+    /** @var list<array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>, disabled:bool}> */
     private array $compiled;
     /** @var list<bool> */
     private array $positionDependent = [];
@@ -31,10 +34,15 @@ final class Scanner
     public function __construct(array $patterns)
     {
         $this->compiled = [];
+        $disabled = false;
         foreach ($patterns as $p) {
             $t = OnigRegex::translate($p);
             $this->compiled[] = $t;
             $this->positionDependent[] = $t['strategy'] !== null || str_starts_with($t['pattern'], '/\G');
+            $disabled = $disabled || $t['disabled'];
+        }
+        if ($disabled) {
+            self::$withDisabledPatterns++;
         }
     }
 
