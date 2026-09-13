@@ -12,10 +12,10 @@ lanternfly search invoice
 
 ## With a title
 
-```toml title="lanternfly.toml"
-[archive]
-name = "notes"
-watch = true
+```yaml title="lanternfly.yaml"
+archive:
+  name: notes
+  watch: true
 ```
 
 ## With line numbers
@@ -71,9 +71,10 @@ const archive = await open('notes', {
 
 ## Notation in other languages
 
-```python title="search.py"
-archive = open_archive("notes")
-hits = archive.search("invoice")  # [!code highlight]
+```yaml title="lanternfly.yaml"
+archive:
+  name: notes
+  watch: true # [!code highlight]
 ```
 
 ## Code tabs
@@ -84,8 +85,9 @@ Consecutive code blocks with a `tab` attribute are merged into one tab group.
 const hits = await archive.search('invoice');
 ```
 
-```python tab="Python"
-hits = archive.search("invoice")
+```php tab="PHP"
+<?php
+$hits = $archive->search('invoice');
 ```
 
 ```bash tab="CLI"
