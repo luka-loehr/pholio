@@ -25,6 +25,7 @@ objects and anchors are errors, and so is any key outside this table
 | --- | --- | --- |
 | `title` | yes | Page title, used in the tree, the breadcrumb and `<title>` |
 | `description` | no | Shown under the heading and indexed for search |
+| `keywords` | no | Comma-separated search terms the page text does not use, such as synonyms or English words ("herunterladen, download, dark mode"). Only indexed for search, weighted just below the title |
 | `heading` | no | Visible `h1` when it should differ from `title` |
 | `icon` | no | lucide icon name, used in the sidebar and in cards |
 | `full` | no | `true` renders the page without the table of contents column |
