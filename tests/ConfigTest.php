@@ -29,9 +29,10 @@ test('defaults for a minimal config', function (): void {
     $c = config();
     assert_same('/', $c['homeUrl']);
     assert_same('/', $c['baseUrl']);
-    assert_same('/assets', $c['assetBase']);
+    assert_same('/pholio', $c['assetBase']);
     assert_same('/site/content', $c['contentDir']);
     assert_same('/site/out', $c['outDir']);
+    assert_same([['from' => '/site/assets', 'to' => '/assets', 'optional' => true]], $c['copy']);
     assert_same('en', $c['lang']);
     assert_same('{title} – Lanternfly', $c['titleTemplate']);
     assert_same('Lanternfly', $c['homeTitle']);
@@ -77,8 +78,8 @@ test('URL paths are normalised and placeholders resolved', function (): void {
     ]);
     assert_same('/docs', $c['homeUrl']);
     assert_same('/docs/manual', $c['baseUrl']);
-    assert_same('/docs/assets', $c['assetBase']);
-    assert_same('/docs/assets/logo.svg', $c['nav']['logo']);
+    assert_same('/docs/pholio', $c['assetBase']);
+    assert_same('/docs/pholio/logo.svg', $c['nav']['logo']);
     assert_same('/docs', $c['nav']['url']);
     assert_same([
         ['title' => 'Home', 'href' => '/docs', 'active' => 'exact', 'external' => false],
@@ -87,14 +88,14 @@ test('URL paths are normalised and placeholders resolved', function (): void {
     ], $c['links']);
     assert_same('Lanternfly – Docs', $c['homeTitle']);
     assert_same("One\nTwo", $c['home']['hero']['headline']);
-    assert_same('/docs/assets/brand/hero.webp', $c['home']['hero']['image']);
+    assert_same('/docs/pholio/brand/hero.webp', $c['home']['hero']['image']);
     assert_same(null, $c['home']['hero']['imageDark']);
     assert_same(48, $c['home']['hero']['iconSize']);
     assert_same(['label' => 'Start', 'href' => '/docs/manual/intro', 'variant' => 'primary', 'icon' => 'arrow-right'], $c['home']['hero']['buttons'][0]);
     assert_same('Open', $c['home']['cards']['linkLabel']);
     assert_same(false, $c['home']['cards']['fromTree']);
     assert_same(['title' => 'Guide', 'description' => '', 'href' => '/docs/manual/guide', 'icon' => null], $c['home']['cards']['items'][0]);
-    assert_same([['rel' => 'icon', 'type' => null, 'sizes' => null, 'href' => '/docs/assets/favicon.png']], $c['head']['icons']);
+    assert_same([['rel' => 'icon', 'type' => null, 'sizes' => null, 'href' => '/docs/pholio/favicon.png']], $c['head']['icons']);
     assert_same('/docs/site.webmanifest', $c['head']['manifest']);
     assert_same('/docs/manual/search-index.json', $c['search']['indexUrl']);
 });
@@ -109,7 +110,7 @@ test('paths resolve against the config directory', function (): void {
         'content_dir' => '/abs/content',
         'output_dir' => '../public/docs/',
         'content' => ['asset_root' => 'media', 'asset_prefix' => '/media-assets/', 'link_prefix' => '/reference/docs/'],
-        'copy' => ['brand' => '{assets}/brand'],
+        'copy' => ['brand' => '/assets/brand'],
         'theme' => ['palette_css' => 'palette.css'],
         'redirects_file' => 'content/redirects.json',
         'output' => ['keep' => ['/assets/images/', 'site.webmanifest']],
@@ -119,7 +120,7 @@ test('paths resolve against the config directory', function (): void {
     assert_same('/site/media', $c['content']['assetRoot']);
     assert_same('/media-assets', $c['content']['assetPrefix']);
     assert_same('/reference/docs', $c['content']['linkPrefix']);
-    assert_same([['from' => '/site/brand', 'to' => '/assets/brand']], $c['copy']);
+    assert_same([['from' => '/site/brand', 'to' => '/assets/brand', 'optional' => false]], $c['copy'], 'a configured copy replaces the default');
     assert_same('/site/palette.css', $c['theme']['paletteCss']);
     assert_same('/site/content/redirects.json', $c['redirectsFile']);
     assert_same(['assets/images', 'site.webmanifest'], $c['keep']);
@@ -164,7 +165,7 @@ test('types, enums and required keys are validated', function (): void {
     config_error(['base_path' => 'docs'], 'base_path: expected an absolute URL path');
     config_error(['server' => ['csp' => 'default-src "self"']], 'server.csp');
     config_error(['docs_root_suffix' => 'overview'], 'docs_root_suffix');
-    $e = assert_throws(ConfigException::class, fn() => Config::fromArray(['title' => 'x', 'output_dir' => 'o'], '/site'), 'missing required key: content_dir');
+    $e = assert_throws(ConfigException::class, fn() => Config::fromArray(['nav' => [['href' => '/']]], '/site'), 'missing required key: nav.0.title');
     assert_same(null, $e->sourceFile);
 });
 
@@ -222,6 +223,38 @@ test('load reads a file and reports a missing one', function (): void {
         assert_same($dir . '/pholio.config.php', $c['configFile']);
         assert_throws(ConfigException::class, fn() => Config::load($dir . '/missing.php'), 'config file not found');
         assert_throws(ConfigException::class, fn() => Config::load($dir . '/broken.php'), 'must return an array');
+    } finally {
+        array_map('unlink', glob($dir . '/*') ?: []);
+        rmdir($dir);
+    }
+});
+
+test('an empty config follows the project convention', function (): void {
+    $c = Config::fromArray([], '/project');
+    assert_same('Documentation', $c['title']);
+    assert_same('', $c['configFile']);
+    assert_same('/project', $c['configDir']);
+    assert_same('/project/content', $c['contentDir']);
+    assert_same('/project/public', $c['outDir']);
+    assert_same('/pholio', $c['assetBase']);
+    assert_same([['from' => '/project/assets', 'to' => '/assets', 'optional' => true]], $c['copy']);
+    $c = Config::fromArray(['base_path' => '/docs/'], '/project');
+    assert_same([['from' => '/project/assets', 'to' => '/docs/assets', 'optional' => true]], $c['copy']);
+});
+
+test('forDirectory reads pholio.config.php when present and the convention otherwise', function (): void {
+    $dir = sys_get_temp_dir() . '/pholio-config-dir-' . bin2hex(random_bytes(4));
+    mkdir($dir);
+    try {
+        $c = Config::forDirectory($dir);
+        assert_same('', $c['configFile']);
+        assert_same($dir . '/content', $c['contentDir']);
+        file_put_contents($dir . '/pholio.config.php', "<?php return ['title' => 'Mine', 'output_dir' => 'site'];");
+        $c = Config::forDirectory($dir);
+        assert_same($dir . '/pholio.config.php', $c['configFile']);
+        assert_same('Mine', $c['title']);
+        assert_same($dir . '/site', $c['outDir']);
+        assert_throws(ConfigException::class, fn() => Config::forDirectory($dir . '/missing'), 'project directory not found');
     } finally {
         array_map('unlink', glob($dir . '/*') ?: []);
         rmdir($dir);
