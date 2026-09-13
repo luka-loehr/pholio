@@ -11,11 +11,12 @@ copyright notices and licence terms apply to their work as set out below.
 ## Shipped verbatim
 
 These files are copied into every generated site or into the generator
-unchanged.
+unchanged. Every generated site also receives the licence texts from
+[`licenses/`](licenses/) as `<assets>/LICENSES/*.txt`.
 
 | Component | Version | Licence | Source | Shipped as | Licence text |
 | --- | --- | --- | --- | --- | --- |
-| Lucide icons | `lucide-react` 1.45.0 | ISC; icons derived from Feather are MIT | https://github.com/lucide-icons/lucide | SVG path data for the icons the theme uses | [`licenses/lucide-ISC.txt`](licenses/lucide-ISC.txt) |
+| Lucide icons | `lucide-react` 1.45.0 | ISC; icons derived from Feather are MIT | https://github.com/lucide-icons/lucide | SVG path data of the complete icon set (1834 icons, 428 aliases) in `vendor-data/lucide/icons.json` with the licence alongside; the icons a page uses are inlined into its HTML | [`licenses/lucide-ISC.txt`](licenses/lucide-ISC.txt) |
 | Inter | 4.001 (Google Fonts `v20`, git `66647c0bb`) | SIL Open Font License 1.1 | https://github.com/rsms/inter | Seven variable woff2 subsets, unmodified, renamed only | [`licenses/inter-OFL-1.1.txt`](licenses/inter-OFL-1.1.txt) |
 | TextMate grammars | as bundled in `@shikijs/langs` 4.4.3 | see the grammar table below | https://github.com/shikijs/shiki | JSON grammars for syntax highlighting at build time | see below |
 | TextMate themes | as bundled in `@shikijs/themes` 4.4.3 | MIT | https://github.com/shikijs/shiki | JSON colour themes for syntax highlighting | see below |
@@ -84,4 +85,6 @@ JavaScript written to reproduce zbsearch's observable ranking behaviour.
 
 Development tooling in `verify/` uses Node and Playwright to compare builds
 against a reference. It is never part of a generated site or of the generator,
-and it installs its own dependencies with their own licences.
+and it installs its own dependencies with their own licences, pinned in
+[`verify/package.json`](verify/package.json). `verify/tools/build-lucide-data.mjs`
+reads the pinned `lucide-react` from there to regenerate `vendor-data/lucide/icons.json`.
