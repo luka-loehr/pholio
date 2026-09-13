@@ -1,4 +1,4 @@
-![Pholio banner](docs/assets/banner.svg)
+![Pholio banner](docs/assets/banner.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-%E2%89%A5%208.2-777bb4.svg?style=flat)](https://www.php.net/releases/8.2/en.php)
@@ -313,7 +313,7 @@ Planned and rejected with `planned: <key>` until implemented: `base_url`,
 | [`docs/verification.md`](docs/verification.md) | The three test tiers, the demo snapshot, and the four comparison stages |
 | [`docs/roadmap.md`](docs/roadmap.md) | Current state, next steps, non-goals |
 | [`examples/demo/`](examples/demo/README.md) | The demo site, its component coverage table and build instructions |
-| [`docs/assets/og.png`](docs/assets/og.png) | 1200x630 social preview, source in `docs/assets/og.svg` |
+| [`docs/assets/og.png`](docs/assets/og.png) | Social preview, 1200x630 at 2x, with screenshots of the demo site |
 | [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Every third-party component with version, licence, upstream commit and licence text |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Commit rules, code rules, acceptance |
 | [`scripts/README.md`](scripts/README.md) | The local check, snapshot and demo scripts |
