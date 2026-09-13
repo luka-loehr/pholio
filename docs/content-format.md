@@ -42,9 +42,13 @@ objects and anchors are errors, and so is any key outside this table
 - GitHub-flavoured tables with column alignment.
 - Footnotes `[^1]` with their definitions.
 
-A plain Markdown image renders as a single bordered image. Its width and height
-are read from the file: below `content.asset_root` when image URLs are rewritten
-with `content.asset_prefix`, otherwise relative to `content_dir`.
+A plain Markdown image renders as a single bordered image, with its width and
+height read from the file. Put images into the project's `assets/` folder and
+reference them either by their published URL, `/assets/images/diagram.png`, or
+relative to the page, `../assets/images/diagram.png`. Both publish as
+`/assets/images/diagram.png`. A relative path that points outside a copied
+directory stops the build. Sites with their own layout keep using `copy` and
+`content.asset_prefix`, `content.asset_target` and `content.asset_root`.
 
 ## Code blocks
 
