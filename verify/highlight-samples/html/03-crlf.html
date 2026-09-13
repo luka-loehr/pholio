@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- Event letter template (CRLF line endings) -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Letter: team outing</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; max-width: 70ch; margin: 2rem auto; }
+    .signature { margin-top: 3em; border-top: 1px solid #999; width: 20em; }
+  </style>
+</head>
+<body>
+  <address>
+    Example Press<br>
+    Rue de la Paix&nbsp;147<br>
+    75002 Paris
+  </address>
+
+  <p><time datetime="2026-09-20">20 September 2026</time></p>
+
+  <h1>Team outing for design &amp; ops</h1>
+
+  <p>Dear colleagues,</p>
+  <p>on <strong>Friday, 2 October</strong> we hike up the hill. We meet at 8:00&nbsp;a.m.
+     at the main entrance. Please bring <em>weatherproof clothing</em>, food and
+     about 5&nbsp;&euro;.</p>
+
+  <ul>
+    <li>Return: around 1:30 p.m.</li>
+    <li>In bad weather we work as usual.</li>
+    <li>Questions to <a href="mailto:rene@example.com">René Martín</a></li>
+  </ul>
+
+  <form>
+    <fieldset>
+      <legend>Reply</legend>
+      <label><input type="radio" name="attend" value="yes" checked> I will attend.</label><br>
+      <label><input type="radio" name="attend" value="no"> I will not attend.</label>
+      <textarea name="note" rows="3" cols="40">Allergies: </textarea>
+    </fieldset>
+  </form>
+
+  <p class="signature">Signature</p>
+  <script>
+    document.forms[0].on('change', (e) => console.log(e.target.name, e.target.value));
+  </script>
+</body>
+</html>
