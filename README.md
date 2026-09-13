@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-%E2%89%A5%208.2-777bb4.svg?style=flat)](https://www.php.net/releases/8.2/en.php)
 [![Dependencies](https://img.shields.io/badge/dependencies-none-success.svg?style=flat)](#2-system)
-[![Status](https://img.shields.io/badge/status-pre--release-orange.svg?style=flat)](docs/roadmap.md)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?style=flat)](VERSION)
 
 **Beautiful PHP documentation, generated from your code.**
 
@@ -15,10 +15,10 @@ same element tree, the same computed styles, the same pixels, the same keyboard
 behaviour. It was built for a real documentation site first, and Pholio is that
 generator made to stand on its own.
 
-> **Pre-release.** The generator, theme, tests and verification tooling are
+> **Version 0.1.0.** The generator, theme, tests and verification tooling are
 > here, and `php bin/pholio build` builds the demo site. The content format
-> and the configuration schema are settled; version 0.1.0 is not tagged yet.
-> See [`docs/roadmap.md`](docs/roadmap.md).
+> and the configuration schema are settled. What comes next is in
+> [`docs/roadmap.md`](docs/roadmap.md).
 
 ## 1. What it does
 
