@@ -1,32 +1,22 @@
 /* layout.css — grid, header, sidebar, table of contents, TOC popover,
  * article frame and the start page scaffold.
  *
- * Origin of every rule: the frozen reference stylesheet
- *   css/[root-of-the-server]__1br6yta._.css of the reference export.
- * Every nd- class names in its comment the utility classes the reference emits on
- * the same element; the declarations below are exactly the ones Tailwind generated
- * for those utilities — value by value, including the
- * `@supports (color: color-mix(in lab, …))` pairs (fallback hex value first,
- * `color-mix(in oklab, …)` after it) and the `rtl:` variants.
+ * Every nd- class names in its comment the Tailwind utilities its declarations are
+ * written from; the declarations are Tailwind v4's output for those utilities,
+ * value by value, including the `@supports (color: color-mix(in lab, …))` pairs
+ * (fallback hex value first, `color-mix(in oklab, …)` after it) and the `rtl:`
+ * variants.
  *
- * Mapping from utility list to nd- classes: class-map.json in the verify tooling.
- * The golden DOM comparison uses this table to check that every element carries
- * exactly the classes intended here.
+ * Layer: `components`. The typography rules from prose.css (layer `utilities`)
+ * must win against the component classes: `.prose :where(figure)` beats the
+ * screenshot's `my-6`. The only element that must win against `.prose` the other
+ * way round is a table of contents entry; it doesn't carry the `prose` class and
+ * gets the declarations it needs directly in `.nd-toc-item` (see components.css).
  *
- * Layer: `components`. The reference puts its utilities in `utilities`, above
- * `prose`. For this theme `components` is right, because there the typography
- * rules from prose.css (layer `utilities`) win against the component classes as in
- * the original: `.prose :where(figure)` beats the screenshot's `my-6` in the
- * reference because it comes later in the stylesheet. The only element that must
- * win against `.prose` the other way round is a table of contents entry; this
- * theme drops its `prose` class and writes the four declarations it contributes
- * directly into `.nd-toc-item` (see components.css).
- *
- * States live on `data-*`/`aria-*` attributes and pseudo-classes, as in the
- * reference, not on modifier classes. Where the reference emits a state as a
- * utility class of its own (active section tab, closed folder chevron), a second
- * component class or a rule on the parent element stands in for it; each of these
- * places is commented below.
+ * States live on `data-*`/`aria-*` attributes and pseudo-classes, not on modifier
+ * classes. Where a state has no attribute (active section tab, closed folder
+ * chevron), a second component class or a rule on the parent element stands in
+ * for it; each of these places is commented below.
  */
 
 @layer components {
@@ -61,9 +51,9 @@
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
-  /* Collapsed sidebar: an intentional difference from the reference (Luka's decision).
-     The reference only drops the sidebar column, so the page column grows to the left
-     edge and a wide dead zone opens before the table of contents. Here the page column
+  /* Collapsed sidebar. Dropping only the sidebar column would let the page column
+     grow to the left edge and open a wide dead zone before the table of contents.
+     Instead the page column
      is only as wide as the article (900px) plus its padding, and never closer than a
      48px gutter to the window. The two outer 1fr columns share the rest, which
      centres content and table of contents as one group. The sidebar area still starts
@@ -395,14 +385,9 @@
   /* ------------------------------------------------------------------
      Sidebar states that only JavaScript establishes
 
-     `js/sidebar.js` currently rebuilds the class list of `aside#nd-sidebar`
-     from a table of utility classes on every state change. Those classes no
-     longer exist in this theme. The states are in the DOM as attributes anyway
-     – `data-collapsed`, `data-hovered` and `data-collapse-transition` on the
-     `aside` –, so the rules here hang on them. The class lists in
-     js/sidebar.js can therefore be dropped without replacement, leaving only
-     the attributes.
-     Reference lines: 523, 1925, 2052, 1929, 1505, 2756, 1671, 1661, 2894, 2870.
+     The states are attributes on the `aside`: `data-collapsed`,
+     `data-hovered` and `data-collapse-transition`, set by js/sidebar.js. The
+     rules here hang on them.
      ------------------------------------------------------------------ */
 
   #nd-sidebar[data-collapsed="true"] {
@@ -415,10 +400,9 @@
   }
 
   /* After a collapse or expand click, width, height, offset and colour transition.
-     In the reference the class `transition-[width,inset-block,translate,background-color]`
-     stays until the sidebar's next state change (usually the next hover),
-     because the reference derives it from the previous `data-collapsed`.
-     js/sidebar.js reproduces exactly this lifetime with `data-collapse-transition`;
+     The transition (`transition-[width,inset-block,translate,background-color]`)
+     stays until the sidebar's next state change (usually the next hover):
+     js/sidebar.js sets `data-collapse-transition` for exactly that lifetime;
      `data-column-changed` lasts only ~2 frames and drives nothing but the
      transition of the grid columns on the layout. The duration comes from
      `duration-250` in `.nd-sidebar`. */
@@ -464,7 +448,6 @@
      Opening and closing hang on `data-state="open|closed"`, which
      js/sidebar.js sets; after `animationend` it toggles `nd-invisible`.
      Header and entries use the classes of the desktop sidebar.
-     Source: the reference drawer at 390 px (reference export dom-390.html).
      ------------------------------------------------------------------ */
 
   /* .nd-drawer  <-  fixed text-[0.9375rem] flex flex-col shadow-lg border-s end-0 inset-y-0 w-[85%] max-w-[380px] z-40 bg-fd-background data-[state=open]:animate-fd-sidebar-in data-[state=closed]:animate-fd-sidebar-out */
@@ -562,8 +545,7 @@
   }
 
   /* js/scroll-area.js creates the scrollbar and thumb of the ScrollArea. The bar
-     is visible only while Base UI sets `data-hovering`; the reference has
-     `opacity-0` as a class for it (reference UI dist/components/ui/scroll-area.js). */
+     is visible only while `data-hovering` is set, as in Base UI's ScrollArea. */
 
   /* .nd-scroll-bar  <-  flex select-none transition-opacity h-full w-1.5 */
   .nd-scroll-bar {
@@ -749,11 +731,9 @@
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
-  /* The chevron of a closed folder. The reference attaches the utilities
-   * `-rotate-90 rtl:rotate-90` as classes of their own (reference l. 1696 and
-   * 3751) and swaps them when collapsing and expanding. This theme reads the
-   * state from the trigger instead: Base UI sets `data-panel-open` there while
-   * the panel is open. Same declaration, same moment. */
+  /* The chevron of a closed folder (`-rotate-90 rtl:rotate-90`). The state comes
+   * from the trigger: js/collapsible.js sets `data-panel-open` there while the
+   * panel is open, so no class has to be swapped. */
   :not([data-panel-open]) > .nd-sidebar-chevron {
     rotate: -90deg;
   }
@@ -850,8 +830,8 @@
   }
   /* The width of the article children lives in utilities.css: the child `div.prose`
    * carries `.prose { max-width: none }` from prose.css, which lives in the
-   * `utilities` layer. In the reference `*:max-w-[900px]` (l. 3017) wins because
-   * it comes later in the stylesheet; here it wins through the layer. */
+   * `utilities` layer. `*:max-w-[900px]` wins through its place after prose.css
+   * in the same layer. */
   @media (min-width: 48rem) {
     .nd-page {
       padding-inline: calc(var(--spacing) * 6);
@@ -1236,10 +1216,9 @@
      (components/home-header.php); js/collapsible.js inserts it and sets
      `--collapsible-panel-height` and the phases `data-starting-style` /
      `data-ending-style`. When open, `header#nd-nav` carries `data-open` and
-     the trigger `data-panel-open`. The reference attaches `max-lg:shadow-lg
-     max-lg:rounded-b-2xl` to `nav` and `rotate-180` to the chevron for it;
-     here the rules read these attributes. Source: reference export
-     states/home-menu-open-settled.html.
+     the trigger `data-panel-open`. The rules for the open menu
+     (`max-lg:shadow-lg max-lg:rounded-b-2xl` on `nav`, `rotate-180` on the
+     chevron) read these attributes.
      ------------------------------------------------------------------ */
 
   /* .nd-home-menu-panel  <-  overflow-hidden [&[hidden]:not([hidden='until-found'])]:hidden h-(--collapsible-panel-height) transition-[height,opacity] data-starting-style:opacity-0 data-starting-style:h-0 data-ending-style:h-0 data-ending-style:opacity-0 mx-auto max-w-(--fd-layout-width) lg:hidden */
