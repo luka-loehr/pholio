@@ -1,0 +1,16 @@
+{
+  // A Pholio build on Cloudflare Workers static assets, with worker.js in front for content negotiation.
+  "name": "my-docs",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    // output_dir of pholio.config.php, relative to this file.
+    "directory": "../public",
+    "binding": "ASSETS",
+    // The Worker answers first, so a page can be served as its Markdown twin.
+    "run_worker_first": true,
+    // Pholio's page URLs have no trailing slash.
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "none"
+  }
+}
