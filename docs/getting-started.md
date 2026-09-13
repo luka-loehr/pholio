@@ -14,7 +14,7 @@ icon: rocket
   colors are simplified.
 
 That is the whole list for building a site. Node is needed only for the
-comparison tooling in `verify/`, which never reaches a published site.
+development checks in `verify/`, which never reach a published site.
 
 ## Install
 
