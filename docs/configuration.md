@@ -183,7 +183,10 @@ Both tokenizers lowercase, fold diacritics and ligatures (`ä` → `a`, `ß` →
 split at everything but letters and digits and also index hyphenated words
 joined, so "chat export", "chat-export" and "chatexport" find the same page.
 `german` additionally reads `ae`, `oe` and `ue` as `a`, `o` and `u`, so
-"Passwörter" and "Passwoerter" meet. Neither removes stopwords or stems.
+"Passwörter" and "Passwoerter" meet. Queries drop common stopwords ("wie", "ich",
+"the", …; `german` drops German and English ones) unless nothing else is left, and
+match inflected forms loosely, so "logs" also finds "Logging". Words a page does not
+use itself can be added with the `keywords` frontmatter key.
 
 ## Server
 
