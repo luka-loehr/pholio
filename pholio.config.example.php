@@ -212,6 +212,33 @@ return [
         // 'csp' => "default-src 'self'; ...",   the default is strict; no double quotes
     ],
 
+    // -------------------------------------------------------------- agents --
+
+    'site' => [
+        // Origin the site is served from, without a path. Makes the URLs in
+        // llms.txt and skill.md absolute; sitemap.xml and the agent card need it.
+        'url' => null,
+        // One sentence about the site; null uses home.hero.lead.
+        'description' => null,
+    ],
+
+    // Files for AI agents, all on by default (docs/agents.md).
+    'agents' => [
+        'enabled' => true,
+        'markdown' => true,         // <page>.md next to every page
+        'llms_txt' => true,
+        'llms_full_txt' => true,
+        'skill' => true,            // skill.md and .well-known/agent-skills/
+        'agent_card' => true,       // .well-known/agent-card.json, needs site.url
+        'robots_txt' => true,
+        'sitemap' => true,          // needs site.url
+        'structured_data' => true,  // JSON-LD in every page
+        'headers' => true,          // Link headers and content negotiation
+        'page_actions' => true,     // "Copy page" next to the page title
+        'instructions' => null,     // "## Agent Instructions" in llms.txt and skill.md
+        'exclude' => [],            // globs on page URLs and content files, e.g. 'internal/*'
+    ],
+
     // ------------------------------------------------------------ profiles --
 
     // Merged recursively over this file with --profile <name>.
