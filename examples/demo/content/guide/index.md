@@ -9,9 +9,12 @@ searchable archives. It does not exist. It is here so this demo site has
 something plausible to document, and so every component Pholio supports
 appears on at least one page.
 
-<Banner id="demo-notice" variant="rainbow">
+<Banner id="demo-notice" variant="rainbow" changeLayout="false">
 This is a demo site. Lanternfly is fictional; the components are real.
 </Banner>
+
+The banner above sets `changeLayout="false"`, so it sits on the page without
+pushing the header down.
 
 ## Where to go next
 
@@ -24,6 +27,6 @@ This is a demo site. Lanternfly is fictional; the components are real.
 
 ## How the pieces fit
 
-<Screenshot src="pipeline.svg" alt="Content flows through the parser and the components into a static site" />
+<Screenshot src="/images/pipeline.svg" dark="/images/pipeline-dark.svg" alt="Content flows through the parser and the components into a static site" />
 
 *Every page on this site went through exactly these four stages.*
