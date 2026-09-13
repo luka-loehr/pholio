@@ -2,7 +2,7 @@
 
 # Pholio – Beautiful documentation, powered by Markdown
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg?style=flat)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg?style=flat)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-%E2%89%A5%208.2-777bb4.svg?style=flat)](https://www.php.net/releases/8.2/en.php)
 [![CI](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml/badge.svg)](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml)
