@@ -3,8 +3,8 @@
  * Verbatim from the compiled reference stylesheet, @layer base (l. 173–430):
  *   css/[root-of-the-server]__1br6yta._.css
  *
- * The end of the block already contains the two Fumadocs additions from
- * fumadocs-ui/css/lib/base.css:
+ * The end of the block already contains the two additions of the reference
+ * design from its css/lib/base.css:
  *   *, ::after, ::before, ::backdrop { border-color: var(--color-fd-border, currentColor) }
  *   body { background-color/color }
  *
