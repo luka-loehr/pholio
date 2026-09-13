@@ -152,9 +152,9 @@ test('last updated line: translated label, two text nodes, omitted without a val
     assert_true(!str_contains(Pholio\nd_page(['updated' => null] + $page, [], '', []), 'nd-page-stand'));
 });
 
-test('document head: preset, favicons, manifest and theme colour only when configured', function (): void {
+test('document head: favicons, manifest and theme colour only when configured', function (): void {
     $head = [
-        'lang' => 'en', 'preset' => null, 'fontClass' => '', 'title' => 'T', 'description' => null,
+        'lang' => 'en', 'fontClass' => '', 'title' => 'T', 'description' => null,
         'scrollArea' => false, 'assetBase' => '/assets', 'baseUrl' => '/', 'searchIndexUrl' => '/search-index.json',
         'icons' => [], 'manifest' => null, 'themeColor' => null,
     ];
@@ -163,7 +163,6 @@ test('document head: preset, favicons, manifest and theme colour only when confi
     assert_contains('<meta name="nd-search-index" content="/search-index.json"></head>', $bare);
 
     $full = Pholio\nd_document([
-        'preset' => 'brand',
         'icons' => [
             ['rel' => 'icon', 'type' => 'image/png', 'sizes' => '32x32', 'href' => '/assets/favicon-32x32.png'],
             ['rel' => 'apple-touch-icon', 'type' => null, 'sizes' => '180x180', 'href' => '/assets/touch.png'],
@@ -171,7 +170,7 @@ test('document head: preset, favicons, manifest and theme colour only when confi
         'manifest' => '/site.webmanifest',
         'themeColor' => '#123456',
     ] + $head, '');
-    assert_contains('<html lang="en" data-preset="brand" class="light" style="color-scheme: light;">', $full);
+    assert_contains('<html lang="en" class="light" style="color-scheme: light;">', $full);
     assert_contains(
         '<meta name="nd-search-index" content="/search-index.json">'
         . '<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">'
