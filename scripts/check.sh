@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tier 1: lint, the PHP test suite, and the demo built against its committed snapshot.
+# Lint, the PHP test suite, and the demo built against its committed snapshot.
 # Exits non-zero on the first failure.
 set -euo pipefail
 
