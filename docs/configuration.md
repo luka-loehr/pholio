@@ -131,48 +131,33 @@ first content page the root.
 
 ## Theme
 
-Every built-in color preset, a light and a dark set of color tokens, is part of
-the stylesheet and applies while `<html data-preset>` names it. `theme.preset`
-sets that attribute, so it picks the preset a page starts with; a script that
-changes `document.documentElement.dataset.preset` recolors the page without a
-rebuild. `theme.light` and `theme.dark` map single token names, without the
-`--color-fd-` prefix, to CSS colors, and `theme.palette_css` adds a stylesheet of
-your own. The build writes the presets, the token maps and the stylesheet, in that
-order, at the palette marker `/* @pholio:palette */` in `theme/css/tokens.css`.
-The block is unlayered, so it wins over the default tokens, and a later part wins
-over an earlier one, whichever preset is active.
+The theme has a light and a dark color scheme with static colors. `theme.light`
+and `theme.dark` map single color token names, without the `--color-fd-` prefix,
+to CSS colors, and `theme.palette_css` adds a stylesheet of your own. The build
+writes the token maps and then the stylesheet at the palette marker
+`/* @pholio:palette */` in `theme/css/tokens.css`. The block is unlayered, so it
+wins over the default tokens, and the stylesheet wins over the token maps.
+Anything you leave out keeps its default.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `theme.preset` | `neutral` | Initial color preset, written as `<html data-preset>`, see the table below |
 | `theme.light` | `[]` | Token => color for the light scheme |
 | `theme.dark` | `[]` | Token => color for the dark scheme |
-| `theme.palette_css` | `null` | Stylesheet inserted after the preset and the token maps, for palettes a token map can't express |
+| `theme.palette_css` | `null` | Stylesheet inserted after the token maps, for palettes a token map can't express |
 | `theme.font_class` | `''` | Extra class on `<html>` |
 | `theme.hotkey` | `d` | Key that toggles the color scheme |
 | `theme.default_scheme` | `system` | Planned: `light` or `dark` as the scheme before the visitor chooses |
 | `theme.custom_css` | `null` | Planned: stylesheet appended after the theme CSS |
 
-[Themes](/docs/themes) shows every preset in both schemes.
-
-| Preset | Character |
-| --- | --- |
-| neutral | Grays with near-black and white accents, the default |
-| black | Pure black and white, higher contrast |
-| vitepress | White pages, indigo links and a tinted sidebar |
-| dusk | Lavender surfaces with a rose accent |
-| catppuccin | Catppuccin Latte and Mocha, mauve accent |
-| ocean | Blue-tinted borders and a deep blue dark scheme with a glow at the top |
-| purple | Violet surfaces and accent |
-| solar | Neutral colors with a slate accent; from 768px the article sits on a raised card |
-| emerald | Mint surfaces with a teal accent |
-| ruby | White surfaces with a crimson accent |
-| aspen | Pale olive surfaces with a lime accent |
+The tokens are `background`, `foreground`, `muted`, `muted-foreground`,
+`popover`, `popover-foreground`, `card`, `card-foreground`, `border`, `primary`,
+`primary-foreground`, `secondary`, `secondary-foreground`, `accent`,
+`accent-foreground` and `ring`.
 
 ```php title="pholio.config.php"
 'theme' => [
-    'preset' => 'ocean',
     'light' => ['primary' => 'hsl(220 85% 45%)'],
+    'dark' => ['primary' => 'hsl(220 90% 70%)'],
 ],
 ```
 
