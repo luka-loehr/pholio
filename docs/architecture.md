@@ -16,6 +16,7 @@ lib/Markdown.php      strict parser            ->  AST
 lib/Toc.php, Ids.php  headings                 ->  table of contents, stable ids
 lib/Highlight.php     fenced code              ->  highlighted tokens (TextMate grammars)
 lib/SearchIndex.php   blocks                   ->  index documents
+lib/AgentSite.php     page tree + AST          ->  Markdown twins, llms.txt, skill.md, sitemap, JSON-LD
   |
   v
 lib/Render.php        AST                      ->  HTML, via the components
@@ -23,8 +24,13 @@ components/*.php      pure functions, one file per component
 templates/document.php  the html shell
   |
   v
-output_dir/**         index.html per page, search-index.json, theme assets, .htaccess
+output_dir/**         index.html and <page>.md per page, search-index.json, agent files,
+                      theme assets, .htaccess, _headers
 ```
+
+The files for AI agents are described in [Agents](/docs/agents). They come
+from the same page tree as the sidebar and the search index, so they never need
+maintaining by hand.
 
 `Builder.php` drives the run and `Cli.php` maps its errors to exit codes. Every
 stage is a pure transformation: nothing reads the filesystem except the tree,
@@ -68,8 +74,8 @@ internal shape documented in `src/Config.php`.
 | Path | Contents |
 | --- | --- |
 | `bin/pholio` | CLI entry point |
-| `src/` | `Cli.php`, `Config.php`, `Builder.php`, `Htaccess.php`, `DevServer.php`, `Fs.php`, `I18n.php` |
-| `src/lib/` | Parser, tree, ids, table of contents, highlighter, search index, rendering, HTML helpers |
+| `src/` | `Cli.php`, `Config.php`, `Builder.php`, `Htaccess.php`, `AgentHeaders.php`, `DevServer.php`, `Fs.php`, `I18n.php` |
+| `src/lib/` | Parser, tree, ids, table of contents, highlighter, search index, rendering, agent files, HTML helpers |
 | `src/components/` | One PHP file per component, pure functions |
 | `src/templates/` | The document shell |
 | `src/i18n/` | Interface strings: `en.php` (every key), `de.php` |
@@ -82,6 +88,7 @@ internal shape documented in `src/Config.php`.
 | `tests/` | PHP tests, fixtures and the demo snapshot |
 | `docs/` | This documentation, in Pholio's content format |
 | `examples/demo/` | A demo site covering every component |
+| `examples/cloudflare-worker/` | Content negotiation for agents on Cloudflare Workers static assets |
 | `scripts/` | Local checks, run by hand |
 
 ## Known limits
@@ -119,6 +126,12 @@ softened by restoring the sidebar's scroll position and open folders from
 - **2026-09-12 — Four-stage verification.** DOM, computed styles, pixels,
   behavior. A checklist review of a theme rebuild finds the differences you
   thought to look for. A diff finds the others.
+- **2026-09-13 — Files for agents are derived, not written.** The Markdown
+  twins, llms.txt, skill.md and the agent card are computed from the page tree
+  and the configuration, the same way every build. No model writes them, so
+  they can't drift from the pages or invent anything. Content negotiation lives
+  in the server configuration Pholio already generates, so the output stays
+  static; an MCP server would need a runtime and is left to hosts that have one.
 - **2026-09-12 — One file per commit.** Long history, but every change is
   readable and revertible on its own. It has already paid for itself while
   moving code between repositories with `git subtree split`.
