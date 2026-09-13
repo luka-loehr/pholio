@@ -6,7 +6,7 @@
 //   theme.set('dark');                    // with view transition and transition lock
 //
 // Original: node_modules/next-themes/dist/index.mjs with the options from
-// fumadocs-ui/dist/provider/base.js:
+// the reference UI's dist/provider/base.js:
 //   attribute "class", defaultTheme "system", enableSystem, enableColorScheme,
 //   disableTransitionOnChange.
 //
@@ -20,7 +20,7 @@
 //     <head>, `getComputedStyle(document.body)` forces the reflow, and a
 //     `setTimeout(…, 1)` removes it again
 //   · the change itself runs inside `document.startViewTransition` when available
-//     (fumadocs-ui: ThemeSwitch.handleThemeChange and ThemeHotKey)
+//     (reference UI: ThemeSwitch.handleThemeChange and ThemeHotKey)
 
 const STORAGE_KEY = 'theme';
 const THEMES = ['light', 'dark'];
