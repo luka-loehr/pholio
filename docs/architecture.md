@@ -47,8 +47,8 @@ runtime in production.
 
 **No dependencies.** The only external ingredients are vendored with their
 license files: the Inter font, the lucide icon paths, the Shiki grammars and
-themes and the values derived from the compiled Tailwind output. `verify/` may use Node and
-Playwright because it is never deployed.
+themes and the values derived from the compiled Tailwind output. The checks in `verify/`
+may use Node and Playwright because they are never deployed.
 
 **Fail loud.** Unknown Markdown, an unknown component, attribute, icon or code
 language, an invalid `meta.json`, a duplicate slug: each one stops the build with
@@ -80,11 +80,12 @@ internal shape documented in `src/Config.php`.
 | `src/templates/` | The document shell |
 | `src/i18n/` | Interface strings: `en.php` (every key), `de.php` |
 | `theme/css/` | `notebook.css` and its parts, hand-written in cascade order |
+| `theme/presets/` | The built-in color presets, one stylesheet each |
 | `theme/js/` | ES modules, one per behavior |
 | `theme/fonts/` | Inter |
 | `vendor-data/` | Shiki grammars and themes, lucide icon data |
 | `licenses/` | License texts of the vendored material, copied into every build |
-| `verify/` | Node comparison tooling, never shipped |
+| `verify/` | Node checks of the search engine, the search dialog, the agent files and the icons, never shipped |
 | `tests/` | PHP tests, fixtures and the demo snapshot |
 | `docs/` | This documentation, in Pholio's content format |
 | `examples/demo/` | A demo site covering every component |
@@ -113,19 +114,21 @@ softened by restoring the sidebar's scroll position and open folders from
 - **2026-09-12 — PHP at build time only.** The output is static files. The
   components are still pure functions and could render per request, but nothing
   in production depends on a PHP runtime.
-- **2026-09-12 — Hand-written CSS derived from the compiled Tailwind output.**
-  Keeping the 110 KB of compiled utility CSS would have been pixel-perfect on
-  day one and unmaintainable on day two. Every value in the hand-written
-  stylesheet comes from the compiled reference, and the computed-style diff is
-  what keeps the claim honest.
+- **2026-09-12 — Hand-written CSS with component classes.** A stylesheet of
+  compiled utility classes is 110 KB and unreadable. Each element carries one
+  or a few `nd-*` classes instead, each rule group names the utilities it
+  stands for, and state lives in `data-` and `aria-` attributes.
 - **2026-09-12 — Vanilla-JS ports of the Base UI primitives.** Dialog, popover,
-  collapsible, scroll area and tabs are rebuilt as small classes that set the
-  same state attributes in the same order, because the CSS and the animations
-  depend on that order. Copying a React runtime to get five behaviors was not
-  a trade worth making.
-- **2026-09-12 — Four-stage verification.** DOM, computed styles, pixels,
-  behavior. A checklist review of a theme rebuild finds the differences you
-  thought to look for. A diff finds the others.
+  collapsible, scroll area and tabs are small classes that set their state
+  attributes in a fixed order, because the CSS and the animations depend on
+  that order. Copying a React runtime to get five behaviors was not a trade
+  worth making.
+- **2026-09-12 — Committed output as the test oracle.** The demo build and the
+  highlighter's output are committed. A checklist review finds the differences
+  you thought to look for; a diff against committed output finds the others.
+- **2026-09-13 — Color presets as token sets.** A preset is a light and a dark
+  set of color tokens written at the palette marker, so every component follows
+  it without a single component rule, and a site's own tokens still win.
 - **2026-09-13 — Files for agents are derived, not written.** The Markdown
   twins, llms.txt, skill.md and the agent card are computed from the page tree
   and the configuration, the same way every build. No model writes them, so
