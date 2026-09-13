@@ -1,5 +1,5 @@
 {
-  "description": "Relevance expectations for the Lanternfly demo (examples/demo/content, base URL /). Each case names the page a reader looking for the query wants: exact titles, phrases, hyphen/space/joined spellings, prefixes while typing, one-word compounds, typos and headings. Checked by node verify/search-parity.mjs --relevance.",
+  "description": "Relevance expectations for the Lanternfly demo (examples/demo/content, base URL /). Each case names the page a reader looking for the query wants: exact titles, phrases, hyphen/space/joined spellings, prefixes while typing, one-word compounds, typos and headings. Checked by node verify/search-check.mjs --relevance.",
   "cases": [
     { "query": "installation", "top1": "/guide/installation" },
     { "query": "INSTALLATION", "top1": "/guide/installation", "note": "case does not matter" },
