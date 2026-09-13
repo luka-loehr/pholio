@@ -9,6 +9,32 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Added
+
+- **Markdown for every page.** Each page gets a clean Markdown twin at `<page>.md`: component tags
+  become plain Markdown, the twin opens with a pointer to `llms.txt` and ends with related topics.
+- **llms.txt and llms-full.txt** at the site root and below `.well-known/`, in navigation order with
+  one-line summaries. A site too large for one index gets `_llms/` section indexes instead, without
+  leaving out a page.
+- **skill.md and Agent Skills discovery**: a skill generated from the configuration and the page tree,
+  replaceable by `skill.md` or `skills/<name>/SKILL.md`, published with the 0.2.0 discovery index and its
+  digests, the 0.1.0 index, and an A2A agent card.
+- **Content negotiation.** `.htaccess` and `pholio dev` answer `Accept: text/markdown`, `Accept: text/plain`
+  and AI assistants' user agents with the Markdown twin, and send `Link` and `X-Llms-Txt` on every response,
+  404s included. A `_headers` file carries the headers to Cloudflare Pages and Netlify;
+  `examples/cloudflare-worker` negotiates on Cloudflare Workers.
+- **robots.txt, sitemap.xml and JSON-LD** (WebSite, TechArticle, BreadcrumbList) on every page.
+- **Page actions**: "Copy page" next to the page title, with View as Markdown, Open in ChatGPT, Open in
+  Claude and Copy llms.txt URL.
+- **Configuration**: `site.url`, `site.description` and the `agents` block to switch each file off,
+  add agent instructions or exclude pages; `noindex: true` in the frontmatter.
+- **Agent score**: `verify/agent-score.mjs` checks a running site like `mint score`; tier 2 scores the demo.
+
+### Changed
+
+- `.htaccess` and `pholio dev` serve `.md` files, the page twins; Markdown sources are never copied
+  into the output.
+
 ## [0.2.0] - 2026-09-13
 
 ### Added
