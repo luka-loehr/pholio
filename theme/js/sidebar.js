@@ -1,15 +1,15 @@
 // sidebar.js — sidebar of the notebook layout.
 //
 // Sources (read, not guessed):
-//   fumadocs-ui/dist/components/sidebar/base.js
+//   reference UI dist/components/sidebar/base.js
 //       SidebarProvider   – `mode` from matchMedia('(width < 768px)'), closeOnRedirect
 //       SidebarContent    – hover rules of the collapsed sidebar
 //       SidebarDrawerOverlay / SidebarDrawerContent – data-state, invisible after animationend
 //       SidebarFolder / SidebarFolderLink – state and click rules
 //       SidebarTrigger    – aria-expanded and changing aria-label
 //       useAutoScroll     – scrollIntoView with boundary #nd-sidebar or #nd-sidebar-mobile
-//   fumadocs-ui/dist/layouts/notebook/slots/sidebar.js   – collapsed sidebar, hover zone
-//   fumadocs-ui/dist/layouts/notebook/slots/container.js – --fd-sidebar-col, data-column-changed
+//   reference UI dist/layouts/notebook/slots/sidebar.js   – collapsed sidebar, hover zone
+//   reference UI dist/layouts/notebook/slots/container.js – --fd-sidebar-col, data-column-changed
 //
 // Additionally (not in the original): scroll position and open folders survive
 // page navigation in `sessionStorage`, because the static site reloads where
