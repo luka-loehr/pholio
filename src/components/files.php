@@ -9,7 +9,7 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * File tree, `Files`/`Folder`/`File` from `fumadocs-ui/dist/components/files.js`
+ * File tree, `Files`/`Folder`/`File` from the reference UI's `dist/components/files.js`
  * on `components/ui/collapsible.js` (Base UI `Collapsible`).
  *
  * A folder is a collapsible root `div[data-open|data-closed]` with trigger and
