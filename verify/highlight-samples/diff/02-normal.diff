@@ -1,0 +1,48 @@
+2,3c2,3
+< Sign in with your account.
+< If something goes wrong, contact the front desk.
+---
+> Sign in with your account (user name = initials).
+> If something goes wrong, write to support@example.com.
+5a6,8
+> ## Forgot your password
+>
+> Use the “Forgot password?” link below the form.
+9d11
+< Deprecated: the old address /guide.html no longer works.
+14,16c16
+< Line A
+< Line B
+< Line C
+---
+> Lines A to C merged
+20a21
+> \ Not a real marker, just text with a backslash
+30,31d31
+< 
+< 
+42c42
+< End without newline
+\ No newline at end of file
+---
+> End with newline
+Only in docs/content: new.md
+Only in docs/old: removed.md
+Common subdirectories: docs/content/images and docs/old/images
+diff -r docs/old/imprint.md docs/content/imprint.md
+1c1
+< # Imprint
+---
+> # Imprint & Privacy
+diff -u docs/old/faq.md docs/content/faq.md
+--- docs/old/faq.md	2026-09-01 08:00:00.000000000 +0200
++++ docs/content/faq.md	2026-09-12 14:32:10.123456789 +0200
+@@ -1,4 +1,4 @@
+ # Frequently asked questions
+ 
+-**How do I reset my password?**
++**How do I reset my password? 🔑**
+ Through the account page under “Security”.
+@@ -10 +10 @@
+-Updated: 2025
++Updated: 2026
