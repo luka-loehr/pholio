@@ -70,7 +70,7 @@ the defaults. [Configuration](/docs/configuration) lists every key.
 Content is a folder of Markdown files. A `meta.json` per folder sets its title
 and the order of its pages.
 
-```markdown
+```text
 ---
 title: Exporting a report
 description: How to save a report as a file.
