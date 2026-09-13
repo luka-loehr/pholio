@@ -198,8 +198,7 @@ else
 fi
 
 if [ "$pcre_ok" = 0 ]; then
-    say "warning: PCRE2 $pcre_version is older than 10.43. Pholio works, but a few syntax"
-    say "warning: highlighting patterns are switched off and highlighting will not match the reference."
+    say "warning: PCRE2 $pcre_version is older than 10.43: highlighting of a few languages is simplified."
 fi
 
 if $cmd --help 2>/dev/null | grep -q 'pholio init'; then
