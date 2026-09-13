@@ -346,7 +346,9 @@ async function tier2() {
     '--oracle', '--content', 'examples/demo/content', '--base-url', '/',
     '--queries', 'verify/fixtures/demo/queries.json', '--tokenizer', 'english',
   ]));
-  await check(...scriptStep('verify/lucide-oracle.mjs', ['--check', '--sample', '50']));
+  // Every icon (the sample size exceeds the icon count) with a fixed seed, which also
+  // fixes the class names paired with each icon: a failure reproduces on every run.
+  await check(...scriptStep('verify/lucide-oracle.mjs', ['--check', '--sample', '100000', '--seed', '1']));
 }
 
 async function tier3() {
