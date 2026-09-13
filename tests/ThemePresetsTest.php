@@ -89,9 +89,21 @@ test('every preset name has a stylesheet and every stylesheet a name', function 
     assert_same('neutral', Config::PRESETS[0], 'neutral is the default');
 });
 
-$neutralCss = null;
+test('neutral declares nothing, every other preset scopes every rule to its data-preset', function (): void {
+    assert_true(!str_contains((string) file_get_contents(PRESETS_ROOT . '/theme/presets/neutral.css'), '{'), 'neutral declares nothing');
+    foreach (array_slice(Config::PRESETS, 1) as $name) {
+        $sheet = (string) file_get_contents(PRESETS_ROOT . '/theme/presets/' . $name . '.css');
+        $scope = ':where(:root[data-preset="' . $name . '"])';
+        preg_match_all('/^[ \t]*([^@\s\/][^{\n]*)\{[ \t]*$/m', $sheet, $m);
+        assert_true($m[1] !== [], "{$name}: has rules");
+        foreach ($m[1] as $selector) {
+            assert_true(str_starts_with(trim($selector), $scope), "{$name}: unscoped selector {$selector}");
+        }
+    }
+});
+
 foreach (Config::PRESETS as $preset) {
-    test("preset {$preset}: the demo builds, <html> names it and notebook.css carries it", function () use ($preset, &$neutralCss): void {
+    test("preset {$preset}: the demo builds, <html> names it and notebook.css carries every preset", function () use ($preset): void {
         $out = presets_temp();
         [$code, , $err] = presets_cli([
             'build', '--config', PRESETS_DEMO_CONFIG, '--out', $out, '--only', '/guide/installation', '--quiet',
@@ -101,20 +113,17 @@ foreach (Config::PRESETS as $preset) {
         assert_contains(' data-preset="' . $preset . '"', (string) file_get_contents($out . '/guide/installation/index.html'));
 
         $css = presets_stylesheet($out);
-        $sheet = rtrim((string) file_get_contents(PRESETS_ROOT . '/theme/presets/' . $preset . '.css'));
-        assert_contains($sheet, $css);
         assert_true(!str_contains($css, '/* @pholio:palette */'), 'marker replaced');
-
-        if ($preset === 'neutral') {
-            $neutralCss = $css;
-            assert_true(!str_contains($sheet, '{'), 'neutral declares nothing');
-            return;
+        foreach (Config::PRESETS as $name) {
+            $sheet = rtrim((string) file_get_contents(PRESETS_ROOT . '/theme/presets/' . $name . '.css'));
+            assert_contains($sheet, $css, "{$name} stylesheet in the build");
+            if ($name === 'neutral') {
+                continue;
+            }
+            $scope = ':where(:root[data-preset="' . $name . '"])';
+            assert_true(isset(presets_tokens($css, $scope)['primary']), "{$name}: light scope sets --color-fd-primary");
+            assert_true(isset(presets_tokens($css, $scope . '.dark')['primary']), "{$name}: dark scope sets --color-fd-primary");
         }
-        $light = presets_tokens(presets_palette($css), ':root');
-        $dark = presets_tokens(presets_palette($css), '.dark');
-        assert_true(isset($light['primary']), "{$preset}: :root sets --color-fd-primary");
-        assert_true(isset($dark['primary']), "{$preset}: .dark sets --color-fd-primary");
-        assert_true($neutralCss === null || $css !== $neutralCss, "{$preset}: differs from neutral");
     });
 }
 
@@ -125,7 +134,7 @@ test('an unknown preset exits 2 and lists the presets', function (): void {
     assert_contains('ocean', $err);
 });
 
-test('theme.light, theme.dark and theme.palette_css come after the preset', function (): void {
+test('theme.light, theme.dark and theme.palette_css come after every preset', function (): void {
     $dir = presets_temp();
     mkdir($dir . '/content');
     file_put_contents($dir . '/content/index.md', "---\ntitle: Home\n---\n\nText.\n");
@@ -136,7 +145,8 @@ test('theme.light, theme.dark and theme.palette_css come after the preset', func
     assert_same(0, $code, $err);
 
     $css = presets_stylesheet($dir . '/public');
-    $preset = strpos($css, '/* ocean: ');
+    assert_contains(' data-preset="ocean"', (string) file_get_contents($dir . '/public/index.html'));
+    $preset = strpos($css, '/* ' . Config::PRESETS[count(Config::PRESETS) - 1] . ': ');
     $light = strpos($css, "--color-fd-primary: rebeccapurple;");
     $dark = strpos($css, "--color-fd-primary: gold;");
     $file = strpos($css, '/* site palette */');
