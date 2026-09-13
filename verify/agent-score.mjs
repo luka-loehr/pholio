@@ -29,6 +29,8 @@
 //                                 .well-known/agent-skills/index.json match, when present
 //   contentNegotiationMarkdown (10)  the page with Accept: text/markdown answers Markdown
 //   contentNegotiationPlaintext (5)  the page with Accept: text/plain answers text/plain
+//   contentTypeOpenAI (5)         OpenAI's agents (ChatGPT-User, OAI-SearchBot, GPTBot), which reject
+//                                 text/markdown, get the page's .md URL and the negotiated page as text/plain
 //   robotsTxtAllowsAI (5)         robots.txt (below base, else at the host root) blocks no AI crawler
 //   sitemapExists (5)             sitemap.xml below base or named in robots.txt
 //   structuredData (5)            JSON-LD on the start page
@@ -229,6 +231,18 @@ async function score(base) {
   const plain = await get(page, { Accept: 'text/plain' });
   record('contentNegotiationPlaintext', 5, plain.status === 200 && contentType(plain).includes('text/plain') && !isHtml(plain.body),
     `${plain.status} ${contentType(plain)}`);
+  const openai = [];
+  const markdownUrl = pageLinks[0] ?? `${page.replace(/\/+$/, '')}.md`;
+  for (const agent of ['ChatGPT-User/1.0', 'OAI-SearchBot/1.0', 'GPTBot/1.1']) {
+    const ua = `Mozilla/5.0 (compatible; ${agent}; +https://openai.com/bot)`;
+    const direct = await get(markdownUrl, { 'User-Agent': ua });
+    if (direct.status !== 200 || !contentType(direct).includes('text/plain')) openai.push(`${agent} ${markdownUrl}: ${direct.status} ${contentType(direct)}`);
+    const negotiated = await get(page, { 'User-Agent': ua, Accept: 'text/markdown' });
+    if (negotiated.status !== 200 || !contentType(negotiated).includes('text/plain') || isHtml(negotiated.body)) {
+      openai.push(`${agent} ${page}: ${negotiated.status} ${contentType(negotiated)}`);
+    }
+  }
+  record('contentTypeOpenAI', 5, openai.length === 0, openai.join('; ') || 'text/plain for ChatGPT-User, OAI-SearchBot and GPTBot');
 
   // robots.txt and the sitemap
   let robots = await get(`${base}/robots.txt`);
