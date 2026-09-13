@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * Translates Oniguruma patterns (TextMate grammars) to PCRE.
  *
- * The yardstick is not Oniguruma itself but what Fumadocs uses: Shiki's JavaScript engine
+ * The yardstick is not Oniguruma itself but what the reference build uses: Shiki's JavaScript engine
  * (oniguruma-to-es 4.3.6 with the rules allowOrphanBackrefs, asciiWordBoundaries, captureGroup, singleline,
  * recursionLimit 5). Its semantics are reproduced here:
  *
