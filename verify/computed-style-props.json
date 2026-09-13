@@ -342,6 +342,10 @@
     {
       "name": "sidebar-collapsed",
       "selector": "#nd-notebook-layout",
+      "intentional": {
+        "reason": "Intentional difference from the reference (Luka's decision, 2026-09-13): with the sidebar collapsed, content and table of contents sit as one centred group instead of the page column growing to the left edge.",
+        "skip": ["rect", "width", "height", "grid-template-columns", "grid-template-rows", "grid-column-start", "grid-column-end", "justify-self", "right", "transform-origin", "perspective-origin"]
+      },
       "steps": [
         { "click": "button[data-collapsed]:visible" },
         { "wait": 600 },
@@ -354,6 +358,10 @@
     {
       "name": "sidebar-collapsed-hovered",
       "selector": "#nd-notebook-layout",
+      "intentional": {
+        "reason": "Intentional difference from the reference (Luka's decision, 2026-09-13): with the sidebar collapsed, content and table of contents sit as one centred group instead of the page column growing to the left edge.",
+        "skip": ["rect", "width", "height", "grid-template-columns", "grid-template-rows", "grid-column-start", "grid-column-end", "justify-self", "right", "transform-origin", "perspective-origin"]
+      },
       "steps": [
         { "click": "button[data-collapsed]:visible" },
         { "wait": 600 },
