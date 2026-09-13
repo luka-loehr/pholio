@@ -149,19 +149,30 @@ php bin/pholio build --config examples/demo/pholio.config.php
 ./scripts/serve-demo.sh        # http://127.0.0.1:8080, rebuilds on changes
 ```
 
-For your own project:
+For your own project, in an empty directory:
 
 ```bash
-# 1. Bring Pholio into your project
+# 1. Bring Pholio into your project. While the repository is private this
+#    needs a GitHub account with access (HTTPS with a token, or
+#    git@github.com:luka-loehr/pholio.git over SSH).
 git clone https://github.com/luka-loehr/pholio.git vendor/pholio
 
 # 2. Start from the example configuration
 cp vendor/pholio/pholio.config.example.php docs.config.php
 
-# 3. Build, or serve while you write
+# 3. Write the first page into content/, which the configuration reads
+mkdir content
+printf -- '---\ntitle: Welcome\ndescription: The first page.\n---\n\nHello.\n' > content/index.md
+
+# 4. Build into public/, or serve while you write
 php vendor/pholio/bin/pholio build --config docs.config.php
 php vendor/pholio/bin/pholio dev --config docs.config.php
 ```
+
+The example configuration has a start page, so the docs root page from step 3
+is published at `/overview` (`docs_root_suffix`). Images, a logo and copied
+directories are commented out in the example; enable them once the files
+exist.
 
 | Command | Effect |
 | --- | --- |
