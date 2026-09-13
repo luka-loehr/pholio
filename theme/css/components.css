@@ -851,6 +851,13 @@
     flex-direction: column;
     padding: calc(var(--spacing) * 1.5);
   }
+  /* Opaque, unlike the section switcher's nd-popover (bg-fd-popover/60 backdrop-blur-lg):
+     bg-fd-popover backdrop-blur-none, border and shadow stay. */
+  .nd-popover.nd-page-actions-popup {
+    background-color: var(--color-fd-popover);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 
   /* .nd-page-actions-item  <-  flex w-full items-center gap-3 rounded-lg p-2 text-start hover:bg-fd-accent hover:text-fd-accent-foreground */
   .nd-page-actions-item {
