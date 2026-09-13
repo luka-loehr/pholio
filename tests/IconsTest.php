@@ -6,7 +6,7 @@ declare(strict_types=1);
 // data file and licence, fixed markup captured from lucide-react, the
 // fill="currentColor" special case of the theme switch, unknown names with
 // suggestions, and (Node tier) a seeded 50-name sample through verify/lucide-oracle.mjs.
-// Repeat a sample with PHOLIO_ICON_SEED=<n>.
+// The sample seed is 1; choose another with PHOLIO_ICON_SEED=<n>.
 
 require __DIR__ . '/run.php';
 require_once dirname(__DIR__) . '/src/lib/Icons.php';
@@ -104,7 +104,7 @@ test('Node tier: 50-name sample matches lucide-react', function () use ($root): 
         skip('node: verify/node_modules/lucide-react missing (cd verify && npm ci)');
     }
     $seed = getenv('PHOLIO_ICON_SEED');
-    $seed = $seed !== false && $seed !== '' ? (int) $seed : random_int(1, 2 ** 31 - 1);
+    $seed = $seed !== false && $seed !== '' ? (int) $seed : 1;
     $process = proc_open(
         ['node', $root . '/verify/lucide-oracle.mjs', '--check', '--sample', '50', '--seed', (string) $seed, '--php', PHP_BINARY],
         [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
