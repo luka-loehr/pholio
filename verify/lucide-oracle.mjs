@@ -5,7 +5,7 @@
 //
 //   echo '[{"name":"archive","className":"size-4"},{"name":"moon","fill":"currentColor"}]' \
 //     | node verify/lucide-oracle.mjs [--package <dir>/node_modules/lucide-react]
-//   node verify/lucide-oracle.mjs --check [--sample 50] [--seed <n>] [--php <binary>]
+//   node verify/lucide-oracle.mjs --check [--sample 50 | --all] [--seed 1] [--php <binary>]
 //
 // Default package: verify/node_modules/lucide-react (pinned in verify/package.json).
 //
@@ -14,8 +14,9 @@
 // Empty child elements (`<path …></path>`) are written as `<path …/>`, as in the
 // reference export and in Icons.php; the DOM is the same.
 //
-// Check mode: draws a seeded random sample of names from Icons::names(), renders each
-// with PHP (Icons::svg) and with lucide-react, and compares them character by character.
+// Check mode: draws a seeded random sample of names from Icons::names() (--all takes every
+// name; the seed, 1 by default, still pairs names with extra classes), renders each with
+// PHP (Icons::svg) and with lucide-react, and compares them character by character.
 // Prints "lucide oracle: <passed>/<total>" and exits 1 on any difference.
 
 import { spawnSync } from 'node:child_process';
@@ -112,10 +113,10 @@ function random(seed) {
 }
 
 if (process.argv.includes('--check')) {
-  const size = Number(arg('sample', '50'));
-  const seed = Number(arg('seed', String(Math.floor(Math.random() * 2 ** 31))));
-  if (!Number.isInteger(size) || size < 1 || !Number.isInteger(seed)) {
-    console.error('usage: node verify/lucide-oracle.mjs --check [--sample <n>] [--seed <n>]');
+  const size = process.argv.includes('--all') ? Infinity : Number(arg('sample', '50'));
+  const seed = Number(arg('seed', '1'));
+  if (!(size === Infinity || (Number.isInteger(size) && size >= 1)) || !Number.isInteger(seed)) {
+    console.error('usage: node verify/lucide-oracle.mjs --check [--sample <n> | --all] [--seed <n>]');
     process.exit(2);
   }
   const pool = [...php({}).names];
