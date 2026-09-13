@@ -1,0 +1,25 @@
+Changelog (file with CRLF line endings, as written by Windows editors)
+
+Version 2.4.0 – 12.09.2026
+  * New: nested guide addresses
+  * New: redirects for the old flat addresses
+  * Fixed: unmatched asterisks rendered as emphasis
+  * Changed: table of contents is built by JavaScript
+
+Version 2.3.1 – 01.07.2026
+  * Fixed: search found no words with é
+  * Fixed: print view cut tables off
+
+Version 2.3.0 – 15.05.2026
+  * New: dark colour scheme
+  * New: shortcut Ctrl+K for search
+
+Version 2.2.0 – 10.03.2026
+  * New: tickets for viewers
+  * Removed: old PDF guides
+
+Known issues
+  - Very old browsers (IE 11) don't support the layout.
+  - Emoji in headings can be missing on Linux.
+
+Feedback please to support@example.com.
