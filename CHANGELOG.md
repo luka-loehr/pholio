@@ -9,36 +9,55 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-13
+
 ### Added
 
-- Continuous integration on PHP 8.2 to 8.5 and the tier 2 verification on Node 26.
-- Release workflow that publishes `pholio-<version>.tar.gz`, `.zip` and `SHA256SUMS` for every `v*.*.*` tag.
-- `scripts/install.sh`, a one-command install of a release with checksum, PHP and PCRE2 checks.
-- `scripts/release.sh`, which bumps `VERSION`, dates the changelog, runs the checks and tags a release.
-- `verify/search-query.mjs`, which prints the top results of one query against a built search index,
-  with `--explain` for the score of every term.
-- `keywords` frontmatter key: comma-separated search terms a page does not use in its text, such as
-  synonyms, weighted like the title.
-- `verify/search-dialog.mjs`, part of tier 2: the search dialog in Chromium, Firefox and WebKit with the
-  demo served under `/docs/` and its `.htaccess` headers (hotkeys, results, keyboard navigation, worker fallback).
-
-### Fixed
-
-- ⌘K and Ctrl+K also open search when the key arrives as uppercase "K" (Caps Lock, synthetic key events).
+- **One-command install.** `curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh`
+  installs the latest release for the current user with `pholio` on `PATH`, after verifying the
+  checksum, PHP and PCRE2. `--version`, `--system`, `--prune` and `--dir <path>` for a per-project install.
+- **`pholio init [dir]`** creates a project with a sample site: `pholio.config.php`, `content/` and
+  `assets/`. It never overwrites files unless `--force`; `--name` and `--lang` set the title and language.
+- **Project directory argument.** `pholio build`, `check` and `dev` take the project directory, so
+  `pholio build my-docs` works from anywhere.
+- **`keywords` frontmatter key**: search terms a page does not use in its text, such as synonyms,
+  weighted like the title. Either a comma-separated string or a list of strings (`[a, "b c"]` or
+  `- a` lines); any other value stops the build with file and line.
+- **Search debugging.** `verify/search-query.mjs` prints the top results of one query against a built
+  site, with `--explain` for the score of every term.
+- **Releases** with `pholio-<version>.tar.gz`, `.zip` and `SHA256SUMS` attached, and continuous
+  integration on PHP 8.2 to 8.5.
+- **Cross-browser search check** in tier 2: the search dialog in Chromium, Firefox and WebKit, served
+  under a sub-path with the site's security headers.
 
 ### Changed
 
-- Search has its own ranking: title and phrase matches first, then a score over title, keywords,
+- **Search ranking.** Title and phrase matches come first, then a score over title, keywords,
   description, headings and text, weighted by word rarity and by how much of the query a page
   covers. Stopwords are dropped; prefix, compound, inflection and typo matching, umlaut and `ß`
   folding and hyphen, space and joined spellings are equivalent. Results are grouped per page,
   at most 8 pages with 3 headings each.
-- The search index is a compact inverted index (format version 2) without body text; it loads
-  on the first hover, focus or open of a search trigger, and queries run in a Web Worker.
+- **Faster search.** The search index is prebuilt as a compact inverted index (format version 2)
+  without body text. It loads on the first hover, focus or open of a search trigger, and queries run
+  in a Web Worker so typing never blocks the page.
+- **Configuration is optional.** Every key has a default: `content/` for pages, `assets/` published
+  at `/assets/`, `public/` for the output and the theme under `/pholio/`. The title defaults to the
+  directory name.
+- **Images** resolve relative to the page or through the copied directories, and get their width and height.
+- **PCRE2 10.43 is recommended, not required.** On an older PCRE2 the build succeeds and warns once
+  per grammar that its highlighting is simplified.
+- The code block opt-out classes are now `not-pholio-codeblock` and `not-pholio-code`.
+
+### Fixed
+
+- ⌘K and Ctrl+K also open search when the key arrives as uppercase "K" (Caps Lock, synthetic key events).
+- Arrow-key selection in the search dialog no longer jumps back to the first result when a slower
+  answer for the same query arrives.
+- The secondary hero button no longer animates its background again after the page has loaded.
 
 ### Removed
 
-- The zbsearch notice, licence text and `verify/` dependency: the search no longer derives from zbsearch.
+- The zbsearch notice and licence text: the search no longer derives from zbsearch.
 
 ## [0.1.0] - 2026-09-13
 
@@ -84,5 +103,6 @@ reproduction.
 - Documentation in `docs/`, written in Pholio's own format, and the licences and
   notices of all vendored material.
 
-[Unreleased]: https://github.com/luka-loehr/pholio/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/luka-loehr/pholio/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/luka-loehr/pholio/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/luka-loehr/pholio/releases/tag/v0.1.0
