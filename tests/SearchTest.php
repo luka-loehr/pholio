@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-// Search index: document shape and order over the demo content, heading anchors against the
-// table of contents, breadcrumbs, drafts, page order and the recorded tokenizer profile.
-// With Node and verify/node_modules, also the search.js splitter selftest and the zbsearch
-// oracle over the demo queries (tier 2 runs the same commands).
+// Search index: shape, slots and flags over the demo content, section anchors against the table
+// of contents, component and description texts, normalisation, codecs, drafts, page order and the
+// recorded tokenizer profile. With Node, also the PHP/JavaScript selftest and the consistency check
+// over the demo (tier 2 runs the same commands).
 
 require __DIR__ . '/run.php';
 require_once dirname(__DIR__) . '/src/lib/SearchIndex.php';
@@ -52,105 +52,156 @@ function search_fixture(array $files): string
     return $root;
 }
 
+/**
+ * Slot => flags of one word, or [] when the index lacks it.
+ *
+ * @return array<int,int>
+ */
+function search_postings(array $index, string $word): array
+{
+    $at = array_search($word, SearchIndex::decodeWords($index['words']), true);
+
+    return $at === false ? [] : SearchIndex::decodePostings($index['postings'][$at]);
+}
+
+/**
+ * First slot of every page, by URL.
+ *
+ * @return array<string,int>
+ */
+function search_page_slots(array $index): array
+{
+    $slots = [];
+    $slot = 0;
+    foreach ($index['pages'] as $page) {
+        $slots[$page[0]] = $slot;
+        $slot += 1 + intdiv(count($page) - 4, 2);
+    }
+
+    return $slots;
+}
+
 $demoTree = new Tree(SEARCH_DEMO, '/', false, ['md']);
 $demo = SearchIndex::build($demoTree, search_loader(SEARCH_DEMO), '/');
+$demoDocuments = SearchIndex::documents($demoTree, search_loader(SEARCH_DEMO), '/');
 
-test('demo index: base, default tokenizer and one entry per tree page', function () use ($demo, $demoTree): void {
-    assert_same(['base', 'tokenizer', 'pages', 'docs'], array_keys($demo));
-    assert_same('/', $demo['base']);
-    assert_same('english', $demo['tokenizer']);
-    assert_same(array_column($demoTree->pages(), 'url'), array_column($demo['pages'], 'u'));
-});
-
-test('demo index: every page starts with its page document, ids are unique, no empty content', function () use ($demo): void {
-    $ids = [];
-    $previousPage = -1;
-    foreach ($demo['docs'] as $position => [$pageIndex, $type, $number, $anchor, $content]) {
-        if ($pageIndex !== $previousPage) {
-            assert_same($previousPage + 1, $pageIndex, "pages appear in order at doc {$position}");
-            assert_same([SearchIndex::TYPE_PAGE, null, null], [$type, $number, $anchor], "page document first at doc {$position}");
-            assert_same($demo['pages'][$pageIndex]['t'], $content, 'page document content is the title');
-            $previousPage = $pageIndex;
-        }
-        $url = $demo['pages'][$pageIndex]['u'];
-        $id = $number === null ? $url : $url . '-' . $number;
-        assert_true(!isset($ids[$id]), 'duplicate id ' . $id);
-        $ids[$id] = true;
-        assert_true($content !== '', 'empty content in ' . $id);
-    }
-    assert_same(count($demo['pages']) - 1, $previousPage);
-});
-
-test('demo index: numbers count up per page; the description, then headings, then text blocks', function () use ($demo): void {
-    $expected = [];
-    $rank = [];
-    foreach ($demo['docs'] as [$pageIndex, $type, $number, $anchor]) {
-        if ($type === SearchIndex::TYPE_PAGE) {
-            $expected[$pageIndex] = 0;
-            $rank[$pageIndex] = 0;
-            continue;
-        }
-        assert_same($expected[$pageIndex]++, $number, 'running number on page ' . $pageIndex);
-        // 1 = description (text before any heading document), 2 = heading, 3 = text after headings.
-        $current = $type === SearchIndex::TYPE_HEADING ? 2 : ($rank[$pageIndex] < 2 && $number === 0 && $anchor === null ? 1 : 3);
-        assert_true($current >= $rank[$pageIndex], 'document kinds in buildDocuments order on page ' . $pageIndex);
-        $rank[$pageIndex] = $current;
+test('demo index: header, one entry per tree page, words sorted and unique, one posting list per word', function () use ($demo, $demoTree): void {
+    assert_same(['v', 'base', 'tokenizer', 'crumbs', 'pages', 'words', 'postings'], array_keys($demo));
+    assert_same([2, '/', 'english'], [$demo['v'], $demo['base'], $demo['tokenizer']]);
+    assert_same(array_column($demoTree->pages(), 'url'), array_column($demo['pages'], 0));
+    $words = SearchIndex::decodeWords($demo['words']);
+    $sorted = $words;
+    sort($sorted, SORT_STRING);
+    assert_same($sorted, $words, 'words in byte order');
+    assert_same(count($words), count(array_unique($words)), 'words unique');
+    assert_same(count($words), count($demo['postings']));
+    foreach ($words as $word) {
+        assert_true(preg_match('/^[a-z0-9]+$/', $word) === 1, 'word characters: ' . $word);
     }
 });
 
-test('demo index: descriptions are indexed once, heading documents match the table of contents', function () use ($demo, $demoTree): void {
+test('demo index: postings stay inside the slots, page slots carry only title and path flags', function () use ($demo): void {
+    $pageSlots = array_flip(search_page_slots($demo));
+    $total = 0;
+    foreach ($demo['pages'] as $page) {
+        assert_true((count($page) - 4) % 2 === 0, 'anchor/heading pairs on ' . $page[0]);
+        $total += 1 + intdiv(count($page) - 4, 2);
+    }
+    foreach ($demo['postings'] as $posting) {
+        $previous = -1;
+        foreach (SearchIndex::decodePostings($posting) as $slot => $flags) {
+            assert_true($slot > $previous && $slot < $total, 'slot order and range');
+            $previous = $slot;
+            if (isset($pageSlots[$slot])) {
+                assert_true($flags >= 1 && $flags <= 3, 'page slot flags ' . $flags);
+            } else {
+                assert_true(($flags & 3) === 0 && $flags >= 4, 'section slot flags ' . $flags);
+            }
+        }
+    }
+});
+
+test('demo index: title, path, heading and text flags land on the right slots', function () use ($demo): void {
+    $slots = search_page_slots($demo);
+    $installation = $slots['/guide/installation'];
+    assert_same(SearchIndex::FIELD_TITLE | SearchIndex::FIELD_PATH, search_postings($demo, 'installation')[$installation] ?? null, 'title and slug');
+    assert_same(SearchIndex::FIELD_PATH, search_postings($demo, 'guide')[$installation] ?? null, 'breadcrumb and URL segment');
+
+    // "Upgrading" is a heading of the installation page: the flag sits on one of its section slots.
+    $upgrading = array_filter(search_postings($demo, 'upgrading'), static fn(int $flags): bool => ($flags & SearchIndex::FIELD_HEADING) !== 0);
+    assert_same(1, count($upgrading));
+    $slot = array_key_first($upgrading);
+    assert_true($slot > $installation && $slot < $slots['/guide/steps-and-files'], 'heading slot belongs to the installation page');
+
+    $texts = array_filter(search_postings($demo, 'lanternfly'), static fn(int $flags): bool => $flags >> 3 > 0);
+    assert_true(count($texts) > 3, 'body text counts');
+});
+
+test('demo documents: section anchors are the table of contents anchors, descriptions are indexed once', function () use ($demoDocuments, $demoTree): void {
     $loader = search_loader(SEARCH_DEMO);
     foreach ($demoTree->pages() as $pageIndex => $page) {
         $document = $loader($page);
         $anchors = array_map(static fn(array $item): string => substr((string) $item['url'], 1), Toc::build($document->headings(), new Slugger()));
-        $headings = [];
-        $texts = [];
-        foreach ($demo['docs'] as [$docPage, $type, , $anchor, $content]) {
-            if ($docPage !== $pageIndex) {
-                continue;
-            }
-            if ($type === SearchIndex::TYPE_HEADING) {
-                $headings[] = $anchor;
-            } elseif ($type === SearchIndex::TYPE_TEXT) {
-                $texts[] = $content;
-                assert_true($anchor === null || in_array($anchor, $anchors, true), "text anchor #{$anchor} is a heading of {$page['url']}");
-            }
+        $sections = $demoDocuments[$pageIndex]['sections'];
+        $headingAnchors = array_values(array_filter(array_column($sections, 0), static fn(?string $anchor): bool => $anchor !== null));
+        // The table of contents also lists the generated footnotes section; every other entry is a section, in order.
+        $missing = array_values(array_diff($anchors, $headingAnchors));
+        assert_same($headingAnchors, array_values(array_intersect($anchors, $headingAnchors)), 'sections of ' . $page['url'] . ' in TOC order');
+        assert_true(count($missing) <= 1 && ($missing === [] || str_starts_with($missing[0], 'footnotes')), 'only the footnotes section is missing on ' . $page['url'] . ': ' . implode(', ', $missing));
+        foreach (array_slice($sections, 1) as $section) {
+            assert_true($section[0] !== null, 'only the first section may lack an anchor on ' . $page['url']);
         }
-        // The table of contents also lists the generated footnotes section, which
-        // remark-structure never sees; every other entry has its heading document, in order.
-        $missing = array_values(array_diff($anchors, $headings));
-        assert_same($headings, array_values(array_intersect($anchors, $headings)), 'heading documents of ' . $page['url'] . ' in TOC order');
-        assert_true(count($missing) <= 1 && ($missing === [] || str_starts_with($missing[0], 'footnotes')), 'only the footnotes section lacks a heading document on ' . $page['url'] . ': ' . implode(', ', $missing));
+
         $description = (string) ($page['data']['description'] ?? '');
+        $texts = array_merge(...array_map(static fn(array $section): array => array_slice($section, 2), $sections));
         if ($description !== '') {
             assert_same(1, count(array_keys($texts, $description, true)), 'description indexed once on ' . $page['url']);
+            assert_same([null, null, $description], array_slice($sections[0], 0, 3), 'description opens the first section on ' . $page['url']);
         }
     }
 });
 
-test('demo index: breadcrumbs are the tree root name plus the named folders and separators above each page', function () use ($demo, $demoTree): void {
-    foreach ($demo['pages'] as $page) {
-        $path = $demoTree->pathTo($page['u']);
-        if ($path === []) {
-            assert_same(null, $page['b'], 'no breadcrumbs outside the tree: ' . $page['u']);
-            continue;
+test('demo documents: components give their labels, type props one text, code is not indexed', function () use ($demoDocuments): void {
+    $texts = [];
+    foreach ($demoDocuments as $document) {
+        foreach ($document['sections'] as $section) {
+            foreach (array_slice($section, 2) as $text) {
+                $texts[] = $text;
+            }
         }
-        assert_true(is_array($page['b']), 'breadcrumbs list for ' . $page['u']);
     }
-    $byUrl = array_column($demo['pages'], 'b', 'u');
-    $rootName = $demoTree->root()->name;
-    assert_same([$rootName, 'Guide'], $byUrl['/guide/installation']);
-    assert_same([$rootName, 'Reference'], $byUrl['/reference/api-types']);
-    assert_same([$rootName, 'Reference', 'Markdown'], $byUrl['/reference/markdown-extras']);
+    assert_true(in_array('Two trailing spaces end a line without starting a new paragraph.', $texts, true), 'hard break as a space');
+    assert_true(array_filter($texts, static fn(string $t): bool => str_starts_with($t, 'path ') && str_contains($t, 'Folder of the archive')) !== [], 'TypeProp name, type and description');
+    assert_true(array_filter($texts, static fn(string $t): bool => str_contains($t, 'brew install lanternfly')) === [], 'code block content is not indexed');
+    foreach ($texts as $text) {
+        assert_true(preg_match('/<[A-Z][A-Za-z]*(?:\s|\/?>)/', $text) !== 1, 'no component tags in texts: ' . $text);
+        assert_same($text, trim((string) preg_replace('/\s+/u', ' ', $text)), 'collapsed whitespace');
+    }
 });
 
-test('demo index: component tags without children are serialised, code blocks are not indexed', function () use ($demo): void {
-    $contents = array_column($demo['docs'], 4);
-    $typeTables = array_values(array_filter($contents, static fn(string $c): bool => str_starts_with($c, '<TypeTable')));
-    assert_same(2, count($typeTables));
-    assert_contains("\n  type=\"{\n  path: {\n    description: 'Folder of the archive", $typeTables[0]);
-    assert_true(!in_array('brew install lanternfly', $contents, true), 'code block content is not indexed');
-    assert_true(in_array("Two trailing spaces end a line\\\nwithout starting a new paragraph.", $contents, true), 'hard break serialised as backslash and newline');
+test('normalise: lowercase, folding, combining marks, german digraphs', function (): void {
+    assert_same('grosse ubersicht strasse', SearchIndex::normalize('Größe Übersicht Straße', 'english'));
+    assert_same('passworter', SearchIndex::normalize('Passwörter', 'german'));
+    assert_same('passworter', SearchIndex::normalize('Passwoerter', 'german'));
+    assert_same('passwoerter', SearchIndex::normalize('Passwoerter', 'english'));
+    assert_same('cafe aeon oeuvre', SearchIndex::normalize("Cafe\u{301} Æon Œuvre", 'english'));
+    assert_same('queue', SearchIndex::normalize('Queue', 'english'));
+});
+
+test('words: split at non-alphanumerics, joined forms of hyphen and underscore chains', function (): void {
+    assert_same(['chat', 'export', 'chatexport'], SearchIndex::words('Chat-Export', 'english'));
+    assert_same(['a', 'b', 'c', 'abc', 'ab', 'bc'], SearchIndex::words('a-b-c', 'english'));
+    assert_same(['user', 'id', 'userid'], SearchIndex::words('user_id', 'english'));
+    assert_same(['don', 't', 're', 'index', 'reindex'], SearchIndex::words("Don't re-index", 'english'));
+    assert_same(['zwei', 'faktor', 'authentifizierung', 'zweifaktorauthentifizierung', 'zweifaktor', 'faktorauthentifizierung'], SearchIndex::words('Zwei-Faktor-Authentifizierung', 'german'));
+    assert_same([], SearchIndex::words(' -- ', 'german'));
+});
+
+test('codecs: posting strings and the front-coded word list', function () use ($demo): void {
+    assert_same([0 => 1, 1 => 12, 40 => 4, 1100 => 63], SearchIndex::decodePostings('ABAMmBEjhB_'));
+    $words = SearchIndex::decodeWords($demo['words']);
+    assert_true(count($words) > 100, 'demo vocabulary');
+    assert_throws(\InvalidArgumentException::class, static fn() => SearchIndex::decodePostings('A!'), 'posting character');
 });
 
 test('tokenizer: german is recorded, unknown profiles are rejected', function () use ($demoTree): void {
@@ -160,11 +211,11 @@ test('tokenizer: german is recorded, unknown profiles are rejected', function ()
     assert_throws(\InvalidArgumentException::class, static fn() => SearchIndex::build($demoTree, search_loader(SEARCH_DEMO), '/', null, false, 'french'), 'french');
 });
 
-test('tokenizer: the PHP profiles are the profiles search.js implements', function (): void {
+test('tokenizer: the PHP profiles and folding are the ones search.js implements', function (): void {
     $js = (string) file_get_contents(dirname(__DIR__) . '/theme/js/search.js');
-    assert_true(preg_match('/const SPLITTER_ALPHABETS = \{(.*?)\n\};/s', $js, $match) === 1, 'SPLITTER_ALPHABETS in search.js');
-    preg_match_all('/^\s*([a-z]+):/m', $match[1], $names);
-    assert_same(SearchIndex::TOKENIZERS, $names[1]);
+    assert_true(preg_match("/export const TOKENIZERS = Object\\.freeze\\(\\['english', 'german'\\]\\);/", $js) === 1, 'TOKENIZERS in search.js');
+    assert_true(preg_match('/export const FOLDING =\s*\'([^\']*)\'\s*\+\s*\'([^\']*)\'\s*\+\s*\'([^\']*)\';/', $js, $match) === 1, 'FOLDING in search.js');
+    assert_same(SearchIndex::FOLDING, $match[1] . $match[2] . $match[3]);
 });
 
 test('drafts: pages starting with "_" are indexed only when drafts are included', function (): void {
@@ -174,65 +225,71 @@ test('drafts: pages starting with "_" are indexed only when drafts are included'
         '_draft.md' => "---\ntitle: Draft\n---\n\nNot yet.\n",
     ]);
     $without = SearchIndex::build(new Tree($dir, '/docs', false, ['md']), search_loader($dir), '/docs');
-    assert_same(['/docs'], array_column($without['pages'], 'u'));
+    assert_same(['/docs'], array_column($without['pages'], 0));
     $with = SearchIndex::build(new Tree($dir, '/docs', true, ['md']), search_loader($dir), '/docs', null, true);
-    $urls = array_column($with['pages'], 'u');
+    $urls = array_column($with['pages'], 0);
     sort($urls);
     assert_same(['/docs', '/docs/_draft'], $urls);
 });
 
-test('page order: the given file order decides insertion; unknown files and foreign URLs throw', function () use ($demoTree): void {
+test('page order: the given file order decides the page ids; unknown files and foreign URLs throw', function () use ($demoTree): void {
     $files = array_column($demoTree->pages(), 'file');
     $reversed = SearchIndex::build($demoTree, search_loader(SEARCH_DEMO), '/', array_reverse($files));
-    assert_same(array_reverse(array_column($demoTree->pages(), 'url')), array_column($reversed['pages'], 'u'));
+    assert_same(array_reverse(array_column($demoTree->pages(), 'url')), array_column($reversed['pages'], 0));
     assert_throws(\RuntimeException::class, static fn() => SearchIndex::build($demoTree, search_loader(SEARCH_DEMO), '/', array_slice($files, 1)), 'page order');
     assert_throws(\RuntimeException::class, static fn() => SearchIndex::build($demoTree, search_loader(SEARCH_DEMO), '/docs'), 'base URL');
 });
 
-test('description: skipped when a text block already has the same content', function (): void {
+test('sections: description skipped when a text repeats it; frontmatter heading kept when it differs', function (): void {
     $dir = search_fixture([
-        'meta.json' => ['pages' => ['index']],
+        'meta.json' => ['pages' => ['index', 'export']],
         'index.md' => "---\ntitle: Home\ndescription: Same text.\n---\n\nSame text.\n\n## Part\n\nOther text.\n",
+        'export.md' => "---\ntitle: Export\nheading: \"Chat: Export\"\n---\n\n## Formats\n\nMarkdown and PDF.\n",
     ]);
-    $index = SearchIndex::build(new Tree($dir, '/', false, ['md']), search_loader($dir), '/');
-    assert_same([
-        [0, SearchIndex::TYPE_PAGE, null, null, 'Home'],
-        [0, SearchIndex::TYPE_HEADING, 0, 'part', 'Part'],
-        [0, SearchIndex::TYPE_TEXT, 1, null, 'Same text.'],
-        [0, SearchIndex::TYPE_TEXT, 2, 'part', 'Other text.'],
-    ], $index['docs']);
+    $tree = new Tree($dir, '/', false, ['md']);
+    // The tree lists index pages last; the file order puts Home first.
+    $order = ['index.md', 'export.md'];
+    $documents = SearchIndex::documents($tree, search_loader($dir), '/', $order);
+    assert_same([[null, null, 'Same text.'], ['part', 'Part', 'Other text.']], $documents[0]['sections']);
+    assert_same(null, $documents[0]['heading']);
+    assert_same('Chat: Export', $documents[1]['heading']);
+    assert_same([['formats', 'Formats', 'Markdown and PDF.']], $documents[1]['sections']);
+
+    $index = SearchIndex::build($tree, search_loader($dir), '/', $order);
+    assert_same([['Docs']], $index['crumbs']);
+    assert_same(['/', 'Home', null, 0, null, null, 'part', 'Part'], $index['pages'][0]);
+    assert_same(['/export', 'Export', 'Chat: Export', 0, 'formats', 'Formats'], $index['pages'][1]);
+    // Home owns slots 0–2, the export page 3 (page) and 4 (Formats).
+    assert_same([3 => SearchIndex::FIELD_TITLE], search_postings($index, 'chat'));
+    assert_same([3 => SearchIndex::FIELD_TITLE | SearchIndex::FIELD_PATH], search_postings($index, 'export'));
+    assert_same([4 => 1 << 3], search_postings($index, 'pdf'));
+    assert_same([2 => SearchIndex::FIELD_HEADING], search_postings($index, 'part'));
 });
 
-/** Runs a verify tool with Node; skips when Node or the verify dependencies are missing. */
+/** Runs verify/search-parity.mjs with Node; skips when Node is missing. */
 function search_node(array $args): array
 {
-    $root = dirname(__DIR__);
     exec('command -v node 2>/dev/null', $found, $status);
     if ($status !== 0) {
         skip('node: not on PATH');
     }
-    if (!is_dir($root . '/verify/node_modules/zbsearch') || !is_dir($root . '/verify/node_modules/fumadocs-core')) {
-        skip('node: run npm ci in verify/ first');
-    }
-    $command = 'node ' . escapeshellarg($root . '/verify/search-parity.mjs') . ' '
+    $command = 'node ' . escapeshellarg(dirname(__DIR__) . '/verify/search-parity.mjs') . ' '
         . implode(' ', array_map('escapeshellarg', $args)) . ' 2>&1';
     exec($command, $output, $status);
 
     return [$status, implode("\n", $output)];
 }
 
-test('node: search.js splitters and folding equal zbsearch 4.0.0', function (): void {
+test('node: search.js and SearchIndex.php normalise, split and encode identically', function (): void {
     [$status, $output] = search_node(['--selftest']);
     assert_same(0, $status, $output);
-    assert_contains('12/12 checks passed', $output);
+    assert_true(preg_match('/(\d+)\/\1 checks passed/', $output) === 1, $output);
 });
 
-test('node: search.js answers equal Fumadocs search over the demo queries', function (): void {
-    $root = dirname(__DIR__);
+test('node: search.js rebuilds the demo index from the page texts', function (): void {
     [$status, $output] = search_node([
-        '--oracle', '--content', $root . '/examples/demo/content', '--base-url', '/',
-        '--queries', $root . '/verify/fixtures/demo/queries.json', '--tokenizer', 'english',
+        '--consistency', '--content', dirname(__DIR__) . '/examples/demo/content', '--base-url', '/', '--tokenizer', 'english',
     ]);
     assert_same(0, $status, $output);
-    assert_true(preg_match('/(\d+)\/\1 queries identical/', $output) === 1, $output);
+    assert_true(preg_match('/(\d+)\/\1 checks passed/', $output) === 1, $output);
 });
