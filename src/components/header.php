@@ -14,7 +14,7 @@ require_once __DIR__ . '/theme-switch.php';
 require_once __DIR__ . '/layout-tabs.php';
 
 /**
- * Base class of `buttonVariants` (`components/ui/button.js`) without padding
+ * Base class of the buttons without padding
  * and radius: every size class sets those itself (`nd-btn-icon`,
  * `nd-btn-icon-sm`, `nd-btn-icon-xs`, `nd-btn-sm`), the variant sets the colour
  * (`nd-btn-ghost`, `nd-btn-secondary`). Rules in theme/css/components.css.
@@ -22,7 +22,7 @@ require_once __DIR__ . '/layout-tabs.php';
 const ND_BUTTON_BASE = 'nd-btn';
 
 /**
- * The header of the notebook layout (`layouts/notebook/slots/header.js`), mode
+ * The header of the docs layout, mode
  * `nav.mode: top`.
  *
  * Row 1 (`[data-header-body]`) holds the nav title on the left, the full search
