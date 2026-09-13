@@ -104,6 +104,85 @@
       "sample": ["frame0", "settled"]
     },
     {
+      "name": "sidebar-collapsed-reload",
+      "_purpose": "After a reload the reference starts expanded (useState(false)); a stored state must not come back.",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 600 },
+        { "evaluate": "location.reload()" },
+        { "wait": 1500 },
+        { "waitFor": "#nd-notebook-layout", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar", "#nd-notebook-layout", "button[data-collapsed]"],
+        "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed", "data-column-changed"],
+        "styleProps": ["--fd-sidebar-col", "translate", "box-shadow", "visibility", "grid-template-columns"],
+        "animations": false
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "sidebar-collapsed-navigation",
+      "_purpose": "Page change through a link: the reference keeps the collapsed state (client navigation), without a transition.",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 600 },
+        { "click": "#nd-page > div:last-of-type > a[href]" },
+        { "wait": 2000 },
+        { "waitFor": "#nd-notebook-layout", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar", "#nd-notebook-layout", "button[data-collapsed]"],
+        "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed", "data-column-changed"],
+        "styleProps": ["--fd-sidebar-col", "translate", "box-shadow", "visibility", "grid-template-columns"],
+        "animations": false
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "sidebar-collapsed-search",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 600 },
+        { "click": "button[data-search-full]", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar", "#nd-notebook-layout", "[role=dialog]"],
+        "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed", "data-open"],
+        "styleProps": ["--fd-sidebar-col", "translate", "opacity"],
+        "scrollLocked": true
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "sidebar-collapsed-theme",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 600 },
+        { "click": "button[data-theme-toggle]", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar", "#nd-notebook-layout"],
+        "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed"],
+        "styleProps": ["--fd-sidebar-col", "translate", "background-color", "border-top-color"],
+        "html": true,
+        "storage": ["theme"]
+      },
+      "sample": ["settled"]
+    },
+    {
       "name": "short-window-active-entry",
       "_purpose": "On load the active entry is scrolled into the visible area of the sidebar.",
       "page": "/reference/markdown-extras",
