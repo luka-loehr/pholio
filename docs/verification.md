@@ -15,7 +15,7 @@ are split into three tiers.
 | Tier | Needs | Runs | Command |
 | --- | --- | --- | --- |
 | 1 | PHP 8.2, PCRE2 10.43 | `php -l` on every tracked PHP file, `php tests/run.php`, and the demo built against `tests/snapshots/demo` | `./scripts/check.sh` |
-| 2 | Tier 1, Node, `npm ci` in `verify/`, Chromium | The selftests of the DOM, style and pixel tools, the search consistency check and the relevance cases of `verify/fixtures/demo/search-relevance.json`, the lucide oracle | `node verify/run.mjs --tier 2` |
+| 2 | Tier 1, Node, `npm ci` in `verify/`, Chromium | The selftests of the DOM, style and pixel tools, the search consistency check and the relevance cases of `verify/fixtures/demo/search-relevance.json`, the search dialog in Chromium, Firefox and WebKit under a subpath, the lucide oracle | `node verify/run.mjs --tier 2` |
 | 3 | Tier 2, a reference export and its rewrites file | Golden DOM, computed styles, pixels, behaviour and component states against the reference | `node verify/run.mjs --tier 3 --reference <dir> --rewrites <file.json> --candidate <url>` |
 
 `verify/run.mjs` runs every lower tier first, including tier 0, a Node-only
