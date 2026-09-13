@@ -113,7 +113,7 @@ require_once __DIR__ . '/I18n.php';
  *     light: array<string,string>,  token (without --color-fd-) => CSS colour
  *     dark: array<string,string>,
  *     paletteCss: ?string,          absolute path of a stylesheet inserted at the palette marker
- *     preset: ?string,              <html data-preset>, null: attribute omitted
+ *     preset: string,               built-in color preset (Config::PRESETS), also <html data-preset>, default "neutral"
  *     fontClass: string,            extra class on <html>, default ""
  *     hotkey: string,               theme toggle key, default "d"
  *     defaultScheme: 'system',
@@ -163,6 +163,11 @@ final class Config
     public const CONTENT_DIR = 'content';
     public const ASSETS_DIR = 'assets';
     public const OUTPUT_DIR = 'public';
+
+    /** Built-in color presets, one stylesheet each in theme/presets/<name>.css. The first is the default. */
+    public const PRESETS = [
+        'neutral', 'black', 'vitepress', 'dusk', 'catppuccin', 'ocean', 'purple', 'solar', 'emerald', 'ruby', 'aspen',
+    ];
 
     /** Content-Security-Policy written into the generated .htaccess by default. */
     public const DEFAULT_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
@@ -251,7 +256,7 @@ final class Config
                 'light' => ['map<string>', []],
                 'dark' => ['map<string>', []],
                 'palette_css' => ['?string', null],
-                'preset' => ['?string', null],
+                'preset' => ['enum', self::PRESETS, self::PRESETS[0]],
                 'font_class' => ['string', ''],
                 'hotkey' => ['string', 'd'],
                 'default_scheme' => ['enum', ['system', 'light', 'dark'], 'system'],
