@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Guide &ndash; Getting started</title>
+	<link rel="stylesheet" href="/guide/css/theme.css">
+	<link rel=icon href=/favicon.ico type=image/x-icon>
+	<base href="/guide/">
+</head>
+<body class=start data-version=2.4.0>
+	<!-- Header with navigation -->
+	<header>
+		<nav aria-label="Main navigation">
+			<ul>
+				<li><a href="getting-started/" aria-current="page">Getting started</a></li>
+				<li><a href="billing/">Billing</a></li>
+				<li><a href='account/security/'>Security</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main id="content">
+		<h1>Getting started</h1>
+		<p>Sign in with your work&shy;space account. Problems? Write to
+			<a href="mailto:support@example.com?subject=Login%20&amp;%20Password">support@example.com</a>.</p>
+		<p>Entities: &amp; &lt;tag&gt; &quot;quoted&quot; &apos; &nbsp; &#x41; &#65; &euro; &copy; &unknown; &amp</p>
+		<hr>
+		<img src="images/login.png" alt="Login form with “User name” and “Password” fields" width=640 height="360" loading=lazy>
+		<br/>
+		<form action="/login" method="post" novalidate>
+			<label for="user">User name</label>
+			<input id="user" name="user" type="text" required autocomplete="username">
+			<input type="password" name="password" minlength=8 placeholder='at least 8 characters'>
+			<input type="checkbox" id="remember" checked disabled><label for="remember">Stay signed in</label>
+			<button type="submit" class="button button--primary" onclick="this.disabled = true; this.form.submit();">Sign in</button>
+		</form>
+		<table>
+			<caption>Roles</caption>
+			<tr><th scope="col">Role</th><th scope="col">Permissions</th></tr>
+			<tr><td>Viewer</td><td>Read pages, comment</td></tr>
+			<tr><td>Editor</td><td>Publish, manage redirects</td></tr>
+		</table>
+		<pre><code>npm run build &amp;&amp; php bin/serve.php</code></pre>
+	</main>
+
+	<footer><small>&copy; 2026 Example Press &middot; <a href="/imprint">Imprint</a></small></footer>
+	<script src="/guide/js/toc.js" defer></script>
+</body>
+</html>
