@@ -131,17 +131,20 @@ first content page the root.
 
 ## Theme
 
-`theme.preset` picks one of the built-in color presets, each a light and a dark
-set of color tokens. `theme.light` and `theme.dark` then map single token names,
-without the `--color-fd-` prefix, to CSS colors, and `theme.palette_css` adds a
-stylesheet of your own. The build writes all three, in that order, at the
-palette marker `/* @pholio:palette */` in `theme/css/tokens.css`. The block is
-unlayered, so it wins over the default tokens, and a later part wins over an
-earlier one. Anything you leave out keeps the preset's value.
+Every built-in color preset, a light and a dark set of color tokens, is part of
+the stylesheet and applies while `<html data-preset>` names it. `theme.preset`
+sets that attribute, so it picks the preset a page starts with; a script that
+changes `document.documentElement.dataset.preset` recolors the page without a
+rebuild. `theme.light` and `theme.dark` map single token names, without the
+`--color-fd-` prefix, to CSS colors, and `theme.palette_css` adds a stylesheet of
+your own. The build writes the presets, the token maps and the stylesheet, in that
+order, at the palette marker `/* @pholio:palette */` in `theme/css/tokens.css`.
+The block is unlayered, so it wins over the default tokens, and a later part wins
+over an earlier one, whichever preset is active.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `theme.preset` | `neutral` | Built-in color preset, see the table below. Also written as `<html data-preset>` |
+| `theme.preset` | `neutral` | Initial color preset, written as `<html data-preset>`, see the table below |
 | `theme.light` | `[]` | Token => color for the light scheme |
 | `theme.dark` | `[]` | Token => color for the dark scheme |
 | `theme.palette_css` | `null` | Stylesheet inserted after the preset and the token maps, for palettes a token map can't express |
@@ -247,7 +250,7 @@ the discovery headers. [Agents](agents.md) describes each file.
 | `agents.structured_data` | `true` | JSON-LD in every page's `<head>` |
 | `agents.headers` | `true` | The `Link` and `X-Llms-Txt` headers and content negotiation in `.htaccess`, the `_headers` file and `pholio dev` |
 | `agents.page_actions` | `true` | "Copy page" next to the page title, with a menu to copy the page or open it in ChatGPT or Claude. Off when `agents.markdown` is off |
-| `agents.instructions` | `null` | Text of the `## Agent Instructions` section in `llms.txt` and `skill.md` |
+| `agents.instructions` | `null` | Text of the `## Notes for agents` section in `llms.txt` and `skill.md`; the heading follows `language` |
 | `agents.exclude` | `[]` | Globs matched against page URLs (`/guide/internal/*`) and content file paths (`internal/*.md`); matching pages stay out of `llms.txt`, `llms-full.txt` and `skill.md`. `*` also matches `/` |
 
 A page with `noindex: true` in its frontmatter is still built, but left out of
