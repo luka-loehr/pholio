@@ -13,8 +13,7 @@ require_once __DIR__ . '/../lib/Icons.php';
  * The page menu next to the page title: a "Copy page" button joined to a chevron
  * that opens a menu with three actions, Copy page, Open in ChatGPT and Open in
  * Claude. Each item has its icon in a small tile, a title and a muted
- * description. Not part of the reference design; modelled on Mintlify's page
- * menu, built from the theme's secondary button colors and its popover.
+ * description. Modelled on Mintlify's page menu, built from the theme's secondary button colors and its popover.
  * js/page-actions.js wires it up.
  *
  * The two halves of the trigger sit in one bordered group with `overflow:
