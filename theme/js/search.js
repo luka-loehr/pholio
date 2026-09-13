@@ -346,6 +346,13 @@ function parseInline(value) {
 
     if (char === '\\') {
       const next = value[index + 1];
+      if (next === '\n' || next === '\r') {
+        // Hard break escape; the line ending belongs to the break.
+        flush();
+        nodes.push({ type: 'break' });
+        index = skipLinePrefix(value, index + 1 + lineEndingLength(value, index + 1));
+        continue;
+      }
       if (next && ASCII_PUNCTUATION.test(next)) {
         buffer += next;
         index += 2;
@@ -386,7 +393,7 @@ function parseInline(value) {
           code = code.slice(1, -1);
         }
         flush();
-        nodes.push({ type: 'inlineCode', value: code.replace(/\r?\n|\r/g, ' ') });
+        nodes.push({ type: 'inlineCode', value: code });
         index += run + end + run;
         continue;
       }
@@ -399,7 +406,7 @@ function parseInline(value) {
       const match = HTML_TAG.exec(value.slice(index));
       if (match) {
         flush();
-        nodes.push({ type: 'html', value: match[0] });
+        nodes.push({ type: 'html', value: stripHtmlLinePrefixes(match[0]) });
         index += match[0].length;
         continue;
       }
@@ -439,6 +446,20 @@ function parseInline(value) {
       continue;
     }
 
+    if (char === '\n' || char === '\r') {
+      const trailing = /[ \t]*$/.exec(buffer)[0];
+      buffer = buffer.slice(0, buffer.length - trailing.length);
+      // micromark `resolveAllLineSuffixes`: two or more spaces and no tab make a break.
+      if (trailing.length >= 2 && !trailing.includes('\t')) {
+        flush();
+        nodes.push({ type: 'break' });
+      } else {
+        buffer += value.slice(index, index + lineEndingLength(value, index));
+      }
+      index = skipLinePrefix(value, index + lineEndingLength(value, index));
+      continue;
+    }
+
     buffer += char;
     index += 1;
   }
@@ -447,6 +468,37 @@ function parseInline(value) {
   processEmphasis(nodes, delimiters);
 
   return mergeText(nodes);
+}
+
+function lineEndingLength(value, index) {
+  return value[index] === '\r' && value[index + 1] === '\n' ? 2 : 1;
+}
+
+/** Index after the spaces and tabs that start a paragraph continuation line. */
+function skipLinePrefix(value, index) {
+  while (value[index] === ' ' || value[index] === '\t') index++;
+  return index;
+}
+
+/**
+ * Inline html keeps its line endings, but each continuation line loses up to three
+ * columns of indentation (micromark `htmlText`, prefix limited to the tab size). A tab
+ * that is only partly consumed leaves its remaining columns as spaces.
+ */
+function stripHtmlLinePrefixes(raw) {
+  return raw.replace(/(\r?\n|\r)([ \t]+)/g, (_, eol, prefix) => {
+    let column = 0;
+    let i = 0;
+    while (i < prefix.length && column < 3) {
+      const width = prefix[i] === '\t' ? 4 - (column % 4) : 1;
+      if (column + width > 3) {
+        return eol + ' '.repeat(column + width - 3) + prefix.slice(i + 1);
+      }
+      column += width;
+      i++;
+    }
+    return eol + prefix.slice(i);
+  });
 }
 
 function isPunctuation(char) {
@@ -521,13 +573,55 @@ function mergeText(nodes) {
   return out;
 }
 
-/** Block level: either an HTML block (component tag) or a paragraph. */
+// CommonMark html block start conditions 1 (raw tags), 2 (comments), 6 (block tag names, from
+// micromark-util-html-tag-name) and 7 (a complete open or closing tag alone on its line).
+const HTML_BLOCK_NAMES = new Set(
+  ('address article aside base basefont blockquote body caption center col colgroup dd details dialog dir div dl dt '
+    + 'fieldset figcaption figure footer form frame frameset h1 h2 h3 h4 h5 h6 head header hr html iframe legend li '
+    + 'link main menu menuitem nav noframes ol optgroup option p param search section summary table tbody td tfoot '
+    + 'th thead title tr track ul').split(' '),
+);
+const HTML_RAW_NAMES = new Set(['pre', 'script', 'style', 'textarea']);
+const HTML_COMPLETE_TAG_LINE =
+  /^(?:<[A-Za-z][A-Za-z0-9-]*(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \t]*=[ \t]*(?:[^\s"'=<>`]+|'[^'\n]*'|"[^"\n]*"))?)*[ \t]*\/?>|<\/[A-Za-z][A-Za-z0-9-]*[ \t]*>)[ \t]*$/;
+
+/** The kind of html block the first line starts, or null. */
+function htmlBlockKind(line) {
+  const name = /^<\/?([A-Za-z][A-Za-z0-9-]*)(?=[\s/>]|$)/.exec(line);
+  const lower = name ? name[1].toLowerCase() : '';
+  if (name && line[1] !== '/' && HTML_RAW_NAMES.has(lower)) return 'raw';
+  if (/^<!--/.test(line)) return 'comment';
+  if (name && HTML_BLOCK_NAMES.has(lower)) return 'block';
+  if (HTML_COMPLETE_TAG_LINE.test(line) && !HTML_RAW_NAMES.has(lower)) return 'block';
+  return null;
+}
+
+/** End offset of an html block: the end of the line holding the closer, or the first blank line. */
+function htmlBlockEnd(value, kind) {
+  if (kind === 'block') {
+    const blank = /(?:\r?\n|\r)[ \t]*(?:\r?\n|\r)/.exec(value);
+    return blank ? blank.index : value.length;
+  }
+  const closer = kind === 'raw' ? /<\/(?:pre|script|style|textarea)>/i : /-->/;
+  const match = closer.exec(value);
+  if (!match) return value.length;
+  const eol = /\r?\n|\r/g;
+  eol.lastIndex = match.index + match[0].length;
+  const next = eol.exec(value);
+  return next ? next.index : value.length;
+}
+
+/**
+ * Block level: an html block (for example a component tag alone on its first line) up to
+ * where CommonMark ends it, followed by the rest; otherwise a paragraph.
+ */
 function parseContent(value) {
-  if (/^<[A-Za-z!/]/.test(value)) {
-    const match = HTML_TAG.exec(value);
-    if (match && match[0].length === value.length) {
-      return [{ type: 'html', value }];
-    }
+  const kind = htmlBlockKind(/^[^\r\n]*/.exec(value)[0]);
+  if (kind) {
+    const end = htmlBlockEnd(value, kind);
+    const html = { type: 'html', value: value.slice(0, end) };
+    const rest = value.slice(end).replace(/^(?:[ \t]*(?:\r?\n|\r))+/, '');
+    return rest === '' ? [html] : [html, ...parseContent(rest)];
   }
   return [{ type: 'paragraph', children: parseInline(value) }];
 }
@@ -579,6 +673,8 @@ function peek(node) {
       return '<';
     case 'inlineCode':
       return '`';
+    case 'break':
+      return '\\';
     case 'strong':
     case 'emphasis':
       return '*';
@@ -599,6 +695,12 @@ function containerPhrasing(children, info, state) {
   for (let index = 0; index < children.length; index++) {
     const child = children[index];
     const after = index + 1 < children.length ? peek(children[index + 1]) : info.after;
+
+    // An eol right before html (text) becomes a space, so the html isn't read as a block.
+    if (results.length > 0 && (before === '\r' || before === '\n') && child.type === 'html') {
+      results[results.length - 1] = results[results.length - 1].replace(/(\r?\n|\r)$/, ' ');
+      before = ' ';
+    }
 
     let value = handleNode(child, { before, after }, state);
 
@@ -661,6 +763,8 @@ function handleNode(node, info, state) {
       return node.value;
     case 'inlineCode':
       return inlineCodeHandler(node);
+    case 'break':
+      return '\\\n';
     case 'strong':
       return attentionHandler(node, info, state, '**');
     case 'emphasis':
