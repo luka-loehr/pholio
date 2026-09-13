@@ -35,7 +35,7 @@ final class RenderContext
      * @param Closure  $asset     fn(string $src): string, rewrites image paths.
      * @param string   $copyLabel aria-label of the copy button on headings.
      * @param ?Closure $imageSize fn(string $src): ?array{0:int,1:int}, intrinsic size of an
-     *                            inline image (the reference knows it from the static import).
+     *                            inline image, read from the image file.
      *                            null: unknown.
      */
     public function __construct(
@@ -121,11 +121,10 @@ final class RenderContext
 /**
  * AST to HTML for the article body, the content of `div.prose`.
  *
- * The rules come from two sources: the element mapping in
- * the reference UI's `dist/mdx.js` (headings to `Heading`, `a` to `Link`, `img` to the
- * reference's override, `table` to a scroll frame) and the remark/rehype
- * behaviour seen in the frozen reference DOM. Unknown nodes throw; there is no
- * silent fallback.
+ * Markdown elements map onto the components (headings to `Heading`, `a` to a
+ * link, `img` to the framed image, `table` to a scroll frame), with the HTML
+ * that remark/rehype write for GFM. Unknown nodes throw; there is no silent
+ * fallback.
  */
 final class Render
 {
@@ -353,7 +352,7 @@ final class Render
     }
 
     /**
-     * Link. The reference `link` helper adds `rel`/`target` only to external targets
+     * Link. `rel`/`target` are added only to external targets
      * (`^\w+:` or `//`); internal links stay plain `a` elements.
      *
      * @param array<string,mixed> $node
