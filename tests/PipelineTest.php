@@ -19,23 +19,6 @@ use Pholio\Fs;
 const PIPELINE_CONFIG = __DIR__ . '/../examples/demo/pholio.config.php';
 const PIPELINE_SNAPSHOT = __DIR__ . '/snapshots/demo';
 
-/**
- * The snapshot is built with PCRE2 10.43 or newer. An older PCRE2 simplifies some syntax colours, so the
- * comparison is skipped there, or fails when the environment sets PHOLIO_REQUIRE_PCRE2=1.
- */
-function pipeline_require_full_pcre2(string $why): void
-{
-    $version = explode(' ', PCRE_VERSION)[0];
-    if (version_compare($version, '10.43', '>=')) {
-        return;
-    }
-    $reason = "PCRE2 {$version} < 10.43: {$why}";
-    if (getenv('PHOLIO_REQUIRE_PCRE2') === '1') {
-        throw new TestFailure($reason . ' (PHOLIO_REQUIRE_PCRE2=1 requires PCRE2 10.43 or newer)');
-    }
-    skip($reason);
-}
-
 /** @return array{0:int, 1:string, 2:string} exit code, stdout, stderr */
 function pipeline_cli(array $args): array
 {
@@ -121,7 +104,8 @@ test('the demo build matches tests/snapshots/demo', function (): void {
     if (!is_dir(PIPELINE_SNAPSHOT)) {
         skip('tests/snapshots/demo not generated yet; run ./scripts/update-snapshots.sh');
     }
-    pipeline_require_full_pcre2('simplified syntax colours differ from the snapshot');
+    // The snapshot is built with PCRE2 10.43 or newer; an older PCRE2 skips, or fails with PHOLIO_REQUIRE_PCRE2=1.
+    require_full_pcre2_or_skip('simplified syntax colours differ from the snapshot');
     [$code, $stdout, $err] = pipeline_cli(['check', '--config', PIPELINE_CONFIG, '--against', PIPELINE_SNAPSHOT]);
     assert_same(0, $code, "differences against the snapshot (regenerate with ./scripts/update-snapshots.sh):\n" . $stdout . $err);
 });
