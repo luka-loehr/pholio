@@ -9,25 +9,22 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * The section picker at the top of the sidebar (`SidebarTabsDropdown` from
- * `components/sidebar/tabs/dropdown.js`).
+ * The section picker at the top of the sidebar.
  *
  * Only the Base UI `Popover.Trigger` is visible. The popup hangs off a portal
  * and doesn't exist in the DOM while closed. So that js/notebook.js can build it
  * without a second data source, the generator places its content as
  * `<template data-nd-tabs-popup>` right after every trigger, in the desktop
  * sidebar and in the drawer: below 768 px sidebar-restore.js removes the desktop
- * sidebar before the first paint, and a single template would go with it
- * (structure as reference export `states/tabs-popup-template.html`); the golden
- * DOM comparison doesn't see templates.
+ * sidebar before the first paint, and a single template would go with it.
  *
  * In the desktop sidebar the button additionally carries `nd-tabsdrop-navbar`
  * (`lg:hidden`) in mode `tabMode: navbar`, because from `lg` the tabs sit in the
- * header. In the drawer the class is missing, just as in the reference.
+ * header. In the drawer the class is missing, because the drawer has no header tabs.
  *
  * @param array{title:string, description:?string, icon:?string, folder:Node} $group selected section
  * @param list<array{title:string, description:?string, icon:?string, url:string, folder:Node}> $options all sections of the group
- * @param string|null $id fixed id (drawer); otherwise the next hydration id
+ * @param string|null $id fixed id (drawer); otherwise the next generated id
  */
 function nd_tabs_dropdown(array $group, array $options = [], bool $desktop = true, ?string $id = null): string
 {
@@ -64,7 +61,7 @@ function nd_tabs_dropdown(array $group, array $options = [], bool $desktop = tru
 
 /**
  * Content of the popup: one option per section, the check mark visible only on
- * the selected one (the others carry `nd-invisible`, `invisible` in the reference).
+ * the selected one (the others carry `nd-invisible`).
  *
  * @param array{folder:Node} $selected
  * @param list<array{title:string, description:?string, icon:?string, url:string, folder:Node}> $options
@@ -90,7 +87,7 @@ function nd_tabs_popup_template(array $selected, array $options): string
     return Html::tag('template', ['data-nd-tabs-popup' => true], $items);
 }
 
-/** `Users` becomes `users`, `ShieldCheck` becomes `shield-check`: meta.json uses the React names. */
+/** `Users` becomes `users`, `ShieldCheck` becomes `shield-check`: meta.json may use PascalCase names. */
 function nd_icon_name(string $name): string
 {
     $kebab = preg_replace('/(?<!^)[A-Z]/', '-$0', $name);
