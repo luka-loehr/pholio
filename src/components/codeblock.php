@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Code block frame, `CodeBlock` and `Pre` from `fumadocs-ui/dist/components/codeblock.js`.
+ * Code block frame, `CodeBlock` and `Pre` from the reference UI's `dist/components/codeblock.js`.
  *
  * Only the frame: a `figure` with a title bar (language icon, `figcaption`, copy
  * button) or a floating copy button, the scrollable area and `pre`. Colours,
@@ -23,7 +23,7 @@ require_once __DIR__ . '/../lib/Icons.php';
  * @param array{title?:?string, icon?:?string, allowCopy?:bool, variant:string, style?:string|array<string,string>,
  *              figureClass:list<string>, figureAttrs?:array<string,mixed>, style?:string,
  *              lineNumbersStart?:?int} $props
- *        `icon` is finished SVG markup (fumadocs transformerIcon), `figureClass` the Shiki classes
+ *        `icon` is finished SVG markup (the reference transformerIcon), `figureClass` the Shiki classes
  *        (`preClass` from Highlight::code), `style` the `--shiki-*` variables (`preStyle`).
  * @param string $code content of `pre` (the `code` lines)
  * @param string $copyLabel `Copy Text(code block)(aria-label)`
