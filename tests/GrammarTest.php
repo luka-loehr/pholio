@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-// Full content grammar: CommonMark/GFM cases (values determined against remark,
-// remark-gfm and the reference remark-code-tab), component attribute values, the fail-loud
+// Full content grammar: CommonMark/GFM cases (values determined against remark
+// and remark-gfm), component attribute values, the fail-loud
 // rules with their hints, the feature histogram over examples/demo/content (the demo
 // must use every construct) and the AST snapshot tests/fixtures/demo-ast.json.
 //
@@ -340,7 +340,7 @@ $cases = [
     'JSX expression TypeTable' => ["<TypeTable\n  type={{\n    a: { type: 'string' },\n  }}\n/>", '<TypeProp'],
     'JSX expression InlineTOC' => ['<InlineTOC items={toc} />', '<InlineTOC />'],
     'JSX expression DynamicCodeBlock' => ['<DynamicCodeBlock lang="ts" code={`x`} />', 'code as content'],
-    'import line' => ["import { Tabs } from 'fumadocs-ui/components/tabs';\n\nText", 'no MDX imports'],
+    'import line' => ["import { Tabs } from 'some-ui/components/tabs';\n\nText", 'no MDX imports'],
     'export line' => ['export const meta = {};', 'no MDX imports'],
     'boolean with a wrong value' => ["<Banner changeLayout=\"no\">\nx\n</Banner>", '"true" or "false"'],
     'string without a value' => ["<Accordions>\n<Accordion title>\nx\n</Accordion>\n</Accordions>", 'needs a value'],
