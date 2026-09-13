@@ -30,6 +30,7 @@ $showDiff = in_array('--diff', $args, true);
 if (!is_file($root . '/src/lib/Highlight.php')) {
     skip_all('engine src/lib/Highlight.php not present');
 }
+require_full_pcre2_or_skip('simplified grammars differ from the references', true);
 require_once $root . '/src/lib/Highlight.php';
 
 $nodeOk = is_dir($root . '/verify/node_modules/fumadocs-core')
