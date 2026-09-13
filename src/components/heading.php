@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Heading in the article, rebuilt from `fumadocs-ui/dist/components/heading.js`.
+ * Heading in the article, rebuilt from the reference UI's `dist/components/heading.js`.
  *
  * Without `id` the original prints the bare heading. With `id` it gets the group
  * classes, an anchor `a[data-card]` around the text and the copy button on the
