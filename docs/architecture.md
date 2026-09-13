@@ -82,6 +82,39 @@ internal shape documented in `src/Config.php`.
 
 ## Known limits
 
-Next.js swaps pages without reloading; a static site reloads. Every navigation
-is a full page load, softened by restoring the sidebar's scroll position and
-open folders from `sessionStorage` before the first paint.
+Every navigation is a full page load, because the output is static HTML. It is
+softened by restoring the sidebar's scroll position and open folders from
+`sessionStorage` before the first paint.
+
+## Decision record
+
+- **2026-09-12 — The name is Pholio.** The generator stopped being an internal
+  build step of one documentation site and became a product with its own
+  repository, its own name and its own branding.
+- **2026-09-12 — Markdown plus component tags, not MDX.** MDX buys expressions
+  and imports, and pays with a compiler, a component runtime and content that
+  can execute. Tags are data: attributes and nesting, nothing else. New tags are
+  registered in PHP, where code is supposed to live.
+- **2026-09-12 — No extraction from source code.** No docblock parsing, no API
+  reference generation. Generated reference pages are the part of a
+  documentation site nobody reads and everybody stops maintaining. Pholio
+  renders what you wrote.
+- **2026-09-12 — PHP at build time only.** The output is static files. The
+  components are still pure functions and could render per request, but nothing
+  in production depends on a PHP runtime.
+- **2026-09-12 — Hand-written CSS derived from the compiled Tailwind output.**
+  Keeping the 110 KB of compiled utility CSS would have been pixel-perfect on
+  day one and unmaintainable on day two. Every value in the hand-written
+  stylesheet comes from the compiled reference, and the computed-style diff is
+  what keeps the claim honest.
+- **2026-09-12 — Vanilla-JS ports of the Base UI primitives.** Dialog, popover,
+  collapsible, scroll area and tabs are rebuilt as small classes that set the
+  same state attributes in the same order, because the CSS and the animations
+  depend on that order. Copying a React runtime to get five behaviours was not
+  a trade worth making.
+- **2026-09-12 — Four-stage verification.** DOM, computed styles, pixels,
+  behaviour. A checklist review of a theme rebuild finds the differences you
+  thought to look for. A diff finds the others.
+- **2026-09-12 — One file per commit.** Long history, but every change is
+  readable and revertible on its own. It has already paid for itself while
+  moving code between repositories with `git subtree split`.
