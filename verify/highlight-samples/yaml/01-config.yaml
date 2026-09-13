@@ -1,0 +1,58 @@
+
+# Configuration of the site generator
+# Tabs are forbidden in YAML indentation, but allowed in block scalars.
+name: example-docs
+version: "2.4.0"
+active: true
+archived: no
+maintenance: ~
+parent_id: null
+edition_start: 2026-09-14
+created: 2026-09-01T08:15:00+02:00
+port: 8080
+ratio: 0.75
+factor: -1.5e-3
+hex: 0x1F
+octal: 0o17
+infinite: .inf
+not_a_number: .NaN
+thousand: 1_000
+
+languages: [en, fr, "es"]
+limits: { max_upload: 10485760, min_chars: 2, weight: 3.5 }
+
+navigation:
+  start: /guide
+  sections:
+    - title: Getting started
+      path: /guide/getting-started
+      pages:
+        - login
+        - forgot-password
+    - title: "Billing: overview"
+      path: '/guide/billing'
+      roles: [editor, admin]
+
+makefile_excerpt: |
+  build:
+  	php bin/build.php --out dist
+  	npm run css
+  clean:
+  	rm -rf dist
+
+description: >
+  This guide explains every feature
+  of the workspace for viewers, editors
+  and admins.
+
+  A new paragraph after a blank line.
+
+multiline_plain: This is a long
+  plain scalar that spans
+  several lines
+"key with spaces — café": 1
+? complex key
+: value
+url:with:colons: http://example.com:8080/path?x=1#anchor
+"@scope/package": ^1.2.3
+key with # no comment: yes # this one is a comment
