@@ -1,17 +1,18 @@
 ---
 title: Pholio
-description: A dependency-free PHP generator that turns Markdown into a documentation site indistinguishable from the Fumadocs Notebook theme.
+description: Beautiful documentation, powered by Markdown. One polished theme, fast search, zero dependencies.
 icon: book-open
 ---
 
-Pholio takes a folder of Markdown files and writes a finished documentation
-site: static HTML, one stylesheet, a set of JavaScript modules, the fonts and a search index. No
-Composer, no npm, no framework, no build server. PHP runs at build time and is
-never needed again.
+Pholio turns a folder of Markdown files into a finished documentation site:
+static HTML, one stylesheet, a few small JavaScript modules, the fonts and a
+search index. No Composer, no npm, no framework, no build server. PHP runs once
+at build time and is never needed again.
 
-The look is not "inspired by" Fumadocs' Notebook theme. It is the same page:
-the same element tree, the same computed styles, the same animations, the same
-keyboard behaviour, proven by a diff rather than claimed in a sentence.
+There is one theme, and it is polished down to the details: light and dark
+schemes, a sidebar with collapsible folders, a table of contents that follows
+you, keyboard shortcuts and instant search. You write Markdown; Pholio takes
+care of the rest.
 
 <Callout type="info" title="Status">
 Pholio 0.1.0 builds complete documentation sites. The content format and the
@@ -22,18 +23,18 @@ configuration schema are settled; what comes next is on the
 ## What you get
 
 <Cards>
-  <Card title="Markdown in, HTML out" description="A strict Markdown subset plus declarative component tags. Anything unrecognised aborts the build." href="/docs/content-format" icon="file-text" />
+  <Card title="Markdown in, HTML out" description="A strict Markdown subset plus a few declarative component tags. Anything unrecognised stops the build." href="/docs/content-format" icon="file-text" />
   <Card title="One configuration file" description="Title, logo, navigation, start page, palette, search, redirects, profiles. Plain PHP data, validated before the build." href="/docs/configuration" icon="settings" />
   <Card title="Zero dependencies" description="Vendored fonts, icons and grammars with their licences. Nothing to install, nothing to update." href="/docs/architecture" icon="package" />
-  <Card title="Proven, not promised" description="Golden DOM, computed styles, pixels and behaviour, all compared against the reference." href="/docs/verification" icon="check-circle" />
+  <Card title="Tested, not assumed" description="PHP tests, a committed demo snapshot and browser checks for DOM, styles, pixels and behaviour." href="/docs/verification" icon="check-circle" />
 </Cards>
 
 ## What it deliberately is not
 
 Pholio does not read your source code. There is no docblock extraction, no API
 reference generation, no expression evaluation in content. Your documentation
-is written by you; Pholio only renders it.
+is written by you; Pholio renders it.
 
 It is also not MDX. Component tags are data, not programs: they carry
-attributes, they nest, and they cannot import or execute anything. New tags are
+attributes, they nest, and they can't import or execute anything. New tags are
 registered in PHP, where code belongs.
