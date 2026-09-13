@@ -153,7 +153,7 @@ final class Document
 final class Markdown
 {
     /** Allowed frontmatter keys. */
-    private const FRONTMATTER_KEYS = ['title', 'heading', 'description', 'updated', 'full', 'icon'];
+    private const FRONTMATTER_KEYS = ['title', 'heading', 'description', 'keywords', 'updated', 'full', 'icon'];
 
     /** Allowed values of <Callout type="…">, including the reference design's aliases. */
     private const CALLOUT_TYPES = ['info', 'warning', 'error', 'success', 'idea', 'warn', 'tip'];
