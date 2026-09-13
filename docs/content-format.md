@@ -58,7 +58,7 @@ GitHub light and dark themes: `css`, `diff`, `html`, `java`, `javascript` (`js`)
 `json`, `php`, `shellscript` (`bash`, `sh`), `sql`, `typescript` (`ts`), `xml` and
 `yaml`. Any other language stops the build.
 
-````markdown
+````text
 ```ts title="search.ts" lineNumbers
 const hits = await archive.search('invoice'); // [!code highlight]
 ```
@@ -110,7 +110,7 @@ Icons are lucide names such as `book-open`; an unknown name stops the build.
 | `InlineTOC` | `label` | none |
 | `DynamicCodeBlock` | `lang` (required) | verbatim code |
 
-```markdown
+```text
 <Callout type="warning" title="Before you start">
 Back up your configuration.
 </Callout>
