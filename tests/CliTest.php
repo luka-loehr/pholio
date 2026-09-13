@@ -335,6 +335,7 @@ test('Htaccess renders redirects, CSP and rejects invalid entries', function ():
 test('dev server router maps slashless URLs to index.html', function (): void {
     $dir = site();
     Fs::write($dir . '/out', 'guide/index.html', '<h1>Guide</h1>');
+    Fs::write($dir . '/out', 'guide.md', '# Guide');
     Fs::write($dir . '/out', 'notes.md', 'secret');
     $port = 20000 + random_int(0, 20000);
     $server = proc_open([PHP_BINARY, '-S', '127.0.0.1:' . $port, '-t', $dir . '/out', __DIR__ . '/../src/DevServer.php'], [1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
@@ -356,8 +357,9 @@ test('dev server router maps slashless URLs to index.html', function (): void {
         assert_same([200, "<h1>Guide</h1>\n"], $get('/guide'));
         assert_same([200, "<h1>Guide</h1>\n"], $get('/guide/'));
         assert_same(404, $get('/missing')[0]);
-        // Markdown in the output is published on purpose (page twins); sources never reach it.
-        assert_same(200, $get('/notes.md')[0]);
+        // Only generated Markdown is served: the twin next to guide/index.html, not a stray note.
+        assert_same(200, $get('/guide.md')[0]);
+        assert_same(404, $get('/notes.md')[0]);
     } finally {
         proc_terminate($server);
         proc_close($server);
