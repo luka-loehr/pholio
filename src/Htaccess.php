@@ -6,12 +6,14 @@ namespace Pholio;
 
 require_once __DIR__ . '/Exceptions.php';
 require_once __DIR__ . '/Fs.php';
+require_once __DIR__ . '/AgentHeaders.php';
 
 /**
  * The generated Apache `.htaccess`: hardening (options, MIME types, security
  * headers including the Content-Security-Policy, caching, methods, blocked
- * files), one 301 per redirect and the internal mapping of slashless page URLs
- * to `x/index.html`.
+ * files), one 301 per redirect, the agent headers and content negotiation
+ * (AgentHeaders) and the internal mapping of slashless page URLs to
+ * `x/index.html`.
  */
 final class Htaccess
 {
@@ -24,7 +26,13 @@ final class Htaccess
     {
         $redirects = self::redirects($config);
         if ($config['server']['htaccess']) {
-            Fs::write($outDir, '.htaccess', self::render($config['homeUrl'], $redirects, $config['server']['csp']));
+            Fs::write($outDir, '.htaccess', self::render(
+                $config['homeUrl'],
+                $redirects,
+                $config['server']['csp'],
+                AgentHeaders::headers($config),
+                AgentHeaders::negotiates($config),
+            ));
         }
 
         return count($redirects);
@@ -63,10 +71,50 @@ final class Htaccess
         return $redirects;
     }
 
-    /** @param list<array{from:string, to:string}> $redirects */
-    public static function render(string $homeUrl, array $redirects, string $csp): string
+    /**
+     * @param list<array{from:string, to:string}> $redirects
+     * @param list<array{0:string, 1:string}> $headers agent headers for every response (AgentHeaders::headers)
+     * @param bool $negotiate serve a page's Markdown twin to agents (AgentHeaders::negotiates)
+     */
+    public static function render(string $homeUrl, array $redirects, string $csp, array $headers = [], bool $negotiate = false): string
     {
         $base = rtrim($homeUrl, '/') . '/';
+
+        $agentHeaders = '';
+        foreach ($headers as [$name, $value]) {
+            // Single quotes: the Link value holds double quotes.
+            $agentHeaders .= "\n    Header always " . ($name === 'Vary' ? 'merge' : 'set') . ' ' . $name . " '" . $value . "'";
+        }
+
+        $negotiation = '';
+        if ($negotiate) {
+            $agents = 'RewriteCond %{HTTP_USER_AGENT} (?:' . AgentHeaders::userAgentPattern() . ') [NC]';
+            // The T flag is lost in the internal redirect of a per-directory rewrite,
+            // so text/plain is set by mod_headers from the environment variable.
+            $negotiation = <<<RULES
+
+    # Agents: a page's Markdown twin (x.md next to x/index.html) for "Accept: text/markdown"
+    # and AI assistants' user agents, as text/plain for "Accept: text/plain".
+    RewriteCond %{HTTP_ACCEPT} text/markdown [NC,OR]
+    {$agents}
+    RewriteCond %{REQUEST_FILENAME}/index.md -f
+    RewriteRule ^$ index.md [L]
+    RewriteCond %{HTTP_ACCEPT} text/markdown [NC,OR]
+    {$agents}
+    RewriteCond %{REQUEST_FILENAME} ^(.+?)/*$
+    RewriteCond %1.md -f
+    RewriteRule ^(.+?)/?$ $1.md [L]
+    RewriteCond %{HTTP_ACCEPT} text/plain [NC]
+    RewriteCond %{REQUEST_FILENAME}/index.md -f
+    RewriteRule ^$ index.md [E=PHOLIO_PLAIN:1,L]
+    RewriteCond %{HTTP_ACCEPT} text/plain [NC]
+    RewriteCond %{REQUEST_FILENAME} ^(.+?)/*$
+    RewriteCond %1.md -f
+    RewriteRule ^(.+?)/?$ $1.md [E=PHOLIO_PLAIN:1,L]
+
+RULES;
+            $agentHeaders .= "\n    Header set Content-Type \"text/plain; charset=utf-8\" env=REDIRECT_PHOLIO_PLAIN";
+        }
 
         $rules = [];
         $seen = [];
@@ -132,7 +180,10 @@ DirectoryIndex index.html
     AddType audio/mp4 .m4a
     AddType audio/mpeg .mp3
     AddType text/plain .txt
+    AddType text/markdown .md
+    AddType application/xml .xml
     AddType application/manifest+json .webmanifest
+    AddCharset utf-8 .md .txt
 </IfModule>
 
 <IfModule mod_headers.c>
@@ -140,9 +191,9 @@ DirectoryIndex index.html
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "accelerometer=(), bluetooth=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), serial=(), usb=()"
-    Header always set Content-Security-Policy "{$csp}"
+    Header always set Content-Security-Policy "{$csp}"{$agentHeaders}
 
-    <FilesMatch "(?i)\.(?:html?|css|js|json|webmanifest|txt|svg|png|jpe?g|gif|webp|ico|pdf|m4a|mp3|mp4)$">
+    <FilesMatch "(?i)\.(?:html?|css|js|json|webmanifest|txt|md|xml|svg|png|jpe?g|gif|webp|ico|pdf|m4a|mp3|mp4)$">
         Header always set Cache-Control "no-cache, max-age=0, must-revalidate"
         Header always set Pragma "no-cache"
         Header always set Expires "0"
@@ -164,12 +215,12 @@ FileETag MTime Size
 </IfModule>
 
 <IfModule mod_authz_core.c>
-    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|md|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
+    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
         Require all denied
     </FilesMatch>
 </IfModule>
 <IfModule !mod_authz_core.c>
-    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|md|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
+    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
         Order deny,allow
         Deny from all
     </FilesMatch>
@@ -181,7 +232,7 @@ FileETag MTime Size
 
     # Old URLs: one permanent redirect per configured entry.
 {$redirectBlock}
-
+{$negotiation}
     # The start page without a trailing slash.
     RewriteRule ^$ index.html [L]
 
