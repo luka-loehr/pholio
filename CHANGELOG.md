@@ -19,7 +19,7 @@ or the configuration schema; such changes are listed under **Changed**.
 ## [0.1.0] - 2026-09-13
 
 The first public release: a static documentation generator in plain PHP that
-reproduces the Fumadocs Notebook theme, with the tooling that measures the
+reproduces the Notebook documentation theme, with the tooling that measures the
 reproduction.
 
 ### Added
