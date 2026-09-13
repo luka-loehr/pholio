@@ -2,8 +2,10 @@
  * sidebar-restore.js — restores the sidebar before first paint.
  *
  * Next switches pages without a reload; the static site reloads. So that the
- * sidebar doesn't jump, this script restores the open folders and the scroll
- * position from sessionStorage (`nd-sidebar-state`) and removes the variant
+ * sidebar doesn't jump, this script restores the open folders, the scroll
+ * position and a collapsed sidebar from sessionStorage (`nd-sidebar-state`;
+ * collapsed only on in-site navigation and back/forward, since the reference
+ * starts expanded after a reload) and removes the variant
  * that doesn't match the window width (the reference renders only the drawer below
  * 768 px, only the desktop sidebar above).
  *
@@ -45,6 +47,7 @@
   var MOBILE_QUERY = '(width < 768px)';
   var TEMPLATE_SELECTOR = ':scope > template[data-collapsible-panel]';
   var PANEL_SELECTOR = ':scope > div[id]';
+  var COLLAPSE_TRIGGER_SELECTOR = '[data-sidebar-collapse-trigger], button[aria-label][data-collapsed]';
 
   function readStore() {
     try {
@@ -182,6 +185,40 @@
     if (viewport && typeof state.scrollTop === 'number') viewport.scrollTop = state.scrollTop;
   }
 
+  /**
+   * Whether a collapsed sidebar carries over to this page. Next keeps the collapsed
+   * state across client-side page changes and back/forward, but a reload or a freshly
+   * opened page starts expanded (`useState(false)` in SidebarProvider). Link clicks
+   * inside the site come with a same-origin referrer; typed URLs and bookmarks don't.
+   */
+  function keepsCollapsed(doc) {
+    var entries = window.performance && performance.getEntriesByType ? performance.getEntriesByType('navigation') : [];
+    var type = entries.length ? entries[0].type : 'navigate';
+    if (type === 'reload') return false;
+    if (type === 'back_forward') return true;
+    try {
+      return !!doc.referrer && new URL(doc.referrer).origin === window.location.origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Collapsed state as js/sidebar.js sets it, without transition: the header and the
+   * layout are parsed before this script, the aside is passed in. sidebar.js reads
+   * `data-collapsed` of the aside on start and takes over from there.
+   */
+  function restoreCollapsed(doc, aside) {
+    var layout = doc.getElementById('nd-notebook-layout');
+    if (layout) {
+      layout.setAttribute('data-sidebar-collapsed', 'true');
+      layout.style.setProperty('--fd-sidebar-col', '0px');
+    }
+    if (aside) aside.setAttribute('data-collapsed', 'true');
+    var trigger = doc.querySelector(COLLAPSE_TRIGGER_SELECTOR);
+    if (trigger) trigger.setAttribute('data-collapsed', 'true');
+  }
+
   /** Remove the non-matching variant and keep it for a width change. */
   function park(el, key) {
     if (!el || !el.parentNode) return;
@@ -206,6 +243,14 @@
       var drawer = doc.getElementById('nd-sidebar-mobile');
       if (!done.desktop && desktop) {
         done.desktop = true;
+        if (state.collapsed === true) {
+          if (keepsCollapsed(doc)) {
+            restoreCollapsed(doc, desktop.querySelector('#nd-sidebar'));
+          } else {
+            state.collapsed = false;
+            writeStore(state);
+          }
+        }
         if (drawerMode) park(desktop, 'desktop');
         else restoreAside(desktop.querySelector('#nd-sidebar'), state);
       }
