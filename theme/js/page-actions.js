@@ -1,23 +1,23 @@
-// Page actions next to the page title (components/page-actions.php).
+// Page actions below the page description (components/page-actions.php).
 //
 // Usage:
 //   import { boot } from './page-actions.js';
 //   boot(document);
 //
-// · "Copy page" copies the page's Markdown twin (data-markdown-url). The text is
-//   fetched ahead on hover and focus, so the copy usually runs inside the click;
-//   otherwise it goes through a ClipboardItem with a promise, which keeps the user
-//   activation in Safari, or through a fetch followed by writeText.
-// · The menu is a popover (popover.js) filled from <template data-page-actions-popup>.
-//   The chat links get their href here, because the prompt names the absolute URL
-//   of the twin. Choosing a link closes the menu.
-// · ArrowDown, ArrowUp, Home and End move between the menu items; Escape and a click
-//   outside close it and return focus to the trigger (popover.js).
-// · After a successful copy the button carries data-checked for 1500 ms, like the
-//   code block buttons (copy.js); the CSS swaps the icon.
+// Ported from the reference UI's layouts/shared/page-actions.js:
+// · MarkdownCopyButton: copies the page's Markdown twin (data-markdown-url). The fetch
+//   is cached; the first copy goes through a ClipboardItem with a promise, which keeps
+//   the user activation in Safari. The button is disabled while loading and shows the
+//   check for 1500 ms (use-copy-button.js), through data-checked.
+// · ViewOptionsPopover: the menu is a popover (popover.js) filled from
+//   <template data-page-actions-popup>. The chat links get their href here, because the
+//   prompt names the absolute URL of the twin. Choosing a link closes the menu.
+// · Not in the reference: ArrowDown, ArrowUp, Home and End move between the items, and
+//   Copy llms.txt URL copies the index address with the same check cycle.
 
 import { createPopover } from './popover.js';
 
+// Classes of the popup (verify/CLASS-MAP.md).
 const POPUP_CLASS = 'nd-popover nd-page-actions-popup';
 const CHECKED_MS = 1500;
 
@@ -31,13 +31,13 @@ function markChecked(element) {
 }
 
 function chatUrl(action, prompt) {
-  const query = encodeURIComponent(prompt);
-  return action === 'chatgpt' ? `https://chatgpt.com/?hints=search&q=${query}` : `https://claude.ai/new?q=${query}`;
+  return action === 'chatgpt'
+    ? `https://chatgpt.com/?${new URLSearchParams({ prompt, hints: 'search' })}`
+    : `https://claude.ai/new?${new URLSearchParams({ q: prompt })}`;
 }
 
 function moveFocus(event) {
-  const keys = ['ArrowDown', 'ArrowUp', 'Home', 'End'];
-  if (!keys.includes(event.key)) return;
+  if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
   const items = [...event.currentTarget.parentElement.querySelectorAll('.nd-page-actions-item')];
   const index = items.indexOf(event.currentTarget);
   const next = {
@@ -60,36 +60,30 @@ export function boot(doc = document) {
     const llmsUrl = llms ? new URL(llms, window.location.href).href : null;
     const prompt = (root.getAttribute('data-prompt') ?? '').replace('{url}', markdownUrl);
 
-    let text = null;
-    let pending = null;
+    let cached = null;
     const load = () => {
-      pending ??= fetch(markdownUrl, { headers: { Accept: 'text/markdown' } })
+      cached ??= fetch(markdownUrl, { headers: { Accept: 'text/markdown' } })
         .then((response) => (response.ok ? response.text() : Promise.reject(new Error(`HTTP ${response.status}`))))
-        .then((body) => {
-          text = body;
-          return body;
-        })
         .catch((err) => {
-          pending = null;
+          cached = null;
           throw err;
         });
-      return pending;
+      return cached;
     };
 
     const copyButton = root.querySelector('button[data-page-copy]');
     if (copyButton) {
-      const warm = () => load().catch(() => { /* retried on click */ });
-      copyButton.addEventListener('pointerenter', warm);
-      copyButton.addEventListener('focus', warm);
       copyButton.addEventListener('click', () => {
         let copied;
-        if (text !== null) {
-          copied = navigator.clipboard.writeText(text);
-        } else if (typeof ClipboardItem === 'function' && navigator.clipboard.write) {
-          const blob = load().then((body) => new Blob([body], { type: 'text/plain' }));
-          copied = navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+        if (cached) {
+          copied = cached.then((text) => navigator.clipboard.writeText(text));
         } else {
-          copied = load().then((body) => navigator.clipboard.writeText(body));
+          copyButton.disabled = true;
+          const text = load();
+          copied = typeof ClipboardItem === 'function' && navigator.clipboard.write
+            ? navigator.clipboard.write([new ClipboardItem({ 'text/plain': text.then((body) => new Blob([body], { type: 'text/plain' })) })])
+            : text.then((body) => navigator.clipboard.writeText(body));
+          copied.finally(() => { copyButton.disabled = false; }).catch(() => {});
         }
         copied.then(() => markChecked(copyButton), () => { /* the clipboard may be denied */ });
       });
@@ -102,7 +96,6 @@ export function boot(doc = document) {
     const popover = createPopover({
       trigger,
       popupClass: POPUP_CLASS,
-      align: 'end',
       content: () => {
         const fragment = template.content.cloneNode(true);
         for (const item of fragment.querySelectorAll('.nd-page-actions-item')) {
