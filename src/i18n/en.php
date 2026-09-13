@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * English user interface strings, the default language.
  *
- * Defines the complete key set. Each value is the Fumadocs source text, which
+ * Defines the complete key set. Each value is the reference design's source text, which
  * is the key without its trailing context notes in parentheses.
  */
 
