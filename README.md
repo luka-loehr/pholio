@@ -16,6 +16,7 @@
 - **Markdown first**, plus a few component tags: callouts, cards, tabs, steps, file trees, type tables
 - **One polished theme** with light and dark mode, sidebar, table of contents and keyboard shortcuts
 - **Instant search** built at compile time, no backend
+- **Agent-ready**: Markdown for every page, `llms.txt`, `skill.md` and content negotiation, generated from your content
 - **Syntax highlighting** at build time, with titles, line numbers and code tabs
 - **Zero dependencies**: PHP 8.2 is all you need
 - **Static output** that runs on any host, with a ready `.htaccess` for Apache
