@@ -11,9 +11,9 @@
 //   reference UI dist/layouts/notebook/slots/sidebar.js   – collapsed sidebar, hover zone
 //   reference UI dist/layouts/notebook/slots/container.js – --fd-sidebar-col, data-column-changed
 //
-// Additionally (not in the original): scroll position and open folders survive
-// page navigation in `sessionStorage`, because the static site reloads where
-// Next switches pages client-side. Storage, folder keys, the parking spot of the
+// Additionally (not in the original): scroll position, open folders and the collapsed
+// state survive page navigation in `sessionStorage`, because the static site reloads
+// where Next switches pages client-side. Storage, folder keys, the parking spot of the
 // non-matching variant and the restore before first paint are shared with
 // sidebar-restore.js (`window.ndSidebarRestore`, rationale in that file's header).
 //
@@ -170,6 +170,9 @@ export class Sidebar {
     if (collapsed === this.collapsed) return;
     this.collapsed = collapsed;
     if (collapsed) this.hovered = false;
+    const state = core.readStore();
+    state.collapsed = collapsed;
+    core.writeStore(state);
     this.applyCollapsed(true);
   }
 
