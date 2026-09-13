@@ -20,8 +20,8 @@ function nd_search_dialog_portal(): string
         'data-closed' => true,
         'hidden' => true,
         'class' => 'nd-dialog-backdrop',
-        // Order as in the reference (Base UI sets userSelect before WebkitUserSelect);
-        // verify/behaviour.mjs compares the style attribute as a string.
+        // Same order as Base UI (userSelect before WebkitUserSelect), so js/dialog.js
+        // and the static markup write identical style strings.
         'style' => ['user-select' => 'none', '-webkit-user-select' => 'none'],
     ], '');
 
