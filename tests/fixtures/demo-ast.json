@@ -1,0 +1,3085 @@
+{
+    "guide/callouts-and-cards.md": {
+        "file": "./guide/callouts-and-cards.md",
+        "frontmatter": {
+            "title": "Callouts and cards",
+            "description": "Every callout type and the card grid, with and without icons and links.",
+            "icon": "layout-grid"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Callouts"
+            },
+            {
+                "level": 2,
+                "text": "Cards"
+            },
+            {
+                "level": 3,
+                "text": "Without links or icons"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Callouts"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A callout has a "
+                    },
+                    {
+                        "type": "code",
+                        "value": "type"
+                    },
+                    {
+                        "type": "text",
+                        "value": " and an optional "
+                    },
+                    {
+                        "type": "code",
+                        "value": "title"
+                    },
+                    {
+                        "type": "text",
+                        "value": ". Its body is ordinary Markdown."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "No type means "
+                            },
+                            {
+                                "type": "code",
+                                "value": "info"
+                            },
+                            {
+                                "type": "text",
+                                "value": ". This one has no title either."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "info",
+                    "title": "Info"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Lanternfly indexes files in the background, so the first search after a large\nimport may be slow."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "tip",
+                    "title": "Tip"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "code",
+                                "value": "tip"
+                            },
+                            {
+                                "type": "text",
+                                "value": " is an alias for "
+                            },
+                            {
+                                "type": "code",
+                                "value": "info"
+                            },
+                            {
+                                "type": "text",
+                                "value": ". Press "
+                            },
+                            {
+                                "type": "code",
+                                "value": "/"
+                            },
+                            {
+                                "type": "text",
+                                "value": " in the archive view to jump to search."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "warning",
+                    "title": "Warning"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Moving an archive while it is being indexed can leave the index incomplete."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "warn",
+                    "title": "Warn"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "code",
+                                "value": "warn"
+                            },
+                            {
+                                "type": "text",
+                                "value": " is an alias for "
+                            },
+                            {
+                                "type": "code",
+                                "value": "warning"
+                            },
+                            {
+                                "type": "text",
+                                "value": "."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "error",
+                    "title": "Error"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "code",
+                                "value": "lanternfly purge"
+                            },
+                            {
+                                "type": "text",
+                                "value": " deletes archives permanently. There is no undo."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "success",
+                    "title": "Success"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "When indexing finishes, the status bar shows a green check."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "idea",
+                    "title": "Idea"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Keep one archive per project. Searches stay fast and exports stay small."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Cards"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Cards group related links. Each card can carry a lucide icon."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Cards",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Archives",
+                            "description": "Create, open and move archives.",
+                            "href": "/guide/steps-and-files",
+                            "icon": "archive"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Search",
+                            "description": "Query syntax and filters.",
+                            "href": "/reference/markdown-extras",
+                            "icon": "search"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Configuration",
+                            "description": "Every option, typed.",
+                            "href": "/reference/api-types",
+                            "icon": "settings"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Command line",
+                            "description": "Code examples for every command.",
+                            "href": "/reference/code-blocks",
+                            "icon": "terminal"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Without links or icons"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A card without "
+                    },
+                    {
+                        "type": "code",
+                        "value": "href"
+                    },
+                    {
+                        "type": "text",
+                        "value": " is static, which is useful for short summaries."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Cards",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Fast",
+                            "description": "Indexes ten thousand notes in under a second."
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Local",
+                            "description": "Nothing leaves your machine."
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "guide/index.md": {
+        "file": "./guide/index.md",
+        "frontmatter": {
+            "title": "Guide",
+            "description": "Everything you need to publish the Lanternfly documentation, from install to the last component.",
+            "icon": "book-open"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Where to go next"
+            },
+            {
+                "level": 2,
+                "text": "How the pieces fit"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Lanternfly is an imaginary command-line tool that turns folders of notes into\nsearchable archives. It does not exist. It is here so this demo site has\nsomething plausible to document, and so every component Pholio supports\nappears on at least one page."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Banner",
+                "attrs": {
+                    "id": "demo-notice",
+                    "variant": "rainbow"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "This is a demo site. Lanternfly is fictional; the components are real."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Where to go next"
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Cards",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Installation",
+                            "description": "Get the lanternfly binary onto your machine.",
+                            "href": "/guide/installation",
+                            "icon": "download"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Writing pages",
+                            "description": "Frontmatter, headings and links.",
+                            "href": "/guide/writing-pages",
+                            "icon": "pen-line"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Callouts and cards",
+                            "description": "Draw attention, group links.",
+                            "href": "/guide/callouts-and-cards",
+                            "icon": "layout-grid"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Reference",
+                            "description": "Code blocks, typed options, Markdown extras.",
+                            "href": "/reference",
+                            "icon": "library"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "How the pieces fit"
+                    }
+                ]
+            },
+            {
+                "type": "component_void",
+                "name": "Screenshot",
+                "attrs": {
+                    "src": "pipeline.svg",
+                    "alt": "Content flows through the parser and the components into a static site"
+                }
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "emphasis",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Every page on this site went through exactly these four stages."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "guide/installation.md": {
+        "file": "./guide/installation.md",
+        "frontmatter": {
+            "title": "Installation",
+            "description": "Install Lanternfly with your package manager of choice and check that it runs.",
+            "icon": "download"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Requirements"
+            },
+            {
+                "level": 2,
+                "text": "Install"
+            },
+            {
+                "level": 2,
+                "text": "Verify"
+            },
+            {
+                "level": 3,
+                "text": "Open a terminal"
+            },
+            {
+                "level": 3,
+                "text": "Ask for the version"
+            },
+            {
+                "level": 3,
+                "text": "Read the output"
+            },
+            {
+                "level": 2,
+                "text": "Upgrading"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "component_void",
+                "name": "InlineTOC",
+                "attrs": []
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Requirements"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Lanternfly runs on macOS, Linux and Windows. It needs about 20 MB of disk space\nand nothing else."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Install"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "The code tabs below share a group, so choosing a package manager here also\nselects it on every other page that uses the same group."
+                    }
+                ]
+            },
+            {
+                "type": "code_tabs",
+                "defaultValue": "Homebrew",
+                "groupId": null,
+                "items": [
+                    {
+                        "value": "Homebrew",
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "bash",
+                                "meta": {
+                                    "raw": "",
+                                    "tab": "Homebrew"
+                                },
+                                "value": "brew install lanternfly"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "apt",
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "bash",
+                                "meta": {
+                                    "raw": "",
+                                    "tab": "apt"
+                                },
+                                "value": "sudo apt install lanternfly"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "winget",
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "powershell",
+                                "meta": {
+                                    "raw": "",
+                                    "tab": "winget"
+                                },
+                                "value": "winget install Lanternfly.Lanternfly"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Verify"
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Steps",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Step",
+                        "attrs": [],
+                        "blocks": [
+                            {
+                                "type": "heading",
+                                "level": 3,
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Open a terminal"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Any shell works. On Windows, PowerShell is recommended."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Step",
+                        "attrs": [],
+                        "blocks": [
+                            {
+                                "type": "heading",
+                                "level": 3,
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Ask for the version"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "code_block",
+                                "lang": "bash",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "lanternfly --version"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Step",
+                        "attrs": [],
+                        "blocks": [
+                            {
+                                "type": "heading",
+                                "level": 3,
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Read the output"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "You should see a single line such as "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "lanternfly 2.4.0"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": ". Anything else means the\nbinary is not on your "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "PATH"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": "."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Upgrading"
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "warning",
+                    "title": "Archives from 1.x"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Version 2 reads 1.x archives but writes a new format. Keep a copy of old\narchives until every machine that opens them has been upgraded."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "guide/steps-and-files.md": {
+        "file": "./guide/steps-and-files.md",
+        "frontmatter": {
+            "title": "Steps and files",
+            "description": "Numbered procedures and file trees.",
+            "icon": "folder-tree"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Steps"
+            },
+            {
+                "level": 3,
+                "text": "Create an archive"
+            },
+            {
+                "level": 3,
+                "text": "Import existing files"
+            },
+            {
+                "level": 3,
+                "text": "Search"
+            },
+            {
+                "level": 2,
+                "text": "Files"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Steps"
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Steps",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Step",
+                        "attrs": [],
+                        "blocks": [
+                            {
+                                "type": "heading",
+                                "level": 3,
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Create an archive"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "code_block",
+                                "lang": "bash",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "lanternfly init notes"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Step",
+                        "attrs": [],
+                        "blocks": [
+                            {
+                                "type": "heading",
+                                "level": 3,
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Import existing files"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "code_block",
+                                "lang": "bash",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "lanternfly import ~/Documents/notes --into notes"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Step",
+                        "attrs": [],
+                        "blocks": [
+                            {
+                                "type": "heading",
+                                "level": 3,
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Search"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "code_block",
+                                "lang": "bash",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "lanternfly search \"quarterly report\" --in notes"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Files"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A file tree shows what "
+                    },
+                    {
+                        "type": "code",
+                        "value": "lanternfly init"
+                    },
+                    {
+                        "type": "text",
+                        "value": " creates. Folders can start open."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Files",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Folder",
+                        "attrs": {
+                            "name": "notes",
+                            "defaultOpen": true
+                        },
+                        "blocks": [
+                            {
+                                "type": "component_void",
+                                "name": "File",
+                                "attrs": {
+                                    "name": "lanternfly.toml"
+                                }
+                            },
+                            {
+                                "type": "component",
+                                "name": "Folder",
+                                "attrs": {
+                                    "name": "index",
+                                    "defaultOpen": true
+                                },
+                                "blocks": [
+                                    {
+                                        "type": "component_void",
+                                        "name": "File",
+                                        "attrs": {
+                                            "name": "terms.bin"
+                                        }
+                                    },
+                                    {
+                                        "type": "component_void",
+                                        "name": "File",
+                                        "attrs": {
+                                            "name": "documents.bin"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "component",
+                                "name": "Folder",
+                                "attrs": {
+                                    "name": "attachments"
+                                },
+                                "blocks": [
+                                    {
+                                        "type": "component_void",
+                                        "name": "File",
+                                        "attrs": {
+                                            "name": "receipt-2026-03.pdf"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "component_void",
+                                "name": "File",
+                                "attrs": {
+                                    "name": "README.md"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Callout",
+                "attrs": {
+                    "type": "info"
+                },
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Never edit the "
+                            },
+                            {
+                                "type": "code",
+                                "value": "index"
+                            },
+                            {
+                                "type": "text",
+                                "value": " folder by hand. "
+                            },
+                            {
+                                "type": "code",
+                                "value": "lanternfly reindex"
+                            },
+                            {
+                                "type": "text",
+                                "value": " rebuilds it from\nscratch."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "guide/tabs-and-accordions.md": {
+        "file": "./guide/tabs-and-accordions.md",
+        "frontmatter": {
+            "title": "Tabs and accordions",
+            "description": "Tabs with a default, grouped tabs that stay in sync, and single or multiple accordions.",
+            "icon": "panels-top-left"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Tabs"
+            },
+            {
+                "level": 3,
+                "text": "Choosing the default"
+            },
+            {
+                "level": 3,
+                "text": "Grouped tabs"
+            },
+            {
+                "level": 2,
+                "text": "Accordions"
+            },
+            {
+                "level": 3,
+                "text": "Single"
+            },
+            {
+                "level": 3,
+                "text": "Multiple"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Tabs"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "code",
+                        "value": "items"
+                    },
+                    {
+                        "type": "text",
+                        "value": " lists the labels, separated by "
+                    },
+                    {
+                        "type": "code",
+                        "value": "|"
+                    },
+                    {
+                        "type": "text",
+                        "value": ". Each "
+                    },
+                    {
+                        "type": "code",
+                        "value": "Tab"
+                    },
+                    {
+                        "type": "text",
+                        "value": " takes its "
+                    },
+                    {
+                        "type": "code",
+                        "value": "value"
+                    },
+                    {
+                        "type": "text",
+                        "value": " from\nthe matching label."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Tabs",
+                "attrs": {
+                    "items": [
+                        "macOS",
+                        "Linux",
+                        "Windows"
+                    ]
+                },
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "macOS"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Archives live in "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "~/Library/Application Support/Lanternfly"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": "."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "Linux"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Archives live in "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "~/.local/share/lanternfly"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": "."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "Windows"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Archives live in "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "%APPDATA%\\Lanternfly"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": "."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Choosing the default"
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Tabs",
+                "attrs": {
+                    "items": [
+                        "Monthly",
+                        "Yearly"
+                    ],
+                    "defaultIndex": 1
+                },
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "Monthly"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Pay each month, cancel any time."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "Yearly"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Pay once a year and get two months free."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Grouped tabs"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Tabs with the same "
+                    },
+                    {
+                        "type": "code",
+                        "value": "groupId"
+                    },
+                    {
+                        "type": "text",
+                        "value": " switch together. With "
+                    },
+                    {
+                        "type": "code",
+                        "value": "persist"
+                    },
+                    {
+                        "type": "text",
+                        "value": ", the choice is\nremembered across pages and visits."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Tabs",
+                "attrs": {
+                    "groupId": "language",
+                    "items": [
+                        "JavaScript",
+                        "Python"
+                    ],
+                    "persist": true
+                },
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "JavaScript"
+                        },
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "js",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "import { open } from 'lanternfly';\nconst archive = await open('notes');"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "Python"
+                        },
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "python",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "from lanternfly import open_archive\narchive = open_archive(\"notes\")"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Tabs",
+                "attrs": {
+                    "groupId": "language",
+                    "items": [
+                        "JavaScript",
+                        "Python"
+                    ],
+                    "persist": true
+                },
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "JavaScript"
+                        },
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "js",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "const hits = await archive.search('invoice');"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Tab",
+                        "attrs": {
+                            "value": "Python"
+                        },
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "python",
+                                "meta": {
+                                    "raw": ""
+                                },
+                                "value": "hits = archive.search(\"invoice\")"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A label that itself contains a pipe is escaped: "
+                    },
+                    {
+                        "type": "code",
+                        "value": "items=\"a\\|b|c\""
+                    },
+                    {
+                        "type": "text",
+                        "value": " yields the two\ntabs \"a|b\" and \"c\"."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Accordions"
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Single"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Only one item is open at a time."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Accordions",
+                "attrs": {
+                    "type": "single"
+                },
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Accordion",
+                        "attrs": {
+                            "title": "Is Lanternfly free?"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Yes, for personal use."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Accordion",
+                        "attrs": {
+                            "title": "Does it sync?"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "No. Archives are plain folders; use whatever sync tool you already trust."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Accordion",
+                        "attrs": {
+                            "title": "Can I export everything?",
+                            "id": "export-all"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Yes. "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "lanternfly export --all"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": " writes one Markdown file per note."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Multiple"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Any number of items can be open."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Accordions",
+                "attrs": {
+                    "type": "multiple"
+                },
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "Accordion",
+                        "attrs": {
+                            "title": "Keyboard shortcuts"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "code",
+                                        "value": "/"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": " focuses search, "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "n"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": " creates a note, "
+                                    },
+                                    {
+                                        "type": "code",
+                                        "value": "Esc"
+                                    },
+                                    {
+                                        "type": "text",
+                                        "value": " closes any dialog."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "Accordion",
+                        "attrs": {
+                            "title": "File formats"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Markdown, plain text and PDF are indexed. Everything else is stored but not\nsearched."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "guide/writing-pages.md": {
+        "file": "./guide/writing-pages.md",
+        "frontmatter": {
+            "title": "Writing pages",
+            "description": "Frontmatter, headings, links and images in the Markdown subset Pholio accepts.",
+            "icon": "pen-line"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Frontmatter"
+            },
+            {
+                "level": 2,
+                "text": "Headings"
+            },
+            {
+                "level": 3,
+                "text": "A subsection"
+            },
+            {
+                "level": 4,
+                "text": "A fourth level"
+            },
+            {
+                "level": 2,
+                "text": "Links"
+            },
+            {
+                "level": 2,
+                "text": "Images"
+            },
+            {
+                "level": 2,
+                "text": "Quotes"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A page is a Markdown file with frontmatter. The title comes from the\nfrontmatter, so the body starts at "
+                    },
+                    {
+                        "type": "code",
+                        "value": "##"
+                    },
+                    {
+                        "type": "text",
+                        "value": "."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Frontmatter"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "yaml",
+                "meta": {
+                    "raw": "",
+                    "title": "guide/installation.md"
+                },
+                "value": "---\ntitle: Installation\ndescription: Install Lanternfly and check that it runs.\nicon: download\n---"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Headings"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Use "
+                    },
+                    {
+                        "type": "code",
+                        "value": "##"
+                    },
+                    {
+                        "type": "text",
+                        "value": " for sections and "
+                    },
+                    {
+                        "type": "code",
+                        "value": "###"
+                    },
+                    {
+                        "type": "text",
+                        "value": " for subsections. Headings become anchors and\nentries in the table of contents on the right."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A subsection"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Ids are derived from the text, so this heading is reachable as\n"
+                    },
+                    {
+                        "type": "code",
+                        "value": "#a-subsection"
+                    },
+                    {
+                        "type": "text",
+                        "value": "."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 4,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A fourth level"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Allowed, but rarely a good idea."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Links"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Link to another page with a relative path, like\n"
+                    },
+                    {
+                        "type": "link",
+                        "href": "./callouts-and-cards",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Callouts and cards"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": ", or to the\n"
+                    },
+                    {
+                        "type": "link",
+                        "href": "../reference",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "reference section"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": ". Broken internal links stop the build.\nExternal links such as "
+                    },
+                    {
+                        "type": "link",
+                        "href": "https://spec.commonmark.org",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "the CommonMark spec"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": "\nopen in a new tab."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Images"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A plain Markdown image renders as a single bordered picture:"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "image",
+                        "src": "../../assets/color-scale.svg",
+                        "alt": "An indigo colour scale from 50 to 950"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "For light and dark variants, use "
+                    },
+                    {
+                        "type": "code",
+                        "value": "Screenshot"
+                    },
+                    {
+                        "type": "text",
+                        "value": ". For images worth enlarging, use\n"
+                    },
+                    {
+                        "type": "code",
+                        "value": "ImageZoom"
+                    },
+                    {
+                        "type": "text",
+                        "value": ":"
+                    }
+                ]
+            },
+            {
+                "type": "component_void",
+                "name": "ImageZoom",
+                "attrs": {
+                    "src": "color-scale.svg",
+                    "alt": "An indigo colour scale from 50 to 950",
+                    "width": 1600,
+                    "height": 600
+                }
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Quotes"
+                    }
+                ]
+            },
+            {
+                "type": "blockquote",
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Write the page you wish you had found the first time."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "reference/api-types.md": {
+        "file": "./reference/api-types.md",
+        "frontmatter": {
+            "title": "API types",
+            "description": "The options accepted by open(), as a type table.",
+            "icon": "braces"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "open(path, options)"
+            },
+            {
+                "level": 2,
+                "text": "Return value"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "code",
+                        "value": "open(path, options)"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Opens an archive. Every option is optional unless marked required."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "TypeTable",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "path",
+                            "type": "string",
+                            "required": true
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Folder of the archive, absolute or relative to the working directory."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "watch",
+                            "type": "boolean",
+                            "default": "false"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Re-index files as they change on disk."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "limit",
+                            "type": "number",
+                            "default": "50",
+                            "typeDescription": "Integer between 1 and 1000"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Maximum number of hits a single search returns."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "language",
+                            "type": "\"english\" | \"german\"",
+                            "default": "\"english\""
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Tokenizer used for new documents."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "legacyIndex",
+                            "type": "boolean",
+                            "default": "false",
+                            "deprecated": true
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Read the 1.x index format. Will be removed in version 3."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Return value"
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "TypeTable",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "search",
+                            "type": "(query: string) => Promise<Hit[]>"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Runs a query and resolves to the ranked hits."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "reindex",
+                            "type": "() => Promise<void>"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Rebuilds the index from the files on disk."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "component",
+                        "name": "TypeProp",
+                        "attrs": {
+                            "name": "close",
+                            "type": "() => void"
+                        },
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Releases file handles. The archive cannot be used afterwards."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "reference/code-blocks.md": {
+        "file": "./reference/code-blocks.md",
+        "frontmatter": {
+            "title": "Code blocks",
+            "description": "Titles, line numbers, notation comments and code tabs.",
+            "icon": "code"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Plain"
+            },
+            {
+                "level": 2,
+                "text": "With a title"
+            },
+            {
+                "level": 2,
+                "text": "With line numbers"
+            },
+            {
+                "level": 2,
+                "text": "Highlighting"
+            },
+            {
+                "level": 2,
+                "text": "Word highlighting"
+            },
+            {
+                "level": 2,
+                "text": "Focus"
+            },
+            {
+                "level": 2,
+                "text": "Diff"
+            },
+            {
+                "level": 2,
+                "text": "Notation in other languages"
+            },
+            {
+                "level": 2,
+                "text": "Code tabs"
+            },
+            {
+                "level": 2,
+                "text": "Line ranges in meta"
+            },
+            {
+                "level": 2,
+                "text": "Code as tag content"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Plain"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "bash",
+                "meta": {
+                    "raw": ""
+                },
+                "value": "lanternfly search invoice"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "With a title"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "toml",
+                "meta": {
+                    "raw": "",
+                    "title": "lanternfly.toml"
+                },
+                "value": "[archive]\nname = \"notes\"\nwatch = true"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "With line numbers"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "ts",
+                "meta": {
+                    "raw": " ",
+                    "title": "search.ts",
+                    "lineNumbers": true
+                },
+                "value": "import { open } from 'lanternfly';\n\nexport async function findInvoices(path: string) {\n  const archive = await open(path);\n  return archive.search('invoice', { limit: 20 });\n}"
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Line numbers can start at another value:"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "ts",
+                "meta": {
+                    "raw": "",
+                    "lineNumbers": 40
+                },
+                "value": "  return archive.search('invoice', { limit: 20 });\n}"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Highlighting"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "ts",
+                "meta": {
+                    "raw": ""
+                },
+                "value": "const archive = await open('notes');\nconst hits = await archive.search('invoice'); // [!code highlight]\nconsole.log(hits.length);"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Word highlighting"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "ts",
+                "meta": {
+                    "raw": ""
+                },
+                "value": "// [!code word:search]\nconst hits = await archive.search('invoice');\nconst more = await archive.search('receipt');"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Focus"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "ts",
+                "meta": {
+                    "raw": ""
+                },
+                "value": "const archive = await open('notes');\nawait archive.reindex(); // [!code focus]\narchive.close();"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Diff"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "ts",
+                "meta": {
+                    "raw": ""
+                },
+                "value": "const archive = await open('notes', {\n  watch: false, // [!code --]\n  watch: true, // [!code ++]\n});"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Notation in other languages"
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "python",
+                "meta": {
+                    "raw": "",
+                    "title": "search.py"
+                },
+                "value": "archive = open_archive(\"notes\")\nhits = archive.search(\"invoice\")  # [!code highlight]"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Code tabs"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Consecutive code blocks with a "
+                    },
+                    {
+                        "type": "code",
+                        "value": "tab"
+                    },
+                    {
+                        "type": "text",
+                        "value": " attribute are merged into one tab group."
+                    }
+                ]
+            },
+            {
+                "type": "code_tabs",
+                "defaultValue": "JavaScript",
+                "groupId": null,
+                "items": [
+                    {
+                        "value": "JavaScript",
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "js",
+                                "meta": {
+                                    "raw": "",
+                                    "tab": "JavaScript"
+                                },
+                                "value": "const hits = await archive.search('invoice');"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "Python",
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "python",
+                                "meta": {
+                                    "raw": "",
+                                    "tab": "Python"
+                                },
+                                "value": "hits = archive.search(\"invoice\")"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "CLI",
+                        "blocks": [
+                            {
+                                "type": "code_block",
+                                "lang": "bash",
+                                "meta": {
+                                    "raw": "",
+                                    "tab": "CLI"
+                                },
+                                "value": "lanternfly search invoice"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Line ranges in meta"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A range like "
+                    },
+                    {
+                        "type": "code",
+                        "value": "{1,3-4}"
+                    },
+                    {
+                        "type": "text",
+                        "value": " in the fence meta is accepted for compatibility and has\nno effect."
+                    }
+                ]
+            },
+            {
+                "type": "code_block",
+                "lang": "ts",
+                "meta": {
+                    "raw": "{1,3-4}"
+                },
+                "value": "const a = 1;\nconst b = 2;\nconst c = 3;\nconst d = 4;"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Code as tag content"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "When a code sample must stay verbatim, pass it as the content of\n"
+                    },
+                    {
+                        "type": "code",
+                        "value": "DynamicCodeBlock"
+                    },
+                    {
+                        "type": "text",
+                        "value": "."
+                    }
+                ]
+            },
+            {
+                "type": "component_raw",
+                "name": "DynamicCodeBlock",
+                "attrs": {
+                    "lang": "json"
+                },
+                "value": "{\n  \"archive\": \"notes\",\n  \"watch\": true\n}"
+            }
+        ]
+    },
+    "reference/index.md": {
+        "file": "./reference/index.md",
+        "frontmatter": {
+            "title": "Reference",
+            "description": "Precise answers: code examples, typed options and the Markdown extensions.",
+            "icon": "library"
+        },
+        "headings": [],
+        "blocks": [
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "The guide explains how to do things. The reference lists exactly what exists."
+                    }
+                ]
+            },
+            {
+                "type": "component",
+                "name": "Cards",
+                "attrs": [],
+                "blocks": [
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Code blocks",
+                            "description": "Titles, line numbers, highlights, diffs and code tabs.",
+                            "href": "/reference/code-blocks",
+                            "icon": "code"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "API types",
+                            "description": "Every configuration option with its type and default.",
+                            "href": "/reference/api-types",
+                            "icon": "braces"
+                        }
+                    },
+                    {
+                        "type": "component_void",
+                        "name": "Card",
+                        "attrs": {
+                            "title": "Markdown extras",
+                            "description": "Tables, task lists, footnotes and strikethrough.",
+                            "href": "/reference/markdown-extras",
+                            "icon": "text"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "reference/markdown-extras.md": {
+        "file": "./reference/markdown-extras.md",
+        "frontmatter": {
+            "title": "Markdown extras",
+            "description": "GitHub-flavoured tables with alignment, task lists, footnotes, strikethrough and hard breaks.",
+            "icon": "text"
+        },
+        "headings": [
+            {
+                "level": 2,
+                "text": "Tables"
+            },
+            {
+                "level": 2,
+                "text": "Task lists"
+            },
+            {
+                "level": 2,
+                "text": "Footnotes"
+            },
+            {
+                "level": 2,
+                "text": "Strikethrough"
+            },
+            {
+                "level": 2,
+                "text": "Emphasis and inline code"
+            },
+            {
+                "level": 2,
+                "text": "Hard line breaks"
+            },
+            {
+                "level": 2,
+                "text": "Lists"
+            },
+            {
+                "level": 2,
+                "text": "Footnotes"
+            }
+        ],
+        "blocks": [
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Tables"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Columns can be aligned left, centre or right."
+                    }
+                ]
+            },
+            {
+                "type": "table",
+                "align": [
+                    "left",
+                    "center",
+                    "right"
+                ],
+                "head": [
+                    [
+                        {
+                            "type": "text",
+                            "value": "Command"
+                        }
+                    ],
+                    [
+                        {
+                            "type": "text",
+                            "value": "Speed"
+                        }
+                    ],
+                    [
+                        {
+                            "type": "text",
+                            "value": "Notes"
+                        }
+                    ]
+                ],
+                "rows": [
+                    [
+                        [
+                            {
+                                "type": "code",
+                                "value": "search"
+                            }
+                        ],
+                        [
+                            {
+                                "type": "text",
+                                "value": "fast"
+                            }
+                        ],
+                        [
+                            {
+                                "type": "text",
+                                "value": "reads the index only"
+                            }
+                        ]
+                    ],
+                    [
+                        [
+                            {
+                                "type": "code",
+                                "value": "reindex"
+                            }
+                        ],
+                        [
+                            {
+                                "type": "text",
+                                "value": "slow"
+                            }
+                        ],
+                        [
+                            {
+                                "type": "text",
+                                "value": "reads every file"
+                            }
+                        ]
+                    ],
+                    [
+                        [
+                            {
+                                "type": "code",
+                                "value": "export"
+                            }
+                        ],
+                        [
+                            {
+                                "type": "text",
+                                "value": "medium"
+                            }
+                        ],
+                        [
+                            {
+                                "type": "text",
+                                "value": "writes one file per note"
+                            }
+                        ]
+                    ]
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Task lists"
+                    }
+                ]
+            },
+            {
+                "type": "list",
+                "ordered": false,
+                "start": 1,
+                "tight": true,
+                "items": [
+                    {
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Install Lanternfly"
+                                    }
+                                ]
+                            }
+                        ],
+                        "checked": true
+                    },
+                    {
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Create an archive"
+                                    }
+                                ]
+                            }
+                        ],
+                        "checked": true
+                    },
+                    {
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Import the old notes"
+                                    }
+                                ]
+                            }
+                        ],
+                        "checked": false
+                    },
+                    {
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Delete the old notes folder"
+                                    }
+                                ]
+                            }
+                        ],
+                        "checked": false
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Footnotes"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Lanternfly ranks results with BM25"
+                    },
+                    {
+                        "type": "footnote_reference",
+                        "label": "bm25",
+                        "identifier": "BM25"
+                    },
+                    {
+                        "type": "text",
+                        "value": " and does not stem words"
+                    },
+                    {
+                        "type": "footnote_reference",
+                        "label": "stem",
+                        "identifier": "STEM"
+                    },
+                    {
+                        "type": "text",
+                        "value": "."
+                    }
+                ]
+            },
+            {
+                "type": "footnote_definition",
+                "label": "bm25",
+                "identifier": "BM25",
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "A ranking function that scores documents by term frequency, adjusted for document length."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "footnote_definition",
+                "label": "stem",
+                "identifier": "STEM",
+                "blocks": [
+                    {
+                        "type": "paragraph",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Searching for \"archive\" does not match \"archiving\"."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Strikethrough"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "The "
+                    },
+                    {
+                        "type": "code",
+                        "value": "--fast"
+                    },
+                    {
+                        "type": "text",
+                        "value": " flag is "
+                    },
+                    {
+                        "type": "delete",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "experimental"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": " stable since version 2.2."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Emphasis and inline code"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "strong",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "Bold"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": ", "
+                    },
+                    {
+                        "type": "emphasis",
+                        "inlines": [
+                            {
+                                "type": "text",
+                                "value": "italic"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": ", "
+                    },
+                    {
+                        "type": "emphasis",
+                        "inlines": [
+                            {
+                                "type": "strong",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "both"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "value": ", and "
+                    },
+                    {
+                        "type": "code",
+                        "value": "inline code"
+                    },
+                    {
+                        "type": "text",
+                        "value": " combine as expected."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Hard line breaks"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Two trailing spaces end a line"
+                    },
+                    {
+                        "type": "break"
+                    },
+                    {
+                        "type": "text",
+                        "value": "without starting a new paragraph."
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "Lists"
+                    }
+                ]
+            },
+            {
+                "type": "list",
+                "ordered": true,
+                "start": 1,
+                "tight": true,
+                "items": [
+                    {
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "Ordered lists count themselves."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "They can nest:"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "list",
+                                "ordered": false,
+                                "start": 1,
+                                "tight": true,
+                                "items": [
+                                    {
+                                        "blocks": [
+                                            {
+                                                "type": "paragraph",
+                                                "inlines": [
+                                                    {
+                                                        "type": "text",
+                                                        "value": "an unordered item"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "blocks": [
+                                            {
+                                                "type": "paragraph",
+                                                "inlines": [
+                                                    {
+                                                        "type": "text",
+                                                        "value": "another one"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "blocks": [
+                            {
+                                "type": "paragraph",
+                                "inlines": [
+                                    {
+                                        "type": "text",
+                                        "value": "And continue afterwards."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "thematic_break"
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "A horizontal rule, like the one above, separates unrelated content."
+                    }
+                ]
+            }
+        ]
+    }
+}
