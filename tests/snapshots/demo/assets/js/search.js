@@ -1,989 +1,647 @@
-// Search like Fumadocs: a port of zbsearch 4.0.0 (Apache-2.0) and the search
-// functions of fumadocs-core 16.15.9 (MIT) to plain JavaScript.
+// Search engine over the index src/lib/SearchIndex.php writes (search-index.json,
+// version 2; the file format is documented there). No DOM, no dependencies: it
+// runs in search-worker.js, on the main thread as a fallback, and in Node for the
+// verify tools.
 //
-// Ported:
-//   zbsearch  – tokenizer (languages `english` and `german`), replaceDiacritics,
-//               RadixNode (insert/find/findAllWords), postings, BM25,
-//               index.search, calculateResultScores, prefixExpansionDemotion,
-//               getGroups, sortTokenScorePredicate, the insertion order of
-//               insertMultipleAsync including the running avgFieldLength.
-//   fumadocs  – buildDocuments (done ahead of time by the PHP index),
-//               searchAdvanced, createContentHighlighter/highlightMarkdown.
-//   remark    – the part of mdast-util-to-markdown that highlightMarkdown needs
-//               (containerPhrasing, emphasis/strong, inlineCode).
+// Normalisation, identical to SearchIndex.php (verify/search-parity.mjs checks it):
+//   lowercase → FOLDING (ä→a, ß→ss, æ→ae …) → drop combining marks U+0300–U+036F
+//   → german only: ae/oe/ue read as a/o/u, so "Passwörter", "Passwoerter" and
+//   "passworter" meet → split at everything but a–z and 0–9. Hyphen and underscore
+//   chains also yield their joined form: "chat-export" gives chat, export, chatexport.
 //
-// No DOM, no dependencies: runs in the browser and in Node (parity test).
+// Matching, per query term ("slot"):
+//   exact word · prefix (always for the last term while it is being typed, and for
+//   terms of four or more letters) · joined neighbours ("chat export" finds
+//   "chatexport") and, the other way round, a one-word term split into two words
+//   ("codetabs" finds "code tabs") · infix inside compounds ("export" finds "datenexport") ·
+//   inflected forms of a shorter indexed word ("exportieren" finds "export") ·
+//   typos (edit distance 1, or 2 from seven letters, same first letter), tried only
+//   for terms nothing else matched.
+//
+// Ranking of pages (results are grouped by page):
+//   tier 6  the query equals the title, the frontmatter heading, the slug or
+//           "<parent breadcrumb> <title>"
+//   tier 5  the title starts with or contains the query as a phrase
+//   tier 4  every term is in the title or the path (breadcrumbs, URL segments)
+//   tier 3  one heading contains every term
+//   tier 2  every term occurs on the page (sections holding all of them score higher)
+//   tier 1  some terms occur
+//   Inside a tier: the sum over terms of the best field score, where title ≫ path,
+//   heading ≫ text, weighted by idf and by how well the word matched, plus bonuses
+//   when one section holds every term and when a heading reads exactly like the query.
+//   All weights are the constants below.
+//
+// Result rows: the page, then up to three of its sections, best matching first,
+// shown by their heading. Every row carries plain `content` and `marks`
+// ([start, end] ranges of matched words).
 
-// ---------------------------------------------------------------- Tokenizing
+export const INDEX_VERSION = 2;
 
-// From zbsearch/components/tokenizer/languages.js, copied verbatim. The splitter
-// of a language is `[^FOLDABLE_LETTERS + alphabet]+` with flags `gim`.
-// `verify/search-parity.mjs --selftest` asserts both against the package.
-// Neither profile stems or removes stopwords (the zbsearch defaults).
-const FOLDABLE_LETTERS = '\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u017F';
+/** Normalisation profiles, matching SearchIndex::TOKENIZERS. */
+export const TOKENIZERS = Object.freeze(['english', 'german']);
 
-const SPLITTER_ALPHABETS = {
-  english: "A-Za-zàèéìòóù0-9_'-",
-  // German letters are part of zbsearch's `german` alphabet; this is data, not prose.
-  german: 'a-z0-9A-ZäöüÄÖÜß',
-};
+// Folding applied after lowercasing: the first character of each entry becomes the
+// rest. SearchIndex::FOLDING carries the identical string.
+export const FOLDING =
+  'àa áa âa ãa äa åa æae çc èe ée êe ëe ìi íi îi ïi ðd ñn òo óo ôo õo öo øo ùu úu ûu üu ýy þth ÿy ßss '
+  + 'āa ăa ąa ćc ĉc ċc čc ďd đd ēe ĕe ėe ęe ěe ĝg ğg ġg ģg ĥh ħh ĩi īi ĭi įi ıi ĳij ĵj ķk ĸk ĺl ļl ľl ŀl łl '
+  + 'ńn ņn ňn ŉn ŋn ōo ŏo őo œoe ŕr ŗr řr śs ŝs şs šs ţt ťt ŧt ũu ūu ŭu ůu űu ųu ŵw ŷy źz żz žz ſs';
 
-/** Splitter per profile, built exactly like zbsearch's `SPLITTERS`. */
-export const SPLITTERS = Object.freeze(
-  Object.fromEntries(
-    Object.entries(SPLITTER_ALPHABETS).map(([language, alphabet]) => [
-      language,
-      new RegExp(`[^${FOLDABLE_LETTERS}${alphabet}]+`, 'gim'),
-    ]),
-  ),
-);
+export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
-/** The profiles this port supports, matching `SearchIndex::TOKENIZERS` in PHP. */
-export const TOKENIZERS = Object.freeze(Object.keys(SPLITTER_ALPHABETS));
+export const FIELD_TITLE = 1;
+export const FIELD_PATH = 2;
+export const FIELD_HEADING = 4;
 
-// CHARCODE_REPLACE_MAPPING from zbsearch/components/tokenizer/diacritics.js,
-// code points 192–383; `.` means: stays as it is. ß (223) becomes s.
-const DIACRITICS =
-  'A|A|A|A|A|A|A|C|E|E|E|E|I|I|I|I|E|N|O|O|O|O|O|.|O|U|U|U|U|Y|P|s|a|a|a|a|a|a|a|c|e|e|e|e|i|i|i|i|e|n|o|o|o|o|o|.|o|u|u|u|u|y|p|y|A|a|A|a|A|a|C|c|C|c|C|c|C|c|D|d|D|d|E|e|E|e|E|e|E|e|E|e|G|g|G|g|G|g|G|g|H|h|H|h|I|i|I|i|I|i|I|i|I|i|I|i|J|j|K|k|k|L|l|L|l|L|l|L|l|L|l|N|n|N|n|N|n|n|N|n|O|o|O|o|O|o|O|o|R|r|R|r|R|r|S|s|S|s|S|s|S|s|T|t|T|t|T|t|U|u|U|u|U|u|U|u|U|u|U|u|W|w|Y|y|Y|Z|z|Z|z|Z|z|s'.split(
-    '|',
-  );
+export const MAX_PAGES = 10;
+export const MAX_CHILDREN = 3;
 
-// EXTRA_FOLDINGS (Cyrillic/Arabic), for completeness.
-const EXTRA_FOLDINGS = {
-  1025: 'Е',
-  1105: 'е',
-  1570: 'ا',
-  1571: 'ا',
-  1573: 'ا',
-  1609: 'ي',
-  1649: 'ا',
-};
+const MAX_TERMS = 8;
+const PREFIX_MIN_NON_LAST = 4;   // earlier terms match as prefixes from this length
+const PREFIX_LIMIT = 400;        // prefix expansions per term, most frequent first
+const INFIX_MIN = 4;
+const INFIX_LIMIT = 48;
+const TYPO_MIN = 4;
+const TYPO_LIMIT = 12;
+const SPLIT_MIN = 6;             // one-word terms from this length may split into two words
+const STEM_MIN = 5;              // shortest indexed word a longer term may extend
+const DETAIL_LIMIT = 60;         // pages that get the tier check
+const SAME_SECTION_BONUS = 40;   // every term inside one section
+const EXACT_HEADING_BONUS = 40;  // a heading that reads exactly like the query
 
-function replaceChar(code) {
-  if (code >= 192 && code <= 383) {
-    const replacement = DIACRITICS[code - 192];
-    return replacement === '.' ? code : replacement.charCodeAt(0);
-  }
-  const extra = EXTRA_FOLDINGS[code];
-  return extra === undefined ? code : extra.charCodeAt(0);
+// Field scores: title ≫ path ≈ heading ≫ text (by number of text blocks, saturating).
+const WEIGHT_TITLE = 12;
+const WEIGHT_PATH = 5;
+const WEIGHT_HEADING = 5;
+const WEIGHT_TEXT = [0, 1, 1.5, 1.8, 2.1, 2.3, 2.5, 2.6];
+
+// ------------------------------------------------------------------ Normalising
+
+const FOLD_MAP = new Map(FOLDING.split(' ').map((entry) => [entry[0], entry.slice(1)]));
+const FOLD_CHARS = /[\u00df-\u017f]/g;
+const COMBINING = /[\u0300-\u036f]+/g;
+const SEPARATORS = /[^a-z0-9]+/;
+const CHAINS = /[a-z0-9]+(?:[-_][a-z0-9]+)+/g;
+
+/** Lowercase, folded and, for `german`, with ae/oe/ue read as a/o/u. */
+export function normalize(text, tokenizer = 'english') {
+  let normal = String(text).toLowerCase().replace(FOLD_CHARS, (char) => FOLD_MAP.get(char) ?? char).replace(COMBINING, '');
+  if (tokenizer === 'german') normal = normal.replace(/([aou])e/g, '$1');
+  return normal;
 }
 
-function replaceDiacritics(str) {
-  const len = str.length;
-  for (let idx = 0; idx < len; idx++) {
-    const code = str.charCodeAt(idx);
-    if (code < 192) continue;
-    const replaced = replaceChar(code);
-    if (replaced === code) continue;
-    const codes = new Array(len);
-    for (let j = 0; j < idx; j++) codes[j] = str.charCodeAt(j);
-    codes[idx] = replaced;
-    for (let j = idx + 1; j < len; j++) codes[j] = replaceChar(str.charCodeAt(j));
-    return String.fromCharCode(...codes);
-  }
-  return str;
-}
-
-/**
- * `tokenize` for `language: 'english'` or `'german'`: no stopwords, no stemmer,
- * no duplicates.
- */
-export function tokenize(input, language = 'english') {
-  const splitter = SPLITTERS[language];
-  if (!splitter) throw new Error(`search.js: unknown tokenizer "${language}"`);
-  const parts = String(input).toLowerCase().split(splitter);
-  const tokens = [];
-  for (const part of parts) {
-    if (!part) continue;
-    const token = replaceDiacritics(part);
-    if (token) tokens.push(token);
-  }
-  return Array.from(new Set(tokens));
-}
-
-// ------------------------------------------------------------------ Radix tree
-
-class RadixNode {
-  constructor(key, subWord, end) {
-    this.k = key;
-    this.s = subWord;
-    this.c = new Map();
-    this.e = end;
-    this.w = '';
-    this.d = undefined;
-  }
-
-  addDocumentToPostings(postings, docID) {
-    let list = this.d;
-    if (list) {
-      list.push(docID);
-      return;
+/** Words of a text in order, with duplicates, followed by the joined forms of hyphen and underscore chains. */
+export function words(text, tokenizer = 'english') {
+  const normal = normalize(text, tokenizer);
+  const out = normal.split(SEPARATORS).filter(Boolean);
+  for (const chain of normal.match(CHAINS) ?? []) {
+    const parts = chain.split(/[-_]/);
+    out.push(parts.join(''));
+    if (parts.length > 2) {
+      for (let i = 0; i + 1 < parts.length; i++) out.push(parts[i] + parts[i + 1]);
     }
-    list = postings.get(this.w);
-    if (!list) {
-      list = [docID];
-      postings.set(this.w, list);
-      this.d = list;
-      return;
-    }
-    list.push(docID);
-    this.d = list;
-  }
-
-  getDocumentsFromPostings(postings) {
-    if (this.d) return this.d;
-    const list = postings.get(this.w);
-    if (!list) return [];
-    this.d = list;
-    return list;
-  }
-
-  findAllWords(output, postings) {
-    const stack = [this];
-    while (stack.length > 0) {
-      const node = stack.pop();
-      if (node.e) {
-        const docIDs = node.getDocumentsFromPostings(postings);
-        output[node.w] = docIDs.length > 0 ? [...docIDs] : [];
-      }
-      const children = node.c;
-      if (children.size > 0) {
-        for (const child of children.values()) stack.push(child);
-      }
-    }
-    return output;
-  }
-
-  insert(word, docId, postings) {
-    let node = this;
-    let i = 0;
-    const wordLength = word.length;
-    while (i < wordLength) {
-      const currentCharacter = word[i];
-      const childNode = node.c.get(currentCharacter);
-      if (childNode) {
-        const edgeLabel = childNode.s;
-        const edgeLabelLength = edgeLabel.length;
-        let j = 0;
-        while (
-          j < edgeLabelLength &&
-          i + j < wordLength &&
-          edgeLabel.charCodeAt(j) === word.charCodeAt(i + j)
-        ) {
-          j++;
-        }
-        if (j === edgeLabelLength) {
-          node = childNode;
-          i += j;
-          if (i === wordLength) {
-            if (!childNode.e) childNode.e = true;
-            childNode.addDocumentToPostings(postings, docId);
-            return;
-          }
-          continue;
-        }
-        const commonPrefix = edgeLabel.slice(0, j);
-        const newEdgeLabel = edgeLabel.slice(j);
-        const newWordLabel = word.slice(i + j);
-        const inbetweenNode = new RadixNode(commonPrefix[0], commonPrefix, false);
-        inbetweenNode.w = node.w + commonPrefix;
-        node.c.set(commonPrefix[0], inbetweenNode);
-        childNode.s = newEdgeLabel;
-        childNode.k = newEdgeLabel[0];
-        inbetweenNode.c.set(newEdgeLabel[0], childNode);
-        childNode.w = inbetweenNode.w + newEdgeLabel;
-        if (newWordLabel) {
-          const newNode = new RadixNode(newWordLabel[0], newWordLabel, true);
-          newNode.w = inbetweenNode.w + newWordLabel;
-          inbetweenNode.c.set(newWordLabel[0], newNode);
-          newNode.addDocumentToPostings(postings, docId);
-        } else {
-          inbetweenNode.e = true;
-          inbetweenNode.addDocumentToPostings(postings, docId);
-        }
-        return;
-      }
-      const suffix = word.slice(i);
-      const newNode = new RadixNode(currentCharacter, suffix, true);
-      newNode.w = node.w + suffix;
-      node.c.set(currentCharacter, newNode);
-      newNode.addDocumentToPostings(postings, docId);
-      return;
-    }
-    if (!node.e) node.e = true;
-    node.addDocumentToPostings(postings, docId);
-  }
-
-  /** `find` with `exact: false`, `tolerance: 0`: prefix search. */
-  find(term, postings) {
-    let node = this;
-    let i = 0;
-    const termLength = term.length;
-    while (i < termLength) {
-      const character = term[i];
-      const childNode = node.c.get(character);
-      if (!childNode) return {};
-      const edgeLabel = childNode.s;
-      const edgeLabelLength = edgeLabel.length;
-      let j = 0;
-      while (
-        j < edgeLabelLength &&
-        i + j < termLength &&
-        edgeLabel.charCodeAt(j) === term.charCodeAt(i + j)
-      ) {
-        j++;
-      }
-      if (j === edgeLabelLength) {
-        node = childNode;
-        i += j;
-      } else if (i + j === termLength) {
-        if (j === termLength - i) return childNode.findAllWords({}, postings);
-        return {};
-      } else {
-        return {};
-      }
-    }
-    return node.findAllWords({}, postings);
-  }
-}
-
-// --------------------------------------------------------------------- Ranking
-
-const BM25_PARAMS = { k: 1.2, b: 0.75, d: 0.5 };
-const PREFIX_EXPANSION_SCORE_DEMOTION = 0.5;
-
-function BM25(tf, matchingCount, docsCount, fieldLength, averageFieldLength, { k, b, d }) {
-  const idf = Math.log(1 + (docsCount - matchingCount + 0.5) / (matchingCount + 0.5));
-  return (idf * (d + tf * (k + 1))) / (tf + k * (1 - b + (b * fieldLength) / averageFieldLength));
-}
-
-function bm25Idf(documentFrequency, docsCount) {
-  return Math.log(1 + (docsCount - documentFrequency + 0.5) / (documentFrequency + 0.5));
-}
-
-function prefixExpansionDemotion(tokenDf, wordDf, docsCount) {
-  if (tokenDf === undefined) return PREFIX_EXPANSION_SCORE_DEMOTION;
-  const wordIdf = bm25Idf(wordDf, docsCount);
-  if (!wordIdf) return PREFIX_EXPANSION_SCORE_DEMOTION;
-  return PREFIX_EXPANSION_SCORE_DEMOTION * Math.min(1, bm25Idf(tokenDf, docsCount) / wordIdf);
-}
-
-function sortTokenScorePredicate(a, b) {
-  if (b[1] === a[1]) return a[0] - b[0];
-  return b[1] - a[1];
-}
-
-// ------------------------------------------------------------ Highlighting
-
-function escapeRegExp(input) {
-  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function buildRegexFromQuery(q) {
-  const trimmed = q.trim();
-  if (trimmed.length === 0) return null;
-  const terms = Array.from(new Set(trimmed.split(/\s+/).filter(Boolean)));
-  if (terms.length === 0) return null;
-  return new RegExp(`(${terms.map(escapeRegExp).join('|')})`, 'gi');
-}
-
-const ASCII_PUNCTUATION = /[!-/:-@[-`{-~]/;
-
-const NAMED_REFERENCES = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: ' ',
-};
-
-/** A character reference, or `null` when there is none at this position. */
-function decodeReference(value, start) {
-  const match = /^&(#[Xx][0-9A-Fa-f]{1,6}|#\d{1,7}|[A-Za-z][A-Za-z0-9]{1,31});/.exec(
-    value.slice(start),
-  );
-  if (!match) return null;
-  const body = match[1];
-  let char;
-  if (body[0] === '#') {
-    const code =
-      body[1] === 'x' || body[1] === 'X'
-        ? Number.parseInt(body.slice(2), 16)
-        : Number.parseInt(body.slice(1), 10);
-    if (!Number.isFinite(code) || code === 0 || code > 0x10ffff) return null;
-    char = String.fromCodePoint(code);
-  } else {
-    char = NAMED_REFERENCES[body];
-    if (char === undefined) return null;
-  }
-  return { value: char, length: match[0].length };
-}
-
-const HTML_TAG =
-  /^<(?:[A-Za-z][A-Za-z0-9-]*(?:\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\s*=\s*(?:[^\s"'=<>`]+|'[^']*'|"[^"]*"))?)*\s*\/?>|\/[A-Za-z][A-Za-z0-9-]*\s*>|!--[\s\S]*?-->)/;
-
-/**
- * Inline parser for the search index contents: character escapes, character
- * references, code spans, raw HTML and emphasis (the CommonMark delimiter
- * algorithm). Links and images never occur in the index.
- */
-function parseInline(value) {
-  const nodes = [];
-  const delimiters = [];
-  let index = 0;
-  let buffer = '';
-
-  const flush = () => {
-    if (buffer !== '') {
-      nodes.push({ type: 'text', value: buffer });
-      buffer = '';
-    }
-  };
-
-  while (index < value.length) {
-    const char = value[index];
-
-    if (char === '\\') {
-      const next = value[index + 1];
-      if (next === '\n' || next === '\r') {
-        // Hard break escape; the line ending belongs to the break.
-        flush();
-        nodes.push({ type: 'break' });
-        index = skipLinePrefix(value, index + 1 + lineEndingLength(value, index + 1));
-        continue;
-      }
-      if (next && ASCII_PUNCTUATION.test(next)) {
-        buffer += next;
-        index += 2;
-        continue;
-      }
-      buffer += char;
-      index += 1;
-      continue;
-    }
-
-    if (char === '&') {
-      const reference = decodeReference(value, index);
-      if (reference) {
-        buffer += reference.value;
-        index += reference.length;
-        continue;
-      }
-      buffer += char;
-      index += 1;
-      continue;
-    }
-
-    if (char === '`') {
-      let run = 0;
-      while (value[index + run] === '`') run++;
-      const closing = new RegExp('(^|[^`])`{' + run + '}([^`]|$)');
-      const rest = value.slice(index + run);
-      const match = closing.exec(rest);
-      if (match) {
-        const end = match.index + match[1].length;
-        let code = rest.slice(0, end);
-        if (
-          code.length > 2 &&
-          /^[ \r\n]/.test(code) &&
-          /[ \r\n]$/.test(code) &&
-          /[^ \r\n]/.test(code)
-        ) {
-          code = code.slice(1, -1);
-        }
-        flush();
-        nodes.push({ type: 'inlineCode', value: code });
-        index += run + end + run;
-        continue;
-      }
-      buffer += '`'.repeat(run);
-      index += run;
-      continue;
-    }
-
-    if (char === '<') {
-      const match = HTML_TAG.exec(value.slice(index));
-      if (match) {
-        flush();
-        nodes.push({ type: 'html', value: stripHtmlLinePrefixes(match[0]) });
-        index += match[0].length;
-        continue;
-      }
-      buffer += char;
-      index += 1;
-      continue;
-    }
-
-    if (char === '*' || char === '_') {
-      let run = 0;
-      while (value[index + run] === char) run++;
-      const before = index === 0 ? '\n' : value[index - 1];
-      const after = index + run >= value.length ? '\n' : value[index + run];
-      const beforeWhite = /\s/.test(before);
-      const afterWhite = /\s/.test(after);
-      const beforePunct = !beforeWhite && isPunctuation(before);
-      const afterPunct = !afterWhite && isPunctuation(after);
-      const leftFlanking = !afterWhite && (!afterPunct || beforeWhite || beforePunct);
-      const rightFlanking = !beforeWhite && (!beforePunct || afterWhite || afterPunct);
-      const canOpen = char === '*' ? leftFlanking : leftFlanking && (!rightFlanking || beforePunct);
-      const canClose =
-        char === '*' ? rightFlanking : rightFlanking && (!leftFlanking || afterPunct);
-
-      flush();
-      const node = { type: 'text', value: char.repeat(run) };
-      nodes.push(node);
-      delimiters.push({
-        index: nodes.length - 1,
-        char,
-        count: run,
-        original: run,
-        canOpen,
-        canClose,
-        node,
-      });
-      index += run;
-      continue;
-    }
-
-    if (char === '\n' || char === '\r') {
-      const trailing = /[ \t]*$/.exec(buffer)[0];
-      buffer = buffer.slice(0, buffer.length - trailing.length);
-      // micromark `resolveAllLineSuffixes`: two or more spaces and no tab make a break.
-      if (trailing.length >= 2 && !trailing.includes('\t')) {
-        flush();
-        nodes.push({ type: 'break' });
-      } else {
-        buffer += value.slice(index, index + lineEndingLength(value, index));
-      }
-      index = skipLinePrefix(value, index + lineEndingLength(value, index));
-      continue;
-    }
-
-    buffer += char;
-    index += 1;
-  }
-  flush();
-
-  processEmphasis(nodes, delimiters);
-
-  return mergeText(nodes);
-}
-
-function lineEndingLength(value, index) {
-  return value[index] === '\r' && value[index + 1] === '\n' ? 2 : 1;
-}
-
-/** Index after the spaces and tabs that start a paragraph continuation line. */
-function skipLinePrefix(value, index) {
-  while (value[index] === ' ' || value[index] === '\t') index++;
-  return index;
-}
-
-/**
- * Inline html keeps its line endings, but each continuation line loses up to three
- * columns of indentation (micromark `htmlText`, prefix limited to the tab size). A tab
- * that is only partly consumed leaves its remaining columns as spaces.
- */
-function stripHtmlLinePrefixes(raw) {
-  return raw.replace(/(\r?\n|\r)([ \t]+)/g, (_, eol, prefix) => {
-    let column = 0;
-    let i = 0;
-    while (i < prefix.length && column < 3) {
-      const width = prefix[i] === '\t' ? 4 - (column % 4) : 1;
-      if (column + width > 3) {
-        return eol + ' '.repeat(column + width - 3) + prefix.slice(i + 1);
-      }
-      column += width;
-      i++;
-    }
-    return eol + prefix.slice(i);
-  });
-}
-
-function isPunctuation(char) {
-  return /[!-/:-@[-`{-~]|\p{P}|\p{S}/u.test(char);
-}
-
-/** The `process emphasis` step from CommonMark. */
-function processEmphasis(nodes, delimiters) {
-  let closerIndex = 0;
-  while (closerIndex < delimiters.length) {
-    const closer = delimiters[closerIndex];
-    if (!closer.canClose || closer.count === 0) {
-      closerIndex++;
-      continue;
-    }
-    let openerIndex = closerIndex - 1;
-    let opener = null;
-    while (openerIndex >= 0) {
-      const candidate = delimiters[openerIndex];
-      if (
-        candidate.count > 0 &&
-        candidate.canOpen &&
-        candidate.char === closer.char &&
-        !((closer.canOpen || candidate.canClose) &&
-          closer.original % 3 !== 0 &&
-          (candidate.original + closer.original) % 3 === 0)
-      ) {
-        opener = candidate;
-        break;
-      }
-      openerIndex--;
-    }
-    if (!opener) {
-      closerIndex++;
-      continue;
-    }
-
-    const use = opener.count >= 2 && closer.count >= 2 ? 2 : 1;
-    const children = nodes.slice(opener.index + 1, closer.index).filter((node) => node !== null);
-    const wrapper = {
-      type: use === 2 ? 'strong' : 'emphasis',
-      children: mergeText(children.filter((node) => node.type !== 'text' || node.value !== '')),
-    };
-    opener.count -= use;
-    closer.count -= use;
-    opener.node.value = opener.char.repeat(opener.count);
-    closer.node.value = closer.char.repeat(closer.count);
-
-    for (let i = opener.index + 1; i < closer.index; i++) nodes[i] = null;
-    nodes[closer.index - 1] = wrapper;
-    // Delimiters in between are used up.
-    for (let i = openerIndex + 1; i < closerIndex; i++) delimiters[i].count = 0;
-    if (closer.count === 0) closerIndex++;
-  }
-
-  for (let i = nodes.length - 1; i >= 0; i--) {
-    if (nodes[i] === null || (nodes[i].type === 'text' && nodes[i].value === '')) nodes.splice(i, 1);
-  }
-}
-
-function mergeText(nodes) {
-  const out = [];
-  for (const node of nodes) {
-    if (node === null) continue;
-    const last = out[out.length - 1];
-    if (node.type === 'text' && last && last.type === 'text') {
-      last.value += node.value;
-      continue;
-    }
-    out.push(node);
   }
   return out;
 }
 
-// CommonMark html block start conditions 1 (raw tags), 2 (comments), 6 (block tag names, from
-// micromark-util-html-tag-name) and 7 (a complete open or closing tag alone on its line).
-const HTML_BLOCK_NAMES = new Set(
-  ('address article aside base basefont blockquote body caption center col colgroup dd details dialog dir div dl dt '
-    + 'fieldset figcaption figure footer form frame frameset h1 h2 h3 h4 h5 h6 head header hr html iframe legend li '
-    + 'link main menu menuitem nav noframes ol optgroup option p param search section summary table tbody td tfoot '
-    + 'th thead title tr track ul').split(' '),
-);
-const HTML_RAW_NAMES = new Set(['pre', 'script', 'style', 'textarea']);
-const HTML_COMPLETE_TAG_LINE =
-  /^(?:<[A-Za-z][A-Za-z0-9-]*(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*(?:[ \t]*=[ \t]*(?:[^\s"'=<>`]+|'[^'\n]*'|"[^"\n]*"))?)*[ \t]*\/?>|<\/[A-Za-z][A-Za-z0-9-]*[ \t]*>)[ \t]*$/;
+// ---------------------------------------------------------------------- Encoding
 
-/** The kind of html block the first line starts, or null. */
-function htmlBlockKind(line) {
-  const name = /^<\/?([A-Za-z][A-Za-z0-9-]*)(?=[\s/>]|$)/.exec(line);
-  const lower = name ? name[1].toLowerCase() : '';
-  if (name && line[1] !== '/' && HTML_RAW_NAMES.has(lower)) return 'raw';
-  if (/^<!--/.test(line)) return 'comment';
-  if (name && HTML_BLOCK_NAMES.has(lower)) return 'block';
-  if (HTML_COMPLETE_TAG_LINE.test(line) && !HTML_RAW_NAMES.has(lower)) return 'block';
-  return null;
-}
+const DIGITS = new Int8Array(128).fill(-1);
+for (let i = 0; i < ALPHABET.length; i++) DIGITS[ALPHABET.charCodeAt(i)] = i;
 
-/** End offset of an html block: the end of the line holding the closer, or the first blank line. */
-function htmlBlockEnd(value, kind) {
-  if (kind === 'block') {
-    const blank = /(?:\r?\n|\r)[ \t]*(?:\r?\n|\r)/.exec(value);
-    return blank ? blank.index : value.length;
+/** Posting string → Int32Array [slot, flags, slot, flags, …]. */
+export function decodePostings(posting) {
+  const out = [];
+  let slot = -1;
+  let value = 0;
+  let shift = 0;
+  let expectFlags = false;
+  for (let i = 0; i < posting.length; i++) {
+    const digit = DIGITS[posting.charCodeAt(i)];
+    if (digit === undefined || digit < 0) throw new Error(`search.js: invalid posting character ${JSON.stringify(posting[i])}`);
+    if (expectFlags) {
+      out.push(slot, digit);
+      expectFlags = false;
+    } else if (digit >= 32) {
+      value += (digit - 32) * 2 ** shift;
+      shift += 5;
+    } else {
+      slot += value + digit * 2 ** shift + 1;
+      value = 0;
+      shift = 0;
+      expectFlags = true;
+    }
   }
-  const closer = kind === 'raw' ? /<\/(?:pre|script|style|textarea)>/i : /-->/;
-  const match = closer.exec(value);
-  if (!match) return value.length;
-  const eol = /\r?\n|\r/g;
-  eol.lastIndex = match.index + match[0].length;
-  const next = eol.exec(value);
-  return next ? next.index : value.length;
+  return Int32Array.from(out);
 }
+
+/** [slot, flags] pairs in ascending slot order → posting string. */
+export function encodePostings(entries) {
+  let out = '';
+  let previous = -1;
+  for (const [slot, flags] of entries) {
+    let value = slot - previous - 1;
+    while (value >= 32) {
+      out += ALPHABET[32 + (value % 32)];
+      value = Math.floor(value / 32);
+    }
+    out += ALPHABET[value] + ALPHABET[flags];
+    previous = slot;
+  }
+  return out;
+}
+
+/** The front-coded "words" string → the sorted word list. */
+export function decodeWords(coded) {
+  const out = [];
+  let previous = '';
+  for (const entry of coded.split(' ')) {
+    if (entry === '') continue;
+    previous = previous.slice(0, Number.parseInt(entry[0], 36)) + entry.slice(1);
+    out.push(previous);
+  }
+  return out;
+}
+
+/** Sorted unique words → the front-coded "words" string. */
+export function encodeWords(list) {
+  let previous = '';
+  return list.map((word) => {
+    let shared = 0;
+    const max = Math.min(word.length, previous.length, 35);
+    while (shared < max && word[shared] === previous[shared]) shared++;
+    previous = word;
+    return shared.toString(36) + word.slice(shared);
+  }).join(' ');
+}
+
+function fieldScore(flags) {
+  return (flags & FIELD_TITLE ? WEIGHT_TITLE : 0)
+    + (flags & FIELD_PATH ? WEIGHT_PATH : 0)
+    + (flags & FIELD_HEADING ? WEIGHT_HEADING : 0)
+    + WEIGHT_TEXT[flags >> 3];
+}
+
+// -------------------------------------------------------------------- Distance
 
 /**
- * Block level: an html block (for example a component tag alone on its first line) up to
- * where CommonMark ends it, followed by the rest; otherwise a paragraph.
+ * Optimal string alignment distance, or `max + 1` once it exceeds `max`. With
+ * `prefix`, the distance from `a` to the closest prefix of `b`.
  */
-function parseContent(value) {
-  const kind = htmlBlockKind(/^[^\r\n]*/.exec(value)[0]);
-  if (kind) {
-    const end = htmlBlockEnd(value, kind);
-    const html = { type: 'html', value: value.slice(0, end) };
-    const rest = value.slice(end).replace(/^(?:[ \t]*(?:\r?\n|\r))+/, '');
-    return rest === '' ? [html] : [html, ...parseContent(rest)];
+export function editDistance(a, b, max, prefix = false) {
+  const m = a.length;
+  const n = prefix ? Math.min(b.length, m + max) : b.length;
+  if (!prefix && Math.abs(n - m) > max) return max + 1;
+  let before = null;
+  let previous = new Uint8Array(n + 1);
+  for (let j = 0; j <= n; j++) previous[j] = Math.min(j, 255);
+  for (let i = 1; i <= m; i++) {
+    const current = new Uint8Array(n + 1);
+    current[0] = Math.min(i, 255);
+    let rowMin = current[0];
+    for (let j = 1; j <= n; j++) {
+      const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+      let value = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost);
+      if (i > 1 && j > 1 && a.charCodeAt(i - 1) === b.charCodeAt(j - 2) && a.charCodeAt(i - 2) === b.charCodeAt(j - 1)) {
+        value = Math.min(value, before[j - 2] + 1);
+      }
+      current[j] = value;
+      if (value < rowMin) rowMin = value;
+    }
+    if (rowMin > max) return max + 1;
+    before = previous;
+    previous = current;
   }
-  return [{ type: 'paragraph', children: parseInline(value) }];
+  if (!prefix) return previous[n];
+  let best = max + 1;
+  for (let j = Math.max(0, m - max); j <= n; j++) best = Math.min(best, previous[j]);
+  return best;
 }
 
-function classifyCharacter(char) {
-  if (char === undefined || char === '') return undefined;
-  if (/[\r\n \t]/.test(char) || /\s/.test(char)) return 1;
-  if (/\p{P}|\p{S}/u.test(char)) return 2;
-  return undefined;
-}
+// ------------------------------------------------------------------------ Engine
 
-/** `encodeInfo` from mdast-util-to-markdown. */
-function encodeInfo(outside, inside, marker) {
-  const outsideKind = classifyCharacter(outside);
-  const insideKind = classifyCharacter(inside);
-
-  if (outsideKind === undefined) {
-    return insideKind === undefined
-      ? marker === '_'
-        ? { inside: true, outside: true }
-        : { inside: false, outside: false }
-      : insideKind === 1
-        ? { inside: true, outside: true }
-        : { inside: false, outside: true };
-  }
-
-  if (outsideKind === 1) {
-    return insideKind === undefined
-      ? { inside: false, outside: false }
-      : insideKind === 1
-        ? { inside: true, outside: true }
-        : { inside: false, outside: false };
-  }
-
-  return insideKind === undefined
-    ? { inside: false, outside: false }
-    : insideKind === 1
-      ? { inside: true, outside: false }
-      : { inside: false, outside: false };
-}
-
-function encodeCharacterReference(code) {
-  return '&#x' + code.toString(16).toUpperCase() + ';';
-}
-
-function peek(node) {
-  switch (node.type) {
-    case 'html':
-      return '<';
-    case 'inlineCode':
-      return '`';
-    case 'break':
-      return '\\';
-    case 'strong':
-    case 'emphasis':
-      return '*';
-    default:
-      return '';
-  }
-}
+const RUNS = /[\p{L}\p{N}]+(?:[-_][\p{L}\p{N}]+)*/gu;
+const PARTS = /[\p{L}\p{N}]+/gu;
 
 /**
- * `containerPhrasing` from mdast-util-to-markdown, here with `peek`, because
- * `highlightMarkdown` uses the unmodified remark stringifier.
- */
-function containerPhrasing(children, info, state) {
-  const results = [];
-  let before = info.before;
-  let encodeAfter;
-
-  for (let index = 0; index < children.length; index++) {
-    const child = children[index];
-    const after = index + 1 < children.length ? peek(children[index + 1]) : info.after;
-
-    // An eol right before html (text) becomes a space, so the html isn't read as a block.
-    if (results.length > 0 && (before === '\r' || before === '\n') && child.type === 'html') {
-      results[results.length - 1] = results[results.length - 1].replace(/(\r?\n|\r)$/, ' ');
-      before = ' ';
-    }
-
-    let value = handleNode(child, { before, after }, state);
-
-    if (encodeAfter && encodeAfter === value.slice(0, 1)) {
-      value = encodeCharacterReference(encodeAfter.charCodeAt(0)) + value.slice(1);
-    }
-
-    const encodingInfo = state.attention;
-    state.attention = undefined;
-    encodeAfter = undefined;
-
-    if (encodingInfo) {
-      if (results.length > 0 && encodingInfo.before && before === results[results.length - 1].slice(-1)) {
-        results[results.length - 1] =
-          results[results.length - 1].slice(0, -1) + encodeCharacterReference(before.charCodeAt(0));
-      }
-      if (encodingInfo.after) encodeAfter = after;
-    }
-
-    results.push(value);
-    before = value.slice(-1);
-  }
-
-  return results.join('');
-}
-
-function attentionHandler(node, info, state, marker) {
-  let between = containerPhrasing(node.children, { before: marker, after: marker[0] }, state);
-
-  const open = encodeInfo(info.before.slice(-1), between.slice(0, 1), marker[0]);
-  if (open.inside) {
-    between = encodeCharacterReference(between.charCodeAt(0)) + between.slice(1);
-  }
-  const close = encodeInfo(info.after.slice(0, 1), between.slice(-1), marker[0]);
-  if (close.inside) {
-    between = between.slice(0, -1) + encodeCharacterReference(between.charCodeAt(between.length - 1));
-  }
-
-  state.attention = { after: close.outside, before: open.outside };
-  return marker + between + marker;
-}
-
-function inlineCodeHandler(node) {
-  let value = node.value || '';
-  let sequence = '`';
-  while (new RegExp('(^|[^`])' + sequence + '([^`]|$)').test(value)) sequence += '`';
-  if (
-    /[^ \r\n]/.test(value) &&
-    ((/^[ \r\n]/.test(value) && /[ \r\n]$/.test(value)) || /^`|`$/.test(value))
-  ) {
-    value = ' ' + value + ' ';
-  }
-  return sequence + value + sequence;
-}
-
-function handleNode(node, info, state) {
-  switch (node.type) {
-    case 'html':
-    case 'text':
-      return node.value;
-    case 'inlineCode':
-      return inlineCodeHandler(node);
-    case 'break':
-      return '\\\n';
-    case 'strong':
-      return attentionHandler(node, info, state, '**');
-    case 'emphasis':
-      return attentionHandler(node, info, state, '*');
-    case 'paragraph':
-      return containerPhrasing(node.children, info, state);
-    default:
-      return '';
-  }
-}
-
-function highlightInTree(nodes, regex) {
-  for (const node of nodes) {
-    if (node.type === 'text') {
-      const content = node.value;
-      let out = '';
-      let i = 0;
-      regex.lastIndex = 0;
-      for (const match of content.matchAll(regex)) {
-        if (i < match.index) out += content.substring(i, match.index);
-        out += `<mark>${match[0]}</mark>`;
-        i = match.index + match[0].length;
-      }
-      if (i < content.length) out += content.substring(i);
-      node.type = 'html';
-      node.value = out;
-      continue;
-    }
-    if (node.children) highlightInTree(node.children, regex);
-  }
-}
-
-/** `createContentHighlighter(query).highlightMarkdown(content)`. */
-export function createContentHighlighter(query) {
-  const regex = buildRegexFromQuery(query);
-  return {
-    highlightMarkdown(content) {
-      if (!regex) return content;
-      const tree = parseContent(content);
-      highlightInTree(tree, regex);
-      const state = { attention: undefined };
-      const parts = tree.map((node) => handleNode(node, { before: '\n', after: '\n' }, state));
-      return parts.join('\n\n').trim();
-    },
-  };
-}
-
-// ------------------------------------------------------------------- Search index
-
-const TYPES = ['page', 'heading', 'text'];
-
-/**
- * Builds the search from `search-index.json`.
+ * Builds the engine from a parsed search-index.json.
  *
- * @param {{base: string, tokenizer?: string, pages: Array, docs: Array}} indexJson
- *        `tokenizer` selects the splitter profile; an index without it is `english`.
- * @returns {{search: (query: string) => Array}}
+ * @returns {{
+ *   search: (query: string, options?: {pages?: number, children?: number}) => Array<{
+ *     id: string, type: 'page'|'heading', url: string, content: string,
+ *     marks: Array<[number, number]>, breadcrumbs?: string[]}>,
+ *   rankPages: (query: string) => Array<{url: string, title: string, tier: number, score: number}>,
+ * }}
  */
-export function createSearch(indexJson) {
-  const language = indexJson.tokenizer ?? 'english';
-  if (!Object.hasOwn(SPLITTERS, language)) {
-    throw new Error(`search.js: unknown tokenizer "${language}" in the search index`);
+export function createSearch(index) {
+  if (!index || index.v !== INDEX_VERSION) {
+    throw new Error(`search.js: expected a version ${INDEX_VERSION} search index, got ${JSON.stringify(index?.v ?? null)}`);
   }
-  const pages = indexJson.pages;
-  const docs = [];
-  const byId = new Map();
-
-  for (const entry of indexJson.docs) {
-    const [pageIndex, type, number, anchor, content] = entry;
-    const page = pages[pageIndex];
-    const id = number === null ? page.u : `${page.u}-${number}`;
-    const doc = {
-      id,
-      pageId: page.u,
-      type: TYPES[type],
-      content,
-      url: anchor === null ? page.u : `${page.u}#${anchor}`,
-      breadcrumbs: type === 0 ? page.b ?? undefined : undefined,
-    };
-    docs.push(doc);
-    byId.set(id, doc);
+  const tokenizer = index.tokenizer;
+  if (!TOKENIZERS.includes(tokenizer)) {
+    throw new Error(`search.js: unknown tokenizer ${JSON.stringify(tokenizer)} in the search index`);
   }
 
-  // Index like `insertMultipleAsync`: document by document, internal id = position.
-  const postings = new Map();
-  const root = new RadixNode('', '', false);
-  const frequencies = [];
-  const fieldLengths = [];
-  let avgFieldLength = 0;
+  const base = index.base;
+  const vocabulary = decodeWords(index.words);
+  const postingStrings = index.postings;
+  if (vocabulary.length !== postingStrings.length) {
+    throw new Error(`search.js: ${vocabulary.length} words but ${postingStrings.length} posting lists in the search index`);
+  }
 
-  for (let internalId = 0; internalId < docs.length; internalId++) {
-    const tokens = tokenize(docs[internalId].content, language);
-    const docsCount = internalId + 1;
-    avgFieldLength = (avgFieldLength * (docsCount - 1) + tokens.length) / docsCount;
-    fieldLengths[internalId] = tokens.length;
-    const freq = Object.create(null);
-    frequencies[internalId] = freq;
-    for (const token of tokens) {
-      if (Object.hasOwn(freq, token)) {
-        freq[token] += 1;
-      } else {
-        freq[token] = 1;
-        root.insert(token, internalId, postings);
+  // Slots: each page's own slot, then one per section (see SearchIndex.php).
+  const pages = [];
+  const slotPages = [];
+  index.pages.forEach((entry, id) => {
+    const [url, title, alternative, crumbIndex] = entry;
+    slotPages.push(id);
+    const sections = [];
+    for (let k = 4; k + 1 < entry.length; k += 2) {
+      sections.push({ anchor: entry[k], heading: entry[k + 1], slot: slotPages.length });
+      slotPages.push(id);
+    }
+    pages.push({ url, title, alternative, crumbs: crumbIndex >= 0 ? index.crumbs[crumbIndex] : null, sections, slot: slotPages.length - sections.length - 1, detail: null });
+  });
+  const pageCount = pages.length;
+  const slotPage = Int32Array.from(slotPages);
+
+  const decoded = new Array(vocabulary.length);
+  const postingsOf = (word) => (decoded[word] ??= decodePostings(postingStrings[word]));
+
+  // ---- Vocabulary lookups ----
+
+  function lowerBound(term) {
+    let lo = 0;
+    let hi = vocabulary.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (vocabulary[mid] < term) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo;
+  }
+
+  function exactWord(term) {
+    const at = lowerBound(term);
+    return at < vocabulary.length && vocabulary[at] === term ? at : -1;
+  }
+
+  // '{' sorts after every word character.
+  function prefixWords(term, limit) {
+    const from = lowerBound(term);
+    const to = lowerBound(`${term}{`);
+    const out = [];
+    for (let word = from; word < to; word++) out.push(word);
+    if (out.length > limit) {
+      out.sort((a, b) => postingStrings[b].length - postingStrings[a].length || a - b);
+      out.length = limit;
+    }
+    return out;
+  }
+
+  let joinedVocabulary = null;
+  let wordStarts = null;
+
+  // Words containing the term anywhere but at their start (those are prefixes).
+  function infixWords(term, limit) {
+    if (joinedVocabulary === null) {
+      joinedVocabulary = `\n${vocabulary.join('\n')}\n`;
+      wordStarts = new Int32Array(vocabulary.length);
+      let position = 1;
+      for (let i = 0; i < vocabulary.length; i++) {
+        wordStarts[i] = position;
+        position += vocabulary[i].length + 1;
       }
     }
+    const out = [];
+    let at = joinedVocabulary.indexOf(term, 1);
+    while (at >= 0 && out.length < limit) {
+      let lo = 0;
+      let hi = wordStarts.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1;
+        if (wordStarts[mid] <= at) lo = mid;
+        else hi = mid - 1;
+      }
+      if (wordStarts[lo] !== at) {
+        out.push(lo);
+        at = wordStarts[lo] + vocabulary[lo].length;
+      }
+      at = joinedVocabulary.indexOf(term, at + 1);
+    }
+    return out;
   }
 
-  const docsCount = docs.length;
+  function typoWords(term, prefix, limit) {
+    const max = term.length >= 7 ? 2 : 1;
+    const from = lowerBound(term[0]);
+    const to = lowerBound(`${term[0]}{`);
+    const found = [];
+    for (let word = from; word < to; word++) {
+      const candidate = vocabulary[word];
+      if (prefix ? candidate.length < term.length - max : Math.abs(candidate.length - term.length) > max) continue;
+      const distance = editDistance(term, candidate, max, prefix);
+      if (distance <= max) found.push([word, distance]);
+    }
+    found.sort((a, b) => a[1] - b[1] || postingStrings[b[0]].length - postingStrings[a[0]].length || a[0] - b[0]);
+    return found.slice(0, limit);
+  }
 
-  /** `index.search` with `threshold: 1`, `tolerance: 0`, `exact: false`, boost 1. */
-  function rank(term) {
-    const tokens = tokenize(term, language);
-    if (tokens.length === 0) return [];
+  // ---- Query ----
 
-    const resultsMap = new Map();
+  function parse(query) {
+    const normal = normalize(typeof query === 'string' ? query : '', tokenizer);
+    const terms = [...new Set(normal.split(SEPARATORS).filter(Boolean))].slice(0, MAX_TERMS);
+    // A trailing separator means the last word is complete.
+    const typing = terms.length > 0 && /[a-z0-9]$/.test(normal);
+    return { terms, typing };
+  }
 
-    for (const token of tokens) {
-      const searchResult = root.find(token, postings);
-      const termsFound = Object.keys(searchResult);
-      for (const word of termsFound) {
-        const ids = searchResult[word];
-        const boost =
-          word === token
-            ? 1
-            : prefixExpansionDemotion(searchResult[token]?.length, ids.length, docsCount);
-        const termOccurrences = postings.get(word)?.length ?? 0;
-        for (const internalId of ids) {
-          const tf = frequencies[internalId]?.[word] ?? 0;
-          const score = BM25(
-            tf,
-            termOccurrences,
-            docsCount,
-            fieldLengths[internalId],
-            avgFieldLength,
-            BM25_PARAMS,
-          );
-          resultsMap.set(
-            internalId,
-            resultsMap.has(internalId) ? resultsMap.get(internalId) + score * boost : score * boost,
-          );
+  function hasPrefix(term) {
+    const at = lowerBound(term);
+    return at < vocabulary.length && vocabulary[at].startsWith(term);
+  }
+
+  // A term typed as one word that the pages write as two ("codetabs" → code, tabs):
+  // split where the left part is a word and the right part a word (or, while typing
+  // the last term, a word prefix). The longest left part wins.
+  function splitCompounds(terms, typing) {
+    const out = [];
+    terms.forEach((term, i) => {
+      const last = typing && i === terms.length - 1;
+      if (term.length >= SPLIT_MIN && !hasPrefix(term) && infixWords(term, 1).length === 0) {
+        for (let cut = term.length - 3; cut >= 3; cut--) {
+          const right = term.slice(cut);
+          if (exactWord(term.slice(0, cut)) >= 0 && (last ? hasPrefix(right) : exactWord(right) >= 0)) {
+            out.push(term.slice(0, cut), right);
+            return;
+          }
         }
       }
-    }
-
-    const results = Array.from(resultsMap.entries()).sort((a, b) => b[1] - a[1]);
-    return results.sort(sortTokenScorePredicate);
+      out.push(term);
+    });
+    return out.slice(0, MAX_TERMS);
   }
 
-  /** `getGroups` with `properties: ['page_id']`, `maxResult: 8`. */
-  function group(sorted) {
-    const perValue = new Map();
-    const values = [];
-
-    for (let position = 0; position < sorted.length; position++) {
-      const doc = docs[sorted[position][0]];
-      const key = doc.pageId;
-      let bucket = perValue.get(key);
-      if (!bucket) {
-        bucket = [];
-        perValue.set(key, bucket);
-      }
-      if (bucket.length >= 8) continue;
-      if (bucket.length === 0) values.push(key);
-      bucket.push(position);
-    }
-
-    return values.map((value) => ({
-      value,
-      result: perValue.get(value).map((position) => ({
-        document: docs[sorted[position][0]],
-        score: sorted[position][1],
-      })),
+  function expand(terms, typing) {
+    const last = terms.length - 1;
+    const slots = terms.map((term, i) => ({
+      term,
+      prefix: (typing && i === last) || term.length >= PREFIX_MIN_NON_LAST,
+      words: new Set(),
+      candidates: [],
     }));
-  }
+    const add = (slot, word, quality) => {
+      slot.candidates.push(word, quality);
+      slot.words.add(vocabulary[word]);
+    };
 
-  /** `searchAdvanced` from fumadocs-core: the page first, its hits below it. */
-  function search(query) {
-    const term = typeof query === 'string' ? query : '';
-    if (term.length === 0) return [];
+    slots.forEach((slot, i) => {
+      const { term } = slot;
+      const exact = exactWord(term);
+      if (exact >= 0) add(slot, exact, 1);
+      if (slot.prefix) {
+        const floor = typing && i === last ? 0.6 : 0.45;
+        for (const word of prefixWords(term, PREFIX_LIMIT)) {
+          if (word !== exact) add(slot, word, floor + (0.35 * term.length) / vocabulary[word].length);
+        }
+      }
+      if (term.length >= INFIX_MIN) {
+        for (const word of infixWords(term, INFIX_LIMIT)) add(slot, word, 0.4);
+      }
+      // Inflected or extended forms of an indexed word ("exportieren" finds "export").
+      for (let cut = term.length - 1; cut >= Math.max(STEM_MIN, Math.ceil(term.length / 2)); cut--) {
+        const word = exactWord(term.slice(0, cut));
+        if (word >= 0) add(slot, word, 0.35 + (0.3 * cut) / term.length);
+      }
+    });
 
-    const sorted = rank(term);
-    const groups = group(sorted);
-    const highlighter = createContentHighlighter(term);
-    // `searchAdvanced` sets `limit: 60`, but the endpoint options override it
-    // with `limit: undefined` afterwards, so the API returns every hit.
-    const limit = Infinity;
-    const list = [];
-
-    for (const item of groups) {
-      if (list.length >= limit) break;
-      const page = byId.get(item.value);
-      if (!page) continue;
-      const entry = {
-        id: item.value,
-        type: 'page',
-        content: highlighter.highlightMarkdown(page.content),
-        url: page.url,
-      };
-      if (page.breadcrumbs !== undefined) entry.breadcrumbs = page.breadcrumbs;
-      list.push(entry);
-
-      for (const hit of item.result) {
-        if (list.length >= limit) break;
-        if (hit.document.type === 'page') continue;
-        const child = {
-          id: hit.document.id,
-          content: highlighter.highlightMarkdown(hit.document.content),
-          type: hit.document.type,
-          url: hit.document.url,
-        };
-        if (hit.document.breadcrumbs !== undefined) child.breadcrumbs = hit.document.breadcrumbs;
-        list.push(child);
+    // Neighbours written as one word satisfy both terms.
+    for (let i = 0; i < last; i++) {
+      const joined = terms[i] + terms[i + 1];
+      const found = typing && i + 1 === last ? prefixWords(joined, PREFIX_LIMIT) : [exactWord(joined)].filter((word) => word >= 0);
+      for (const word of found) {
+        const quality = vocabulary[word] === joined ? 1 : 0.6 + (0.35 * joined.length) / vocabulary[word].length;
+        add(slots[i], word, quality);
+        add(slots[i + 1], word, quality);
       }
     }
 
-    return list;
+    slots.forEach((slot, i) => {
+      if (slot.candidates.length > 0 || slot.term.length < TYPO_MIN) return;
+      for (const [word, distance] of typoWords(slot.term, typing && i === last, TYPO_LIMIT)) {
+        add(slot, word, distance === 1 ? 0.5 : 0.3);
+      }
+    });
+
+    return slots;
   }
 
-  return { search };
+  function matchesSlot(slot, word) {
+    return slot.words.has(word) || (slot.prefix && word.startsWith(slot.term));
+  }
+
+  // ---- Per-page detail for the tier check, computed once per page on demand ----
+
+  const plainWords = (text) => normalize(text, tokenizer).split(SEPARATORS).filter(Boolean);
+
+  function detailOf(page) {
+    if (page.detail) return page.detail;
+    const titleWords = plainWords(page.title);
+    const slug = page.url.slice(base.length).split('/').filter(Boolean).at(-1) ?? '';
+    const parent = page.crumbs && page.crumbs.length > 1 ? page.crumbs.at(-1) : '';
+    page.detail = {
+      titleWords,
+      headings: page.sections.map((section) => (section.heading === null ? '' : plainWords(section.heading).join(''))),
+      joined: [
+        titleWords.join(''),
+        page.alternative === null ? '' : plainWords(page.alternative).join(''),
+        plainWords(slug).join(''),
+        parent ? plainWords(parent).join('') + titleWords.join('') : '',
+      ].filter(Boolean),
+    };
+    return page.detail;
+  }
+
+  function isPhrase(sequence, terms, typing) {
+    const last = terms.length - 1;
+    for (let start = 0; start + terms.length <= sequence.length; start++) {
+      let ok = true;
+      for (let k = 0; k <= last && ok; k++) {
+        const word = sequence[start + k];
+        ok = typing && k === last ? word.startsWith(terms[k]) : word === terms[k];
+      }
+      if (ok) return true;
+    }
+    return false;
+  }
+
+  // Terms found in a section: 1 in its heading, 2 in its text.
+  function sectionTerms(sectionHits, section, width, mask) {
+    let count = 0;
+    for (let i = 0; i < width; i++) if (sectionHits[section.slot * width + i] & mask) count++;
+    return count;
+  }
+
+  function rank(query) {
+    const parsed = parse(query);
+    if (parsed.terms.length === 0) return null;
+    const { typing } = parsed;
+    const terms = splitCompounds(parsed.terms, typing);
+    const slots = expand(terms, typing);
+    const width = slots.length;
+    const scores = new Float64Array(pageCount * width);
+    const fields = new Uint8Array(pageCount * width);
+    const sectionHits = new Uint8Array(slotPage.length * width);
+    const seen = new Uint8Array(pageCount);
+    const touched = [];
+
+    slots.forEach((slot, i) => {
+      const { candidates } = slot;
+      for (let c = 0; c < candidates.length; c += 2) {
+        const list = postingsOf(candidates[c]);
+        let pagesWithWord = 0;
+        for (let e = 0, previous = -1; e < list.length; e += 2) {
+          if (slotPage[list[e]] !== previous) {
+            previous = slotPage[list[e]];
+            pagesWithWord++;
+          }
+        }
+        const weight = candidates[c + 1] * Math.log(1 + pageCount / pagesWithWord);
+
+        // Entries of one page are adjacent; their flags add up to one page score.
+        let page = -1;
+        let flags = 0;
+        let texts = 0;
+        const flush = () => {
+          if (page < 0) return;
+          const at = page * width + i;
+          const score = weight * fieldScore(flags | (Math.min(texts, 7) << 3));
+          if (score > scores[at]) scores[at] = score;
+          fields[at] |= flags;
+          if (!seen[page]) {
+            seen[page] = 1;
+            touched.push(page);
+          }
+        };
+        for (let e = 0; e < list.length; e += 2) {
+          const id = list[e];
+          const value = list[e + 1];
+          if (slotPage[id] !== page) {
+            flush();
+            page = slotPage[id];
+            flags = 0;
+            texts = 0;
+          }
+          flags |= value & 7;
+          texts += value >> 3;
+          if (id !== pages[page].slot) sectionHits[id * width + i] |= (value & FIELD_HEADING ? 1 : 0) | (value >> 3 ? 2 : 0);
+        }
+        flush();
+      }
+    });
+
+    const candidates = touched.map((page) => {
+      let matched = 0;
+      let inTitleOrPath = 0;
+      let score = 0;
+      for (let i = 0; i < width; i++) {
+        const value = scores[page * width + i];
+        if (value > 0) {
+          matched++;
+          score += value;
+          if (fields[page * width + i] & (FIELD_TITLE | FIELD_PATH)) inTitleOrPath++;
+        }
+      }
+      return { page, matched, inTitleOrPath, score, tier: 0 };
+    });
+    candidates.sort((a, b) => b.matched - a.matched || b.score - a.score || a.page - b.page);
+    const ranked = candidates.slice(0, DETAIL_LIMIT);
+
+    const joinedQuery = terms.join('');
+    for (const candidate of ranked) {
+      const page = pages[candidate.page];
+      const detail = detailOf(page);
+      const all = candidate.matched === width;
+      if (width > 1 && all && page.sections.some((section) => sectionTerms(sectionHits, section, width, 3) === width)) {
+        candidate.score += SAME_SECTION_BONUS;
+      }
+      if (detail.headings.includes(joinedQuery)) candidate.score += EXACT_HEADING_BONUS;
+      candidate.score = Math.min(candidate.score, 999);
+      if (detail.joined.includes(joinedQuery)) candidate.tier = 6;
+      else if (typing && joinedQuery.length >= 2 && detail.joined.some((joined) => joined.startsWith(joinedQuery))) candidate.tier = 5;
+      else if (isPhrase(detail.titleWords, terms, typing)) candidate.tier = 5;
+      else if (candidate.inTitleOrPath === width) candidate.tier = 4;
+      else if (all && page.sections.some((section) => sectionTerms(sectionHits, section, width, 1) === width)) candidate.tier = 3;
+      else candidate.tier = all ? 2 : 1;
+    }
+    ranked.sort((a, b) => b.tier - a.tier || b.score - a.score || a.page - b.page);
+    return { slots, ranked, sectionHits, width };
+  }
+
+  // ---- Rows ----
+
+  function marksOf(text, slots) {
+    const marks = [];
+    const hit = (piece) => words(piece, tokenizer).some((word) => slots.some((slot) => matchesSlot(slot, word)));
+    for (const run of text.matchAll(RUNS)) {
+      const chain = run[0];
+      // A chain like "Chat-Export" is marked whole when its joined form matched.
+      if (/[-_]/.test(chain) && hit(chain.replace(/[-_]/g, ''))) {
+        marks.push([run.index, run.index + chain.length]);
+        continue;
+      }
+      for (const part of chain.matchAll(PARTS)) {
+        if (hit(part[0])) marks.push([run.index + part.index, run.index + part.index + part[0].length]);
+      }
+    }
+    return marks;
+  }
+
+  function childRows(page, result, limit) {
+    const { slots, sectionHits, width } = result;
+    const rows = [];
+    page.sections.forEach((section, order) => {
+      // Text before the first heading belongs to the page row.
+      if (section.anchor === null || section.heading === null) return;
+      const inSection = sectionTerms(sectionHits, section, width, 3);
+      if (inSection === 0) return;
+      rows.push({ section, order, inSection, inHeading: sectionTerms(sectionHits, section, width, 1) });
+    });
+    if (rows.length === 0) return [];
+    rows.sort((a, b) => b.inSection - a.inSection || b.inHeading - a.inHeading || a.order - b.order);
+    const best = rows[0].inSection;
+    return rows
+      .filter((row) => row.inSection === best || row.inHeading > 0)
+      .slice(0, limit)
+      .map(({ section }) => {
+        const url = `${page.url}#${section.anchor}`;
+        return { id: url, type: 'heading', url, content: section.heading, marks: marksOf(section.heading, slots) };
+      });
+  }
+
+  /** Result rows for the dialog: each page followed by its best matching sections. */
+  function search(query, { pages: maxPages = MAX_PAGES, children = MAX_CHILDREN } = {}) {
+    const result = rank(query);
+    if (result === null) return [];
+    const items = [];
+    for (const { page: id } of result.ranked.slice(0, maxPages)) {
+      const page = pages[id];
+      const item = { id: page.url, type: 'page', url: page.url, content: page.title, marks: marksOf(page.title, result.slots) };
+      if (page.crumbs) item.breadcrumbs = page.crumbs;
+      items.push(item, ...childRows(page, result, children));
+    }
+    return items;
+  }
+
+  /** Ranked pages with tier and score, for tests and tools. */
+  function rankPages(query) {
+    const result = rank(query);
+    if (result === null) return [];
+    return result.ranked.map(({ page, tier, score }) => ({ url: pages[page].url, title: pages[page].title, tier, score }));
+  }
+
+  return { search, rankPages };
 }
 
 export default createSearch;
