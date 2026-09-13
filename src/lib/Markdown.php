@@ -506,6 +506,10 @@ final class Markdown
                 throw new MarkdownException($file, $no, 'Frontmatter key "' . $key . '" appears twice.');
             }
 
+            if ($key === 'keywords') {
+                [$data[$key], $i] = self::keywordsValue($lines, $i, $end, $m[2], $file, $no);
+                continue;
+            }
             $data[$key] = self::frontmatterValue($m[2], $file, $no);
         }
 
@@ -516,6 +520,85 @@ final class Markdown
         array_splice($lines, 0, $end + 1);
 
         return $data;
+    }
+
+    /**
+     * `keywords` as a scalar ("a, b"), a flow list ([a, "b"]) or a block list ("- a" lines
+     * below the key). Lists are joined to "a, b", so all three index the same.
+     *
+     * @param list<array{text:string,no:int,raw:string,col:int}> $lines
+     * @return array{0:string,1:int} the value and the index of its last line
+     */
+    private static function keywordsValue(array $lines, int $i, int $end, string $value, string $file, int $no): array
+    {
+        $value = trim($value);
+        if ($value === '') {
+            $items = [];
+            while ($i + 1 < $end && preg_match('/^[ \t]*-(?:[ \t]+(.*))?$/', rtrim($lines[$i + 1]['text']), $item) === 1) {
+                $i++;
+                $items[] = self::keywordItem($item[1] ?? '', $file, $lines[$i]['no']);
+            }
+
+            return [implode(', ', $items), $i];
+        }
+        if ($value[0] !== '[') {
+            return [self::frontmatterValue($value, $file, $no), $i];
+        }
+        if (!str_ends_with($value, ']')) {
+            throw new MarkdownException($file, $no, 'keywords: a list is written as [a, b] on one line or as "- a" lines below the key.');
+        }
+
+        $inner = trim(substr($value, 1, -1));
+        $items = [];
+        if ($inner !== '') {
+            // Split at commas outside quotes.
+            $current = '';
+            $quote = null;
+            for ($k = 0, $n = strlen($inner); $k < $n; $k++) {
+                $char = $inner[$k];
+                if ($quote !== null) {
+                    $current .= $char;
+                    if ($char === '\\' && $k + 1 < $n) {
+                        $current .= $inner[++$k];
+                    } elseif ($char === $quote) {
+                        $quote = null;
+                    }
+                } elseif ($char === ',') {
+                    $items[] = self::keywordItem($current, $file, $no);
+                    $current = '';
+                } else {
+                    if ($char === '"' || $char === "'") {
+                        $quote = $char;
+                    }
+                    $current .= $char;
+                }
+            }
+            if ($quote !== null) {
+                throw new MarkdownException($file, $no, 'keywords: a quoted list item is never closed with ' . $quote . '.');
+            }
+            $items[] = self::keywordItem($current, $file, $no);
+        }
+
+        return [implode(', ', $items), $i];
+    }
+
+    /** One keywords list item: a plain or quoted string, not empty, not a nested list or object. */
+    private static function keywordItem(string $raw, string $file, int $no): string
+    {
+        $raw = trim($raw);
+        if ($raw === '' || $raw[0] === '[' || $raw[0] === '{') {
+            throw new MarkdownException(
+                $file,
+                $no,
+                'keywords: list items must be non-empty strings, as in keywords: [download, "dark mode"] or keywords: "download, dark mode".'
+            );
+        }
+        $item = trim(self::frontmatterValue($raw, $file, $no));
+        if ($item === '') {
+            throw new MarkdownException($file, $no, 'keywords: list items must be non-empty strings.');
+        }
+
+        return $item;
     }
 
     private static function frontmatterValue(string $value, string $file, int $no): string
