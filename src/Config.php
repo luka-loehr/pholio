@@ -22,6 +22,18 @@ require_once __DIR__ . '/I18n.php';
  * Public keys are snake_case and documented in docs/configuration.md. The
  * internal keys are camelCase so the two can never be confused in code.
  *
+ * Project convention. Every key has a default, so a directory laid out like
+ * this builds without a config file (Config::forDirectory()):
+ *
+ *   my-docs/
+ *     pholio.config.php   optional
+ *     content/            Markdown pages and meta.json files   (content_dir)
+ *     assets/             images and files, served at /assets/  (default copy)
+ *     public/             the built site                        (output_dir)
+ *
+ * The theme's own CSS, JavaScript and fonts go to /pholio/ (asset_base), so
+ * they never collide with files in assets/.
+ *
  * Internal shape (the contract; components and libraries rely on it)
  * ---------------------------------------------------------------------
  *
@@ -60,8 +72,10 @@ require_once __DIR__ . '/I18n.php';
  *                                   null: sizes are measured relative to contentDir
  *     frontmatterAliases: array<string,string>, e.g. ["stand" => "updated"]
  *   },
- *   copy: list<array{from:string, to:string}>, absolute source dir => URL dir, copied verbatim
- *                                   without *.md files
+ *   copy: list<array{from:string, to:string, optional:bool}>, absolute source dir => URL dir,
+ *                                   copied verbatim without *.md files. Without a `copy` key the
+ *                                   default is assets/ => {home}/assets, optional (skipped when
+ *                                   the directory does not exist); configured entries must exist
  *   keep: list<string>,             paths relative to outDir that Pholio neither writes nor
  *                                   reports in `check`; a directory covers everything below it
  *
@@ -129,6 +143,11 @@ final class Config
 {
     public const DEFAULT_FILE = 'pholio.config.php';
 
+    /** Directory names of the project convention, relative to the project directory. */
+    public const CONTENT_DIR = 'content';
+    public const ASSETS_DIR = 'assets';
+    public const OUTPUT_DIR = 'public';
+
     /** Content-Security-Policy written into the generated .htaccess by default. */
     public const DEFAULT_CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
         . "img-src 'self' data:; media-src 'self'; font-src 'self' data:; connect-src 'self'; "
@@ -155,7 +174,7 @@ final class Config
         $card = ['title' => 'string!', 'description' => ['string', ''], 'href' => 'string!', 'icon' => ['?string', null]];
 
         return [
-            'title' => 'string!',
+            'title' => ['string', 'Documentation'],
             'title_template' => ['string', '{title} – {site}'],
             'logo' => ['?string', null],
             'logo_size' => ['int', 24],
@@ -164,12 +183,12 @@ final class Config
             'base_path' => ['string', '/'],
             'docs_path' => ['?string', null],
             'docs_root_suffix' => ['?string', null],
-            'asset_base' => ['string', 'assets/'],
+            'asset_base' => ['string', 'pholio/'],
             'language' => ['string', 'en'],
             'translations' => ['map<string>', []],
 
-            'content_dir' => 'string!',
-            'output_dir' => 'string!',
+            'content_dir' => ['string', self::CONTENT_DIR],
+            'output_dir' => ['string', self::OUTPUT_DIR],
             'content' => [
                 'extensions' => ['list<string>', ['md']],
                 'link_prefix' => ['?string', null],
@@ -303,6 +322,28 @@ final class Config
     }
 
     /**
+     * The configuration of a project directory: its pholio.config.php when there
+     * is one, otherwise the convention defaults with paths relative to $dir.
+     *
+     * @param array<string, string> $overrides
+     * @return array<string, mixed>
+     * @throws ConfigException
+     */
+    public static function forDirectory(string $dir, ?string $profile = null, array $overrides = []): array
+    {
+        $dir = rtrim(self::absolute($dir, (string) getcwd()), '/');
+        if (!is_dir($dir)) {
+            throw new ConfigException('project directory not found: ' . $dir);
+        }
+        $file = $dir . '/' . self::DEFAULT_FILE;
+        if (is_file($file)) {
+            return self::load($file, $profile, $overrides);
+        }
+
+        return self::fromArray([], $dir, null, $profile, $overrides);
+    }
+
+    /**
      * Normalise a configuration array. Relative paths resolve against $baseDir.
      *
      * @param array<string, mixed> $raw
@@ -345,13 +386,14 @@ final class Config
         foreach ($overrides as $keyPath => $value) {
             $raw = self::override($raw, $schema, (string) $keyPath, $value, $configFile);
         }
+        $defaultCopy = !array_key_exists('copy', $raw);
 
         $c = self::validate($raw, $schema, '', $configFile);
         foreach (self::planned() as [$plannedPath, $allowed]) {
             self::checkPlanned($c, $plannedPath, $allowed, '', $configFile);
         }
 
-        return self::build($c, $baseDir, $configFile, $profile);
+        return self::build($c, $baseDir, $configFile, $profile, $defaultCopy);
     }
 
     // ------------------------------------------------------------ validation
@@ -585,7 +627,7 @@ final class Config
      * @param array<string, mixed> $c validated public config with defaults
      * @return array<string, mixed>
      */
-    private static function build(array $c, string $baseDir, ?string $configFile, ?string $profile): array
+    private static function build(array $c, string $baseDir, ?string $configFile, ?string $profile, bool $defaultCopy = false): array
     {
         $language = $c['language'];
         try {
@@ -666,8 +708,11 @@ final class Config
         }
 
         $copy = [];
+        if ($defaultCopy) {
+            $copy[] = ['from' => $baseDir . '/' . self::ASSETS_DIR, 'to' => (string) $url('{home}/' . self::ASSETS_DIR), 'optional' => true];
+        }
         foreach ($c['copy'] as $from => $to) {
-            $copy[] = ['from' => rtrim((string) $path((string) $from), '/'), 'to' => (string) $url($to)];
+            $copy[] = ['from' => rtrim((string) $path((string) $from), '/'), 'to' => (string) $url($to), 'optional' => false];
         }
 
         $indexPath = trim($c['search']['index_path'], '/');
