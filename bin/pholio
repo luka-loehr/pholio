@@ -4,25 +4,14 @@
 declare(strict_types=1);
 
 /**
- * Pholio CLI entry point.
- *
- * The generator itself is not in this repository yet: it is moved here from
- * the repository it was first developed in, with `git subtree split`, so that
- * the one-file-per-commit history survives the move. Until then this stub exists
- * only so the entry point, its path and its exit codes are already fixed.
- *
- * Planned commands:
- *   pholio build [--config <file>] [--check] [--dev] [--only <slug>]
- *   pholio serve [--port 8080]
- *   pholio init  [--config <file>]
+ * Pholio command-line entry point. See `pholio --help` and src/Cli.php.
  */
 
-fwrite(STDERR, <<<TXT
-pholio: not yet wired.
+if (PHP_VERSION_ID < 80200) {
+    fwrite(STDERR, 'pholio: PHP 8.2 or newer is required, this is ' . PHP_VERSION . "\n");
+    exit(2);
+}
 
-The generator source (src/, theme/) has not been moved into this repository
-yet. See README.md, section 7 "Decision record", and docs/roadmap.md.
+require __DIR__ . '/../src/Cli.php';
 
-TXT);
-
-exit(1);
+exit(Pholio\Cli::main($argv));
