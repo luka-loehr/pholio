@@ -29,7 +29,7 @@
   {
     "selector": "svg[role=\"progressbar\"]",
     "attribute": "aria-valuenow",
-    "reason": "The progress ring in the table of contents popover shows the share of headings already read: (last active entry + 1) / count. Which entries are active is decided by the IntersectionObserver of fumadocs-core/toc after hydration; without JavaScript the value is 0. theme/js/toc-popover.js computes it identically."
+    "reason": "The progress ring in the table of contents popover shows the share of headings already read: (last active entry + 1) / count. Which entries are active is decided by the IntersectionObserver of the reference toc module after hydration; without JavaScript the value is 0. theme/js/toc-popover.js computes it identically."
   },
   {
     "selector": "circle.transition-all",
@@ -44,7 +44,7 @@
   {
     "selector": "a.scroll-m-4",
     "attribute": "data-active",
-    "reason": "Which table of contents entries are active is reported by the IntersectionObserver of fumadocs-core/toc (threshold 0.9, several at once possible) after the first layout; ssr.html has false everywhere. theme/js/toc.js sets the values after loading."
+    "reason": "Which table of contents entries are active is reported by the IntersectionObserver of the reference toc module (threshold 0.9, several at once possible) after the first layout; ssr.html has false everywhere. theme/js/toc.js sets the values after loading."
   },
   {
     "selector": "img[src^=/_next/static/media/]",
@@ -60,7 +60,7 @@
   {
     "selector": "div[data-open], div[data-closed]",
     "attribute": "data-folder-id",
-    "reason": "Stable key of a sidebar folder (its path in the page tree, for example guide/components), the same on every page. Fumadocs keeps the open state in React state and needs no key; the static site reloads on every navigation and stores open folders in sessionStorage. theme/js/sidebar.js and theme/js/sidebar-restore.js need a unique key because sibling folders can share a name and folders without an index page have no link target. The selector points at the reference folder wrapper (data-open or data-closed) because golden-dom.mjs checks allow entries against the reference node, which doesn't have the attribute."
+    "reason": "Stable key of a sidebar folder (its path in the page tree, for example guide/components), the same on every page. The reference keeps the open state in React state and needs no key; the static site reloads on every navigation and stores open folders in sessionStorage. theme/js/sidebar.js and theme/js/sidebar-restore.js need a unique key because sibling folders can share a name and folders without an index page have no link target. The selector points at the reference folder wrapper (data-open or data-closed) because golden-dom.mjs checks allow entries against the reference node, which doesn't have the attribute."
   },
   {
     "selector": "img[data-nimg]",
