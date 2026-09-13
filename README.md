@@ -27,7 +27,7 @@
 ## Quick start
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh
+curl -fsSL https://pholio.lukaloehr.com/install.sh | sh
 pholio init my-docs
 cd my-docs
 pholio dev      # http://127.0.0.1:8080
