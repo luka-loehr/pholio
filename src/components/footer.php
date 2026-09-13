@@ -9,7 +9,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * The page footer navigation (`layouts/notebook/page/slots/footer.js`).
+ * The page footer navigation.
  *
  * The order is the flat page list of the current root folder
  * (`Tree::footerItems()`). The block stays in the DOM even without a previous
