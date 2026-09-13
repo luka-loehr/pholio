@@ -7,8 +7,8 @@ declare(strict_types=1);
  * Pholio CLI entry point.
  *
  * The generator itself is not in this repository yet: it is moved here from
- * its original repository with `git subtree split`, so that the
- * one-file-per-commit history survives the move. Until then this stub exists
+ * the repository it was first developed in, with `git subtree split`, so that
+ * the one-file-per-commit history survives the move. Until then this stub exists
  * only so the entry point, its path and its exit codes are already fixed.
  *
  * Planned commands:
