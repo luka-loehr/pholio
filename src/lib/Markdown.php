@@ -31,11 +31,11 @@ require_once __DIR__ . '/Icons.php';
  * - code_block         {lang:?string, meta:{raw:string, title?:string, lineNumbers?:true|int,
  *                       noCopy?:true, tab?:string, tabGroup?:string}, value:string}
  *                      Fenced with ``` or ~~~. Info string as in micromark code-fenced (lang = first word,
- *                      rest = meta, escapes and entities decoded). meta as in Fumadocs:
+ *                      rest = meta, escapes and entities decoded). meta as in the reference:
  *                      remark-code-tab takes out tab/tab-group, then rehype-code parseMetaString
  *                      (title, noCopy, lineNumbers); raw is the rest ("__raw"), e.g. " {1,3-4}".
  * - code_tabs          {defaultValue:string, groupId:?string, items:[{value:string, blocks:[code_block]}]}
- *                      Consecutive code blocks with tab="…" as in Fumadocs remark-code-tab
+ *                      Consecutive code blocks with tab="…" as in the reference remark-code-tab
  *                      (a single one too). Inside <Tabs> they become <Tab value> children instead.
  * - footnote_definition {label, identifier, blocks}  (GFM, identifier as in normalizeIdentifier)
  * - component          {name, attrs, blocks, inline?:true}  components with content; inline is set only when
@@ -155,7 +155,7 @@ final class Markdown
     /** Allowed frontmatter keys. */
     private const FRONTMATTER_KEYS = ['title', 'heading', 'description', 'updated', 'full', 'icon'];
 
-    /** Allowed values of <Callout type="…">, including the Fumadocs aliases. */
+    /** Allowed values of <Callout type="…">, including the reference design's aliases. */
     private const CALLOUT_TYPES = ['info', 'warning', 'error', 'success', 'idea', 'warn', 'tip'];
 
     /**
@@ -1232,7 +1232,7 @@ final class Markdown
     }
 
     /**
-     * Meta string as in Fumadocs: remark-code-tab (tab, tab-group), then rehype-code parseMetaString
+     * Meta string as in the reference build: remark-code-tab (tab, tab-group), then rehype-code parseMetaString
      * (title, tab, noCopy, lineNumbers; the rest as __raw).
      *
      * @return array<string,mixed>
@@ -1272,7 +1272,7 @@ final class Markdown
     }
 
     /**
-     * fumadocs-core codeblock-utils parseCodeBlockAttributes: AttributeRegex with replaceAll.
+     * Reference core codeblock-utils parseCodeBlockAttributes: AttributeRegex with replaceAll.
      *
      * @param list<string> $allowed
      * @return array{rest:string,attributes:array<string,string|int|null>}
@@ -1304,7 +1304,7 @@ final class Markdown
     }
 
     /**
-     * Fumadocs remark-code-tab: consecutive code blocks with tab="…" are grouped.
+     * Reference remark-code-tab: consecutive code blocks with tab="…" are grouped.
      *
      * @param list<array<string,mixed>> $blocks
      * @return list<array<string,mixed>>
