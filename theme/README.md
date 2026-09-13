@@ -1,15 +1,19 @@
-# `theme/` — CSS, JS, fonts, icons
+# `theme/`: CSS, JavaScript, fonts
 
-Empty on purpose. The theme arrives together with the generator.
+Copied into every build below `asset_base`.
 
 | Path | What lives there |
 | --- | --- |
-| `theme/css/notebook.css` | One file, cascade order: tokens, reset, fonts, animations, layout, components, prose, utilities |
-| `theme/js/*.js` | ES modules, one per behaviour: theme, dialog, search, collapsible, popover, scroll-area, sidebar, toc, toc-popover, copy, hotkeys |
-| `theme/fonts/inter/*.woff2` | Inter, subset by `unicode-range`, plus the fallback metrics |
-| `theme/icons/*.svg` | The lucide icons actually used, extracted as path lists |
-| `theme/LICENSES/` | One licence file per vendored asset: Inter (OFL), lucide (ISC), the values derived from Tailwind (MIT), zbsearch (Apache-2.0) |
+| `theme/css/notebook.css` | Entry stylesheet. Its `@import` parts are inlined by the build into one file |
+| `theme/css/*.css` | The parts in cascade order: tokens, reset, fonts, animations, layout, components, catalogue, prose, utilities |
+| `theme/css/tokens.css` | Colour tokens, and the `/* @pholio:palette */` marker where the build writes `theme.light`, `theme.dark` and `theme.palette_css` |
+| `theme/js/*.js` | ES modules, one per behaviour: theme, dialog, search, collapsible, popover, scroll area, sidebar, tabs, table of contents, copy, hotkeys and the catalogue components; `notebook.js` wires them up |
+| `theme/js/i18n.js` | The interface strings JavaScript renders, in sync with `src/i18n/` |
+| `theme/fonts/inter/` | Inter, split by `unicode-range` |
+
+Icons and grammars are not here: lucide paths and the Shiki grammars live in
+`vendor-data/`, and the licence texts copied into each build in `licenses/`.
 
 The CSS is hand-written, value by value, from the compiled Tailwind output of
-the reference build. It is not claimed to match; the computed-style diff in
-`verify/` proves it does.
+the reference build. It is not claimed to match; the computed-style comparison
+in `verify/` measures it.
