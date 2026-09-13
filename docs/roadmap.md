@@ -23,8 +23,9 @@ settled, but a key or a message may still change before 0.1.0.
 ## Next
 
 1. **Release 0.1.0.** A release check over the whole history, then the tag.
-2. **Link and image checks.** Stop the build on an internal link to a page that
-   doesn't exist and on a missing image.
+2. **Link and image checks, after 0.1.** Stop the build on an internal link to
+   a page that doesn't exist, on a missing image and on a `Screenshot` whose
+   dark image is missing.
 3. **The planned keys.** `base_url` with canonical links, Open Graph and a
    sitemap; `theme.default_scheme` and `theme.custom_css`; `search.enabled`;
    icon links in `nav`; `strict_content`.
