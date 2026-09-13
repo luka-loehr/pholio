@@ -1,0 +1,23 @@
+Frequently asked questions (FAQ)
+
+Q: I forgot my password. What now?
+A: Click “Forgot password?” on the sign-in page. Within a few
+   minutes you receive an email with a link. The link is valid
+   for 24 hours.
+
+Q: Why can't I see the billing page?
+A: The billing page is only visible to admins. Check that
+   your account belongs to a team.
+
+Q: Can I open a ticket by phone?
+A: Yes, at +33 1 23 45 67 89 (front desk, Mon–Fri 7:30–13:00).
+
+Q: What does "C" mean on the release board?
+A: C = cancelled, R = release, M = moved.
+
+TODO: add a section about newsletters
+FIXME: screenshot is outdated
+NOTE: these lines look like markers in code comments.
+
+-- Signature --
+Docs Team, Example Press
