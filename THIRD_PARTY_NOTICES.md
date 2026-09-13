@@ -82,21 +82,25 @@ trademarks of OpenAI; Claude and the Claude logo are trademarks of Anthropic.
 Pholio uses them only to name the service a link opens, as nominative use, and
 implies no endorsement; see OpenAI's guidelines at https://openai.com/brand.
 
-## Design origin and derived values
+## Design inspiration and derived code
 
-No code from these projects is shipped. Pholio reproduces their interface and
-derives values from their compiled output, so their notices are carried here.
+Pholio's theme is inspired by the Fumadocs Notebook layout, and parts of the
+theme are derived from these projects, ported to PHP, plain CSS and vanilla
+JavaScript. Their copyright notices and licenses are carried here.
 
 | Component | Version | License | Source | What is derived | License text |
 | --- | --- | --- | --- | --- | --- |
-| Fumadocs (`fumadocs-ui`, `fumadocs-core`, `@fumadocs/tailwind`) | 16.15.9, 16.15.9, 0.1.1 | MIT, © 2023 Fuma | https://github.com/fuma-nama/fumadocs | The Notebook theme's layout, component structure, class logic, CSS token values, keyframes, prose typography; page-tree, table-of-contents and search behavior, ported to PHP and vanilla JavaScript | [`licenses/fumadocs-MIT.txt`](licenses/fumadocs-MIT.txt) |
+| Fumadocs (`fumadocs-ui`, `fumadocs-core`, `@fumadocs/tailwind`) | 16.15.9, 16.15.9, 0.1.1 | MIT, © 2023 Fuma | https://github.com/fuma-nama/fumadocs | Design inspiration for the theme. Derived: the layout, component structure, class logic, CSS token values, keyframes and prose typography; the page-tree, table-of-contents and search behavior; and the eleven color presets in `theme/presets/` (neutral, black, vitepress, dusk, catppuccin, ocean, purple, solar, emerald, ruby, aspen), ported from `fumadocs-ui/css/*.css` | [`licenses/fumadocs-MIT.txt`](licenses/fumadocs-MIT.txt) |
 | Base UI (`@base-ui/react`) | 1.8.0 | MIT, © 2019 Material-UI SAS | https://github.com/mui/base-ui | Behavior and the names and order of state attributes of dialog, popover, collapsible, scroll area, tabs, accordion and navigation menu, reimplemented in vanilla JavaScript | [`licenses/base-ui-MIT.txt`](licenses/base-ui-MIT.txt) |
 | Tailwind CSS (`tailwindcss`) | 4.3.3 | MIT, © Tailwind Labs, Inc. | https://github.com/tailwindlabs/tailwindcss | The preflight block, theme variables, `@property` registrations and layer order, taken from compiled output | [`licenses/tailwindcss-MIT.txt`](licenses/tailwindcss-MIT.txt) |
+| next-themes | 0.4.6 | MIT, © 2022 Paco Coursey | https://github.com/pacocoursey/next-themes | The theme bootstrap expression in `theme/js/theme-init.js`, shipped unchanged, and the theme switching in `theme/js/theme.js` | [`licenses/next-themes-MIT.txt`](licenses/next-themes-MIT.txt) |
+| react-medium-image-zoom | 5.4.9 | BSD-3-Clause, © 2020 Robert Pearce | https://github.com/rpearce/react-medium-image-zoom | The zoom behavior in `theme/js/image-zoom.js` and its stylesheet in `theme/css/catalogue.css` | [`licenses/react-medium-image-zoom-BSD-3-Clause.txt`](licenses/react-medium-image-zoom-BSD-3-Clause.txt) |
 
 ## Not shipped
 
-Development tooling in `verify/` uses Node and Playwright to compare builds
-against a reference. It is never part of a generated site or of the generator,
-and it installs its own dependencies with their own licenses, pinned in
+The development checks in `verify/` use Node and Playwright to test the search
+engine, the search dialog, the files for agents and the icons. They are never
+part of a generated site or of the generator, and they install their own
+dependencies with their own licenses, pinned in
 [`verify/package.json`](verify/package.json). `verify/tools/build-lucide-data.mjs`
 reads the pinned `lucide-react` from there to regenerate `vendor-data/lucide/icons.json`.
