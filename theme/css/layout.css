@@ -385,7 +385,7 @@
   /* After a collapse or expand click, width, height, offset and colour transition.
      In the reference the class `transition-[width,inset-block,translate,background-color]`
      stays until the sidebar's next state change (usually the next hover),
-     because fumadocs derives it from the previous `data-collapsed`.
+     because the reference derives it from the previous `data-collapsed`.
      js/sidebar.js reproduces exactly this lifetime with `data-collapse-transition`;
      `data-column-changed` lasts only ~2 frames and drives nothing but the
      transition of the grid columns on the layout. The duration comes from
@@ -531,7 +531,7 @@
 
   /* js/scroll-area.js creates the scrollbar and thumb of the ScrollArea. The bar
      is visible only while Base UI sets `data-hovering`; the reference has
-     `opacity-0` as a class for it (fumadocs-ui/dist/components/ui/scroll-area.js). */
+     `opacity-0` as a class for it (reference UI dist/components/ui/scroll-area.js). */
 
   /* .nd-scroll-bar  <-  flex select-none transition-opacity h-full w-1.5 */
   .nd-scroll-bar {
