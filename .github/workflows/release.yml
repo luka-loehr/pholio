@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: Tag matches VERSION and CHANGELOG
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Compare tag with VERSION
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          file_version="$(tr -d '[:space:]' < VERSION)"
+          if [ "$tag_version" != "$file_version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match VERSION ($file_version)"
+            exit 1
+          fi
+
+      - name: Find the CHANGELOG section
+        run: ./scripts/release.sh --notes "${GITHUB_REF_NAME#v}" > /dev/null
+
+  test:
+    name: PHP ${{ matrix.php }} – check
+    needs: tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, ctype
+          coverage: none
+          tools: none
+
+      - name: Check (lint, tests, demo against snapshot)
+        run: ./scripts/check.sh
+
+  release:
+    name: Publish GitHub Release
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build archives and SHA256SUMS
+        run: ./scripts/release.sh --package "$GITHUB_REF_NAME" dist
+
+      - name: Release notes from CHANGELOG.md
+        run: ./scripts/release.sh --notes "${GITHUB_REF_NAME#v}" > notes.md
+
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          prerelease=()
+          case "$version" in
+            *-*) prerelease=(--prerelease) ;;
+          esac
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --title "Pholio $version" --notes-file notes.md "${prerelease[@]}"
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "Pholio $version" \
+              --notes-file notes.md "${prerelease[@]}"
+          fi
