@@ -58,8 +58,14 @@ final class OnigRegex
         'idc' => 'ID_Continue', 'xidstart' => 'XID_Start', 'xidcontinue' => 'XID_Continue',
     ];
 
-    /** @var array<string, array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>}> */
+    /** @var array<string, array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>, disabled:bool}> */
     private static array $cache = [];
+
+    /** PCRE2 version that decides the pre-10.43 fallback; null means PCRE_VERSION. Tests set it to force the fallback. */
+    public static ?string $pcreVersion = null;
+
+    /** @var null|\Closure(string):bool whether PCRE2 compiles a pattern; null means preg_match. Tests replace it. */
+    public static ?\Closure $compiles = null;
 
     /** @var list<string> */
     private array $cp;
@@ -91,7 +97,8 @@ final class OnigRegex
     private bool $unboundedInLookbehind = false;
 
     /**
-     * @return array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>}
+     * @return array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>, disabled:bool}
+     *     disabled: the pattern never matches because this PCRE2 cannot compile it (see run())
      */
     public static function translate(string $source): array
     {
@@ -108,7 +115,13 @@ final class OnigRegex
         $this->len = count($this->cp);
     }
 
-    /** @return array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>} */
+    /** The PCRE2 version in effect, e.g. "10.47". */
+    public static function pcreVersion(): string
+    {
+        return self::$pcreVersion ?? explode(' ', PCRE_VERSION)[0];
+    }
+
+    /** @return array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>, disabled:bool} */
     private function run(): array
     {
         $this->totalGroups = $this->countCapturingGroups();
@@ -145,6 +158,7 @@ final class OnigRegex
         // Unbounded quantifiers in lookbehinds (allowed in JavaScript) need a maximum in PCRE2; the largest bound
         // with which the pattern compiles wins.
         $regex = '';
+        $disabled = false;
         foreach ([200, 100, 50, 20, 8] as $bound) {
             $this->lookbehindBound = $bound;
             $this->lookbehindDepth = 0;
@@ -164,20 +178,21 @@ final class OnigRegex
             }
             $pattern = $sticky ? '\G(?:' . $body . ')' : $body;
             $regex = '/' . str_replace('/', '\/', $pattern) . '/u';
-            if (@preg_match($regex, '') !== false) {
+            if (self::$compiles === null ? @preg_match($regex, '') !== false : (self::$compiles)($regex)) {
                 break;
             }
-            if ($this->unboundedInLookbehind && $bound === 8 && version_compare(explode(' ', PCRE_VERSION)[0], '10.43', '<')) {
-                // PCRE2 before 10.43 has no variable-length lookbehinds (in the bundled grammars this only affects
-                // the end of `using` declarations in JS/TS). Instead of failing the whole grammar, this one
-                // pattern never matches.
-                trigger_error('Highlight: PCRE2 ' . PCRE_VERSION . ' cannot compile a variable-length lookbehind, pattern '
-                    . 'disabled (PCRE2 >= 10.43 required for full parity): ' . mb_substr(implode('', $this->cp), 0, 80), E_USER_WARNING);
+            $lastAttempt = !$this->unboundedInLookbehind || $bound === 8;
+            if ($lastAttempt && version_compare(self::pcreVersion(), '10.43', '<')) {
+                // PCRE2 before 10.43 only allows lookbehinds whose alternatives each have a fixed length. With
+                // pcre2test 10.42 that rejects nine patterns of the bundled grammars (the `import` and
+                // `const`/`using` declarations of JavaScript and TypeScript, the keyword lookbehind of shellscript).
+                // Instead of failing the build, this one pattern never matches; Registry warns once per grammar.
                 $regex = '/(?!)/u';
                 $this->map = array_fill(0, $this->groupCounter, null);
+                $disabled = true;
                 break;
             }
-            if (!$this->unboundedInLookbehind || $bound === 8) {
+            if ($lastAttempt) {
                 throw new RuntimeException('Oniguruma pattern cannot be translated to PCRE: ' . implode('', $this->cp)
                     . ' => ' . $regex . ' (' . preg_last_error_msg() . ')');
             }
@@ -189,6 +204,7 @@ final class OnigRegex
             'groups' => $groups,
             'map' => $this->map,
             'transfers' => $this->transfers,
+            'disabled' => $disabled,
         ];
     }
 
