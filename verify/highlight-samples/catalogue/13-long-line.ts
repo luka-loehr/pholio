@@ -1,0 +1,1 @@
+export const veryLongConstant = { first: 'a value', second: 'another value', third: 'and one more', fourth: 'and one more', fifth: 'and one more', sixth: 'so the line is surely wider than the column' };
