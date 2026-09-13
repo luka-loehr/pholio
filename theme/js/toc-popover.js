@@ -1,6 +1,6 @@
 // toc-popover.js — the table of contents as a collapsible bar below xl.
 //
-// Source: fumadocs-ui/dist/layouts/notebook/page/slots/toc.js
+// Source: reference UI dist/layouts/notebook/page/slots/toc.js
 //   TOCPopover               – Collapsible, click outside closes, click on
 //                              an entry closes; the header row background
 //                              is fixed (transparentMode "none"), its shadow hangs
