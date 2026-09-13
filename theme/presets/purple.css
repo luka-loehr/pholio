@@ -1,6 +1,6 @@
-/* purple: built-in color preset, selected with theme.preset. */
+/* purple: built-in color preset, active while <html data-preset="purple">; theme.preset sets the initial value. */
 
-:root {
+:where(:root[data-preset="purple"]) {
   --color-fd-background: hsl(256, 100%, 96%);
   --color-fd-primary: hsl(270, 100%, 52%);
   --color-fd-border: hsla(270, 40%, 80%, 0.5);
@@ -19,7 +19,7 @@
   --color-fd-ring: hsl(270, 100%, 52%);
 }
 
-.dark {
+:where(:root[data-preset="purple"]).dark {
   --color-fd-background: hsl(256, 20%, 6%);
   --color-fd-primary: hsl(270, 100%, 86%);
   --color-fd-border: hsla(270, 50%, 40%, 0.3);
