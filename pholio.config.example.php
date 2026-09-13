@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Pholio configuration: copy this file next to your content, rename it and edit.
+ * Pholio – beautiful documentation, powered by Markdown.
  *
- *   php vendor/pholio/bin/pholio build --config docs.config.php
+ * Every key below is optional and shows its default or an example. `pholio init`
+ * writes a short pholio.config.php; this file documents the full schema. Save it
+ * as pholio.config.php in your project directory and run `pholio build`.
  *
  * The file returns one plain array. No classes, no environment lookups, no side
  * effects: the configuration is data, like the content. docs/configuration.md
@@ -27,7 +29,7 @@ return [
 
     // Logo URL shown next to the wordmark, and its size in pixels.
     // null shows the wordmark only.
-    'logo' => null, // e.g. '/images/logo.svg' with the copy entry below
+    'logo' => null, // e.g. '/assets/images/logo.svg' from the assets/ folder
     'logo_size' => 24,
 
     // Where the wordmark links.
@@ -46,8 +48,9 @@ return [
     'docs_root_suffix' => '/overview',
 
     // URL of the theme's CSS, JS, fonts and licences ({assets}). Relative to
-    // base_path unless it starts with "/" or a scheme.
-    'asset_base' => 'assets/',
+    // base_path unless it starts with "/" or a scheme. /assets/ stays free for
+    // the site's own files.
+    'asset_base' => 'pholio/',
 
     // Interface language: "en" or "de". Also picks the default search tokenizer.
     'language' => 'en',
@@ -72,10 +75,10 @@ return [
         // {docs}/... in the output. null leaves links as written.
         'link_prefix' => null,
 
-        // Image sources starting with asset_prefix are rewritten to asset_target;
-        // asset_root is the directory behind asset_target, used for image sizes.
-        // With an images/ directory next to this file:
-        //   'asset_prefix' => '/images', 'asset_target' => '/images', 'asset_root' => 'images',
+        // Only for sites with their own image layout: image sources starting with
+        // asset_prefix are rewritten to asset_target; asset_root is the directory
+        // behind asset_target, used for image sizes. Images in assets/ need none
+        // of this: write /assets/images/x.png or a path relative to the page.
         'asset_prefix' => null,
         'asset_target' => '{docs}',
         'asset_root' => null,
@@ -87,10 +90,9 @@ return [
     ],
 
     // Source directory => URL directory, copied verbatim (without *.md files).
-    // A missing source directory stops the build.
-    'copy' => [
-        // 'images' => '/images',
-    ],
+    // Without this key, assets/ is published at /assets/ when it exists. An
+    // explicit copy replaces that default, and a missing source stops the build.
+    // 'copy' => ['assets' => '/assets', 'downloads' => '/downloads'],
 
     'output' => [
         // Paths below output_dir that Pholio neither writes nor reports.
@@ -118,7 +120,7 @@ return [
             // "\n" starts a new line.
             'headline' => "Everything you need,\nin one place.",
             'lead' => 'Guides and reference, written for the people who use it.',
-            // Image URLs, e.g. '/images/hero-light.svg' with the copy entry above.
+            // Image URLs, e.g. '/assets/images/hero-light.svg'.
             'image' => null,
             'image_dark' => null,
             'icon' => null,
@@ -172,7 +174,7 @@ return [
 
     'head' => [
         'icons' => [
-            // ['rel' => 'icon', 'type' => 'image/svg+xml', 'sizes' => null, 'href' => '/images/logo.svg'],
+            // ['rel' => 'icon', 'type' => 'image/svg+xml', 'sizes' => null, 'href' => '/assets/images/logo.svg'],
         ],
         'manifest' => null,
         'theme_color' => null,
