@@ -1,10 +1,9 @@
 // catalogue-collapsible.js — the catalogue components built on Base UI Collapsible:
-// file tree (reference UI components/files.js, Folder), type table
-// (components/type-table.js, Item) and inline table of contents (components/inline-toc.js).
+// file tree (Folder), type table (row) and inline table of contents.
 //
 // Opening, closing, the height animation and mounting from <template data-collapsible-panel>
 // are done by js/collapsible.js. Only what each component adds itself lives here:
-//   · Folder: the icon switches between `folder` and `folder-open` (open ? FolderOpen : FolderIcon).
+//   · Folder: the icon switches between `folder` and `folder-open` .
 //   · TypeTable row with id: on open `history.replaceState(null, "", "#<id>")`,
 //     on start a matching hash opens the row.
 //   · InlineTOC: nothing else.
