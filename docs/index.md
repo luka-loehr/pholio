@@ -14,9 +14,9 @@ the same element tree, the same computed styles, the same animations, the same
 keyboard behaviour, proven by a diff rather than claimed in a sentence.
 
 <Callout type="info" title="Status">
-Pholio is pre-release. The generator builds its demo site, and the content
-format and configuration schema are settled; the first version is not tagged
-yet. See the [roadmap](/docs/roadmap).
+Pholio 0.1.0 builds complete documentation sites. The content format and the
+configuration schema are settled; what comes next is on the
+[roadmap](/docs/roadmap).
 </Callout>
 
 ## What you get
