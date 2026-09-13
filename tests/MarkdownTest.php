@@ -166,6 +166,32 @@ test('frontmatter: keywords are an allowed plain scalar', function (): void {
     assert_same(['title' => 'A', 'keywords' => 'download, dark mode'], $document->frontmatter);
 });
 
+test('frontmatter: keywords as a flow or block list join to the scalar form', function (): void {
+    $scalar = Markdown::parse("---\ntitle: A\nkeywords: \"download, dark mode, a, b\"\n---\n\nText", 'unit')->frontmatter;
+    $flow = Markdown::parse("---\ntitle: A\nkeywords: [download, \"dark mode\", 'a, b']\n---\n\nText", 'unit')->frontmatter;
+    $block = Markdown::parse("---\ntitle: A\nkeywords:\n  - download\n  - \"dark mode\"\n  - a, b\ndescription: D\n---\n\nText", 'unit')->frontmatter;
+    assert_same(['title' => 'A', 'keywords' => 'download, dark mode, a, b'], $scalar);
+    assert_same($scalar, $flow);
+    assert_same($scalar + ['description' => 'D'], $block);
+    assert_same('', Markdown::parse("---\ntitle: A\nkeywords: []\n---\n", 'unit')->frontmatter['keywords']);
+});
+
+test('frontmatter: other keywords values are content errors with file and line', function (): void {
+    $cases = [
+        "---\ntitle: A\nkeywords: [a, , b]\n---\n" => 3,
+        "---\ntitle: A\nkeywords: [[a], b]\n---\n" => 3,
+        "---\ntitle: A\nkeywords: {a: b}\n---\n" => 3,
+        "---\ntitle: A\nkeywords: [a, b\n---\n" => 3,
+        "---\ntitle: A\nkeywords: [\"a, b]\n---\n" => 3,
+        "---\ntitle: A\nkeywords:\n  - a\n  -\n---\n" => 5,
+    ];
+    foreach ($cases as $source => $line) {
+        $e = assert_throws(MarkdownException::class, fn() => Markdown::parse($source, 'page.md'));
+        assert_same(['page.md', $line], [$e->sourceFile, $e->sourceLine], $source);
+        assert_contains('keywords', $e->getMessage() . ' ' . $source);
+    }
+});
+
 test('frontmatter aliases map onto allowed keys in source order', function (): void {
     $document = Markdown::parse("---\ntitle: A\ndate: 2026-09-01\nicon: book\n---\n", 'unit', ['date' => 'updated']);
     assert_same(['title' => 'A', 'updated' => '2026-09-01', 'icon' => 'book'], $document->frontmatter);
