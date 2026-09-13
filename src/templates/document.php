@@ -30,9 +30,11 @@ require_once __DIR__ . '/../lib/Html.php';
  *   lang:string, preset:?string, fontClass:string, title:string, description:?string,
  *   scrollArea:bool, assetBase:string, baseUrl:string, searchIndexUrl:string,
  *   icons:list<array{rel:string, type:?string, sizes:?string, href:string}>,
- *   manifest:?string, themeColor:?string
+ *   manifest:?string, themeColor:?string, markdownUrl?:?string, robots?:?string, jsonLd?:?string
  * } $head `preset` null omits `data-preset`; `icons`, `manifest` and `themeColor`
- *   come from the `head` config and are emitted in this order after the search index.
+ *   come from the `head` config and are emitted in this order after the search index,
+ *   followed by the agent additions (lib/AgentSite.php): the alternate link to the
+ *   page's Markdown twin, `<meta name="robots">` and the JSON-LD block.
  */
 
 /** The style Base UI puts into <head> when a ScrollArea first renders. */
@@ -87,6 +89,16 @@ function nd_document(array $head, string $body): string
     }
     if ($head['themeColor'] !== null) {
         $out .= Html::voidTag('meta', ['name' => 'theme-color', 'content' => $head['themeColor']]);
+    }
+    if (($head['markdownUrl'] ?? null) !== null) {
+        $out .= Html::voidTag('link', ['rel' => 'alternate', 'type' => 'text/markdown', 'href' => $head['markdownUrl']]);
+    }
+    if (($head['robots'] ?? null) !== null) {
+        $out .= Html::voidTag('meta', ['name' => 'robots', 'content' => $head['robots']]);
+    }
+    if (($head['jsonLd'] ?? null) !== null) {
+        // A data block, not a script: the Content-Security-Policy's script-src does not apply.
+        $out .= '<script type="application/ld+json">' . $head['jsonLd'] . '</script>';
     }
     $out .= '</head>';
 
