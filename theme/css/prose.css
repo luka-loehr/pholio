@@ -515,73 +515,73 @@
 
 /* --- reference UI css/lib/shiki.css (unlayered, l. 3935–4088) --- */
 
-.shiki:not(.not-fumadocs-codeblock *) {
+.shiki:not(.not-pholio-codeblock *) {
   --padding-left: calc(var(--spacing) * 4);
   --padding-right: calc(var(--spacing) * 4);
 }
 
-.shiki:not(.not-fumadocs-codeblock *) code span {
+.shiki:not(.not-pholio-codeblock *) code span {
   color: var(--shiki-light);
   font-style: var(--shiki-light-font-style);
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .line {
+.shiki:not(.not-pholio-codeblock *) .line {
   padding-left: var(--padding-left);
   padding-right: var(--padding-right);
   position: relative;
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .line:empty {
+.shiki:not(.not-pholio-codeblock *) .line:empty {
   height: 1lh;
 }
 
-.shiki:not(.not-fumadocs-codeblock *).has-focused .line:not(.focused) {
+.shiki:not(.not-pholio-codeblock *).has-focused .line:not(.focused) {
   filter: blur(2px);
   transition: filter .2s;
 }
 
-.shiki:not(.not-fumadocs-codeblock *).has-focused:hover .line:not(.focused) {
+.shiki:not(.not-pholio-codeblock *).has-focused:hover .line:not(.focused) {
   filter: blur();
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .diff:before {
+.shiki:not(.not-pholio-codeblock *) .diff:before {
   left: calc(var(--spacing) * 1.5);
   position: absolute;
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .diff.remove {
+.shiki:not(.not-pholio-codeblock *) .diff.remove {
   opacity: .7;
   --fd-counter-color: var(--color-fd-diff-remove-symbol);
   background-color: var(--color-fd-diff-remove);
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .diff.remove:before {
+.shiki:not(.not-pholio-codeblock *) .diff.remove:before {
   content: "-";
   color: var(--color-fd-diff-remove-symbol);
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .diff.add {
+.shiki:not(.not-pholio-codeblock *) .diff.add {
   --fd-counter-color: var(--color-fd-diff-add-symbol);
   background-color: var(--color-fd-diff-add);
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .diff.add:before {
+.shiki:not(.not-pholio-codeblock *) .diff.add:before {
   content: "+";
   color: var(--color-fd-diff-add-symbol);
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .highlighted {
+.shiki:not(.not-pholio-codeblock *) .highlighted {
   --fd-counter-color: var(--color-fd-primary);
   background-color: #1717171a;
 }
 
 @supports (color: color-mix(in lab, red, red)) {
-  .shiki:not(.not-fumadocs-codeblock *) .highlighted {
+  .shiki:not(.not-pholio-codeblock *) .highlighted {
     background-color: color-mix(in oklab, var(--color-fd-primary) 10%, transparent);
   }
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .highlighted:after {
+.shiki:not(.not-pholio-codeblock *) .highlighted:after {
   content: "";
   inset-block: 0;
   border-left-style: var(--tw-border-style);
@@ -592,12 +592,12 @@
 }
 
 @supports (color: color-mix(in lab, red, red)) {
-  .shiki:not(.not-fumadocs-codeblock *) .highlighted:after {
+  .shiki:not(.not-pholio-codeblock *) .highlighted:after {
     border-color: color-mix(in oklab, var(--color-fd-primary) 50%, transparent);
   }
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .highlighted-word {
+.shiki:not(.not-pholio-codeblock *) .highlighted-word {
   border-radius: var(--radius-md);
   border-style: var(--tw-border-style);
   border-width: 1px;
@@ -607,65 +607,65 @@
 }
 
 @supports (color: color-mix(in lab, red, red)) {
-  .shiki:not(.not-fumadocs-codeblock *) .highlighted-word {
+  .shiki:not(.not-pholio-codeblock *) .highlighted-word {
     border-color: color-mix(in oklab, var(--color-fd-primary) 30%, transparent);
   }
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .highlighted-word {
+.shiki:not(.not-pholio-codeblock *) .highlighted-word {
   background-color: #1717171a;
 }
 
 @supports (color: color-mix(in lab, red, red)) {
-  .shiki:not(.not-fumadocs-codeblock *) .highlighted-word {
+  .shiki:not(.not-pholio-codeblock *) .highlighted-word {
     background-color: color-mix(in oklab, var(--color-fd-primary) 10%, transparent);
   }
 }
 
-.shiki:not(.not-fumadocs-codeblock *) .highlighted-word {
+.shiki:not(.not-pholio-codeblock *) .highlighted-word {
   --tw-font-weight: var(--font-weight-medium);
   font-weight: var(--font-weight-medium);
 }
 
-.shiki:not(.not-fumadocs-codeblock *)[data-line-numbers] .twoslash-meta-line {
+.shiki:not(.not-pholio-codeblock *)[data-line-numbers] .twoslash-meta-line {
   padding-left: calc(var(--padding-left) + 7 * var(--spacing));
 }
 
-.shiki:not(.not-fumadocs-codeblock *)[data-line-numbers] .line {
+.shiki:not(.not-pholio-codeblock *)[data-line-numbers] .line {
   counter-increment: line;
   padding-left: calc(var(--padding-left) + 7 * var(--spacing));
 }
 
-.shiki:not(.not-fumadocs-codeblock *)[data-line-numbers] .line:after {
+.shiki:not(.not-pholio-codeblock *)[data-line-numbers] .line:after {
   content: counter(line);
   color: var(--fd-counter-color, #737373);
   position: absolute;
 }
 
 @supports (color: color-mix(in lab, red, red)) {
-  .shiki:not(.not-fumadocs-codeblock *)[data-line-numbers] .line:after {
+  .shiki:not(.not-pholio-codeblock *)[data-line-numbers] .line:after {
     color: color-mix(in oklab, var(--fd-counter-color, var(--color-fd-muted-foreground)) 60%, transparent);
   }
 }
 
-.shiki:not(.not-fumadocs-codeblock *)[data-line-numbers] .line:after {
+.shiki:not(.not-pholio-codeblock *)[data-line-numbers] .line:after {
   inset-block: 0;
   width: calc(var(--spacing) * 7);
   text-align: right;
   left: 0;
 }
 
-.dark .shiki:not(.not-fumadocs-codeblock *) code span {
+.dark .shiki:not(.not-pholio-codeblock *) code span {
   color: var(--shiki-dark);
   font-style: var(--shiki-dark-font-style);
 }
 
-code.shiki:not(.not-fumadocs-code *) span {
+code.shiki:not(.not-pholio-code *) span {
   color: var(--shiki-light);
   font-style: var(--shiki-light-font-style);
 }
 
-.dark code.shiki:not(.not-fumadocs-code *) span {
+.dark code.shiki:not(.not-pholio-code *) span {
   color: var(--shiki-dark);
   font-style: var(--shiki-dark-font-style);
 }
