@@ -55,7 +55,7 @@ require_once __DIR__ . '/Icons.php';
  * (items="A|B", \| escaped), icon (lucide name from Icons::names()). MDX expressions ({…}) and
  * import/export lines fail with a hint to the Pholio notation.
  *
- * Frontmatter keys: title, heading, description, updated, full, icon. Frontmatter aliases
+ * Frontmatter keys: title, heading, description, keywords, updated, full, icon, noindex. Frontmatter aliases
  * (`content.frontmatter_aliases`, e.g. ["date" => "updated"]) map other key names onto them.
  */
 
@@ -153,7 +153,7 @@ final class Document
 final class Markdown
 {
     /** Allowed frontmatter keys. */
-    private const FRONTMATTER_KEYS = ['title', 'heading', 'description', 'keywords', 'updated', 'full', 'icon'];
+    private const FRONTMATTER_KEYS = ['title', 'heading', 'description', 'keywords', 'updated', 'full', 'icon', 'noindex'];
 
     /** Allowed values of <Callout type="…">, including the reference design's aliases. */
     private const CALLOUT_TYPES = ['info', 'warning', 'error', 'success', 'idea', 'warn', 'tip'];
@@ -511,6 +511,9 @@ final class Markdown
                 continue;
             }
             $data[$key] = self::frontmatterValue($m[2], $file, $no);
+            if ($key === 'noindex' && !in_array($data[$key], ['true', 'false'], true)) {
+                throw new MarkdownException($file, $no, 'noindex: expected true or false, got "' . $data[$key] . '".');
+            }
         }
 
         if (!isset($data['title'])) {
