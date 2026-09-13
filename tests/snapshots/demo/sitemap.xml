@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://lanternfly.example/</loc></url>
+  <url><loc>https://lanternfly.example/guide</loc></url>
+  <url><loc>https://lanternfly.example/guide/installation</loc><lastmod>2026-09-13</lastmod></url>
+  <url><loc>https://lanternfly.example/guide/writing-pages</loc></url>
+  <url><loc>https://lanternfly.example/guide/callouts-and-cards</loc></url>
+  <url><loc>https://lanternfly.example/guide/tabs-and-accordions</loc></url>
+  <url><loc>https://lanternfly.example/guide/steps-and-files</loc></url>
+  <url><loc>https://lanternfly.example/reference</loc></url>
+  <url><loc>https://lanternfly.example/reference/code-blocks</loc></url>
+  <url><loc>https://lanternfly.example/reference/api-types</loc></url>
+  <url><loc>https://lanternfly.example/reference/markdown-extras</loc></url>
+</urlset>

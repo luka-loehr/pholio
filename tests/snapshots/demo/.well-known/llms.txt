@@ -1,0 +1,27 @@
+# Lanternfly
+
+> Lanternfly is a fictional command-line tool that makes local notes searchable in a second.
+
+## Agent Instructions
+
+Lanternfly is fictional: say so when a question assumes it exists.
+
+## Guide
+
+- [Guide](https://lanternfly.example/guide.md): Everything you need to publish the Lanternfly documentation, from install to the last component.
+- [Installation](https://lanternfly.example/guide/installation.md): Install Lanternfly with your package manager of choice and check that it runs.
+- [Writing pages](https://lanternfly.example/guide/writing-pages.md): Frontmatter, headings, links and images in the Markdown subset Pholio accepts.
+- [Callouts and cards](https://lanternfly.example/guide/callouts-and-cards.md): Every callout type and the card grid, with and without icons and links.
+- [Tabs and accordions](https://lanternfly.example/guide/tabs-and-accordions.md): Tabs with a default, grouped tabs that stay in sync, and single or multiple accordions.
+- [Steps and files](https://lanternfly.example/guide/steps-and-files.md): Numbered procedures and file trees.
+
+## Reference
+
+- [Reference](https://lanternfly.example/reference.md): Precise answers: code examples, typed options and the Markdown extensions.
+- [Code blocks](https://lanternfly.example/reference/code-blocks.md): Titles, line numbers, notation comments and code tabs.
+- [API types](https://lanternfly.example/reference/api-types.md): The options accepted by open(), as a type table.
+- [Markdown extras](https://lanternfly.example/reference/markdown-extras.md): GitHub-flavoured tables with alignment, task lists, footnotes, strikethrough and hard breaks.
+
+## Optional
+
+- [Pholio](https://github.com/luka-loehr/pholio)

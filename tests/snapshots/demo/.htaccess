@@ -25,7 +25,10 @@ DirectoryIndex index.html
     AddType audio/mp4 .m4a
     AddType audio/mpeg .mp3
     AddType text/plain .txt
+    AddType text/markdown .md
+    AddType application/xml .xml
     AddType application/manifest+json .webmanifest
+    AddCharset utf-8 .md .txt
 </IfModule>
 
 <IfModule mod_headers.c>
@@ -34,8 +37,12 @@ DirectoryIndex index.html
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "accelerometer=(), bluetooth=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), serial=(), usb=()"
     Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'self'"
+    Header always set Link '</llms.txt>; rel="llms-txt", </llms-full.txt>; rel="llms-full-txt", </.well-known/agent-card.json>; rel="agent-card", </.well-known/agent-skills/index.json>; rel="agent-skills"'
+    Header always set X-Llms-Txt '/llms.txt'
+    Header always merge Vary 'Accept, User-Agent'
+    Header set Content-Type "text/plain; charset=utf-8" env=REDIRECT_PHOLIO_PLAIN
 
-    <FilesMatch "(?i)\.(?:html?|css|js|json|webmanifest|txt|svg|png|jpe?g|gif|webp|ico|pdf|m4a|mp3|mp4)$">
+    <FilesMatch "(?i)\.(?:html?|css|js|json|webmanifest|txt|md|xml|svg|png|jpe?g|gif|webp|ico|pdf|m4a|mp3|mp4)$">
         Header always set Cache-Control "no-cache, max-age=0, must-revalidate"
         Header always set Pragma "no-cache"
         Header always set Expires "0"
@@ -57,12 +64,12 @@ FileETag MTime Size
 </IfModule>
 
 <IfModule mod_authz_core.c>
-    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|md|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
+    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
         Require all denied
     </FilesMatch>
 </IfModule>
 <IfModule !mod_authz_core.c>
-    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|md|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
+    <FilesMatch "(?i)(^\.|~$|^(?:Thumbs\.db|Desktop\.ini)$|\.(?:bak|old|orig|save|swp|swo|tmp|temp|log|sql|sqlite|db|ini|env|php[0-9]?|phtml|phar|cgi|pl|py|sh|bash|zsh|exe|dll|so|dylib|jar|war|class)$)">
         Order deny,allow
         Deny from all
     </FilesMatch>
@@ -74,6 +81,25 @@ FileETag MTime Size
 
     # Old URLs: one permanent redirect per configured entry.
     RewriteRule ^docs/install$ /guide/installation [R=301,L]
+
+    # Agents: a page's Markdown twin (x.md next to x/index.html) for "Accept: text/markdown"
+    # and AI assistants' user agents, as text/plain for "Accept: text/plain".
+    RewriteCond %{HTTP_ACCEPT} text/markdown [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} (?:Claude\-User|ChatGPT\-User|OAI\-SearchBot|PerplexityBot|Perplexity\-User|Google\-Agent|MistralAI\-User|DuckAssistBot|cohere\-ai) [NC]
+    RewriteCond %{REQUEST_FILENAME}/index.md -f
+    RewriteRule ^$ index.md [L]
+    RewriteCond %{HTTP_ACCEPT} text/markdown [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} (?:Claude\-User|ChatGPT\-User|OAI\-SearchBot|PerplexityBot|Perplexity\-User|Google\-Agent|MistralAI\-User|DuckAssistBot|cohere\-ai) [NC]
+    RewriteCond %{REQUEST_FILENAME} ^(.+?)/*$
+    RewriteCond %1.md -f
+    RewriteRule ^(.+?)/?$ $1.md [L]
+    RewriteCond %{HTTP_ACCEPT} text/plain [NC]
+    RewriteCond %{REQUEST_FILENAME}/index.md -f
+    RewriteRule ^$ index.md [E=PHOLIO_PLAIN:1,L]
+    RewriteCond %{HTTP_ACCEPT} text/plain [NC]
+    RewriteCond %{REQUEST_FILENAME} ^(.+?)/*$
+    RewriteCond %1.md -f
+    RewriteRule ^(.+?)/?$ $1.md [E=PHOLIO_PLAIN:1,L]
 
     # The start page without a trailing slash.
     RewriteRule ^$ index.html [L]

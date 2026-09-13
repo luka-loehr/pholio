@@ -1,0 +1,11 @@
+{
+    "skills": [
+        {
+            "name": "lanternfly",
+            "description": "Lanternfly documentation. Lanternfly is a fictional command-line tool that makes local notes searchable in a second. Use it to answer questions about Lanternfly or to work with it; it covers Guide, Reference.",
+            "files": [
+                "SKILL.md"
+            ]
+        }
+    ]
+}

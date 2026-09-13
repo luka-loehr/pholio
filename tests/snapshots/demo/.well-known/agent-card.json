@@ -1,0 +1,36 @@
+{
+    "protocolVersion": "0.3",
+    "name": "Lanternfly",
+    "description": "Lanternfly is a fictional command-line tool that makes local notes searchable in a second.",
+    "url": "https://lanternfly.example/",
+    "preferredTransport": "HTTP+JSON",
+    "provider": {
+        "organization": "Lanternfly",
+        "url": "https://lanternfly.example"
+    },
+    "version": "1.0.0",
+    "documentationUrl": "https://lanternfly.example/",
+    "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+        "text/markdown",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "text/markdown",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "lanternfly",
+            "name": "lanternfly",
+            "description": "Lanternfly documentation. Lanternfly is a fictional command-line tool that makes local notes searchable in a second. Use it to answer questions about Lanternfly or to work with it; it covers Guide, Reference.",
+            "tags": [
+                "documentation"
+            ]
+        }
+    ]
+}

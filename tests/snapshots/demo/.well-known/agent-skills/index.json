@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+    "skills": [
+        {
+            "name": "lanternfly",
+            "type": "skill-md",
+            "description": "Lanternfly documentation. Lanternfly is a fictional command-line tool that makes local notes searchable in a second. Use it to answer questions about Lanternfly or to work with it; it covers Guide, Reference.",
+            "url": "https://lanternfly.example/.well-known/agent-skills/lanternfly/SKILL.md",
+            "digest": "sha256:6f2972244095f40b14eae98e3f499715646e5026e6f550ac866b223218cf99e9"
+        }
+    ]
+}

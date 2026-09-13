@@ -1,0 +1,564 @@
+# Lanternfly
+
+> Lanternfly is a fictional command-line tool that makes local notes searchable in a second.
+
+# Guide
+
+Source: https://lanternfly.example/guide
+
+> Everything you need to publish the Lanternfly documentation, from install to the last component.
+
+Lanternfly is an imaginary command-line tool that turns folders of notes into
+searchable archives. It does not exist. It is here so this demo site has
+something plausible to document, and so every component Pholio supports
+appears on at least one page.
+
+> This is a demo site. Lanternfly is fictional; the components are real.
+
+The banner above sets `changeLayout="false"`, so it sits on the page without
+pushing the header down.
+
+## Where to go next
+
+- [Installation](https://lanternfly.example/guide/installation.md): Get the lanternfly binary onto your machine.
+- [Writing pages](https://lanternfly.example/guide/writing-pages.md): Frontmatter, headings and links.
+- [Callouts and cards](https://lanternfly.example/guide/callouts-and-cards.md): Draw attention, group links.
+- [Reference](https://lanternfly.example/reference.md): Code blocks, typed options, Markdown extras.
+
+## How the pieces fit
+
+![Content flows through the parser and the components into a static site](https://lanternfly.example/images/pipeline.svg)
+
+*Every page on this site went through exactly these four stages.*
+
+# Installation
+
+Source: https://lanternfly.example/guide/installation
+
+> Install Lanternfly with your package manager of choice and check that it runs.
+
+## Requirements
+
+Lanternfly runs on macOS, Linux and Windows. It needs about 20 MB of disk space
+and nothing else.
+
+## Install
+
+The code tabs below share a group, so choosing a package manager here also
+selects it on every other page that uses the same group.
+
+### Homebrew
+
+```bash
+brew install lanternfly
+```
+
+### apt
+
+```bash
+sudo apt install lanternfly
+```
+
+### winget
+
+```sh
+winget install Lanternfly.Lanternfly
+```
+
+## Verify
+
+### 1. Open a terminal
+
+Any shell works. On Windows, PowerShell is recommended.
+
+### 2. Ask for the version
+
+```bash
+lanternfly --version
+```
+
+### 3. Read the output
+
+You should see a single line such as `lanternfly 2.4.0`. Anything else means the
+binary is not on your `PATH`.
+
+## Upgrading
+
+> **Warning:** Archives from 1.x
+>
+> Version 2 reads 1.x archives but writes a new format. Keep a copy of old
+> archives until every machine that opens them has been upgraded.
+
+# Writing pages
+
+Source: https://lanternfly.example/guide/writing-pages
+
+> Frontmatter, headings, links and images in the Markdown subset Pholio accepts.
+
+A page is a Markdown file with frontmatter. The title comes from the
+frontmatter, so the body starts at `##`.
+
+## Frontmatter
+
+```yaml title="guide/installation.md"
+---
+title: Installation
+description: Install Lanternfly and check that it runs.
+icon: download
+---
+```
+
+## Headings
+
+Use `##` for sections and `###` for subsections. Headings become anchors and
+entries in the table of contents on the right.
+
+### A subsection
+
+Ids are derived from the text, so this heading is reachable as
+`#a-subsection`.
+
+#### A fourth level
+
+Allowed, but rarely a good idea.
+
+## Links
+
+Link to another page with a relative path, like
+[Callouts and cards](https://lanternfly.example/guide/callouts-and-cards.md), or to the
+[reference section](https://lanternfly.example/reference.md). Broken internal links stop the build.
+External links such as [the CommonMark spec](https://spec.commonmark.org)
+open in a new tab.
+
+## Images
+
+A plain Markdown image renders as a single bordered picture:
+
+![An indigo colour scale from 50 to 950](https://lanternfly.example/images/color-scale.svg)
+
+For light and dark variants, use `Screenshot`. For images worth enlarging, use
+`ImageZoom`:
+
+![An indigo colour scale from 50 to 950](https://lanternfly.example/images/color-scale.svg)
+
+## Quotes
+
+> Write the page you wish you had found the first time.
+
+# Callouts and cards
+
+Source: https://lanternfly.example/guide/callouts-and-cards
+
+> Every callout type and the card grid, with and without icons and links.
+
+## Callouts
+
+A callout has a `type` and an optional `title`. Its body is ordinary Markdown.
+
+> **Info**
+>
+> No type means `info`. This one has no title either.
+
+> **Info:** Info
+>
+> Lanternfly indexes files in the background, so the first search after a large
+> import may be slow.
+
+> **Tip:** Tip
+>
+> `tip` is an alias for `info`. Press `/` in the archive view to jump to search.
+
+> **Warning:** Warning
+>
+> Moving an archive while it is being indexed can leave the index incomplete.
+
+> **Warning:** Warn
+>
+> `warn` is an alias for `warning`.
+
+> **Error:** Error
+>
+> `lanternfly purge` deletes archives permanently. There is no undo.
+
+> **Success:** Success
+>
+> When indexing finishes, the status bar shows a green check.
+
+> **Idea:** Idea
+>
+> Keep one archive per project. Searches stay fast and exports stay small.
+
+## Cards
+
+Cards group related links. Each card can carry a lucide icon.
+
+- [Archives](https://lanternfly.example/guide/steps-and-files.md): Create, open and move archives.
+- [Search](https://lanternfly.example/reference/markdown-extras.md): Query syntax and filters.
+- [Configuration](https://lanternfly.example/reference/api-types.md): Every option, typed.
+- [Command line](https://lanternfly.example/reference/code-blocks.md): Code examples for every command.
+
+### Without links or icons
+
+A card without `href` is static, which is useful for short summaries.
+
+- **Fast**: Indexes ten thousand notes in under a second.
+- **Local**: Nothing leaves your machine.
+
+# Tabs and accordions
+
+Source: https://lanternfly.example/guide/tabs-and-accordions
+
+> Tabs with a default, grouped tabs that stay in sync, and single or multiple accordions.
+
+## Tabs
+
+`items` lists the labels, separated by `|`. Each `Tab` takes its `value` from
+the matching label. With `updateAnchor`, choosing a tab also updates the URL
+hash, so the link you copy opens that tab.
+
+### macOS
+
+Archives live in `~/Library/Application Support/Lanternfly`.
+
+### Linux
+
+Archives live in `~/.local/share/lanternfly`.
+
+### Windows
+
+Archives live in `%APPDATA%\Lanternfly`.
+
+### Choosing the default
+
+#### Monthly
+
+Pay each month, cancel any time.
+
+#### Yearly
+
+Pay once a year and get two months free.
+
+### Grouped tabs
+
+Tabs with the same `groupId` switch together. With `persist`, the choice is
+remembered across pages and visits.
+
+#### JavaScript
+
+```js
+import { open } from 'lanternfly';
+const archive = await open('notes');
+```
+
+#### PHP
+
+```php
+<?php
+$archive = Lanternfly\open('notes');
+```
+
+#### JavaScript
+
+```js
+const hits = await archive.search('invoice');
+```
+
+#### PHP
+
+```php
+<?php
+$hits = $archive->search('invoice');
+```
+
+A label that itself contains a pipe is escaped: `items="a\|b|c"` yields the two
+tabs "a|b" and "c".
+
+## Accordions
+
+### Single
+
+Only one item is open at a time.
+
+#### Is Lanternfly free?
+
+Yes, for personal use.
+
+#### Does it sync?
+
+No. Archives are plain folders; use whatever sync tool you already trust.
+
+#### Can I export everything?
+
+Yes. `lanternfly export --all` writes one Markdown file per note.
+
+### Multiple
+
+Any number of items can be open.
+
+#### Keyboard shortcuts
+
+`/` focuses search, `n` creates a note, `Esc` closes any dialog.
+
+#### File formats
+
+Markdown, plain text and PDF are indexed. Everything else is stored but not
+searched.
+
+# Steps and files
+
+Source: https://lanternfly.example/guide/steps-and-files
+
+> Numbered procedures and file trees.
+
+## Steps
+
+### 1. Create an archive
+
+```bash
+lanternfly init notes
+```
+
+### 2. Import existing files
+
+```bash
+lanternfly import ~/Documents/notes --into notes
+```
+
+### 3. Search
+
+```bash
+lanternfly search "quarterly report" --in notes
+```
+
+## Files
+
+A file tree shows what `lanternfly init` creates. Folders can start open.
+
+- notes/
+  - lanternfly.yaml
+  - index/
+    - terms.bin
+    - documents.bin
+  - attachments/
+    - receipt-2026-03.pdf
+  - README.md
+
+> **Info**
+>
+> Never edit the `index` folder by hand. `lanternfly reindex` rebuilds it from
+> scratch.
+
+# Reference
+
+Source: https://lanternfly.example/reference
+
+> Precise answers: code examples, typed options and the Markdown extensions.
+
+The guide explains how to do things. The reference lists exactly what exists.
+
+- [Code blocks](https://lanternfly.example/reference/code-blocks.md): Titles, line numbers, highlights, diffs and code tabs.
+- [API types](https://lanternfly.example/reference/api-types.md): Every configuration option with its type and default.
+- [Markdown extras](https://lanternfly.example/reference/markdown-extras.md): Tables, task lists, footnotes and strikethrough.
+
+# Code blocks
+
+Source: https://lanternfly.example/reference/code-blocks
+
+> Titles, line numbers, notation comments and code tabs.
+
+## Plain
+
+```bash
+lanternfly search invoice
+```
+
+## With a title
+
+```yaml title="lanternfly.yaml"
+archive:
+  name: notes
+  watch: true
+```
+
+## With line numbers
+
+```ts title="search.ts"
+import { open } from 'lanternfly';
+
+export async function findInvoices(path: string) {
+  const archive = await open(path);
+  return archive.search('invoice', { limit: 20 });
+}
+```
+
+Line numbers can start at another value:
+
+```ts
+  return archive.search('invoice', { limit: 20 });
+}
+```
+
+## Highlighting
+
+```ts
+const archive = await open('notes');
+const hits = await archive.search('invoice');
+console.log(hits.length);
+```
+
+## Word highlighting
+
+```ts
+const hits = await archive.search('invoice');
+const more = await archive.search('receipt');
+```
+
+## Focus
+
+```ts
+const archive = await open('notes');
+await archive.reindex();
+archive.close();
+```
+
+## Diff
+
+```ts
+const archive = await open('notes', {
+  watch: false,
+  watch: true,
+});
+```
+
+## Notation in other languages
+
+```yaml title="lanternfly.yaml"
+archive:
+  name: notes
+  watch: true
+```
+
+## Code tabs
+
+Consecutive code blocks with a `tab` attribute are merged into one tab group.
+
+### JavaScript
+
+```js
+const hits = await archive.search('invoice');
+```
+
+### PHP
+
+```php
+<?php
+$hits = $archive->search('invoice');
+```
+
+### CLI
+
+```bash
+lanternfly search invoice
+```
+
+## Line ranges in meta
+
+A range like `{1,3-4}` in the fence meta is accepted for compatibility and has
+no effect.
+
+```ts
+const a = 1;
+const b = 2;
+const c = 3;
+const d = 4;
+```
+
+## Code as tag content
+
+When a code sample must stay verbatim, pass it as the content of
+`DynamicCodeBlock`.
+
+```json
+{
+  "archive": "notes",
+  "watch": true
+}
+```
+
+# API types
+
+Source: https://lanternfly.example/reference/api-types
+
+> The options accepted by open(), as a type table.
+
+## `open(path, options)`
+
+Opens an archive. Every option is optional unless marked required.
+
+- `path`: `string`, required. Folder of the archive, absolute or relative to the working directory.
+- `watch`: `boolean`, default `false`. Re-index files as they change on disk.
+- `limit`: `number` (Integer between 1 and 1000), default `50`. Maximum number of hits a single search returns.
+- `language`: `"english" | "german"`, default `"english"`. Tokenizer used for new documents.
+- `legacyIndex`: `boolean`, default `false`, deprecated. Read the 1.x index format. Will be removed in version 3.
+
+## Return value
+
+- `search`: `(query: string) => Promise<Hit[]>`. Runs a query and resolves to the ranked hits.
+- `reindex`: `() => Promise<void>`. Rebuilds the index from the files on disk.
+- `close`: `() => void`. Releases file handles. The archive cannot be used afterwards.
+
+# Markdown extras
+
+Source: https://lanternfly.example/reference/markdown-extras
+
+> GitHub-flavoured tables with alignment, task lists, footnotes, strikethrough and hard breaks.
+
+## Tables
+
+Columns can be aligned left, centre or right.
+
+| Command | Speed | Notes |
+| :--- | :---: | ---: |
+| `search` | fast | reads the index only |
+| `reindex` | slow | reads every file |
+| `export` | medium | writes one file per note |
+
+## Task lists
+
+- [x] Install Lanternfly
+- [x] Create an archive
+- [ ] Import the old notes
+- [ ] Delete the old notes folder
+
+## Footnotes
+
+Lanternfly ranks results with BM25[^bm25] and does not stem words[^stem].
+
+## Strikethrough
+
+The `--fast` flag is ~~experimental~~ stable since version 2.2.
+
+## Emphasis and inline code
+
+**Bold**, *italic*, ***both***, and `inline code` combine as expected.
+
+## Hard line breaks
+
+Two trailing spaces end a line\
+without starting a new paragraph.
+
+## Lists
+
+1. Ordered lists count themselves.
+2. They can nest:
+   - an unordered item
+   - another one
+3. And continue afterwards.
+
+---
+
+A horizontal rule, like the one above, separates unrelated content.
+
+[^bm25]: A ranking function that scores documents by term frequency, adjusted for document length.
+
+[^stem]: Searching for "archive" does not match "archiving".
