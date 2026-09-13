@@ -104,7 +104,34 @@ into a temporary directory, diff, refuse anything stale.
 README describing what lands there. `examples/demo/` is complete content that
 waits only for the generator.
 
-## 4. Quickstart
+## 4. Requirements
+
+| Requirement | Why |
+| --- | --- |
+| **PHP 8.2 or newer**, CLI | The generator runs once per build. Nothing runs on the server |
+| **PCRE2 10.43 or newer** (bundled with PHP; check with `php -r 'echo PCRE_VERSION;'`) | The syntax highlighter runs TextMate grammars, whose patterns are written for Oniguruma. Pholio translates them to PCRE2. Some of them use lookbehinds of variable length, which PCRE2 supports only from 10.43. On older versions those few patterns are switched off with a warning, and highlighting no longer matches the reference exactly |
+| **`mbstring` and `ctype`** | Unicode-aware slugs, case folding and tokenisation. Both are enabled in almost every PHP build |
+
+That is the complete list: no Composer, no npm, no network access during a
+build. Node is needed only for the optional comparison tooling in `verify/`.
+
+## 5. Credits
+
+Pholio stands on other people's work. It reproduces the
+[Fumadocs](https://github.com/fuma-nama/fumadocs) Notebook theme and follows the
+state-attribute contract of [Base UI](https://github.com/mui/base-ui). Its CSS
+values come from [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss)
+output, and its search ranking follows
+[zbsearch](https://github.com/micheleriva/zbsearch). It ships
+[Inter](https://github.com/rsms/inter), [lucide](https://github.com/lucide-icons/lucide)
+icons, and TextMate grammars and GitHub themes as packaged by
+[Shiki](https://github.com/shikijs/shiki).
+
+Exact versions, upstream commits, copyright holders and the verbatim licence
+texts are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and
+[`licenses/`](licenses/).
+
+## 6. Quickstart
 
 The fastest way to see the format is the demo site in
 [`examples/demo/`](examples/demo/): ten pages documenting a fictional tool,
@@ -137,10 +164,9 @@ php vendor/pholio/bin/pholio build --config docs.config.php
 | `--dev` | Also build the component showcase page |
 | `--only <slug>` | Build a single page, for iteration |
 
-Requirements: PHP 8.2 or newer, standard library only. Node is needed solely
-for `verify/`.
+Requirements are in [section 4](#4-requirements).
 
-## 5. Content format
+## 7. Content format
 
 Frontmatter with `title`, optional `description`, `heading`, `icon` and `full`.
 Then a fixed Markdown subset: `##` to `####`, paragraphs, bold, italic, inline
@@ -177,7 +203,7 @@ fenced code blocks with titles, line numbers and line highlighting.
 Custom tags are registered in PHP through the `components` key. Content stays
 data; code stays in PHP.
 
-## 6. Configuration
+## 8. Configuration
 
 One PHP file returning one array. Full reference in
 [`docs/configuration.md`](docs/configuration.md); the example file carries the
@@ -206,7 +232,7 @@ same information as comments.
 | `components` | `[]` | Custom content tags (planned) |
 | `strict_content` | `false` | Fail on pages without a description, headings or a body |
 
-## 7. Decision record
+## 9. Decision record
 
 - **2026-09-12 — The name is Pholio.** The generator stopped being a detail of
   one documentation site and became a product with its own repository and its own
@@ -239,7 +265,7 @@ same information as comments.
   readable and revertible on its own. It has already paid for itself while
   moving code between repositories with `git subtree split`.
 
-## 8. Docs map
+## 10. Docs map
 
 | Document | What it covers |
 | --- | --- |
@@ -252,13 +278,14 @@ same information as comments.
 | [`docs/roadmap.md`](docs/roadmap.md) | Current state, next steps, non-goals |
 | [`examples/demo/`](examples/demo/README.md) | The demo site, its component coverage table and build instructions |
 | [`docs/assets/og.png`](docs/assets/og.png) | 1200x630 social preview, source in `docs/assets/og.svg` |
+| [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) | Every third-party component with version, licence, upstream commit and licence text |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Commit rules, code rules, acceptance |
 | [`src/README.md`](src/README.md), [`theme/README.md`](theme/README.md), [`verify/README.md`](verify/README.md) | What lands in each folder |
 
 These pages are written in Pholio's own format and will be built with Pholio
 itself once the generator is wired.
 
-## 9. Security
+## 11. Security
 
 Content is data, never a program. There are no expressions, no imports and no
 evaluation in Markdown or in component tags; a tag is a name, some quoted
@@ -279,20 +306,14 @@ Pholio runs on your machine or your build host, reads your content directory
 and writes your output directory. It makes no network requests and needs no
 credentials.
 
-## 10. License and credits
+## 12. License
 
 Pholio is MIT licensed. See [`LICENSE`](LICENSE).
 
-It is a reimplementation of an interface designed by others, and it vendors
-their work with their licences:
-
-| Project | License | Used for |
-| --- | --- | --- |
-| [Fumadocs](https://github.com/fuma-nama/fumadocs) | MIT | The Notebook theme, its layout and its behaviour, which Pholio reproduces |
-| [Base UI](https://github.com/mui/base-ui) | MIT | The primitives whose state-attribute contract the JavaScript ports follow |
-| [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) | MIT | The compiled output every CSS value is derived from |
-| [lucide](https://github.com/lucide-icons/lucide) | ISC | The icons, vendored as path data |
-| [Inter](https://github.com/rsms/inter) | SIL Open Font License 1.1 | The typeface |
-| [zbsearch](https://github.com/fuma-nama/zbsearch) | Apache-2.0 | The search ranking, ported rather than approximated |
+Third-party material keeps its own licence: ISC for lucide, SIL OFL 1.1 for
+Inter, MIT for the grammars, themes, Fumadocs, Base UI and Tailwind CSS, and
+Apache-2.0 for zbsearch. The full list with versions and texts is in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md); the short version is in
+[section 5](#5-credits).
 
 Built by [Luka Löhr](https://github.com/luka-loehr).
