@@ -485,15 +485,15 @@ search.query('theme');
 
 ```yaml title="config.yaml"
 theme:
-  preset: neutral # [!code --]
-  preset: ocean # [!code ++]
+  hotkey: d # [!code --]
+  hotkey: k # [!code ++]
 ```
 
 `````text
 ```yaml title="config.yaml"
 theme:
-  preset: neutral # [!code --]
-  preset: ocean # [!code ++]
+  hotkey: d # [!code --]
+  hotkey: k # [!code ++]
 ```
 `````
 
