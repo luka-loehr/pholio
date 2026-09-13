@@ -128,7 +128,8 @@ jobs:
         working-directory: verify
         run: npm ci
 
-      # The DOM, style and pixel selftests launch Chromium. The cache key follows the pinned Playwright version.
+      # The DOM, style and pixel selftests launch Chromium; the search dialog check also Firefox and WebKit.
+      # The cache key follows the pinned Playwright version.
       - name: Read the Playwright version
         id: playwright
         working-directory: verify
@@ -139,17 +140,17 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-headless-shell
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-headless-shell-firefox-webkit
 
-      - name: Install Chromium headless shell
+      - name: Install Chromium headless shell, Firefox and WebKit
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: verify
-        run: npx playwright install --with-deps chromium-headless-shell
+        run: npx playwright install --with-deps chromium-headless-shell firefox webkit
 
-      - name: Install Chromium system dependencies
+      - name: Install browser system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         working-directory: verify
-        run: npx playwright install-deps chromium-headless-shell
+        run: npx playwright install-deps chromium-headless-shell firefox webkit
 
       - name: Tier 2
         working-directory: verify
