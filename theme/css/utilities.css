@@ -1,0 +1,43 @@
+/* utilities.css — the few helpers that stay in the markup as classes, because
+ * JavaScript switches them on and off at runtime.
+ *
+ * Everything that describes a state the DOM already knows lives in layout.css or
+ * components.css instead, on the `data-*` or `aria-*` attribute that the reference
+ * already puts on the element. What remains are the two visibility switches that
+ * have no attribute: Base UI hides a portal element with `invisible` after the
+ * exit animation and hides the empty result list of the search dialog with
+ * `hidden`.
+ *
+ * `.not-prose`, `.prose-no-margin` and `.fd-scroll-container` keep their reference
+ * names and live in prose.css; they aren't utilities of this theme but hooks the
+ * typography rules themselves point at.
+ *
+ * Layer `utilities` as in the reference stylesheet: these helpers must beat the
+ * component rules, otherwise they couldn't hide anything.
+ * Reference lines: `hidden` 1310, `invisible` 444.
+ *
+ * Two more rules aren't helpers but need the same layer and the same place in the
+ * cascade: the width of the article children. The first child of the article is
+ * `div.nd-prose.prose`, and prose.css sets `max-width: none` there, also in the
+ * `utilities` layer. In the reference `*:max-w-[900px]` (reference l. 3017) wins
+ * because it comes later in the stylesheet. Only this file is included after
+ * prose.css, which is why the two rules live here and not in layout.css.
+ */
+
+@layer utilities {
+  .nd-hidden {
+    display: none;
+  }
+
+  .nd-invisible {
+    visibility: hidden;
+  }
+
+  :is(.nd-page > *) {
+    max-width: 900px;
+  }
+
+  :is(.nd-page-full > *) {
+    max-width: 1285px;
+  }
+}
