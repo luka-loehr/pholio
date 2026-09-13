@@ -19,7 +19,8 @@ require_once __DIR__ . '/Htaccess.php';
  *   <assets>/LICENSES/*.txt              third-party licences
  *   <copy targets>                       the `copy` directories, without *.md
  *   <docs>/search-index.json             search index
- *   .htaccess                            hardening, redirects, slashless URLs
+ *   .htaccess                            hardening, redirects, slashless URLs, agent headers
+ *   <page>.md, llms.txt, skill.md, …     files for AI agents (lib/AgentSite.php, docs/agents.md)
  *
  * Seams. The parsing, tree, rendering and search libraries live in src/lib,
  * the components in src/components and the document shell in src/templates.
@@ -33,8 +34,11 @@ require_once __DIR__ . '/Htaccess.php';
  *   RenderContext::replacePrefix(string $value, string $from, string $to)
  *   Render::body(Document, RenderContext)
  *   SearchIndex::build(Tree, callable $load, string $baseUrl, ?array $order, bool $includeDrafts, string $tokenizer)
+ *   new AgentSite(array $config, Tree, Closure $parse, Closure $asset, Closure $outputPath),
+ *   AgentSite::pageActions($url), ::head($url), ::homeHead(), ::write($target, Closure $authored)
  *   nd_header($config, $url, $tabs, $selected), nd_sidebar($config, $tree, $url, $groups),
- *   nd_toc_popover($toc, $pageName), nd_page($data, $breadcrumb, $body, $footerItems), nd_toc($toc),
+ *   nd_toc_popover($toc, $pageName), nd_page($data, $breadcrumb, $body, $footerItems, $actions),
+ *   nd_page_actions($actions), nd_toc($toc),
  *   nd_layout($inner), nd_search_dialog_portal(), nd_home_layout($config, $tree), nd_document($head, $body)
  *
  * Tests replace individual steps by subclassing; every step is a protected method.
@@ -52,6 +56,9 @@ class Builder
     ];
 
     private static bool $loaded = false;
+
+    /** @var array<string, Document> parsed pages by file */
+    private array $documents = [];
 
     /**
      * @param array<string, mixed> $config normalised, see Config
@@ -80,7 +87,7 @@ class Builder
     /**
      * Build the site into $target, the directory of the start page.
      *
-     * @return array{pages:int, indexed:int, redirects:int}
+     * @return array{pages:int, indexed:int, redirects:int, warnings:list<string>}
      */
     public function build(string $target): array
     {
@@ -90,17 +97,18 @@ class Builder
         $config = $this->config;
         $tree = $this->tree();
         $this->checkDocsRoot($tree);
+        $agents = $this->agentSite($tree);
 
         $pages = 0;
         foreach ($tree->pages() as $page) {
             if ($this->only !== null && !str_contains($page['url'], $this->only)) {
                 continue;
             }
-            Fs::write($target, $this->outputPath($page['url']), $this->renderPage($tree, $page));
+            Fs::write($target, $this->outputPath($page['url']), $this->renderPage($tree, $page, $agents));
             $pages++;
         }
         if ($config['home'] !== null && ($this->only === null || str_contains($config['homeUrl'], $this->only))) {
-            Fs::write($target, $this->outputPath($config['homeUrl'], true), $this->renderHome($tree));
+            Fs::write($target, $this->outputPath($config['homeUrl'], true), $this->renderHome($tree, $agents));
             $pages++;
         }
 
@@ -108,8 +116,9 @@ class Builder
         $this->writeCopies($target);
         $indexed = $this->writeSearchIndex($tree, $target);
         $redirects = Htaccess::write($config, $target);
+        $warnings = $agents->write($target, fn(string $relative): bool => $this->authored($relative));
 
-        return ['pages' => $pages, 'indexed' => $indexed, 'redirects' => $redirects];
+        return ['pages' => $pages, 'indexed' => $indexed, 'redirects' => $redirects, 'warnings' => $warnings];
     }
 
     /** Require the libraries, components and templates once. */
@@ -137,17 +146,53 @@ class Builder
         return new Tree($this->config['contentDir'], $this->config['baseUrl'], $this->dev, $this->config['content']['extensions']);
     }
 
+    /** Parsed once per build: the pages, the search index and the agent files all read the same documents. */
     protected function parse(string $file): Document
     {
+        if (isset($this->documents[$file])) {
+            return $this->documents[$file];
+        }
         if (!is_file($file)) {
             throw new ContentException('page file not found', $file);
         }
 
-        return Markdown::parse((string) file_get_contents($file), $file, $this->config['content']['frontmatterAliases']);
+        return $this->documents[$file] = Markdown::parse((string) file_get_contents($file), $file, $this->config['content']['frontmatterAliases']);
+    }
+
+    protected function agentSite(Tree $tree): AgentSite
+    {
+        return new AgentSite(
+            $this->config,
+            $tree,
+            fn(string $file): Document => $this->parse($file),
+            fn(string $src, string $pageFile): string => $this->resolveAsset($src, $pageFile)['url'],
+            fn(string $url, bool $isHome): string => $this->outputPath($url, $isHome),
+        );
+    }
+
+    /**
+     * Whether the site provides a file below the start page's directory itself:
+     * it is kept (`output.keep`) or a `copy` directory holds it. Agent files
+     * such as robots.txt are then not generated.
+     */
+    protected function authored(string $relative): bool
+    {
+        if (Fs::isKept($relative, $this->config['keep'])) {
+            return true;
+        }
+        $url = rtrim($this->config['homeUrl'], '/') . '/' . $relative;
+        foreach ($this->config['copy'] as $copy) {
+            $to = rtrim($copy['to'], '/');
+            if (str_starts_with($url, $to . '/') && is_file($copy['from'] . '/' . substr($url, strlen($to) + 1))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @param array{url:string, slugs:list<string>, file:string} $page */
-    protected function renderPage(Tree $tree, array $page): string
+    protected function renderPage(Tree $tree, array $page, ?AgentSite $agents = null): string
     {
         Ids::reset();
         $config = $this->config;
@@ -169,24 +214,27 @@ class Builder
         $path = $tree->pathTo($url);
         $pageName = $path === [] ? $data['title'] : (string) $path[count($path) - 1]->name;
 
+        $actions = $agents?->pageActions($url);
+
         $inner = nd_header($config, $url, $tabs['tabs'], $tabs['selected'])
             . nd_sidebar($config, $tree, $url, $tabs['groups'])
             . nd_toc_popover($toc, $pageName)
-            . nd_page($data, $tree->breadcrumb($url), $this->body($document, $file), $tree->footerItems($url))
+            . nd_page($data, $tree->breadcrumb($url), $this->body($document, $file), $tree->footerItems($url), $actions === null ? '' : nd_page_actions($actions))
             . nd_toc($toc);
 
         $title = str_replace('{title}', (string) ($frontmatter['title'] ?? $data['title']), $config['titleTemplate']);
+        $head = $this->head($title, $data['description'], true) + ($agents?->head($url) ?? []);
 
-        return nd_document($this->head($title, $data['description'], true), nd_search_dialog_portal() . nd_layout($inner));
+        return nd_document($head, nd_search_dialog_portal() . nd_layout($inner));
     }
 
-    protected function renderHome(Tree $tree): string
+    protected function renderHome(Tree $tree, ?AgentSite $agents = null): string
     {
         Ids::reset();
 
         // The start page has no ScrollArea, so no scrollbar <style> either.
         return nd_document(
-            $this->head($this->config['homeTitle'], null, false),
+            $this->head($this->config['homeTitle'], null, false) + ($agents?->homeHead() ?? []),
             nd_search_dialog_portal() . nd_home_layout($this->config, $tree),
         );
     }
