@@ -17,13 +17,14 @@ use Pholio\Init;
  */
 
 /** @return array{0:int, 1:string, 2:string} exit code, stdout, stderr */
-function init_cli(array $args, string $cwd): array
+function init_cli(array $args, string $cwd, ?string $program = null, ?array $env = null): array
 {
     $process = proc_open(
-        array_merge([PHP_BINARY, __DIR__ . '/../bin/pholio'], $args),
+        array_merge([PHP_BINARY, $program ?? __DIR__ . '/../bin/pholio'], $args),
         [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
         $pipes,
         $cwd,
+        $env,
     );
     $out = (string) stream_get_contents($pipes[1]);
     $err = (string) stream_get_contents($pipes[2]);
@@ -48,9 +49,10 @@ test('init creates the project files and prints the next steps', function (): vo
         assert_same(0, $code, $err);
         assert_same(INIT_FILES, Fs::treeFiles($root . '/my-docs'));
         assert_contains('Created My Docs in ', $out);
-        assert_contains("  cd my-docs\n", $out);
-        assert_contains('pholio dev', $out);
-        assert_contains('pholio build', $out);
+        $bin = __DIR__ . '/../bin/pholio';
+        assert_contains("  php {$bin} dev my-docs ", $out, 'pholio is not on PATH: the command names the script');
+        assert_contains("  php {$bin} build my-docs ", $out);
+        assert_true(!str_contains($out, 'cd '), 'the commands take the directory, no cd step');
 
         $config = require $root . '/my-docs/pholio.config.php';
         assert_same(['title' => 'My Docs', 'language' => 'en'], $config);
@@ -64,7 +66,7 @@ test('--name and --lang are written into the config, names are escaped', functio
     try {
         [$code, $out, $err] = init_cli(['init', '--name', "Rob's \"Docs\"", '--lang', 'de'], $root);
         assert_same(0, $code, $err);
-        assert_true(!str_contains($out, 'cd '), 'no cd step for the current directory');
+        assert_contains(" dev      preview", $out, 'no directory argument for the current directory');
         assert_same(['title' => "Rob's \"Docs\"", 'language' => 'de'], require $root . '/pholio.config.php');
         assert_same("Rob's \"Docs\"", json_decode((string) file_get_contents($root . '/content/meta.json'), true)['title']);
         [$code, , $err] = init_cli(['init', 'other', '--lang', 'fr'], $root);
@@ -151,6 +153,29 @@ test('a project without assets/ builds, a relative image outside assets/ is a co
         [$code, , $err] = init_cli(['build', '--quiet'], $root);
         assert_same(3, $code, $err);
         assert_contains('content/index.md: image "images/missing.png" resolves to content/images/missing.png, outside the copied asset directories (assets/)', $err);
+    } finally {
+        Fs::removeDir($root);
+    }
+});
+
+test('next steps say "pholio" when that name on PATH is this script', function (): void {
+    $root = Fs::tempDir('pholio-init-test-');
+    try {
+        mkdir($root . '/bin');
+        symlink(realpath(__DIR__ . '/../bin/pholio'), $root . '/bin/pholio');
+        $env = ['PATH' => $root . '/bin' . PATH_SEPARATOR . (string) getenv('PATH')];
+        [$code, $out, $err] = init_cli(['init', 'docs'], $root, $root . '/bin/pholio', $env);
+        assert_same(0, $code, $err);
+        assert_contains("  pholio dev docs ", $out);
+        assert_contains("  pholio build docs ", $out);
+
+        [$code, $out] = init_cli(['init', 'site'], $root, 'bin/pholio', $env);
+        assert_same(0, $code);
+        assert_contains("  pholio dev site ", $out, 'a relative path to the same script also counts');
+
+        [$code, $out] = init_cli(['init', 'other'], $root, __DIR__ . '/../bin/pholio', ['PATH' => '/usr/bin:/bin']);
+        assert_same(0, $code);
+        assert_contains('  php ' . __DIR__ . '/../bin/pholio dev other ', $out);
     } finally {
         Fs::removeDir($root);
     }
