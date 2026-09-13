@@ -151,6 +151,32 @@ function watch(page) {
 }
 
 const ok = (promise) => promise.then(() => true, () => false);
+
+// The dialog moves focus to its input after opening; keys typed before that go elsewhere.
+const inputFocused = (page) => ok(page.waitForFunction(
+  () => document.activeElement?.matches('[data-fd-search-dialog-input]'),
+  null,
+  { timeout: TIMEOUT_MS },
+));
+
+// Resolves once the dialog has not changed for 300 ms (at most TIMEOUT_MS): the answer for
+// the last keystroke is rendered, not only one for an earlier prefix.
+const settled = (page) => page.evaluate(({ quietMs, maxMs }) => new Promise((resolve) => {
+  const target = document.querySelector('#fd-search-dialog-content') ?? document.body;
+  const observer = new MutationObserver(() => {
+    clearTimeout(timer);
+    timer = setTimeout(done, quietMs);
+  });
+  let timer = setTimeout(done, quietMs);
+  const cap = setTimeout(done, maxMs);
+  function done() {
+    observer.disconnect();
+    clearTimeout(timer);
+    clearTimeout(cap);
+    resolve();
+  }
+  observer.observe(target, { subtree: true, childList: true, attributes: true, characterData: true });
+}), { quietMs: 300, maxMs: TIMEOUT_MS });
 const firstTitle = (page, title) => ok(page.waitForFunction(
   (t) => document.querySelector('#fd-search-dialog-content .nd-search-item')?.textContent.includes(t),
   title,
@@ -162,6 +188,7 @@ async function openAndType(page, name) {
   const input = page.locator('[data-fd-search-dialog-input]');
   await page.keyboard.press('Control+K');
   if (!(await ok(input.waitFor({ state: 'visible', timeout: TIMEOUT_MS })))) return false;
+  if (!(await inputFocused(page))) return false;
   await page.keyboard.type(QUERY, { delay: 40 });
   return firstTitle(page, expected.title);
 }
@@ -188,12 +215,14 @@ async function runBrowser(name) {
       await page.keyboard.press(hotkey);
       const opened = check(`${name}: ${hotkey} opens the search dialog`, await ok(input.waitFor({ state: 'visible', timeout: TIMEOUT_MS })));
       if (!opened) continue;
+      check(`${name}: ${hotkey} moves focus to the search input`, await inputFocused(page));
       await page.keyboard.press('Escape');
       check(`${name}: Escape closes it`, await ok(input.waitFor({ state: 'hidden', timeout: TIMEOUT_MS })));
     }
 
     await page.keyboard.press('Control+K');
     await ok(input.waitFor({ state: 'visible', timeout: TIMEOUT_MS }));
+    check(`${name}: reopened, focus is in the search input`, await inputFocused(page));
     await page.keyboard.type(QUERY, { delay: 40 });
     const rendered = check(
       `${name}: typing "${QUERY}" renders results, first "${expected.title}"`,
@@ -205,6 +234,7 @@ async function runBrowser(name) {
     check(`${name}: the worker loads from under ${BASE}/`, requests.some((r) => r.startsWith(`${BASE}/`) && r.endsWith('/search-worker.js')));
 
     if (rendered) {
+      await settled(page);
       const selected = () => page.evaluate(() => [...document.querySelectorAll('#fd-search-dialog-content .nd-search-item')]
         .findIndex((button) => button.getAttribute('aria-selected') === 'true'));
       const count = await page.locator('#fd-search-dialog-content .nd-search-item').count();
