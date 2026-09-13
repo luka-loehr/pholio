@@ -280,21 +280,21 @@
     },
     {
       "name": "area-card",
-      "selector": "main#nd-home-layout a[href][class*=\"rounded-xl\"]:visible",
+      "selector": "main#nd-home-layout > main > section > div > a[href]:visible",
       "actions": [
         "hover",
         "focus"
       ],
-      "note": "Section card of the start page; other pages don't have the selector and skip the state."
+      "note": "Section card of the start page, selected by structure because the reference carries rounded-xl and the candidate nd-home-card; other pages don't have the selector and skip the state."
     },
     {
       "name": "nav-link",
-      "selector": "#nd-subnav a[href]:visible, header a[href][class*=\"gap-1\"]:visible",
+      "selector": "#nd-subnav a[href]:visible, #nd-nav ul a[href]:visible",
       "actions": [
         "hover",
         "focus"
       ],
-      "note": "Navigation link in the header; on the start page the header has no #nd-subnav."
+      "note": "Navigation link in the header, selected by structure; on the start page the header has no #nd-subnav, so the links in #nd-nav's list are used."
     },
     {
       "name": "search-trigger",
