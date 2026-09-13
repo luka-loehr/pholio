@@ -297,5 +297,12 @@
   "transition-[opacity,translate] truncate": "nd-tocpop-label-active",
   "transition-all": "nd-tocpop-bar",
   "w-1/4": "nd-typetable-head-name",
-  "z-50": "nd-popover-positioner"
+  "z-50": "nd-popover-positioner",
+  "[&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground bg-fd-secondary border disabled:opacity-50 disabled:pointer-events-none duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring font-medium gap-2 hover:bg-fd-accent hover:text-fd-accent-foreground inline-flex items-center justify-center p-2 px-2 py-1.5 rounded-md text-fd-secondary-foreground text-xs transition-colors": "nd-btn nd-btn-secondary nd-btn-text-sm nd-page-copy",
+  "bg-fd-secondary border data-[popup-open]:bg-fd-accent data-[popup-open]:text-fd-accent-foreground disabled:opacity-50 disabled:pointer-events-none duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring font-medium gap-2 hover:bg-fd-accent hover:text-fd-accent-foreground inline-flex items-center justify-center p-2 px-2 py-1.5 rounded-md text-fd-secondary-foreground text-xs transition-colors": "nd-btn nd-btn-secondary nd-btn-text-sm nd-page-open",
+  "lucide lucide-chevron-down size-3.5 text-fd-muted-foreground": "lucide lucide-chevron-down nd-page-open-chevron",
+  "lucide lucide-external-link ms-auto size-3.5 text-fd-muted-foreground": "lucide lucide-external-link nd-page-actions-external",
+  "backdrop-blur-lg bg-fd-popover/60 border data-closed:animate-fd-popover-out data-open:animate-fd-popover-in flex flex-col focus-visible:outline-none max-h-(--available-height) max-w-[98vw] min-w-[240px] origin-(--transform-origin) overflow-y-auto p-2 rounded-xl shadow-lg text-fd-popover-foreground text-sm w-(--anchor-width) z-50": "nd-popover nd-page-actions-popup",
+  "[&_svg]:size-4 gap-2 hover:bg-fd-accent hover:text-fd-accent-foreground inline-flex items-center p-2 rounded-lg text-sm": "nd-page-actions-item",
+  "border-b flex flex-row gap-2 items-center pb-6": "nd-page-actions"
 }
