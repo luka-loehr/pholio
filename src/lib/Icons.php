@@ -19,8 +19,8 @@ require_once __DIR__ . '/../Exceptions.php';
  * Alias classes belong to the icon, not to the requested name: `sidebar` and
  * `panel-left` both render `lucide lucide-panel-left lucide-sidebar`.
  *
- * Empty child elements are written as `<path …/>`, as in the reference export;
- * once parsed that is the same DOM as React's `<path …></path>`.
+ * Empty child elements are written as `<path …/>`; once parsed that is the same
+ * DOM as `<path …></path>`.
  */
 final class Icons
 {
