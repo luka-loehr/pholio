@@ -1,6 +1,6 @@
-/* aspen: built-in color preset, selected with theme.preset. */
+/* aspen: built-in color preset, active while <html data-preset="aspen">; theme.preset sets the initial value. */
 
-:root {
+:where(:root[data-preset="aspen"]) {
   --color-fd-background: hsl(75, 45%, 96%);
   --color-fd-foreground: hsl(75, 35%, 18%);
   --color-fd-primary: hsl(80, 60%, 40%);
@@ -19,7 +19,7 @@
   --color-fd-popover-foreground: hsl(75, 35%, 18%);
 }
 
-.dark {
+:where(:root[data-preset="aspen"]).dark {
   --color-fd-background: hsl(80, 25%, 7%);
   --color-fd-foreground: hsl(75, 35%, 88%);
   --color-fd-primary: hsl(80, 60%, 55%);
