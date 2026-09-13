@@ -10,19 +10,16 @@ require_once __DIR__ . '/../lib/Ids.php';
 require_once __DIR__ . '/toc.php';
 
 /**
- * The TOC popover below `xl` (`PageTOCPopoverTrigger` in
- * `layouts/notebook/page/slots/toc.js`).
+ * The TOC popover below `xl`.
  *
- * While closed, Base UI renders only the trigger; the panel appears only on
- * opening and is therefore missing from the reference DOM as well. The generator
- * puts it as `<template data-collapsible-panel>` after the trigger inside the
- * `header` (structure as the reference's open panel at 1024 px);
+ * While closed only the trigger is in the DOM; the panel appears only on
+ * opening. The generator puts it as `<template data-collapsible-panel>` after
+ * the trigger inside the `header`;
  * js/collapsible.js mounts it on opening. The progress thumb inside is created
  * by js/toc.js, because it depends on measured row heights.
  * The progress circle and the switch between the two stacked labels depend on
  * the active heading, which only JavaScript knows; the generator writes the state
- * "first heading active", which the reference also shows after hydration at the
- * top of the page.
+ * "first heading active", which is what a reader at the top of the page sees.
  *
  * @param list<array{depth:int, title:string, url:string}> $items
  */
@@ -80,8 +77,8 @@ function nd_toc_popover_panel(array $items): string
 }
 
 /**
- * The two stacked labels: page name and active heading. Initial state as in
- * the reference after hydration at the top of the page: the page name is pushed
+ * The two stacked labels: page name and active heading. Initial state is the
+ * top of the page: the page name is pushed
  * up out of view (`nd-tocpop-label-up`); js/toc-popover.js switches it.
  */
 function nd_toc_popover_labels(string $pageName, string $heading): string
