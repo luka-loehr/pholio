@@ -1,0 +1,57 @@
+
+@charset "utf-8";
+@import url("reset.css") layer(reset);
+@import url(https://fonts.example/css?family=Source+Sans+3) screen and (min-width: 40em);
+@import 'print.css' print;
+
+/* ==========================================================================
+   Theme foundations
+   ========================================================================== */
+
+:root {
+	--color-text: #1f2328;
+	--color-ground: #fff;
+	--color-accent: #0B5CAD;
+	--color-warning: rgb(176 0 32);
+	--color-half: rgba(0, 0, 0, .5);
+	--color-hsl: hsl(210deg 80% 40% / 0.9);
+	--color-modern: oklch(62.8% 0.2577 29.23);
+	--color-mix: color-mix(in srgb, var(--color-accent) 20%, white);
+	--space: 1rem;
+	--content-width: min(72ch, 100% - 2 * var(--space));
+	--font: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+	--empty:;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html { font-size: 100%; -webkit-text-size-adjust: 100%; scroll-padding-top: 4.5rem; }
+
+body {
+	margin: 0;
+	font-family: var(--font);
+	line-height: 1.6;
+	color: var(--color-text, #000);
+	background: var(--color-ground) url("images/pattern.svg") no-repeat right 2em top 10px / 120px auto;
+}
+
+h1, h2, h3 { line-height: 1.2; margin-block: 1.5em .5em; font-weight: 700; }
+h1 { font-size: clamp(1.75rem, 1.2rem + 2.5vw, 2.75rem); letter-spacing: -0.02em; }
+
+a:any-link { color: var(--color-accent); text-underline-offset: 0.2em; }
+a:hover, a:focus-visible { text-decoration-thickness: 2px; }
+a[href^="http"]:not([href*="example.com"])::after { content: " ↗"; }
+a[href$=".pdf" i]::after { content: " (PDF)"; }
+input[type="checkbox" s]:checked + label { font-weight: 600; }
+[data-role~="editor"], [lang|=fr] { quotes: "«" "»" "‹" "›"; }
+
+.content > p:first-of-type::first-line { font-variant: small-caps; }
+li:nth-child(2n + 1 of .visible) { background: #f6f8fa; }
+ul li:is(.active, :hover):not(:last-child) { border-bottom: 1px solid #d0d7de; }
+.callout:has(> .icon) { padding-left: calc(24px + var(--space) * 0.5); }
+::selection { background: #ffd33d80; }
+.hidden { display: none !important; }
