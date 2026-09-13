@@ -43,12 +43,12 @@ open in a new tab.
 
 A plain Markdown image renders as a single bordered picture:
 
-![An indigo colour scale from 50 to 950](../../assets/color-scale.svg)
+![An indigo colour scale from 50 to 950](/images/color-scale.svg)
 
 For light and dark variants, use `Screenshot`. For images worth enlarging, use
 `ImageZoom`:
 
-<ImageZoom src="color-scale.svg" alt="An indigo colour scale from 50 to 950" width="1600" height="600" />
+<ImageZoom src="/images/color-scale.svg" alt="An indigo colour scale from 50 to 950" width="1600" height="600" />
 
 ## Quotes
 
