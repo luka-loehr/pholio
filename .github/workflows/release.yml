@@ -91,6 +91,9 @@ jobs:
     needs: tag
     runs-on: ubuntu-26.04
     timeout-minutes: 20
+    # Tests and check.sh skip their PCRE2 10.43+ comparisons on an older PCRE2; here a skip is a failure.
+    env:
+      PHOLIO_REQUIRE_PCRE2: '1'
     strategy:
       fail-fast: false
       matrix:
