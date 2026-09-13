@@ -1,6 +1,6 @@
-/* ruby: built-in color preset, selected with theme.preset. */
+/* ruby: built-in color preset, active while <html data-preset="ruby">; theme.preset sets the initial value. */
 
-:root {
+:where(:root[data-preset="ruby"]) {
   --color-fd-background: hsl(0, 0%, 98%);
   --color-fd-foreground: hsl(350, 45%, 14%);
   --color-fd-primary: hsl(348, 85%, 45%);
@@ -19,7 +19,7 @@
   --color-fd-popover-foreground: hsl(350, 45%, 14%);
 }
 
-.dark {
+:where(:root[data-preset="ruby"]).dark {
   --color-fd-background: hsl(350, 30%, 6%);
   --color-fd-foreground: hsl(350, 30%, 92%);
   --color-fd-primary: hsl(348, 90%, 62%);
