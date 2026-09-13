@@ -8,14 +8,14 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Code block frame, `CodeBlock` and `Pre` from the reference UI's `dist/components/codeblock.js`.
+ * Code block frame (`CodeBlock` and `Pre`).
  *
  * Only the frame: a `figure` with a title bar (language icon, `figcaption`, copy
  * button) or a floating copy button, the scrollable area and `pre`. Colours,
  * the `shiki` classes including `has-highlighted`/`has-diff`, the `--shiki-*`
  * variables and the content of `pre` come from lib/Highlight.php.
  *
- * Variants of the figure classes (tailwind-merge in the original):
+ * Variants of the figure classes:
  *   standalone        my-4 bg-fd-card rounded-xl
  *   inside a code tab bg-fd-secondary -mx-px -mb-px last:rounded-b-xl
  *   DynamicCodeBlock  bg-fd-card rounded-xl my-0
@@ -23,7 +23,7 @@ require_once __DIR__ . '/../lib/Icons.php';
  * @param array{title?:?string, icon?:?string, allowCopy?:bool, variant:string, style?:string|array<string,string>,
  *              figureClass:list<string>, figureAttrs?:array<string,mixed>, style?:string,
  *              lineNumbersStart?:?int} $props
- *        `icon` is finished SVG markup (the reference transformerIcon), `figureClass` the Shiki classes
+ *        `icon` is finished SVG markup (Highlight/LanguageIcons.php), `figureClass` the Shiki classes
  *        (`preClass` from Highlight::code), `style` the `--shiki-*` variables (`preStyle`).
  * @param string $code content of `pre` (the `code` lines)
  * @param string $copyLabel `Copy Text(code block)(aria-label)`
@@ -75,7 +75,7 @@ function nd_code_block(array $props, string $code, string $copyLabel): string
     return Html::tag('figure', [
         'dir' => 'ltr',
         ...($props['figureAttrs'] ?? []),
-        // CodeBlock sets `shiki` itself and Shiki repeats it in `preClass`: twice, as in the reference.
+        // The frame sets `shiki` itself and Shiki repeats it in `preClass`, so the class appears twice.
         'class' => [$variants[$props['variant']], 'shiki', 'not-prose', ...$props['figureClass']],
         'style' => $props['style'] ?? [],
         'tabindex' => '-1',
