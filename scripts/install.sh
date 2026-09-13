@@ -1,7 +1,7 @@
 #!/bin/sh
 # Install a Pholio release.
 #
-#   curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh
+#   curl -fsSL https://pholio.lukaloehr.com/install.sh | sh
 #   curl -fsSL .../install.sh | sh -s -- --version v0.1.0
 #   curl -fsSL .../install.sh | sh -s -- --dir vendor/pholio
 #
