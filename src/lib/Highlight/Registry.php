@@ -29,6 +29,11 @@ final class Registry
     private array $grammars = [];
     /** @var array<string, Theme> */
     private array $themes = [];
+    /** @var array<string, true> grammars already warned about */
+    private array $simplified = [];
+
+    /** @var null|\Closure(string):void receives the simplified-colours warning; null writes it to STDERR */
+    public static ?\Closure $warn = null;
 
     private function __construct(private string $dir)
     {
@@ -81,6 +86,26 @@ final class Registry
             $this->grammars[$name] = new Grammar((string) $head['scopeName'], $this->json[$name], \Closure::fromCallable($lookup), $this->theme('github-light'));
         }
         return $this->grammars[$name];
+    }
+
+    /**
+     * Warns once per grammar that the pre-10.43 fallback disabled patterns while tokenizing it: the build still
+     * succeeds, but some tokens lose their colour.
+     */
+    public function warnSimplified(string $lang): void
+    {
+        $name = $this->resolveAlias($lang);
+        if (isset($this->simplified[$name])) {
+            return;
+        }
+        $this->simplified[$name] = true;
+        $message = 'pholio: PCRE2 ' . OnigRegex::pcreVersion() . ' is older than 10.43; some syntax colours are simplified ('
+            . $name . ")\n";
+        if (self::$warn !== null) {
+            (self::$warn)($message);
+        } else {
+            fwrite(STDERR, $message);
+        }
     }
 
     public function theme(string $name): Theme
