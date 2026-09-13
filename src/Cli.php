@@ -276,9 +276,18 @@ TEXT;
                 $dev ? ', with drafts' : '',
                 $config['outDir'],
             ));
+            $this->warnings($result);
         }
 
         return self::OK;
+    }
+
+    /** @param array<string, mixed> $result of Builder::build */
+    private function warnings(array $result): void
+    {
+        foreach ($result['warnings'] ?? [] as $warning) {
+            fwrite($this->err, 'pholio: warning: ' . $warning . "\n");
+        }
     }
 
     /** @param array<string, mixed> $options */
@@ -310,6 +319,7 @@ TEXT;
         try {
             $target = Builder::targetBelow($config, $root);
             $result = $this->builder($config, isset($options['dev']), null)->build($target);
+            $this->warnings($result);
             $differences = Fs::compare($target, $against, $config['keep']);
             foreach ($differences as $line) {
                 fwrite($this->out, $line . "\n");
@@ -355,10 +365,13 @@ TEXT;
         }
         $root = Builder::siteRoot($config, $config['outDir']);
 
+        // DevServer.php finds the generated _headers file below the start page's URL.
         $process = proc_open(
             [PHP_BINARY, '-S', $host . ':' . $port, '-t', $root, __DIR__ . '/DevServer.php'],
             [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['redirect', 1]],
             $pipes,
+            null,
+            getenv() + ['PHOLIO_HOME_URL' => $config['homeUrl']],
         );
         if (!is_resource($process)) {
             throw new IoException("cannot start the PHP built-in server on {$host}:{$port}");
@@ -506,7 +519,10 @@ TEXT;
      */
     private function watchedPaths(array $config): array
     {
-        $paths = [$config['configDir'] . '/' . Config::DEFAULT_FILE, $config['contentDir']];
+        $paths = [
+            $config['configDir'] . '/' . Config::DEFAULT_FILE, $config['contentDir'],
+            $config['configDir'] . '/skill.md', $config['configDir'] . '/skills',
+        ];
         if ($config['configFile'] !== '') {
             $paths[] = $config['configFile'];
         }
