@@ -9,14 +9,12 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * The theme switch from `layouts/shared/slots/theme-switch.js`, mode
- * `light-dark`: one button with sun and moon; the active icon carries
+ * The theme switch, mode `light-dark`: one button with sun and moon; the active icon carries
  * `bg-fd-accent text-fd-accent-foreground`.
  *
- * Before mounting, React doesn't know the theme and colours both icons neutrally;
- * after mounting, the reference DOM shows the sun as active (initial theme
- * light). The generator writes that state, because the theme script in
- * `templates/document.php` also starts from light.
+ * The generator marks the sun as active (initial theme light), because the theme
+ * script in `templates/document.php` also starts from light; js/theme.js
+ * corrects it once the stored theme is known.
  *
  * lucide-react renders these two icons with `fill="currentColor"`; `Icons::svg`
  * returns the lucide default `fill="none"`, so exactly that attribute is replaced.
