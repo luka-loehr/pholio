@@ -33,6 +33,7 @@ import { boot as bootAccordion } from './accordion.js';
 import { boot as bootCatalogueCollapsible } from './catalogue-collapsible.js';
 import { boot as bootImageZoom } from './image-zoom.js';
 import { boot as bootBanner } from './banner.js';
+import { boot as bootPageActions } from './page-actions.js';
 
 // Classes of the section switcher popup (verify/CLASS-MAP.md, notebook.js).
 const POPUP_CLASS = 'nd-popover nd-tabsdrop-popup fd-scroll-container';
@@ -123,6 +124,7 @@ export function boot(doc = document) {
     ['catalogue-collapsible', bootCatalogueCollapsible],
     ['image-zoom', bootImageZoom],
     ['banner', bootBanner],
+    ['page-actions', bootPageActions],
   ];
   for (const [name, start] of layout) {
     try {
