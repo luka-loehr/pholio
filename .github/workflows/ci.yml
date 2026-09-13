@@ -19,7 +19,8 @@ concurrency:
 # The PHP matrix runs on the stable ubuntu-latest image, whose PHP links PCRE2 10.42: that is what users on
 # stable distributions have, so the highlighter's pre-10.43 fallback is exercised there (and forced in
 # tests/HighlightFallbackTest.php). The ubuntu-26.04 jobs (PCRE2 10.43 or newer, PHOLIO_REQUIRE_PCRE2=1) are the
-# required full-fidelity gate: scripts/check.sh with the byte-exact highlight references and the demo snapshot.
+# required full-fidelity gate: scripts/check.sh with the highlighter samples and the demo snapshot. The Node job
+# runs verify/run.mjs: the search engine and relevance, the search dialog in three browsers, the agent score, the icons.
 jobs:
   php:
     name: PHP ${{ matrix.php }} – check.sh and fallback demo build (ubuntu-latest)
@@ -50,7 +51,7 @@ jobs:
           php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", ">=") ? 0 : 1);' \
             || echo "::warning::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43: highlighting of a few languages is simplified"
 
-      # On PCRE2 older than 10.43 the byte-exact highlight tests and the snapshot check skip themselves;
+      # On PCRE2 older than 10.43 the highlighter samples and the snapshot check skip themselves;
       # the ubuntu-26.04 jobs below set PHOLIO_REQUIRE_PCRE2=1, which turns those skips into failures.
       - name: Check (lint, tests, demo; PCRE2 10.43+ comparisons skip on older PCRE2)
         run: ./scripts/check.sh
@@ -65,7 +66,7 @@ jobs:
           fi
 
   highlight:
-    name: PHP ${{ matrix.php }} – full fidelity, byte-exact highlight and snapshot (ubuntu-26.04)
+    name: PHP ${{ matrix.php }} – full fidelity, highlighter samples and snapshot (ubuntu-26.04)
     runs-on: ubuntu-26.04
     timeout-minutes: 20
     # Tests and check.sh skip their PCRE2 10.43+ comparisons on an older PCRE2; here a skip is a failure.
@@ -99,8 +100,8 @@ jobs:
       - name: Check (lint, tests, demo against snapshot)
         run: ./scripts/check.sh
 
-  verify:
-    name: Verify tier 2 – Node 26 (ubuntu-latest)
+  node:
+    name: Node 26 – search dialog, agent score, search and icon checks (ubuntu-latest)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -128,8 +129,7 @@ jobs:
         working-directory: verify
         run: npm ci
 
-      # The DOM, style and pixel selftests launch Chromium; the search dialog check also Firefox and WebKit.
-      # The cache key follows the pinned Playwright version.
+      # The search dialog check launches Chromium, Firefox and WebKit. The cache key follows the pinned Playwright version.
       - name: Read the Playwright version
         id: playwright
         working-directory: verify
@@ -152,6 +152,6 @@ jobs:
         working-directory: verify
         run: npx playwright install-deps chromium-headless-shell firefox webkit
 
-      - name: Tier 2
+      - name: Node checks
         working-directory: verify
-        run: node run.mjs --tier 2
+        run: node run.mjs
