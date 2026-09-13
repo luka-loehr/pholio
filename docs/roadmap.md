@@ -30,8 +30,8 @@ the code as absent.
    tables, banners, inline tables of contents, image zoom, and code blocks with
    titles, line numbers and highlighting.
 5. **Extension points.** Slot overrides and registered custom tags.
-6. **A second consumer.** One project other than the first one, to find the
-   assumptions that only look general.
+6. **More consumers.** Sites beyond the one Pholio was first built for, to find
+   the assumptions that only look general.
 
 ## Out of scope
 
