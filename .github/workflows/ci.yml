@@ -16,12 +16,13 @@ concurrency:
   group: ci-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
 
-# ubuntu-26.04: PHP there links the system PCRE2 (10.43 or newer). ubuntu-24.04 ships 10.42, on which the
-# highlighter cannot translate some grammar lookbehinds.
+# The PHP matrix runs on the stable ubuntu-latest image, whose PHP links PCRE2 10.42: that is what users on
+# stable distributions have, so the highlighter's pre-10.43 fallback is exercised there (and forced in
+# tests/HighlightFallbackTest.php). One job on ubuntu-26.04 (PCRE2 10.43 or newer) is the full-fidelity check.
 jobs:
   php:
     name: PHP ${{ matrix.php }} – lint, tests, demo check
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -41,12 +42,12 @@ jobs:
           coverage: none
           tools: none
 
-      - name: Require PCRE2 10.43 or newer
+      - name: Show PHP and PCRE2 versions
         run: |
           php -v
           php -r 'echo "PCRE2 ", PCRE_VERSION, PHP_EOL;'
           php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", ">=") ? 0 : 1);' \
-            || { echo "::error::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43, which the highlighter needs"; exit 1; }
+            || echo "::warning::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43: highlighting of a few languages is simplified"
 
       - name: Lint
         run: ./scripts/lint.sh
@@ -57,9 +58,37 @@ jobs:
       - name: Check (lint, tests, demo against snapshot)
         run: ./scripts/check.sh
 
+  highlight:
+    name: PHP 8.5 – full-fidelity highlighting (PCRE2 10.43+, ubuntu-26.04)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP 8.5
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, ctype
+          coverage: none
+          tools: none
+
+      - name: Require PCRE2 10.43 or newer
+        run: |
+          php -v
+          php -r 'echo "PCRE2 ", PCRE_VERSION, PHP_EOL;'
+          php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", ">=") ? 0 : 1);' \
+            || { echo "::error::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43, which the highlighter needs"; exit 1; }
+
+      - name: Check (lint, tests, demo against snapshot)
+        run: ./scripts/check.sh
+
   verify:
     name: Verify tier 2 – Node 26
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Check out
