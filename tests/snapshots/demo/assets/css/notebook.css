@@ -1616,14 +1616,12 @@ html {
     flex: 1;
   }
 
-  /* .nd-scroll-viewport  <-  mask-[linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)] overscroll-contain p-4 rounded-[inherit] size-full */
+  /* .nd-scroll-viewport  <-  overscroll-contain p-4 rounded-[inherit] size-full */
   .nd-scroll-viewport {
     width: 100%;
     height: 100%;
     overscroll-behavior: contain;
     border-radius: inherit;
-    -webkit-mask-image: linear-gradient(#0000, #fff 12px calc(100% - 12px), #0000);
-    mask-image: linear-gradient(#0000, #fff 12px calc(100% - 12px), #0000);
     padding: calc(var(--spacing) * 4);
   }
 
@@ -2027,7 +2025,7 @@ html {
     height: calc(var(--spacing) * 4);
   }
 
-  /* .nd-toc-scroll  <-  [scrollbar-width:none] mask-[linear-gradient(to_bottom,transparent,white_16px,white_calc(100%-16px),transparent)] min-h-0 ms-px overflow-x-clip overflow-y-auto overscroll-contain py-3 relative text-sm */
+  /* .nd-toc-scroll  <-  [scrollbar-width:none] min-h-0 ms-px overflow-x-clip overflow-y-auto overscroll-contain py-3 relative text-sm */
   .nd-toc-scroll {
     position: relative;
     margin-inline-start: 1px;
@@ -2036,8 +2034,6 @@ html {
     overflow-x: clip;
     overflow-y: auto;
     overscroll-behavior: contain;
-    -webkit-mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
-    mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
     padding-block: calc(var(--spacing) * 3);
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
@@ -4111,86 +4107,26 @@ html {
     display: block;
   }
 
-  /* .nd-hero-wash  <-  -z-10 absolute bg-gradient-to-r dark:from-fd-background dark:to-fd-background/20 dark:via-fd-background/80 from-fd-background/95 inset-0 to-fd-background/12 via-fd-background/70 */
+  /* .nd-hero-wash  <-  -z-10 absolute bg-fd-background/80 inset-0 */
   .nd-hero-wash {
     position: absolute;
     inset: 0;
     z-index: calc(10 * -1);
-    --tw-gradient-position: to right in oklab;
-    background-image: linear-gradient(var(--tw-gradient-stops));
-    --tw-gradient-from: #f5f5f5f2;
+    background-color: #f5f5f5cc;
   }
   @supports (color: color-mix(in lab, red, red)) {
     .nd-hero-wash {
-      --tw-gradient-from: color-mix(in oklab, var(--color-fd-background) 95%, transparent);
+      background-color: color-mix(in oklab, var(--color-fd-background) 80%, transparent);
     }
-  }
-  .nd-hero-wash {
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-    --tw-gradient-via: #f5f5f5b3;
-  }
-  @supports (color: color-mix(in lab, red, red)) {
-    .nd-hero-wash {
-      --tw-gradient-via: color-mix(in oklab, var(--color-fd-background) 70%, transparent);
-    }
-  }
-  .nd-hero-wash {
-    --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
-    --tw-gradient-stops: var(--tw-gradient-via-stops);
-    --tw-gradient-to: #f5f5f51f;
-  }
-  @supports (color: color-mix(in lab, red, red)) {
-    .nd-hero-wash {
-      --tw-gradient-to: color-mix(in oklab, var(--color-fd-background) 12%, transparent);
-    }
-  }
-  .nd-hero-wash {
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
-  .nd-hero-wash:where(.dark, .dark *) {
-    --tw-gradient-from: var(--color-fd-background);
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-    --tw-gradient-via: #f5f5f5cc;
-  }
-  @supports (color: color-mix(in lab, red, red)) {
-    .nd-hero-wash:where(.dark, .dark *) {
-      --tw-gradient-via: color-mix(in oklab, var(--color-fd-background) 80%, transparent);
-    }
-  }
-  .nd-hero-wash:where(.dark, .dark *) {
-    --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
-    --tw-gradient-stops: var(--tw-gradient-via-stops);
-    --tw-gradient-to: #f5f5f533;
-  }
-  @supports (color: color-mix(in lab, red, red)) {
-    .nd-hero-wash:where(.dark, .dark *) {
-      --tw-gradient-to: color-mix(in oklab, var(--color-fd-background) 20%, transparent);
-    }
-  }
-  .nd-hero-wash:where(.dark, .dark *) {
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
 
-  /* .nd-hero-fade  <-  -z-10 absolute bg-gradient-to-t bottom-0 from-fd-background/60 h-28 inset-x-0 to-transparent */
+  /* .nd-hero-fade  <-  -z-10 absolute bottom-0 h-28 inset-x-0 */
   .nd-hero-fade {
     position: absolute;
     inset-inline: 0;
     bottom: 0;
     z-index: calc(10 * -1);
     height: calc(var(--spacing) * 28);
-    --tw-gradient-position: to top in oklab;
-    background-image: linear-gradient(var(--tw-gradient-stops));
-    --tw-gradient-from: #f5f5f599;
-  }
-  @supports (color: color-mix(in lab, red, red)) {
-    .nd-hero-fade {
-      --tw-gradient-from: color-mix(in oklab, var(--color-fd-background) 60%, transparent);
-    }
-  }
-  .nd-hero-fade {
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-    --tw-gradient-to: transparent;
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
 
   /* .nd-hero-inner  <-  flex flex-col gap-6 lg:max-w-7xl max-w-6xl md:py-32 mx-auto px-6 py-24 w-full */
@@ -5857,16 +5793,10 @@ code.shiki:not(.not-pholio-code *) span {
     background-color: var(--color-fd-secondary);
   }
 
-  /* .nd-banner-rainbow  <-  bg-fd-background */
+  /* .nd-banner-rainbow  <-  bg-fd-secondary border-b */
   .nd-banner-rainbow {
-    background-color: var(--color-fd-background);
-  }
-
-  /* .nd-banner-flow  <-  -z-1 absolute inset-0 (gradient and animation are inline) */
-  .nd-banner-flow {
-    position: absolute;
-    inset: 0;
-    z-index: calc(1 * -1);
+    border-bottom: 1px solid var(--color-fd-border);
+    background-color: var(--color-fd-secondary);
   }
 
   /* .nd-banner-close  <-  -translate-y-1/2 [&_svg]:size-4.5 absolute inset-e-2 p-1.5 rounded-md text-fd-muted-foreground/50 top-1/2 (+ nd-btn nd-btn-ghost) */
