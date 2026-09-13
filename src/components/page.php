@@ -13,7 +13,7 @@ require_once __DIR__ . '/footer.php';
  * The article itself (`layouts/notebook/page/slots/container.js` plus
  * `DocsTitle`, `DocsDescription`, `DocsBody` from `layouts/notebook/page`).
  *
- * The "last updated" line isn't a Fumadocs component; it comes from the
+ * The "last updated" line isn't a reference design component; it comes from the
  * reference's docs page template. There the label (`Last updated(page)`) and
  * the value are two separate JSX expressions and therefore two text nodes; the
  * empty comment produces the same split.
