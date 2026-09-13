@@ -27,7 +27,7 @@ return [
 
     // Logo URL shown next to the wordmark, and its size in pixels.
     // null shows the wordmark only.
-    'logo' => '/images/logo.svg',
+    'logo' => null, // e.g. '/images/logo.svg' with the copy entry below
     'logo_size' => 24,
 
     // Where the wordmark links.
@@ -74,9 +74,11 @@ return [
 
         // Image sources starting with asset_prefix are rewritten to asset_target;
         // asset_root is the directory behind asset_target, used for image sizes.
-        'asset_prefix' => '/images',
-        'asset_target' => '/images',
-        'asset_root' => 'images',
+        // With an images/ directory next to this file:
+        //   'asset_prefix' => '/images', 'asset_target' => '/images', 'asset_root' => 'images',
+        'asset_prefix' => null,
+        'asset_target' => '{docs}',
+        'asset_root' => null,
 
         // Extra frontmatter names mapped onto allowed ones.
         'frontmatter_aliases' => [
@@ -85,8 +87,9 @@ return [
     ],
 
     // Source directory => URL directory, copied verbatim (without *.md files).
+    // A missing source directory stops the build.
     'copy' => [
-        'images' => '/images',
+        // 'images' => '/images',
     ],
 
     'output' => [
@@ -115,9 +118,10 @@ return [
             // "\n" starts a new line.
             'headline' => "Everything you need,\nin one place.",
             'lead' => 'Guides and reference, written for the people who use it.',
-            'image' => '/images/hero-light.svg',
-            'image_dark' => '/images/hero-dark.svg',
-            'icon' => '/images/logo.svg',
+            // Image URLs, e.g. '/images/hero-light.svg' with the copy entry above.
+            'image' => null,
+            'image_dark' => null,
+            'icon' => null,
             'icon_size' => 48,
             'buttons' => [
                 ['label' => 'Start reading', 'href' => '/guide', 'variant' => 'primary', 'icon' => 'arrow-right'],
