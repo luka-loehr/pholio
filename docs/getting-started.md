@@ -7,8 +7,11 @@ icon: rocket
 ## Requirements
 
 - PHP 8.2 or newer, command line, with `mbstring` and `ctype`.
-- PCRE2 10.43 or newer, which is bundled with PHP (`php -r 'echo PCRE_VERSION;'`).
-  The syntax highlighter needs it for lookbehinds of variable length.
+- PCRE2 10.43 or newer is recommended for full syntax highlighting. It is bundled
+  with PHP (`php -r 'echo PCRE_VERSION;'`). On an older PCRE2 the build still
+  succeeds; the few grammar patterns that need lookbehinds of variable length are
+  switched off, and Pholio warns once per affected grammar that some syntax
+  colours are simplified.
 
 That is the whole list for building a site. Node is needed only for the
 comparison tooling in `verify/`, which never reaches a published site.
@@ -16,19 +19,28 @@ comparison tooling in `verify/`, which never reaches a published site.
 ## Install
 
 The install script downloads the latest release, verifies its checksum, checks
-PHP and PCRE2, extracts Pholio and puts the `pholio` command on your `PATH`:
+PHP and PCRE2, and installs Pholio for your user: the release goes into
+`~/.local/share/pholio` and the `pholio` command is linked into `~/.local/bin`,
+which needs to be on your `PATH`.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh
 ```
 
-`sh -s -- --dir <path> --version vX.Y.Z` installs somewhere else or a specific
-version. Pholio is a drop-in, not a package, so cloning the repository works as
-well; then call `php <clone>/bin/pholio`, or put `<clone>/bin` on your `PATH`:
+Options go after `sh -s --`: `--version vX.Y.Z` installs a specific release,
+`--system` installs into `/usr/local` (may need `sudo`), and `--prune` removes
+other installed versions.
+
+To keep Pholio inside one project instead, install it into a directory and call
+it through PHP:
 
 ```bash
-git clone https://github.com/luka-loehr/pholio.git vendor/pholio
+curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh -s -- --dir vendor/pholio
+php vendor/pholio/bin/pholio init docs
 ```
+
+Pholio is a drop-in, not a package, so a clone works the same way:
+`git clone https://github.com/luka-loehr/pholio.git vendor/pholio`.
 
 ## Create a project
 
