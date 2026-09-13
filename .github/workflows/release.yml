@@ -11,10 +11,12 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+# ubuntu-26.04: PHP there links the system PCRE2 (10.43 or newer). ubuntu-24.04 ships 10.42, on which the
+# highlighter cannot translate some grammar lookbehinds.
 jobs:
   tag:
     name: Tag matches VERSION and CHANGELOG
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Check out
@@ -37,7 +39,7 @@ jobs:
   test:
     name: PHP ${{ matrix.php }} – check
     needs: tag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     strategy:
       matrix:
@@ -56,13 +58,20 @@ jobs:
           coverage: none
           tools: none
 
+      - name: Require PCRE2 10.43 or newer
+        run: |
+          php -v
+          php -r 'echo "PCRE2 ", PCRE_VERSION, PHP_EOL;'
+          php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", ">=") ? 0 : 1);' \
+            || { echo "::error::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43, which the highlighter needs"; exit 1; }
+
       - name: Check (lint, tests, demo against snapshot)
         run: ./scripts/check.sh
 
   release:
     name: Publish GitHub Release
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: write
