@@ -25,12 +25,9 @@ with no dependencies.
   tabs, table of contents with a popover on small screens, breadcrumbs, previous
   and next links, light and dark schemes with a keyboard shortcut, Inter and the
   lucide icons, in plain CSS and small JavaScript modules.
-- **Color presets.** Eleven built-in presets for light and dark: neutral (the
-  default), black, vitepress, dusk, catppuccin, ocean, purple, solar, emerald,
-  ruby and aspen. Every build's stylesheet carries all of them, each scoped to
-  `<html data-preset>`; `theme.preset` sets the initial one, and a script can
-  recolor a page by changing the attribute. `theme.light`, `theme.dark` and
-  `theme.palette_css` adjust single tokens or add a palette on top.
+- **Custom colors.** `theme.light` and `theme.dark` override single color tokens
+  of the light and dark scheme with static colors, and `theme.palette_css` adds a
+  palette stylesheet on top.
 - **No overscroll bounce.** The page doesn't drag past its top or bottom, and the
   sidebar, the table of contents, the search results and the popovers keep their
   scrolling to themselves instead of bouncing or scrolling the page.
