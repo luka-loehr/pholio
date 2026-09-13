@@ -2,7 +2,7 @@
 
 # Pholio – Beautiful documentation, powered by Markdown
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?style=flat)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg?style=flat)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-%E2%89%A5%208.2-777bb4.svg?style=flat)](https://www.php.net/releases/8.2/en.php)
 [![CI](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml/badge.svg)](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml)
@@ -28,13 +28,13 @@
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh
-pholio init docs
-cd docs
+pholio init my-docs
+cd my-docs
 pholio dev      # http://127.0.0.1:8080
 pholio build    # static site in public/
 ```
 
-Requires PHP 8.2+ with `mbstring` and `ctype` (PCRE2 10.43+ recommended for full syntax highlighting). More in [Getting started](docs/getting-started.md).
+Requires PHP 8.2+ with `mbstring` and `ctype` (PCRE2 10.43+ recommended for full syntax highlighting). The installer links `pholio` into `~/.local/bin` and prints the line to add if that folder is not on your `PATH`. More in [Getting started](docs/getting-started.md).
 
 ---
 
