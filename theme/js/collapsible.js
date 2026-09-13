@@ -34,6 +34,8 @@
 
 const PANEL_SELECTOR = ':scope > [id]:not(template)';
 const TEMPLATE_SELECTOR = ':scope > template[data-collapsible-panel]';
+// Elements that are never a panel, even when they carry an id.
+const NOT_A_PANEL = 'button, a, input, select, textarea, summary, [aria-haspopup], [role="button"]';
 
 function nextFrame(fn) {
   return requestAnimationFrame(fn);
@@ -102,7 +104,11 @@ export class Collapsible {
     // A panel created from the template is always inserted directly before the template.
     const beside = this.trigger && this.trigger.parentElement !== root ? this.trigger.parentElement : null;
     this.template = options.template ?? root.querySelector(TEMPLATE_SELECTOR) ?? beside?.querySelector(TEMPLATE_SELECTOR) ?? null;
-    this.panel = options.panel ?? this.findPanel(root) ?? (beside ? this.findPanel(beside) : null);
+    // Passing the template explicitly means the caller describes the layout: then
+    // only `options.panel` applies, since an automatic search could pick up
+    // neighbours (start page menu: search button with an id next to the menu button).
+    this.panel = options.panel
+      ?? (options.template ? null : (this.findPanel(root) ?? (beside ? this.findPanel(beside) : null)));
     this.open = root.hasAttribute('data-open');
     // A panel that is open on first render skips its opening animation
     // (shouldPreventMountAnimationRef); the reference writes `animation-name:none`
@@ -120,13 +126,18 @@ export class Collapsible {
   }
 
   /**
-   * First child of `scope` with an `id` that is not a template and neither is the
-   * trigger nor contains it. Without this exclusion a trigger with its own `id`
-   * counts as an already open panel: opening would then set the panel attributes
-   * on the button, and closing would remove the button from the DOM.
+   * First child of `scope` that can be an already rendered panel: with an `id`,
+   * with the state attribute `data-open` or `data-closed` that Base UI sets on every
+   * panel, not a template, not an interactive element (button, link, form field,
+   * `aria-haspopup`, `role="button"`), and neither the trigger nor an element that
+   * contains it. Without this restriction buttons with their own `id` counted as an
+   * open panel (the trigger itself, or the search button next to the start page
+   * menu button): opening then set the panel attributes on the button and mounted no panel.
    */
   findPanel(scope) {
     for (const el of scope.querySelectorAll(PANEL_SELECTOR)) {
+      if (!el.hasAttribute('data-open') && !el.hasAttribute('data-closed')) continue;
+      if (el.matches(NOT_A_PANEL)) continue;
       if (this.trigger && (el === this.trigger || el.contains(this.trigger))) continue;
       return el;
     }
@@ -203,8 +214,21 @@ export class Collapsible {
       return;
     }
     this.options.onPanelUnmount?.(this.panel);
-    this.panel.remove();
-    if (this.template) this.panel = null;
+    if (!this.template) {
+      // A panel that is open on load has no template: the generator emits it
+      // directly. On closing it moves into a new template at its place, so it can
+      // open again and the folder afterwards has the same shape as one that was
+      // closed from the start (trigger, template).
+      const template = document.createElement('template');
+      template.setAttribute('data-collapsible-panel', '');
+      this.panel.parentNode.insertBefore(template, this.panel);
+      this.panel.remove();
+      template.content.appendChild(this.panel);
+      this.template = template;
+    } else {
+      this.panel.remove();
+    }
+    this.panel = null;
   }
 
   /**
