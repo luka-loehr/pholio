@@ -1,5 +1,5 @@
-// The search dialog: the reference theme's markup and keyboard behaviour, with Pholio's
-// own engine (search.js) behind it.
+// The search dialog: markup and keyboard behaviour, with Pholio's search engine
+// (search.js) behind it.
 //
 // Usage:
 //   import { mountSearchDialog } from './search-dialog.js';
@@ -7,7 +7,7 @@
 //   The search index URL comes from <meta name="nd-search-index" content="<base>/search-index.json">;
 //   `indexUrl` overrides it for tests only.
 //
-// Structure (measured on the reference, reference export `states/search-*.html`):
+// Structure:
 //   Popup #fd-search-dialog-content
 //     h2.hidden               title "Search", linked via aria-labelledby
 //     div.flex…p-3            head: magnifier (pulses while loading),
@@ -46,7 +46,7 @@ const ICON_HASH_PATHS =
   '<line x1="4" x2="20" y1="9" y2="9"></line><line x1="4" x2="20" y1="15" y2="15"></line>'
   + '<line x1="10" x2="8" y1="3" y2="21"></line><line x1="16" x2="14" y1="3" y2="21"></line>';
 
-// Classes per verify/CLASS-MAP.md: appearance hangs on nd component classes,
+// Appearance hangs on nd component classes,
 // states on attributes (data-empty, aria-selected, data-open/-closed).
 const CLOSE_BUTTON_CLASS = 'nd-btn nd-search-close';
 
@@ -156,8 +156,7 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
     noResults: t('No results found(search dialog)'),
   };
 
-  // Id order as in the reference: the portal first, then the title
-  // (React assigns useId in component order).
+  // Id order: the portal first, then the title.
   const portalId = clientId();
   const titleId = clientId('base-ui-');
   const popup = html(
@@ -179,8 +178,8 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
   const list = popup.querySelector('[data-empty]');
   const viewport = list.firstElementChild;
 
-  // Backdrop and footer are already in the HTML; when they are missing (a fixture
-  // with the frozen reference DOM), they are added at the same position.
+  // Backdrop and footer are already in the HTML; when they are missing (a page
+  // without components/search-dialog.php), they are added at the same position.
   let backdrop = document.querySelector('div[role="presentation"].nd-dialog-backdrop');
   if (!backdrop) {
     backdrop = html(
@@ -303,7 +302,7 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
   }
 
   input.addEventListener('input', () => {
-    // React mirrors the value of a controlled input into the attribute as well.
+    // The value is mirrored into the attribute as well.
     input.setAttribute('value', input.value);
     runQuery(input.value);
   });
@@ -351,10 +350,9 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
     }
   });
 
-  // The list height follows the viewport (ResizeObserver as in the reference).
-  // Observation starts only after the first open: React attaches the observer in
-  // an effect after painting, so in the reference --fd-animated-height also shows
-  // up in the style attribute only two frames after opening.
+  // The list height follows the viewport through a ResizeObserver. Observation
+  // starts only after the first open, so --fd-animated-height shows up in the
+  // style attribute only after the dialog has painted.
   const observer = new ResizeObserver(() => {
     list.style.setProperty('--fd-animated-height', `${viewport.clientHeight}px`);
   });
