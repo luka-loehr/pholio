@@ -7,13 +7,13 @@
 
 **Beautiful PHP documentation, generated from your code.**
 
-I wanted the documentation for a real documentation site to look like the Fumadocs
-Notebook theme, and I did not want Node, npm, Composer or a framework in the
-repository to get it. So I rebuilt the theme in plain PHP, CSS and JavaScript,
-and then I wrote the tooling that proves the rebuild is the same page rather
-than a resemblance: the same element tree, the same computed styles, the same
-pixels, the same keyboard behaviour. Pholio is that generator, taken out of the
-project and made to stand on its own.
+I wanted a documentation site that looks and behaves exactly like the Fumadocs
+Notebook theme, without Node, npm, Composer or a framework in the repository.
+So I rebuilt the theme in plain PHP, CSS and JavaScript, and then I wrote the
+tooling that proves the rebuild is the same page rather than a resemblance: the
+same element tree, the same computed styles, the same pixels, the same keyboard
+behaviour. It was built for a real documentation site first, and Pholio is that
+generator made to stand on its own.
 
 > **Pre-release.** The skeleton is here; the generator itself is being moved in
 > from the project it was written for, so `php bin/pholio build` exits with
@@ -95,12 +95,11 @@ into a temporary directory, diff, refuse anything stale.
 | `verify/` | Node development tooling for the four stages, never shipped |
 | `docs/` | This project's own documentation, written in Pholio's format |
 | `docs/assets/` | Banner and other repository images |
-| `examples/demo/` | A neutral demo site covering every component, in English |
-| `examples/consumer/` | Placeholder for the first real consumer's setup |
+| `examples/demo/` | A demo site covering every component |
 | `scripts/` | Local checks, run by hand |
 | `pholio.config.example.php` | The documented configuration schema |
 
-`src/`, `theme/`, `verify/` and `examples/consumer/` currently hold only a
+`src/`, `theme/` and `verify/` currently hold only a
 README describing what lands there. `examples/demo/` is complete content that
 waits only for the generator.
 
@@ -234,9 +233,9 @@ same information as comments.
 
 ## 9. Decision record
 
-- **2026-09-12 — The name is Pholio.** The generator stopped being a detail of
-  one documentation site and became a product with its own repository and its own
-  branding.
+- **2026-09-12 — The name is Pholio.** The generator stopped being an internal
+  build step of one documentation site and became a product with its own
+  repository, its own name and its own branding.
 - **2026-09-12 — Markdown plus component tags, not MDX.** MDX buys expressions
   and imports, and pays with a compiler, a component runtime and content that
   can execute. Tags are data: attributes and nesting, nothing else. New tags are
