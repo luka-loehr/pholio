@@ -7,11 +7,13 @@
     "index",
     "getting-started",
     "content-format",
+    "components",
     "configuration",
+    "themes",
     "agents",
     "---Background---",
     "architecture",
-    "verification",
+    "testing",
     "roadmap"
   ]
 }
