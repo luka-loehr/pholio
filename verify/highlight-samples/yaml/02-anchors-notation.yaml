@@ -1,0 +1,61 @@
+# Docker Compose for local development
+x-defaults: &defaults
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+x-environment: &environment
+  TZ: Europe/Paris
+  APP_ENV: development # [!code highlight]
+
+services:
+  # [!code focus]
+  web:
+    <<: *defaults
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+      - 127.0.0.1:8443:443
+    volumes:
+      - ./docs/dist:/usr/share/nginx/html:ro
+    depends_on: [php, database]
+
+  php:
+    <<: [*defaults]
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        PHP_VERSION: "8.3"
+    environment:
+      <<: *environment
+      DB_HOST: database
+      DB_PASSWORD: secret # [!code --]
+      DB_PASSWORD_FILE: /run/secrets/db_password # [!code ++]
+
+  database:
+    <<: *defaults
+    image: &db_image mariadb:11.4
+    # [!code highlight:3]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+    environment:
+      MARIADB_DATABASE: docs
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_password
+
+  backup:
+    image: *db_image
+    # [!code word:backup]
+    command: >-
+      sh -c "mariadb-dump --all-databases
+      | gzip > /backup/backup-$$(date +%F).sql.gz"
+    profiles: ["backup"] # [!code word:backup:2]
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+
+volumes:
+  db_data: {}
