@@ -7,11 +7,10 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * Step sequence, `Steps`/`Step` from the reference UI's `dist/components/steps.js`.
+ * Step sequence (`Steps`/`Step`).
  *
- * Both classes keep their names: their rules (`.fd-steps`, `.fd-step:before`
- * with the counter) live in the reference UI's `css/lib/base.css` and are carried over
- * into theme/css/prose.css.
+ * The rules for both classes (`.fd-steps`, `.fd-step:before` with the counter)
+ * live in theme/css/prose.css.
  */
 function nd_steps(string $children): string
 {
