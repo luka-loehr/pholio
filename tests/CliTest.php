@@ -356,7 +356,8 @@ test('dev server router maps slashless URLs to index.html', function (): void {
         assert_same([200, "<h1>Guide</h1>\n"], $get('/guide'));
         assert_same([200, "<h1>Guide</h1>\n"], $get('/guide/'));
         assert_same(404, $get('/missing')[0]);
-        assert_same(404, $get('/notes.md')[0]);
+        // Markdown in the output is published on purpose (page twins); sources never reach it.
+        assert_same(200, $get('/notes.md')[0]);
     } finally {
         proc_terminate($server);
         proc_close($server);
