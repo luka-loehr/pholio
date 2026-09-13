@@ -1,0 +1,58 @@
+/* solar: built-in color preset, selected with theme.preset. From 768px the article sits on a raised card. */
+
+:root {
+  --color-fd-primary: oklch(0.487 0.083 262.691);
+  --color-fd-article: hsl(0, 0%, 97%);
+  letter-spacing: -0.25px;
+}
+
+.dark {
+  --color-fd-primary: oklch(0.902 0.0461 259.51);
+  --color-fd-article: hsl(0, 0%, 7.04%);
+  --color-fd-background: hsl(0, 0%, 5.04%);
+}
+
+@media (min-width: 768px) {
+  #nd-notebook-layout [data-layout-main] {
+    position: relative;
+    padding: 1rem;
+  }
+
+  #nd-notebook-layout [data-layout-main]:before {
+    content: '';
+    position: absolute;
+    inset: 1rem;
+    z-index: -1;
+    border: 1px solid var(--color-fd-border);
+    border-radius: 0.75rem;
+    background-color: var(--color-fd-article);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  #nd-notebook-layout [data-toc-popover] {
+    top: calc(var(--fd-docs-row-2) + 0.625rem);
+    margin-inline: 1rem;
+    margin-top: 0.625rem;
+  }
+
+  #nd-notebook-layout [data-toc-popover] header {
+    transform-origin: top center;
+    border: 1px solid var(--color-fd-border);
+    border-radius: 0.75rem;
+    background-color: color-mix(in oklab, var(--color-fd-popover) 50%, transparent);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transition-property: margin;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  #nd-notebook-layout [data-toc-popover] header:has([data-active='true']) {
+    margin-inline: -0.5rem;
+    background-color: color-mix(in oklab, var(--color-fd-popover) 80%, transparent);
+  }
+}
+
+#nd-sidebar[data-collapsed='false'] {
+  border: none;
+  background-color: var(--color-fd-background);
+}
