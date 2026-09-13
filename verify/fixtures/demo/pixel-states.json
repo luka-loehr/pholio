@@ -29,7 +29,7 @@
       "description": "Sidebar collapsed, mouse far away from the hover zone.",
       "widths": [1440, 1024],
       "actions": [
-        { "click": "button[aria-label=\"Collapse Sidebar\"]:visible" },
+        { "click": "button[data-collapsed]:visible" },
         { "wait": 800 }
       ],
       "settle": 400,
@@ -41,12 +41,54 @@
       "description": "Sidebar collapsed and shown again through the 4 px hover zone at the left edge (data-hovered=true). The zone is the first child of [data-sidebar-placeholder] and only active in the collapsed state.",
       "widths": [1440, 1024],
       "actions": [
-        { "click": "button[aria-label=\"Collapse Sidebar\"]:visible" },
+        { "click": "button[data-collapsed]:visible" },
         { "wait": 800 },
         { "hover": "[data-sidebar-placeholder] > div:first-child" },
         { "wait": 800 }
       ],
       "settle": 400,
+      "pages": "^/(guide|reference)(/|$)"
+    },
+    {
+      "name": "sidebar-collapsed-expanded",
+      "description": "Sidebar collapsed and expanded again through the same trigger.",
+      "widths": [1440, 1024],
+      "actions": [
+        { "click": "button[data-collapsed]:visible" },
+        { "wait": 800 },
+        { "click": "button[data-collapsed]:visible" },
+        { "wait": 800 }
+      ],
+      "settle": 400,
+      "park": [900, 700],
+      "pages": "^/(guide|reference)(/|$)"
+    },
+    {
+      "name": "sidebar-collapsed-search-open",
+      "description": "Sidebar collapsed, then the search dialog opened.",
+      "widths": [1440, 1024],
+      "actions": [
+        { "click": "button[data-collapsed]:visible" },
+        { "wait": 800 },
+        { "click": "button[data-search-full]:visible" },
+        { "wait": 800 }
+      ],
+      "settle": 600,
+      "park": [5, 5],
+      "pages": "^/(guide|reference)(/|$)"
+    },
+    {
+      "name": "sidebar-collapsed-theme-switched",
+      "description": "Sidebar collapsed, then the theme switched.",
+      "widths": [1440, 1024],
+      "actions": [
+        { "click": "button[data-collapsed]:visible" },
+        { "wait": 800 },
+        { "click": "button[data-theme-toggle]:visible" },
+        { "wait": 800 }
+      ],
+      "settle": 400,
+      "park": [900, 700],
       "pages": "^/(guide|reference)(/|$)"
     },
     {
