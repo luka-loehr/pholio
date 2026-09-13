@@ -24,7 +24,7 @@ or the configuration schema; such changes are listed under **Changed**.
   404s included. A `_headers` file carries the headers to Cloudflare Pages and Netlify;
   `examples/cloudflare-worker` negotiates on Cloudflare Workers.
 - **robots.txt, sitemap.xml and JSON-LD** (WebSite, TechArticle, BreadcrumbList) on every page.
-- **Page actions**: "Copy page" next to the page title, with View as Markdown, Open in ChatGPT, Open in
+- **Page actions**: "Copy Markdown" and "Open" below the page description, the menu with View as Markdown, Open in ChatGPT, Open in
   Claude and Copy llms.txt URL.
 - **Configuration**: `site.url`, `site.description` and the `agents` block to switch each file off,
   add agent instructions or exclude pages; `noindex: true` in the frontmatter.
