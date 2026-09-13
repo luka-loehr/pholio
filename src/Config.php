@@ -53,6 +53,7 @@ require_once __DIR__ . '/I18n.php';
  *   outDir: string,                 absolute, the directory that holds homeUrl's index.html
  *   content: array{
  *     extensions: list<string>,     page file extensions without dot, default ["md"]
+ *     linkPrefix: ?string,          URL prefix of internal content links rewritten to baseUrl, null: no rewrite
  *     assetPrefix: ?string,         URL prefix of content images to rewrite, null: no rewrite
  *     assetTarget: string,          URL the prefix maps to (default: baseUrl)
  *     assetRoot: ?string,           absolute directory mirroring assetTarget, for image sizes;
@@ -171,6 +172,7 @@ final class Config
             'output_dir' => 'string!',
             'content' => [
                 'extensions' => ['list<string>', ['md']],
+                'link_prefix' => ['?string', null],
                 'asset_prefix' => ['?string', null],
                 'asset_target' => ['string', '{docs}'],
                 'asset_root' => ['?string', null],
@@ -693,6 +695,7 @@ final class Config
             'outDir' => rtrim((string) $path($c['output_dir']), '/'),
             'content' => [
                 'extensions' => $c['content']['extensions'],
+                'linkPrefix' => $c['content']['link_prefix'] === null ? null : rtrim($c['content']['link_prefix'], '/'),
                 'assetPrefix' => $c['content']['asset_prefix'] === null ? null : rtrim($c['content']['asset_prefix'], '/'),
                 'assetTarget' => (string) $url($c['content']['asset_target']),
                 'assetRoot' => $c['content']['asset_root'] === null ? null : rtrim((string) $path($c['content']['asset_root']), '/'),
