@@ -94,10 +94,27 @@ async function get(url, headers = {}) {
 const isHtml = (text) => /^\s*<(!doctype|html)/i.test(text);
 const contentType = (response) => response.headers.get('content-type') ?? '';
 
-/** Markdown link targets of a text, resolved against its URL, without fragments. */
+/** Text without fenced code blocks (``` and ~~~) and inline code spans, whose link syntax is only an example. */
+function withoutCode(text) {
+  const lines = [];
+  let fence = null;
+  for (const line of text.split('\n')) {
+    const marker = /^\s{0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (fence === null && marker) {
+      fence = marker;
+    } else if (fence !== null) {
+      if (marker && marker[0] === fence[0] && marker.length >= fence.length && line.trim() === marker) fence = null;
+    } else {
+      lines.push(line.replace(/(`+)[\s\S]*?\1/g, ''));
+    }
+  }
+  return lines.join('\n');
+}
+
+/** Markdown link targets of a text outside code, resolved against its URL, without fragments. */
 function links(text, from) {
   const out = [];
-  for (const match of text.matchAll(/\]\(<?([^)\s>]+)>?(?:\s+"[^"]*")?\)/g)) {
+  for (const match of withoutCode(text).matchAll(/\]\(<?([^)\s>]+)>?(?:\s+"[^"]*")?\)/g)) {
     if (match[1].startsWith('#') || match[1].startsWith('mailto:')) continue;
     try {
       const url = new URL(match[1], from);
