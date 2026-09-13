@@ -9,19 +9,17 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * Accordion list, rebuilt from the reference UI's `dist/components/accordion.js`
- * (`Accordions`, `Accordion`, `CopyButton`) on `components/ui/accordion.js` and
- * Base UI `Accordion` (@base-ui/react 1.8.0).
+ * Accordion list (`Accordions`, `Accordion`, a copy-link button per item) on the
+ * markup of Base UI `Accordion` (@base-ui/react 1.8.0).
  *
- * Quirks the reference DOM shows and that are reproduced on purpose:
+ * Details that are deliberate:
  * - `Accordions` only passes `type` through; Base UI doesn't know it and writes
  *   it as an attribute on the root. So there is never multiple selection
  *   (`multiple` stays false), not even with `type="multiple"`.
  * - Panels stay mounted while closed (`hiddenUntilFound`): `hidden="until-found"`,
  *   `data-starting-style`, height variables `auto`.
- * - In the hydrated state the trigger carries `data-value=""` and the first item
- *   has no `data-index`; only opening writes the value (reference export
- *   `states/catalogue-accordion-open`).
+ * - Initially the trigger carries `data-value=""` and the first item has no
+ *   `data-index`; only opening writes the value (js/accordion.js).
  * - Trigger and panel ids come from one `useId` with the suffixes `H2` (trigger)
  *   and `H1` (panel).
  */
