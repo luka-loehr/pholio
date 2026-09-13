@@ -7,7 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * Screenshot with a dark twin, the reference component `components/screenshot.tsx`.
+ * Screenshot with a dark twin (`Screenshot`).
  *
  * Both images declare 1440 × 900, because screenshots are taken in a 1440 × 900
  * viewport at double resolution. The light image carries `dark:hidden` only when
