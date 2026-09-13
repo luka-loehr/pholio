@@ -146,9 +146,9 @@ return [
     // --------------------------------------------------------------- theme --
 
     'theme' => [
-        // Built-in color preset: neutral, black, vitepress, dusk, catppuccin,
-        // ocean, purple, solar, emerald, ruby or aspen. Written first at the
-        // palette marker in theme/css/tokens.css, and as <html data-preset>.
+        // Initial color preset, written as <html data-preset>: neutral, black,
+        // vitepress, dusk, catppuccin, ocean, purple, solar, emerald, ruby or aspen.
+        // Every preset is in the stylesheet, so a script can switch the attribute.
         'preset' => 'neutral',
 
         // Color tokens without the "--color-fd-" prefix, written after the preset.
@@ -238,7 +238,7 @@ return [
         'structured_data' => true,  // JSON-LD in every page
         'headers' => true,          // Link headers and content negotiation
         'page_actions' => true,     // "Copy page" and its menu next to the page title
-        'instructions' => null,     // "## Agent Instructions" in llms.txt and skill.md
+        'instructions' => null,     // "## Notes for agents" in llms.txt and skill.md
         'exclude' => [],            // globs on page URLs and content files, e.g. 'internal/*'
     ],
 
