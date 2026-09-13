@@ -773,7 +773,7 @@
 }
 
 /* ======================================================================
-   Image zoom: fumadocs-ui/dist/components/image-zoom2.css (react-medium-image-zoom),
+   Image zoom: the reference UI's dist/components/image-zoom2.css (react-medium-image-zoom),
    its own unlayered stylesheet in the reference. It is missing from the reference
    export's css/; the values are copied verbatim from node_modules and confirmed
    through computed style in the reference browser window.
