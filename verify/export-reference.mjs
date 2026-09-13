@@ -11,11 +11,11 @@
 // PHOLIO_LAB_URL. There are no defaults; if the folder doesn't exist or the URL is missing,
 // the script exits with code 2.
 //
-//   node verify/export-reference.mjs … --out <existing export> --extra /docs/components
+//   node verify/export-reference.mjs … --out <existing export> --extra /<preset>/docs/<page>
 //                                                     add a single page afterwards
 //   node verify/export-reference.mjs … --out <existing export> --viewport 1024x768 --name 1024 [--skip-existing]
 //                                                     additional width: pages/**/dom-1024.html
-//   node verify/export-reference.mjs … --out <existing export> --states-only --state-page /docs/guide
+//   node verify/export-reference.mjs … --out <existing export> --states-only --state-page /<preset>/docs/<page>
 //                                                     opened states into states/ (see captureStates)
 //
 // --preset <name>     route prefix of the app (default notebook): /<preset>, /<preset>/docs,
@@ -153,7 +153,7 @@ async function getBuffer(url) {
   return Buffer.from(await res.arrayBuffer());
 }
 
-// URL path → folder path in the export, for example /docs/guide → pages/docs/guide
+// URL path → folder path in the export, for example /<preset>/docs/<page> → pages/<preset>/docs/<page>
 const pageDir = (urlPath) => path.posix.join('pages', urlPath.replace(/^\/+/, ''));
 
 // Latin letters with diacritics that need more than one ASCII letter, written as escapes.
