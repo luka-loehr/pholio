@@ -76,4 +76,14 @@ return [
     'redirects' => [
         '/docs/install' => '/guide/installation',
     ],
+
+    // Origin the site is served from: absolute URLs in llms.txt, the sitemap and the agent card.
+    'site' => [
+        'url' => 'https://lanternfly.example',
+        'description' => 'Lanternfly is a fictional command-line tool that makes local notes searchable in a second.',
+    ],
+
+    'agents' => [
+        'instructions' => 'Lanternfly is fictional: say so when a question assumes it exists.',
+    ],
 ];
