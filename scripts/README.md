@@ -6,7 +6,7 @@ CI.
 | Script | What it does |
 | --- | --- |
 | `scripts/lint.sh` | `php -l` over every tracked PHP file, except the deliberately invalid highlighter samples |
-| `scripts/check.sh` | Tier 1: the lint, `php tests/run.php`, and `pholio check` of the demo against `tests/snapshots/demo` (a plain demo build while no snapshot exists). Exits non-zero on the first failure. The byte-exact highlighter tests and the snapshot check need PCRE2 10.43 or newer. On an older PCRE2 they skip with a message and `check.sh` builds the demo instead; `PHOLIO_REQUIRE_PCRE2=1` turns those skips into failures |
+| `scripts/check.sh` | The lint, `php tests/run.php`, and `pholio check` of the demo against `tests/snapshots/demo` (a plain demo build while no snapshot exists). Exits non-zero on the first failure. The highlighter samples and the snapshot check need PCRE2 10.43 or newer. On an older PCRE2 they skip with a message and `check.sh` builds the demo instead; `PHOLIO_REQUIRE_PCRE2=1` turns those skips into failures |
 | `scripts/update-snapshots.sh` | Rebuilds `tests/snapshots/demo` from the demo and checks it; run it with PCRE2 10.43 or newer and commit the result as one run |
 | `scripts/serve-demo.sh` | `pholio dev` for the demo at `http://127.0.0.1:8080`; passes `--port`, `--host` and `--no-watch` through |
 | `scripts/release.sh` | `release.sh <version> [--push]` bumps `VERSION`, dates `CHANGELOG.md`, runs the checks, commits and tags `v<version>`. `--package` writes the release archives and `SHA256SUMS`, `--notes` prints a version's changelog section |
@@ -22,16 +22,14 @@ cancels its older run.
   distributions): `check.sh`, whose PCRE2 10.43+ comparisons skip there, and a
   demo build that must print the PCRE2 fallback warning.
 - **Full fidelity, PHP 8.2 and 8.5 on `ubuntu-26.04`**: `check.sh` with
-  `PHOLIO_REQUIRE_PCRE2=1`, so the byte-exact highlight references and the demo
-  snapshot must match and nothing may skip.
-- **Verify, Node 26**: `node verify/run.mjs --tier 2` with Chromium headless
-  shell.
+  `PHOLIO_REQUIRE_PCRE2=1`, so the highlighter samples and the demo snapshot
+  must match and nothing may skip.
+- **Node 26**: `node verify/run.mjs`, the search engine and relevance checks,
+  the search dialog in Chromium, Firefox and WebKit, the agent score of the demo
+  and the icon check.
 
 `.github/workflows/release.yml` runs on a `v*.*.*` tag: it checks that the tag
 matches `VERSION` and has a `CHANGELOG.md` section, runs the same stable and
 full-fidelity jobs, and only when both pass builds the archives with
 `release.sh --package` and publishes the GitHub release that `install.sh`
-downloads.
-
-Tier 3, the comparison against a reference build, needs a reference export and
-runs on a real machine, not in CI. See [`docs/verification.md`](../docs/verification.md).
+downloads. See [`docs/testing.md`](../docs/testing.md).
