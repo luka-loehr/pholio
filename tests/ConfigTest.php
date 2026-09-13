@@ -42,7 +42,7 @@ test('defaults for a minimal config', function (): void {
     assert_same(null, $c['content']['assetPrefix']);
     assert_same('/', $c['content']['assetTarget']);
     assert_same(null, $c['home']);
-    assert_same(null, $c['theme']['preset']);
+    assert_same('neutral', $c['theme']['preset']);
     assert_same('', $c['theme']['fontClass']);
     assert_same('d', $c['theme']['hotkey']);
     assert_same(['icons' => [], 'manifest' => null, 'themeColor' => null], $c['head']);
