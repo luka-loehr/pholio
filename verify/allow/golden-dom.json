@@ -1,0 +1,105 @@
+[
+  {
+    "_comment": "Generic allow list for golden-dom.mjs, independent of any site. Each entry: selector (small dialect: tag, .class, #id, [attr], [attr=value], [attr^=], [attr$=], [attr*=]; several separated by commas; no combinators), attribute (attribute name, \"*\" for every attribute of the node, \"#node\" for a node that is missing or extra as a whole), optional kind (only with \"#node\": extra, missing or both, default both), optional properties (only with attribute \"style\": the single declarations to skip), optional path (regular expression on the node path) and always reason. Text and tag differences are never allowed. Every allowed difference is still printed during the run. The entries are exactly the differences that also exist between ssr.html and dom.html of a reference export, that is, everything only JavaScript produces, plus what a Next.js build adds that a static site can't have. Site-specific entries (for example favicon links the site configures) belong in a separate file passed with a second --allow."
+  },
+  {
+    "selector": "style",
+    "path": "^html[^>]* > head:nth-child\\(1\\) > style:nth-child\\(\\d+\\)$",
+    "attribute": "#node",
+    "reason": "The Next.js development server appends a <style> block with @font-face rules for its own fonts (__nextjs-Geist, __nextjs-Geist Mono from /__nextjs_font/) to <head>. It belongs to the Next development overlay, not to the page, no rule of the page uses it, and Pholio has no counterpart. The scrollbar style Base UI inserts, on the other hand, is emitted and compares equal."
+  },
+  {
+    "selector": "next-route-announcer",
+    "attribute": "#node",
+    "reason": "The Next.js client router creates <next-route-announcer> after hydration to announce page changes to screen readers. Pholio reloads on every navigation, so it has no client router and doesn't need the element; the browser announces the title change itself."
+  },
+  {
+    "selector": "[data-id$=\"-viewport\"]",
+    "attribute": "style",
+    "properties": [
+      "--scroll-area-overflow-x-start",
+      "--scroll-area-overflow-x-end",
+      "--scroll-area-overflow-y-start",
+      "--scroll-area-overflow-y-end",
+      "--scroll-area-corner-width",
+      "--scroll-area-corner-height"
+    ],
+    "reason": "The Base UI ScrollArea writes these custom properties only after hydration, from real scroll measurements (they are missing from ssr.html of the reference export and present in dom.html). They depend on font height and scroll position at the time of measuring and can't be reproduced deterministically in static HTML; theme/js/scroll-area.js sets them identically afterwards, and the computed style and pixel stages check their actual effect."
+  },
+  {
+    "selector": "svg[role=\"progressbar\"]",
+    "attribute": "aria-valuenow",
+    "reason": "The progress ring in the table of contents popover shows the share of headings already read: (last active entry + 1) / count. Which entries are active is decided by the IntersectionObserver of fumadocs-core/toc after hydration; without JavaScript the value is 0. theme/js/toc-popover.js computes it identically."
+  },
+  {
+    "selector": "circle.transition-all",
+    "attribute": "stroke-dashoffset",
+    "reason": "The same progress ring: the offset is circumference minus progress and follows directly from aria-valuenow. theme/js/toc-popover.js sets it."
+  },
+  {
+    "selector": "div.origin-center",
+    "attribute": "#node",
+    "reason": "The thumb track of the clerk table of contents (ThumbTrack in components/toc/clerk.js). Its SVG path, width and height come from offsetTop, clientHeight and the paddings of the rendered entries, measured by a ResizeObserver; without a measurement the original doesn't render the element at all (it is missing from ssr.html as well). theme/js/toc.js builds it after loading."
+  },
+  {
+    "selector": "a.scroll-m-4",
+    "attribute": "data-active",
+    "reason": "Which table of contents entries are active is reported by the IntersectionObserver of fumadocs-core/toc (threshold 0.9, several at once possible) after the first layout; ssr.html has false everywhere. theme/js/toc.js sets the values after loading."
+  },
+  {
+    "selector": "img[src^=/_next/static/media/]",
+    "attribute": "src",
+    "reason": "Images in running text: Next resolves the static import to /_next/static/media/<name>.<content hash>.<ext>. The hash only exists in a Next build and is neither available nor wanted in a static generator; Pholio writes the real asset path. The intrinsic width and height Next takes from the same import are read from the image file, match, and stay strictly compared. Screenshots (figure) are not affected because their source already carries real paths."
+  },
+  {
+    "selector": "aside#nd-sidebar-mobile",
+    "attribute": "#node",
+    "kind": "extra",
+    "reason": "Rendered statically for both widths; theme/js/sidebar-restore.js removes it above 768 px before first paint; verified by the behaviour and pixel stages and by golden-DOM against dom-390.html. Built like the reference drawer at 390 px (closed: data-state=\"closed\", nd-invisible); the overlay precedes it as <template data-sidebar-overlay>."
+  },
+  {
+    "selector": "div[data-open], div[data-closed]",
+    "attribute": "data-folder-id",
+    "reason": "Stable key of a sidebar folder (its path in the page tree, for example guide/components), the same on every page. Fumadocs keeps the open state in React state and needs no key; the static site reloads on every navigation and stores open folders in sessionStorage. theme/js/sidebar.js and theme/js/sidebar-restore.js need a unique key because sibling folders can share a name and folders without an index page have no link target. The selector points at the reference folder wrapper (data-open or data-closed) because golden-dom.mjs checks allow entries against the reference node, which doesn't have the attribute."
+  },
+  {
+    "selector": "img[data-nimg]",
+    "attribute": "src",
+    "reason": "ImageZoom: next/image serves the image through the Next image optimizer (/_next/image?url=%2Fimages%2Fexample.webp&w=3840&q=75). It doesn't exist without Node; Pholio writes the real path (/images/example.webp). Width, height, sizes, loading, decoding, data-nimg and style stay strictly compared."
+  },
+  {
+    "selector": "img[data-nimg]",
+    "attribute": "srcset",
+    "reason": "ImageZoom: same cause as src. The eight widths of the srcset (640 to 3840 w) are variants of the Next image optimizer; Pholio has only the original file and writes no srcset."
+  },
+  {
+    "selector": "img[data-rmiz-modal-img]",
+    "attribute": "srcset",
+    "reason": "The enlarged image in the zoom dialog takes srcset from the image in the text (controlled.js: srcSet: imgEl.srcset). Without the Next image optimizer it is empty and omitted, see img[data-nimg]."
+  },
+  {
+    "selector": "dialog[data-rmiz-modal]",
+    "attribute": "id",
+    "reason": "ImageZoom: react-medium-image-zoom randomises the dialog id on every mount (setId: three times Math.random().toString(16).slice(-4)), for example rmiz-modal-0257c168b0c8. It isn't reproducible and doesn't match HYDRATION_ID."
+  },
+  {
+    "selector": "dialog[data-rmiz-modal]",
+    "attribute": "aria-labelledby",
+    "reason": "ImageZoom: reference to the randomised image id rmiz-modal-img-<random>, see the entry for id."
+  },
+  {
+    "selector": "img[data-rmiz-modal-img]",
+    "attribute": "id",
+    "reason": "ImageZoom: randomised image id rmiz-modal-img-<random>, see dialog[data-rmiz-modal]."
+  },
+  {
+    "selector": "img[data-rmiz-modal-img]",
+    "attribute": "width",
+    "reason": "ImageZoom: React writes the computed width into the attribute as a number (controlled.js: width: styleModalImg.width). The reference produces 860.0000000000001, Pholio 860; the rounding depends on the image source from the Next image optimizer (naturalWidth and naturalHeight of the served variant) and on the floating point path. The derived style values top, left, width, height and transform are equal and stay strictly compared."
+  },
+  {
+    "selector": "img[data-rmiz-modal-img]",
+    "attribute": "height",
+    "reason": "ImageZoom: like width, 860.0000000000001 against 860."
+  }
+]
