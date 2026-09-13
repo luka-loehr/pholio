@@ -1,6 +1,6 @@
 # Contributing
 
-Pholio is a personal project by Luka Löhr, currently pre-release and private.
+Pholio is a personal project by Luka Löhr, at version 0.1.0 and currently private.
 If you have access to this repository, these are the rules that apply.
 
 ## One file per commit
