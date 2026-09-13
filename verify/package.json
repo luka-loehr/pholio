@@ -11,7 +11,7 @@
   },
   "scripts": {
     "selftest": "node run.mjs --tier 0",
-    "browser": "playwright install chromium-headless-shell"
+    "browser": "playwright install chromium-headless-shell firefox webkit"
   },
   "devDependencies": {
     "fumadocs-core": "16.15.9",
@@ -19,7 +19,6 @@
     "playwright": "1.61.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "shiki": "4.4.3",
-    "zbsearch": "4.0.0"
+    "shiki": "4.4.3"
   }
 }
