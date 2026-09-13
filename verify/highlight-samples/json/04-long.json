@@ -1,0 +1,15 @@
+{
+  "title": "Curriculum – Overview 🎓",
+  "note": "Values apply from edition 2026/27; 1 session = 45 minutes",
+  "curriculum": [{"topic": "Algebra", "nr": 0, "weight": 0.00e-1}, {"topic": "Geometry", "nr": 1, "weight": 0.25e-1}, {"topic": "Astronomy", "nr": 2, "weight": 0.50e-1}, {"topic": "Façade Design", "nr": 3, "weight": 0.75e-1}, {"topic": "Botany", "nr": 4, "weight": 1.00e-1}, {"topic": "Physics", "nr": 5, "weight": 1.25e-1}, {"topic": "Chemistry", "nr": 6, "weight": 1.50e-1}, {"topic": "Biology", "nr": 7, "weight": 1.75e-1}, {"topic": "History", "nr": 8, "weight": 2.00e-1}, {"topic": "Civics", "nr": 9, "weight": 2.25e-1}, {"topic": "Geography", "nr": 10, "weight": 2.50e-1}, {"topic": "Fine Arts", "nr": 11, "weight": 2.75e-1}, {"topic": "Music", "nr": 12, "weight": 3.00e-1}, {"topic": "Sports", "nr": 13, "weight": 3.25e-1}, {"topic": "Computing", "nr": 14, "weight": 3.50e-1}, {"topic": "Philosophy", "nr": 15, "weight": 3.75e-1}, {"topic": "Ethics", "nr": 16, "weight": 4.00e-1}, {"topic": "Economics", "nr": 17, "weight": 4.25e-1}, {"topic": "Spanish", "nr": 18, "weight": 4.50e-1}, {"topic": "Linguistics", "nr": 19, "weight": 4.75e-1}, {"topic": "Robotics", "nr": 20, "weight": 5.00e-1}, {"topic": "Film & Theatre", "nr": 21, "weight": 5.25e-1}, {"topic": "Algebra", "nr": 22, "weight": 5.50e-1}, {"topic": "Geometry", "nr": 23, "weight": 5.75e-1}, {"topic": "Astronomy", "nr": 24, "weight": 6.00e-1}, {"topic": "Façade Design", "nr": 25, "weight": 6.25e-1}, {"topic": "Botany", "nr": 26, "weight": 6.50e-1}, {"topic": "Physics", "nr": 27, "weight": 6.75e-1}, {"topic": "Chemistry", "nr": 28, "weight": 7.00e-1}, {"topic": "Biology", "nr": 29, "weight": 7.25e-1}, {"topic": "History", "nr": 30, "weight": 7.50e-1}, {"topic": "Civics", "nr": 31, "weight": 7.75e-1}, {"topic": "Geography", "nr": 32, "weight": 8.00e-1}, {"topic": "Fine Arts", "nr": 33, "weight": 8.25e-1}, {"topic": "Music", "nr": 34, "weight": 8.50e-1}, {"topic": "Sports", "nr": 35, "weight": 8.75e-1}, {"topic": "Computing", "nr": 36, "weight": 9.00e-1}, {"topic": "Philosophy", "nr": 37, "weight": 9.25e-1}, {"topic": "Ethics", "nr": 38, "weight": 9.50e-1}, {"topic": "Economics", "nr": 39, "weight": 9.75e-1}, {"topic": "Spanish", "nr": 40, "weight": 10.00e-1}, {"topic": "Linguistics", "nr": 41, "weight": 10.25e-1}, {"topic": "Robotics", "nr": 42, "weight": 10.50e-1}, {"topic": "Film & Theatre", "nr": 43, "weight": 10.75e-1}, {"topic": "Algebra", "nr": 44, "weight": 11.00e-1}],
+  "specialChars": "é è ñ ç € § «français» „low-high“ 漢字 𝔄𝔭𝔫𝔯𝔞𝔦𝔪 👩‍🏫",
+  "rooms": [
+    {"nr": "A104", "seats": 30, "projector": true, "area": 72.5},
+    {"nr": "B012", "seats": 24, "projector": false, "area": 6.05e1},
+    {"nr": "Hall", "seats": 120, "projector": null, "area": -1}
+  ],
+
+
+  "blankLinesAbove": "are JSON whitespace"
+}
+
