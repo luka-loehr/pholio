@@ -8,6 +8,7 @@ use Closure;
 use LogicException;
 
 require_once __DIR__ . '/Markdown.php';
+require_once __DIR__ . '/../I18n.php';
 
 /**
  * AST to clean Markdown: the body of a page's `.md` twin and of its entry in
@@ -31,12 +32,16 @@ require_once __DIR__ . '/Markdown.php';
  *
  * Links and image sources go through the two closures, so the caller decides
  * how internal URLs are published (`.md` twins, absolute with `site.url`).
+ * Callout labels and the type table words follow the site language (I18n).
  */
 final class PageMarkdown
 {
+    /** Callout type => translation key of its label. */
     private const CALLOUT_LABELS = [
-        'info' => 'Info', 'tip' => 'Tip', 'warning' => 'Warning', 'warn' => 'Warning',
-        'error' => 'Error', 'success' => 'Success', 'idea' => 'Idea',
+        'info' => 'Info(callout)(agent files)', 'tip' => 'Tip(callout)(agent files)',
+        'warning' => 'Warning(callout)(agent files)', 'warn' => 'Warning(callout)(agent files)',
+        'error' => 'Error(callout)(agent files)', 'success' => 'Success(callout)(agent files)',
+        'idea' => 'Idea(callout)(agent files)',
     ];
 
     /** Level of the heading the current block sits under; 1 is the page title. */
@@ -214,7 +219,8 @@ final class PageMarkdown
         switch ((string) $block['name']) {
             case 'Callout':
                 $type = (string) ($attrs['type'] ?? 'info');
-                $head = '**' . (self::CALLOUT_LABELS[$type] ?? ucfirst($type)) . (isset($attrs['title']) ? ':** ' . self::escape((string) $attrs['title']) : '**');
+                $label = isset(self::CALLOUT_LABELS[$type]) ? I18n::t(self::CALLOUT_LABELS[$type]) : ucfirst($type);
+                $head = '**' . $label . (isset($attrs['title']) ? ':** ' . self::escape((string) $attrs['title']) : '**');
                 $body = $this->blocks($children);
 
                 return self::quote($body === '' ? $head : $head . "\n\n" . $body);
@@ -332,13 +338,13 @@ final class PageMarkdown
                     : $text) . ')';
             }
             if (isset($p['default'])) {
-                $line .= ', default `' . $p['default'] . '`';
+                $line .= ', ' . I18n::t('default(type table)(agent files)') . ' `' . $p['default'] . '`';
             }
             if (($p['required'] ?? false) === true) {
-                $line .= ', required';
+                $line .= ', ' . I18n::t('required(type table)(agent files)');
             }
             if (($p['deprecated'] ?? false) === true) {
-                $line .= ', deprecated';
+                $line .= ', ' . I18n::t('deprecated(type table)(agent files)');
             }
             $body = $this->blocks($prop['blocks'] ?? [], ' ');
 
