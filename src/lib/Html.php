@@ -7,10 +7,9 @@ namespace Pholio;
 /**
  * Small HTML helpers for the generator: escaping, attribute builder, link detection.
  *
- * The output does not have to match React character for character; it has to
- * produce the same DOM after parsing (that is how verify/golden-dom.mjs
- * compares). Everything is therefore escaped with htmlspecialchars; the choice
- * of entity (&#039; instead of &#x27;) does not matter for the comparison.
+ * What counts is the DOM after parsing, not the exact characters. Everything is
+ * therefore escaped with htmlspecialchars; the choice of entity (&#039; instead
+ * of &#x27;) makes no difference to the parsed page.
  */
 final class Html
 {
@@ -23,7 +22,7 @@ final class Html
     /**
      * Build an attribute list.
      *
-     * - null and false are dropped (as in React).
+     * - null and false are dropped.
      * - true becomes an empty attribute (`disabled=""`).
      * - `style` may be an array of declarations: ['--callout-color' => '…'].
      * - `class` may be an array of tokens; empty tokens are dropped.
@@ -67,8 +66,7 @@ final class Html
 
     /**
      * Join class tokens. null, false and empty strings are dropped, duplicates
-     * are kept (React/`cn` does the same, and the order does not matter for
-     * the comparison anyway).
+     * are kept (they do no harm, and the order does not matter to the browser).
      *
      * @param list<string|null|false> $tokens
      */
@@ -90,7 +88,7 @@ final class Html
     }
 
     /**
-     * Declarations to a style value. Exactly like React: no space after the
+     * Declarations to a style value: no space after the
      * colon and `;` between declarations.
      *
      * @param array<string, string|int|float|null|false> $declarations
@@ -109,7 +107,7 @@ final class Html
     }
 
     /**
-     * External link? Same rule as the reference core's dist/link.js:
+     * External link? The rule:
      * a scheme at the start (`^\w+:`) or a protocol-relative path (`//`).
      */
     public static function isExternal(string $href): bool
