@@ -1,0 +1,52 @@
+# GitHub Actions workflow (file with CRLF line endings)
+name: Check the docs
+
+on:
+  push:
+    branches: [main, "release/**"]
+    paths:
+      - 'docs/**'
+      - "!docs/**/*.md"
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "Run the full pixel comparisons? — oui/non"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3']
+        node: [20, 22]
+        include:
+          - php: '8.3'
+            node: 22
+            full: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl
+      - name: Dependencies
+        run: |
+          composer install --no-interaction --prefer-dist
+          npm ci
+      - name: Tests
+        run: php tests/run.php --filter "docs_*"
+        env:
+          LANG: en_GB.UTF-8
+          FULL: ${{ inputs.full || matrix.full || false }}
+      - name: Result
+        if: ${{ failure() }}
+        run: echo "::error title=Docs::Tests failed for PHP ${{ matrix.php }}"
