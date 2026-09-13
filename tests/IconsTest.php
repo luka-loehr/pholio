@@ -5,7 +5,7 @@ declare(strict_types=1);
 // src/lib/Icons.php against vendor-data/lucide/icons.json and lucide-react:
 // data file and licence, fixed markup captured from lucide-react, the
 // fill="currentColor" special case of the theme switch, unknown names with
-// suggestions, and (Node tier) a seeded 50-name sample through verify/lucide-oracle.mjs.
+// suggestions, and (with Node) a seeded 50-name sample through verify/lucide-oracle.mjs.
 // The sample seed is 1; choose another with PHOLIO_ICON_SEED=<n>.
 
 require __DIR__ . '/run.php';
@@ -99,7 +99,7 @@ test('unknown names throw ContentException with the 5 closest names', function (
     assert_same(['book-open', 'book-key', 'door-open', 'lock-open', 'book'], Icons::closest('BookOpen'));
 });
 
-test('Node tier: 50-name sample matches lucide-react', function () use ($root): void {
+test('node: 50-name sample matches lucide-react', function () use ($root): void {
     if (!is_dir($root . '/verify/node_modules/lucide-react')) {
         skip('node: verify/node_modules/lucide-react missing (cd verify && npm ci)');
     }
