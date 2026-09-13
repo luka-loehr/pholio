@@ -41,6 +41,12 @@
 // every third run. They are still counted and marked blue, so that a real colour error in
 // Pholio isn't hidden among them.
 //
+// A state with `intentional: "<reason>"` marks a deliberate design difference from the
+// reference (for example a layout the site owner chose on purpose). It is captured and
+// diffed like any other and its images are written, but a difference counts as intended
+// (`~` in the log, `intentional` in result.json) instead of failing the run. Every other
+// state and every page without a state stays strict.
+//
 // Output per comparison: reference.png, candidate.png, diff.png (differences in red),
 // result.json with the numbers, plus an index.html with every comparison side by side.
 //
@@ -293,6 +299,12 @@ async function main() {
       row.ratio = result.ratio;
       row.sameSize = result.sameSize;
       row.ok = result.different <= maxPixels;
+      // A state marked `intentional` is a deliberate design difference from the reference:
+      // it is still captured and diffed, but its differences don't make the run red.
+      if (!row.ok && state?.intentional) {
+        row.ok = true;
+        row.intentional = state.intentional;
+      }
 
       if (!row.ok || !onlyDiffImages) {
         await fs.mkdir(absDir, { recursive: true });
@@ -307,6 +319,7 @@ async function main() {
         referenceSize: [refImg.width, refImg.height], candidateSize: [candImg.width, candImg.height],
         different: result.different, antialiased: result.antialiased, rounding: result.rounding,
         total: result.total, ratio: result.ratio, threshold: maxPixels, pixelThreshold, maxChannelDelta, ok: row.ok,
+        intentional: row.intentional ?? null,
       });
     } catch (err) {
       row.error = err.message.split('\n')[0];
@@ -317,7 +330,8 @@ async function main() {
     rows.push(row);
     if (row.ok) {
       green += 1;
-      console.log(`✓ ${title} – ${row.total} pixels equal${row.rounding ? `, ${row.rounding} of them only rounded` : ''}`);
+      if (row.intentional) console.log(`~ ${title} – ${row.different} differing pixels, intentional: ${row.intentional}`);
+      else console.log(`✓ ${title} – ${row.total} pixels equal${row.rounding ? `, ${row.rounding} of them only rounded` : ''}`);
     } else {
       red += 1;
       console.log(`✗ ${title} – ${row.error ?? `${row.different} differing pixels (${(row.ratio * 100).toFixed(4)} %)${row.sameSize ? '' : ', different image sizes'}`}`);
