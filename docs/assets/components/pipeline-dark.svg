@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="200" viewBox="0 0 720 200" font-family="Inter, system-ui, sans-serif">
+  <rect width="720" height="200" fill="#121212"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#737373"/>
+    </marker>
+  </defs>
+  <g stroke="#2e2e2e" stroke-width="1.5" fill="#1a1a1a">
+    <rect x="40" y="60" width="160" height="80" rx="12"/>
+    <rect x="280" y="60" width="160" height="80" rx="12"/>
+    <rect x="520" y="60" width="160" height="80" rx="12"/>
+  </g>
+  <g stroke="#737373" stroke-width="2" marker-end="url(#a)">
+    <path d="M208 100h62"/>
+    <path d="M448 100h62"/>
+  </g>
+  <g text-anchor="middle" fill="#ededed" font-size="17" font-weight="600">
+    <text x="120" y="98">Markdown</text>
+    <text x="360" y="98">pholio build</text>
+    <text x="600" y="98">Static site</text>
+  </g>
+  <g text-anchor="middle" fill="#a3a3a3" font-size="13">
+    <text x="120" y="120">content/*.md</text>
+    <text x="360" y="120">PHP, once</text>
+    <text x="600" y="120">HTML, CSS, JS</text>
+  </g>
+</svg>
