@@ -20,7 +20,7 @@ palette, `html { scrollbar-gutter: stable }`, the Shiki rules and the image zoom
 
 ## Palette
 
-`tokens.css` carries the default (neutral) colors. The line
+`tokens.css` carries the default colors. The line
 
     /* @pholio:palette */
 
@@ -28,16 +28,11 @@ marks where the build writes the site palette: unlayered, after the default
 dark palette and the sidebar overrides, before the `@property` registrations.
 It writes, in this order:
 
-1. every built-in preset from `theme/presets/<name>.css`, each scoped to
-   `:where(:root[data-preset="<name>"])` (`neutral` adds nothing). The zero
-   specificity of `:where` keeps the cascade: a preset's `.dark` rules beat the
-   default dark palette by order, and everything below beats the presets.
-   `theme.preset` sets the initial `<html data-preset>`; a script can change it;
-2. `:root { --color-fd-* }` and `.dark { … }` from `theme.light` and `theme.dark`;
-3. the contents of the file named in `theme.palette_css`.
+1. `:root { --color-fd-* }` and `.dark { … }` from `theme.light` and `theme.dark`;
+2. the contents of the file named in `theme.palette_css`.
 
-Later declarations win, so a site can switch presets and still override single
-tokens or add its own rules.
+Later declarations win, so a site can override single tokens or add its own
+rules.
 
 ## Files
 
