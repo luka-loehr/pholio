@@ -330,3 +330,101 @@ test('dev server router maps slashless URLs to index.html', function (): void {
         Fs::removeDir($dir);
     }
 });
+
+test('dev exits with the build exit code when the initial build fails and nothing was built', function (): void {
+    $dir = site();
+    try {
+        StubBuilder::$throw = new ContentException('unknown component tag <Foo>', $dir . '/content/a.md', 3);
+        [$code, , $err] = pholio_inline(['dev', '--config', $dir . '/pholio.config.php', '--port', '1']);
+        assert_same(3, $code);
+        assert_contains('pholio: ' . $dir . '/content/a.md:3: unknown component tag <Foo>', $err);
+        assert_contains('pholio: initial build failed with exit code 3; nothing to serve', $err);
+    } finally {
+        StubBuilder::$throw = null;
+        Fs::removeDir($dir);
+    }
+});
+
+test('dev reports failed rebuilds and recovers on the next successful one', function (): void {
+    if (Builder::missingParts() !== []) {
+        skip('generator incomplete');
+    }
+    $dir = Fs::tempDir('pholio-dev-test-');
+    $demo = __DIR__ . '/../examples/demo';
+    Fs::copyDir($demo . '/content', $dir . '/content');
+    Fs::copyDir($demo . '/assets', $dir . '/assets');
+    copy($demo . '/pholio.config.php', $dir . '/pholio.config.php');
+    $page = $dir . '/content/guide/installation.md';
+    $original = (string) file_get_contents($page);
+    $broken = $original . "\n<Callout type=\"nope\">\nx\n</Callout>\n";
+    $log = $dir . '/dev.log';
+
+    $socket = stream_socket_server('tcp://127.0.0.1:0');
+    $port = (int) substr((string) stream_socket_get_name($socket, false), strrpos((string) stream_socket_get_name($socket, false), ':') + 1);
+    fclose($socket);
+
+    $start = static fn(): mixed => proc_open(
+        [PHP_BINARY, __DIR__ . '/../bin/pholio', 'dev', '--config', $dir . '/pholio.config.php', '--port', (string) $port],
+        [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', $log, 'w']],
+        $pipes,
+    );
+    $waitFor = static function (string $needle, int $seconds = 30) use ($log): void {
+        $until = microtime(true) + $seconds;
+        while (microtime(true) < $until) {
+            if (str_contains((string) @file_get_contents($log), $needle)) {
+                return;
+            }
+            usleep(200_000);
+        }
+        throw new \RuntimeException("dev log never contained '{$needle}':\n" . @file_get_contents($log));
+    };
+    $stop = static function ($process): void {
+        if (proc_get_status($process)['running']) {
+            proc_terminate($process);
+        }
+        proc_close($process);
+    };
+
+    try {
+        // Initial build fails, nothing was built before: exit 3 without serving.
+        file_put_contents($page, $broken);
+        $process = $start();
+        try {
+            $until = microtime(true) + 30;
+            while (proc_get_status($process)['running'] && microtime(true) < $until) {
+                usleep(200_000);
+            }
+            $status = proc_get_status($process);
+            assert_true(!$status['running'], "dev should have exited:\n" . @file_get_contents($log));
+            assert_same(3, $status['exitcode']);
+        } finally {
+            $stop($process);
+        }
+        assert_contains('Unknown callout type "nope"', (string) file_get_contents($log));
+        assert_contains('initial build failed with exit code 3; nothing to serve', (string) file_get_contents($log));
+
+        // Previous output exists: serve it and say that the last build failed.
+        file_put_contents($page, $original);
+        [$code] = pholio(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+        assert_same(0, $code);
+        file_put_contents($page, $broken);
+        $process = $start();
+        try {
+            $waitFor('last build failed with exit code 3; serving the previous output');
+            $waitFor('serving ');
+
+            // A rebuild that still fails is reported again.
+            file_put_contents($page, $broken . "\n");
+            $waitFor('rebuild failed with exit code 3; still serving the previous output');
+
+            // Fixing the content recovers.
+            file_put_contents($page, $original . "\nRecovered paragraph.\n");
+            $waitFor('rebuild succeeded after a failed build, serving the new output');
+            assert_contains('Recovered paragraph.', (string) file_get_contents($dir . '/out/guide/installation/index.html'));
+        } finally {
+            $stop($process);
+        }
+    } finally {
+        Fs::removeDir($dir);
+    }
+});
