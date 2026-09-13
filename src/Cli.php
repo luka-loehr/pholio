@@ -306,17 +306,32 @@ TEXT;
         }
 
         $config = $this->config($options);
-        $this->devBuild($options);
+        // Measured before building: a failed build may leave partial output behind.
+        $hadOutput = Fs::treeFiles($config['outDir']) !== [];
+        [, $code] = $this->devBuild($options);
+        $failed = $code !== self::OK;
+        if ($failed) {
+            if (!$hadOutput) {
+                fwrite($this->err, "pholio: initial build failed with exit code {$code}; nothing to serve\n");
+
+                return $code;
+            }
+            fwrite($this->err, "pholio: last build failed with exit code {$code}; serving the previous output from {$config['outDir']} until a rebuild succeeds\n");
+        }
         $root = Builder::siteRoot($config, $config['outDir']);
 
         $process = proc_open(
             [PHP_BINARY, '-S', $host . ':' . $port, '-t', $root, __DIR__ . '/DevServer.php'],
-            [0 => ['file', '/dev/null', 'r'], 1 => STDOUT, 2 => STDERR],
+            [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['redirect', 1]],
             $pipes,
         );
         if (!is_resource($process)) {
             throw new IoException("cannot start the PHP built-in server on {$host}:{$port}");
         }
+        // The server log is forwarded through this process, so it never
+        // overwrites pholio's own lines when stderr is redirected to a file.
+        $serverLog = $pipes[1];
+        stream_set_blocking($serverLog, false);
         $url = 'http://' . $host . ':' . $port . ($config['homeUrl'] === '/' ? '/' : $config['homeUrl']);
         fwrite($this->err, "pholio: serving {$root} at {$url}" . (isset($options['no-watch']) ? '' : ', watching for changes') . "\n");
 
@@ -333,7 +348,7 @@ TEXT;
         $watched = $this->watchedPaths($config);
         $stamp = self::stamp($watched);
         while (!$signalled && proc_get_status($process)['running']) {
-            sleep(1);
+            $this->forward($serverLog, 1.0);
             if (isset($options['no-watch'])) {
                 continue;
             }
@@ -341,38 +356,93 @@ TEXT;
             if ($now === $stamp) {
                 continue;
             }
-            $stamp = $now;
-            try {
-                $config = $this->devBuild($options);
+            [$next, $code] = $this->devBuild($options);
+            if ($next !== null) {
+                $config = $next;
                 $watched = $this->watchedPaths($config);
-                $stamp = self::stamp($watched);
-            } catch (Exception $e) {
-                $this->error($e->describe());
-            } catch (\Throwable $e) {
-                $this->error('internal error: ' . $e->getMessage());
+            }
+            $stamp = self::stamp($watched);
+            if ($code !== self::OK) {
+                fwrite($this->err, "pholio: rebuild failed with exit code {$code}; still serving the previous output, fix the error to rebuild\n");
+                $failed = true;
+            } elseif ($failed) {
+                fwrite($this->err, "pholio: rebuild succeeded after a failed build, serving the new output\n");
+                $failed = false;
             }
         }
 
         proc_terminate($process);
+        $this->forward($serverLog, 0.2);
+        fclose($serverLog);
         proc_close($process);
 
         return self::OK;
     }
 
     /**
+     * Copy whatever $stream has to stderr for up to $seconds.
+     *
+     * @param resource $stream non-blocking
+     */
+    private function forward($stream, float $seconds): void
+    {
+        $deadline = microtime(true) + $seconds;
+        while (($left = $deadline - microtime(true)) > 0) {
+            $read = [$stream];
+            $write = $except = null;
+            $ready = @stream_select($read, $write, $except, (int) $left, (int) (($left - (int) $left) * 1_000_000));
+            if ($ready === false) {
+                // Interrupted by a signal: let the caller check it.
+                return;
+            }
+            if ($ready === 0) {
+                continue;
+            }
+            $chunk = fread($stream, 65536);
+            if ($chunk === false || $chunk === '') {
+                if (feof($stream)) {
+                    usleep((int) ($left * 1_000_000));
+
+                    return;
+                }
+                continue;
+            }
+            fwrite($this->err, $chunk);
+        }
+    }
+
+    /**
      * A build with drafts in a child process, so edited components and a changed
-     * config are picked up without restarting.
+     * config are picked up without restarting. The child prints its own error.
      *
      * @param array<string, mixed> $options
-     * @return array<string, mixed> the config the build used
+     * @return array{0: ?array<string, mixed>, 1: int} the config the build used
+     *         (null when the config itself failed to load) and the exit code
      */
     private function devBuild(array $options): array
     {
-        $config = $this->config($options);
-        if (self::$builderFactory !== null) {
-            $this->builder($config, true, null)->build($config['outDir']);
+        try {
+            $config = $this->config($options);
+        } catch (Exception $e) {
+            $this->error($e->describe());
 
-            return $config;
+            return [null, $e->exitCode()];
+        }
+
+        if (self::$builderFactory !== null) {
+            try {
+                $this->builder($config, true, null)->build($config['outDir']);
+            } catch (Exception $e) {
+                $this->error($e->describe());
+
+                return [$config, $e->exitCode()];
+            } catch (\Throwable $e) {
+                $this->error('internal error: ' . $e->getMessage());
+
+                return [$config, self::INTERNAL];
+            }
+
+            return [$config, self::OK];
         }
 
         $args = [PHP_BINARY, dirname(__DIR__) . '/bin/pholio', 'build', '--dev', '--config', $config['configFile']];
@@ -384,13 +454,14 @@ TEXT;
         foreach ($options['set'] ?? [] as $set) {
             array_push($args, '--set', $set);
         }
-        $process = proc_open($args, [0 => ['file', '/dev/null', 'r'], 1 => STDOUT, 2 => STDERR], $pipes);
-        $code = is_resource($process) ? proc_close($process) : self::INTERNAL;
-        if ($code !== 0) {
-            fwrite($this->err, "pholio: build failed with exit code {$code}, still serving the previous output\n");
+        $process = proc_open($args, [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['redirect', 1]], $pipes);
+        if (!is_resource($process)) {
+            return [$config, self::INTERNAL];
         }
+        stream_copy_to_stream($pipes[1], $this->err);
+        fclose($pipes[1]);
 
-        return $config;
+        return [$config, proc_close($process)];
     }
 
     /**
