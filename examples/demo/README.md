@@ -36,10 +36,18 @@ From the repository root:
 
 ```bash
 php bin/pholio build --config examples/demo/pholio.config.php
-php -S localhost:8080 -t examples/demo/out
+./scripts/serve-demo.sh
 ```
 
-Then open <http://localhost:8080>. The output directory is ignored by git.
+The script runs `pholio dev`: it builds with drafts, serves
+<http://127.0.0.1:8080> and rebuilds when the content or the config changes. The
+output directory `examples/demo/out` is ignored by git.
+
+Nav and button hrefs are written without a trailing slash (`/guide`), because
+generated URLs have none. `tests/PipelineTest.php` asserts that every nav href is
+a generated page, and that the dark twin, image sizes, accordion types and open
+folders come out as the content expects. `tests/snapshots/demo` holds the
+committed build.
 
 Code fences use only the bundled grammars: css, diff, html, java, javascript
 (`js`), json, php, shellscript (`bash`, `sh`), sql, typescript (`ts`), xml and
