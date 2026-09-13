@@ -161,6 +161,11 @@ test('frontmatter: allowed keys including updated', function (): void {
     assert_same('paragraph', $document->blocks[0]['type']);
 });
 
+test('frontmatter: keywords are an allowed plain scalar', function (): void {
+    $document = Markdown::parse("---\ntitle: A\nkeywords: download, dark mode\n---\n\nText", 'unit');
+    assert_same(['title' => 'A', 'keywords' => 'download, dark mode'], $document->frontmatter);
+});
+
 test('frontmatter aliases map onto allowed keys in source order', function (): void {
     $document = Markdown::parse("---\ntitle: A\ndate: 2026-09-01\nicon: book\n---\n", 'unit', ['date' => 'updated']);
     assert_same(['title' => 'A', 'updated' => '2026-09-01', 'icon' => 'book'], $document->frontmatter);
