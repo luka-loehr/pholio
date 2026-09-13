@@ -1,0 +1,36 @@
+{
+  "escapes": {
+    "newline": "Line 1\nLine 2",
+    "tab": "Column\tColumn",
+    "quote": "She said: \"The café opens late.\"",
+    "backslash": "C:\\Projects\\Plans\\2026",
+    "slash": "<\/script> and https:\/\/example.com",
+    "control": "\b\f\r",
+    "unicode": "Caf\u00e9 \u00c9\u00c8\u00ca \u00f1",
+    "surrogate": "\uD83C\uDF89 Party",
+    "raw": "Café ÉÈÊ ñ 🎉 𝔄",
+    "singleQuote": "It's 'quoted'",
+    "empty": ""
+  },
+  "empty": {
+    "object": {},
+    "array": [],
+    "arrayWithSpace": [ ],
+    "nested": [[], [{}], {"a": []}]
+  },
+  "numbers": [0, -1, 42, 3.14159, -0.001, 1e10, 1E-10, 2.5e+3, 123456789012345678901234567890],
+  "deep": {
+    "a": {
+      "b": {
+        "c": {
+          "d": [1, [2, [3, [4, [5, {"e": "End"}]]]]]
+        }
+      }
+    }
+  },
+  "key with spaces": true,
+  "key-with-ñ": false,
+  "": "empty key",
+  "\"quoted\"": null,
+  "mixed": [true, false, null, "null", "true", 0, "0"]
+}
