@@ -18,8 +18,8 @@
 //   2  Node tooling without a reference: the selftests of the parity tools and the
 //      search and lucide oracles (need PHP on PATH).
 //   3  Parity against a reference: golden DOM against the export directory, computed
-//      style, pixels and behaviour against the running reference app. Scenarios and
-//      pixel states default to the demo fixtures in verify/fixtures/demo.
+//      style, pixels and behaviour against the running reference app. Scenarios default
+//      to the demo layout and overlays fixtures, pixel states to the demo pixel states.
 //
 // Exit codes: 0 green, 1 a step failed, 2 usage error.
 
@@ -373,9 +373,11 @@ async function tier3() {
   const all = (name) => argv.flatMap((a, i) => (a === `--${name}` && argv[i + 1] ? [argv[i + 1]] : []));
   const repeat = (name, values) => values.flatMap((v) => [`--${name}`, v]);
   const demo = (file) => `verify/fixtures/demo/${file}`;
+  // behaviour-scenarios-catalogue.json is pending verification against the reference and
+  // is never a default; pass it with --scenarios explicitly.
   const scenarios = all('scenarios').length
     ? all('scenarios')
-    : ['layout', 'overlays', 'catalogue'].map((kind) => demo(`behaviour-scenarios-${kind}.json`));
+    : ['layout', 'overlays'].map((kind) => demo(`behaviour-scenarios-${kind}.json`));
   const states = option('states') ?? demo('pixel-states.json');
   const common = ['--candidate', candidate, '--rewrites', rewrites];
 
