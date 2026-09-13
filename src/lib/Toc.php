@@ -7,7 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/Slug.php';
 
 /**
- * Table of contents of a page, the same shape as `fumadocs-core/toc`:
+ * Table of contents of a page, the same shape as the reference `toc` module:
  * a flat list `{ depth, title, url }`; the depth is the heading level
  * (`##` = 2), the URL the anchor `#slug` from `rehype-slug` (github-slugger).
  *
