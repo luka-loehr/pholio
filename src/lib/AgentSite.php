@@ -39,13 +39,13 @@ require_once __DIR__ . '/AgentSkills.php';
  * and `noindex` pages. Every built page gets its twin.
  *
  * URLs are published with `site.url` in front when it is set, otherwise as
- * base-path URLs ("/manuals/llms.txt").
+ * base-path URLs ("/manuals/llms.txt"). Headings and fixed sentences follow the
+ * site language, and they describe rather than instruct, so an agent reading a
+ * twin finds metadata, not commands.
  */
 final class AgentSite
 {
     public const SUMMARY_LENGTH = 300;
-
-    private const DIRECTIVE = "> ## Documentation Index\n> Fetch the complete documentation index at: %s\n> Use this file to discover all available pages before exploring further.";
 
     /** @var array<string, array{url:string, slugs:list<string>, file:string, data:array<string,mixed>}> tree pages by URL */
     private array $built = [];
@@ -233,7 +233,7 @@ final class AgentSite
         $page = $this->pages[$url];
         $parts = [];
         if ($this->config['agents']['llmsTxt']) {
-            $parts[] = sprintf(self::DIRECTIVE, $this->published('llms.txt'));
+            $parts[] = $this->indexNote();
         }
         $parts[] = $this->pageText($url);
         $related = $this->related($url);
@@ -242,6 +242,15 @@ final class AgentSite
         }
 
         return implode("\n\n", $parts);
+    }
+
+    /** The first line of every twin: where the index of all pages is, as a statement. */
+    private function indexNote(): string
+    {
+        return '> ' . LlmsTxt::t(
+            'Documentation index: {url}, a list of every page in this documentation.(agent files)',
+            ['{url}' => $this->published('llms.txt')],
+        );
     }
 
     /** Title, description and body of a page as Markdown. */
@@ -256,7 +265,7 @@ final class AgentSite
 
         $parts = ['# ' . PageMarkdown::escape(self::oneLine($page['title']))];
         if ($source !== null) {
-            $parts[] = 'Source: ' . $source;
+            $parts[] = LlmsTxt::t('Source(agent files)') . ': ' . $source;
         }
         if ($page['description'] !== null) {
             $parts[] = PageMarkdown::quote(self::oneLine($page['description']));
@@ -274,7 +283,7 @@ final class AgentSite
     {
         $parts = [];
         if ($this->config['agents']['llmsTxt']) {
-            $parts[] = sprintf(self::DIRECTIVE, $this->published('llms.txt'));
+            $parts[] = $this->indexNote();
         }
         $parts[] = '# ' . PageMarkdown::escape(self::oneLine($this->config['homeTitle']));
         $description = $this->siteDescription();
@@ -293,7 +302,7 @@ final class AgentSite
                 . ($section['description'] !== null ? ': ' . self::oneLine($section['description']) : '');
         }
         if ($lines !== []) {
-            $parts[] = "## Sections\n\n" . implode("\n", $lines);
+            $parts[] = '## ' . LlmsTxt::t('Sections(agent files)') . "\n\n" . implode("\n", $lines);
         }
 
         return implode("\n\n", $parts);
@@ -455,7 +464,7 @@ final class AgentSite
         }
 
         // Pages outside the navigation are still published, so they are listed too.
-        $rest = self::group('Other pages', null, $slugger);
+        $rest = self::group(LlmsTxt::t('Other pages(agent files)'), null, $slugger);
         foreach (array_keys($this->built) as $url) {
             if ($this->register((string) $url)) {
                 $rest['items'][] = ['page' => (string) $url];
@@ -656,14 +665,14 @@ final class AgentSite
         }
 
         $footer = $this->tree->footerItems($url);
-        foreach (['previous' => 'Previous', 'next' => 'Next'] as $key => $label) {
+        foreach (['previous' => 'Previous(agent files)', 'next' => 'Next(agent files)'] as $key => $label) {
             $target = $footer[$key]['url'] ?? null;
             if ($target !== null && isset($this->pages[$target]) && $this->listed($target)) {
-                $lines[] = '- ' . $label . ': ' . $this->pageLink($target, $this->pages[$target]['title']);
+                $lines[] = '- ' . LlmsTxt::t($label) . ': ' . $this->pageLink($target, $this->pages[$target]['title']);
             }
         }
 
-        return $lines === [] ? '' : "## Related topics\n\n" . implode("\n", $lines);
+        return $lines === [] ? '' : '## ' . LlmsTxt::t('Related topics(agent files)') . "\n\n" . implode("\n", $lines);
     }
 
     // ------------------------------------------------------------------ JSON-LD
