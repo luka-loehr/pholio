@@ -8,7 +8,7 @@ require_once __DIR__ . '/../I18n.php';
 require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
-/** `getItemOffset` from `components/toc/clerk.js`: indentation of the text. */
+/** Indentation of the entry text per heading depth. */
 function nd_toc_item_offset(int $depth): int
 {
     if ($depth <= 2) {
@@ -29,13 +29,11 @@ function nd_toc_line_offset(int $depth): int
 }
 
 /**
- * The table of contents in the main column (`layouts/notebook/page/slots/toc.js`,
- * style `clerk`).
+ * The table of contents in the main column, with the line graphic.
  *
- * Without headings the original renders only a placeholder that keeps the
- * column width at 0. The progress thumb (`ThumbTrack`) is missing here on
- * purpose: it appears only once JavaScript has measured the elements (see
- * verify/allow/golden-dom.json).
+ * Without headings only a placeholder is rendered that keeps the column width
+ * at 0. The progress thumb is missing here on purpose: js/toc.js creates it once
+ * it has measured the elements.
  *
  * @param list<array{depth:int, title:string, url:string}> $items
  */
@@ -79,9 +77,8 @@ function nd_toc_scroll_area(string $children): string
  *
  * The graphic depends only on the depths of the previous entry, this entry and
  * the next one, so it can be computed statically. When the depth changes towards
- * the next entry, `cn()` (tailwind-merge) replaces `bottom-0` and the height
- * class with `bottom-1.5 h-full`; that is why there are two separate class
- * lists instead of a concatenation.
+ * the next entry, `bottom-1.5 h-full` replaces `bottom-0` and the height class;
+ * that is why there are two separate class lists instead of a concatenation.
  *
  * @param list<array{depth:int, title:string, url:string}> $items
  */
@@ -123,7 +120,7 @@ function nd_toc_item(array $items, int $index): string
         'href' => $item['url'],
         // Which entries are active is decided later by the IntersectionObserver.
         'data-active' => 'false',
-        // The original's `pt-0` and `pb-0` are :first-child/:last-child rules in
+        // The first and last entry lose their padding through :first-of-type/:last-of-type rules in
         // components.css; the class `prose` contributes only five declarations,
         // which .nd-toc-item there contains as well.
         'class' => 'nd-toc-item',
