@@ -124,7 +124,7 @@ final class RenderCatalogue
                 return self::taskList($block, $ctx);
 
             case 'code_block':
-                return self::codeBlock($block, 'standalone');
+                return self::codeBlock($block, 'standalone', $ctx);
 
             case 'code_tabs':
                 return self::codeTabs($block, $ctx);
@@ -136,7 +136,8 @@ final class RenderCatalogue
 
                 return self::codeBlock(
                     ['lang' => $block['attrs']['lang'], 'value' => (string) $block['value']],
-                    'dynamic'
+                    'dynamic',
+                    $ctx
                 );
         }
 
@@ -399,11 +400,12 @@ final class RenderCatalogue
 
     /**
      * Code block. The frame comes from components/codeblock.php, colours and
-     * lines from lib/Highlight.php.
+     * lines from lib/Highlight.php. The highlighter rejects an unknown language with an
+     * InvalidArgumentException; that is a content error (exit code 3) at the fence.
      *
      * @param array<string,mixed> $block
      */
-    private static function codeBlock(array $block, string $variant): string
+    private static function codeBlock(array $block, string $variant, RenderContext $ctx): string
     {
         $file = __DIR__ . '/Highlight.php';
         if (!is_file($file)) {
@@ -417,9 +419,19 @@ final class RenderCatalogue
         $dynamic = $variant === 'dynamic';
         // Contract of Highlight::code: value, lang and meta unchanged from the AST;
         // DynamicCodeBlock without meta, notations and icon (option dynamic).
-        $result = $dynamic
-            ? Highlight::code((string) $block['value'], $block['lang'] ?? null, [], ['dynamic' => true])
-            : Highlight::code((string) $block['value'], $block['lang'] ?? null, $block['meta'] ?? []);
+        try {
+            $result = $dynamic
+                ? Highlight::code((string) $block['value'], $block['lang'] ?? null, [], ['dynamic' => true])
+                : Highlight::code((string) $block['value'], $block['lang'] ?? null, $block['meta'] ?? []);
+        } catch (\InvalidArgumentException $e) {
+            $file = self::page($ctx)->document?->file ?? '';
+            throw new ContentException(
+                $e->getMessage(),
+                $file === '' ? null : $file,
+                self::codeLine($file, (string) ($block['lang'] ?? ''), $dynamic),
+                $e
+            );
+        }
 
         $lineNumbers = $result['lineNumbers'] ?? false;
         $attrs = [];
@@ -443,6 +455,29 @@ final class RenderCatalogue
         ], (string) $result['code'], I18n::t('Copy Text(code block)(aria-label)'));
     }
 
+    /**
+     * Line of the first code fence (or `<DynamicCodeBlock lang="…">`) naming $lang in
+     * $file. The AST carries no positions; rendering stops at the first block with an
+     * unknown language, so the first match is the failing one. null when not found.
+     */
+    private static function codeLine(string $file, string $lang, bool $dynamic): ?int
+    {
+        if ($file === '' || $lang === '' || !is_file($file)) {
+            return null;
+        }
+        $quoted = preg_quote($lang, '/');
+        $pattern = $dynamic
+            ? '/<DynamicCodeBlock\b[^>]*\blang=(["\'])' . $quoted . '\1/'
+            : '/^[\s>]*(`{3,}|~{3,})\s*' . $quoted . '(\s|$)/';
+        foreach (preg_split('/\r\n|\r|\n/', (string) file_get_contents($file)) ?: [] as $index => $line) {
+            if (preg_match($pattern, $line) === 1) {
+                return $index + 1;
+            }
+        }
+
+        return null;
+    }
+
     /** @param array<string,mixed> $block */
     private static function codeTabs(array $block, RenderContext $ctx): string
     {
@@ -450,7 +485,7 @@ final class RenderCatalogue
         foreach ($block['items'] as $item) {
             $html = '';
             foreach ($item['blocks'] as $code) {
-                $html .= self::codeBlock($code, 'tab');
+                $html .= self::codeBlock($code, 'tab', $ctx);
             }
             $panels[] = ['value' => (string) $item['value'], 'html' => $html];
         }
