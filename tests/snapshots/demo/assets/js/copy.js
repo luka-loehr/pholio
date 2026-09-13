@@ -5,9 +5,9 @@
 //   initCopyButtons();
 //
 // Original:
-//   fumadocs-ui/dist/components/heading.js – the button next to each heading
+//   reference UI dist/components/heading.js – the button next to each heading
 //     copies the current address with `#id` as hash.
-//   fumadocs-ui/dist/utils/use-copy-button.js – after a successful copy the
+//   reference UI dist/utils/use-copy-button.js – after a successful copy the
 //     check mark shows for 1500 ms; a running timer is cancelled first.
 //     `LinkIcon` becomes `CopyCheckIcon` and back.
 

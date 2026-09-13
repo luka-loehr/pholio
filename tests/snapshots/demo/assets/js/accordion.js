@@ -1,4 +1,4 @@
-// accordion.js — accordion list: fumadocs-ui components/accordion.js (Accordions,
+// accordion.js — accordion list: reference UI components/accordion.js (Accordions,
 // Accordion, CopyButton) on Base UI Accordion (@base-ui/react 1.8.0:
 // accordion/root/AccordionRoot.js, accordion/item/AccordionItem.js,
 // accordion/trigger/AccordionTrigger.js, accordion/panel/AccordionPanel.js,
@@ -8,7 +8,7 @@
 // (hiddenUntilFound); closed ones carry hidden="until-found" and data-starting-style.
 //
 // Behaviour:
-//   · Click on the trigger: handleValueChange with multiple = false (fumadocs only passes
+//   · Click on the trigger: handleValueChange with multiple = false (the reference only passes
 //     `type` through as an attribute) → at most one item is open; a click on
 //     the open one closes it.
 //   · On start: if the hash holds the id of a header in this list, its value is

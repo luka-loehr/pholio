@@ -4,12 +4,12 @@
  * Next switches pages without a reload; the static site reloads. So that the
  * sidebar doesn't jump, this script restores the open folders and the scroll
  * position from sessionStorage (`nd-sidebar-state`) and removes the variant
- * that doesn't match the window width (Fumadocs renders only the drawer below
+ * that doesn't match the window width (the reference renders only the drawer below
  * 768 px, only the desktop sidebar above).
  *
  * INCLUSION (CSP, no inline script): as a classic, synchronous script after
  * the last of the two variants, i.e. after `aside#nd-sidebar-mobile`
- * (Fumadocs renders `SidebarDrawer` after `SidebarContent`):
+ * (the reference renders `SidebarDrawer` after `SidebarContent`):
  *
  *   <script src="…/assets/js/sidebar-restore.js"></script>
  *

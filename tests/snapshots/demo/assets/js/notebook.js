@@ -77,7 +77,7 @@ export function boot(doc = document) {
     });
   }
 
-  // Mobile menu of the start page (fumadocs layouts/home/slots/header.js): a
+  // Mobile menu of the start page (reference layouts/home/slots/header.js): a
   // Base UI Collapsible with header#nd-nav as root, the chevron button as
   // trigger and the panel from <template data-collapsible-panel> in nav.
   // collapsible.js sets phases, height and aria; here only what the header itself

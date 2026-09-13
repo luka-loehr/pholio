@@ -5,12 +5,12 @@
 //   initHotkeys({ searchHandle, theme });
 //
 // Original:
-//   fumadocs-ui/dist/contexts/search.js – SearchProvider.onKeyDown with
+//   reference UI dist/contexts/search.js – SearchProvider.onKeyDown with
 //     DEFAULT_HOT_KEYS = [{ key: e => e.metaKey || e.ctrlKey }, { key: 'k' }];
 //     both conditions must hold (`hotKey.every`), then the open state is
 //     toggled and the event is prevented. Input fields are explicitly NOT
 //     excluded here – ⌘K also works inside the search field.
-//   fumadocs-ui/dist/provider/base.js – ThemeHotKey with hotKey "d":
+//   reference UI dist/provider/base.js – ThemeHotKey with hotKey "d":
 //     bails out on defaultPrevented, isComposing, keyCode 229, on typing
 //     targets (isTypingTarget, which includes anything inside [role="dialog"])
 //     and whenever Meta, Ctrl or Alt is pressed.

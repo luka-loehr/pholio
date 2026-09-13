@@ -6,7 +6,7 @@
 //   const dialog = createDialog({ popup, backdrop, handle, initialFocus: () => input });
 //   dialog.addTrigger(document.querySelector('[data-search-full]'));
 //
-// Ported is @base-ui/react/dialog with the feature set fumadocs-ui
+// Ported is @base-ui/react/dialog with the feature set the reference UI
 // (components/dialog/search.js) uses: modal, with backdrop, without description,
 // with its own `initialFocus`. All attributes and orderings come from
 // measurements of the reference (states/search-*.html of the reference export):

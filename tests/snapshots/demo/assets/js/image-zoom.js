@@ -1,5 +1,5 @@
 // image-zoom.js — image zoom: react-medium-image-zoom 5.4.9 (dist/controlled.js and
-// dist/utils/*) with the settings from fumadocs-ui components/image-zoom.js
+// dist/utils/*) with the settings from reference UI components/image-zoom.js
 // (zoomMargin 20, wrapElement span, zoomImg.src = src of the image, zoomImg.sizes undefined).
 //
 // Static DOM (components/image-zoom.php): span[data-rmiz] > span[data-rmiz-content="not-found"] > img.

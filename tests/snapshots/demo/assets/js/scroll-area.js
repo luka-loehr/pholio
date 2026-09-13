@@ -1,5 +1,5 @@
 // scroll-area.js — port of Base UI `ScrollArea` (@base-ui/react 1.8.0) to the
-// extent Fumadocs uses it: `components/ui/scroll-area.tsx` renders
+// extent the reference uses it: `components/ui/scroll-area.tsx` renders
 // root, viewport, corner and exactly one vertical scrollbar with one thumb.
 //
 // Sources: scroll-area/root/ScrollAreaRoot.js, viewport/ScrollAreaViewport.js

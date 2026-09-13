@@ -1,4 +1,4 @@
-// tabs.js — tabs: fumadocs-ui components/tabs.js and components/ui/tabs.js
+// tabs.js — tabs: reference UI components/tabs.js and components/ui/tabs.js
 // on Base UI Tabs (@base-ui/react 1.8.0: tabs/root/TabsRoot.js, tabs/tab/TabsTab.js,
 // tabs/panel/TabsPanel.js, internals/composite/root/useCompositeRoot.js).
 //
@@ -18,7 +18,7 @@
 //     data-index on the panel is 0.
 //   · Roving tabindex: arrow left/right (wrapping), Home, End only move
 //     focus (activateOnFocus is off); Enter/Space trigger the native click.
-//   · The calling fumadocs Tabs ignores values that are not in items (data-guard).
+//   · The calling reference Tabs ignores values that are not in items (data-guard).
 //   · updateAnchor only writes when a panel has an id prop; Pholio has none,
 //     so the address stays unchanged, as in the reference.
 //   · Hash: if the target is inside the mounted panel, it is scrolled to after one frame.

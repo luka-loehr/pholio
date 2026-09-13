@@ -1,12 +1,12 @@
 // toc.js — table of contents: active headings and the clerk thumb.
 //
 // Sources:
-//   fumadocs-core/dist/toc.js            – class Observer (IntersectionObserver,
+//   reference core dist/toc.js       – class Observer (IntersectionObserver,
 //                                          threshold 0.9, single=false, fallback,
 //                                          timestamp `t`), TOCItem (data-active,
 //                                          auto scroll of the most recently activated
 //                                          entry, initially `instant`, then `smooth`)
-//   fumadocs-ui/dist/components/toc/clerk.js – TOCItems/ThumbTrack: SVG path from
+//   reference UI dist/components/toc/clerk.js – TOCItems/ThumbTrack: SVG path from
 //                                          offsetTop/clientHeight/paddings via
 //                                          ResizeObserver, --track-top/--track-bottom,
 //                                          clip-path with transition-[clip-path]
@@ -33,7 +33,7 @@ export function getLineOffset(depth) {
   return 32;
 }
 
-/** Heading observer — a 1:1 port of the class `Observer` from fumadocs-core/toc. */
+/** Heading observer — a 1:1 port of the class `Observer` from the reference core toc module. */
 export class TOCObserver {
   constructor() {
     this.items = [];
@@ -283,7 +283,7 @@ export class TOC {
 
   /**
    * Attaches another entry list to the same observer. Needed for the TOC
-   * popover: its panel is mounted only on opening, and Fumadocs renders its
+   * popover: its panel is mounted only on opening, and the reference renders its
    * own TOCItems inside (data-active, auto scroll, clerk thumb).
    */
   addList(root) {
