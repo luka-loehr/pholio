@@ -423,13 +423,16 @@ test('dev reports failed rebuilds and recovers on the next successful one', func
         file_put_contents($page, $broken);
         $process = $start();
         try {
-            $until = microtime(true) + 30;
-            while (proc_get_status($process)['running'] && microtime(true) < $until) {
-                usleep(200_000);
-            }
+            // proc_get_status() reports the real exit code only on the first call
+            // that sees the process stopped; later calls return -1. Keep that status.
+            $until = microtime(true) + 60;
             $status = proc_get_status($process);
+            while ($status['running'] && microtime(true) < $until) {
+                usleep(200_000);
+                $status = proc_get_status($process);
+            }
             assert_true(!$status['running'], "dev should have exited:\n" . @file_get_contents($log));
-            assert_same(3, $status['exitcode']);
+            assert_same(3, $status['exitcode'], (string) @file_get_contents($log));
         } finally {
             $stop($process);
         }
