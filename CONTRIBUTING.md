@@ -26,9 +26,22 @@ English, imperative, no attribution or co-author lines.
 
 ## Acceptance is a measurement
 
-A change is done when the relevant verification stage has been run and read,
+A change is done when the relevant verification tier has been run and read,
 not when it looks right. "Works on my machine" is not a report; a diff is.
-See [`verify/README.md`](verify/README.md).
+
+| Tier | Command | Needs |
+| --- | --- | --- |
+| 1 | `./scripts/check.sh` | PHP 8.2, PCRE2 10.43 |
+| 2 | `node verify/run.mjs --tier 2` | Tier 1, Node, `npm ci` in `verify/`, Chromium |
+| 3 | `node verify/run.mjs --tier 3 --reference <dir> --rewrites <file.json> --candidate <url>` | A reference export |
+
+A change to generated output regenerates the demo snapshot with
+`./scripts/update-snapshots.sh`, committed as one run. See
+[`docs/verification.md`](docs/verification.md) and
+[`verify/README.md`](verify/README.md).
+
+A new configuration key is added to `src/Config.php` and
+`docs/configuration.md` together; `tests/DocsConfigTest.php` fails otherwise.
 
 ## Code rules
 
