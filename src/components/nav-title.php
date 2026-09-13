@@ -9,8 +9,7 @@ require_once __DIR__ . '/../lib/Html.php';
 /**
  * The nav title on the left of the header, identical in both layouts.
  *
- * Outer classes from `layouts/shared/index.js` (`NavTitle`), the content (logo
- * plus wordmark) from the reference's shared layout options. Without a logo only
+ * A link to `nav.url` holding the logo and the wordmark. Without a logo only
  * the wordmark is printed.
  */
 function nd_nav_title(array $config): string
