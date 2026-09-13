@@ -1,0 +1,26 @@
+Unicode test for plain text
+
+Accents: é è ê à ç ñ ø å É È Ê
+More: ł ő ű č ś ž ı İ
+Emoji: 🎉 🎓 📚 ✏️ 👩‍🏫 👨‍👩‍👧 🏳️‍🌈 🇫🇷
+Outside the BMP: 𝔄𝔭𝔫𝔯𝔞𝔦𝔪 𝒜𝒮 𐍈 🀄
+Scripts: 漢字 かな 한국어 العربية עברית Ελληνικά Русский
+Non-breaking space between number and unit: 45 minutes
+Narrow non-breaking space: 5 000 €
+Zero-width character between the brackets: [​]
+Soft hyphen: work­space
+
+The following line is very long:
+In the Algebra session, part 1 reviews the results; In the Geometry session, part 2 reviews the results; In the Astronomy session, part 3 reviews the results; In the Façade Design session, part 4 reviews the results; In the Botany session, part 5 reviews the results; In the Physics session, part 6 reviews the results; In the Chemistry session, part 7 reviews the results; In the Biology session, part 8 reviews the results; In the History session, part 9 reviews the results; In the Civics session, part 10 reviews the results; In the Geography session, part 1 reviews the results; In the Fine Arts session, part 2 reviews the results; In the Music session, part 3 reviews the results; In the Sports session, part 4 reviews the results; In the Computing session, part 5 reviews the results; In the Philosophy session, part 6 reviews the results; In the Ethics session, part 7 reviews the results; In the Economics session, part 8 reviews the results; In the Spanish session, part 9 reviews the results; In the Linguistics session, part 10 reviews the results; In the Robotics session, part 1 reviews the results; In the Film & Theatre session, part 2 reviews the results; In the Algebra session, part 3 reviews the results; In the Geometry session, part 4 reviews the results; In the Astronomy session, part 5 reviews the results; In the Façade Design session, part 6 reviews the results; In the Botany session, part 7 reviews the results; In the Physics session, part 8 reviews the results; In the Chemistry session, part 9 reviews the results; In the Biology session, part 10 reviews the results.
+
+Line with trailing spaces   
+   
+
+
+
+After several blank lines it continues.
+Table aligned with spaces:
+  Topic         Hours     Room
+  Algebra       4         A104
+  Façade        1         B012
+
