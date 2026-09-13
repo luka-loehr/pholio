@@ -4,7 +4,8 @@
 //   node verify/run.mjs --tier 0 [--require-playwright] [--launch-browser]
 //   node verify/run.mjs --tier 1
 //   node verify/run.mjs --tier 2
-//   node verify/run.mjs --tier 3 --reference <dir> --rewrites <file.json> --candidate <url>
+//   node verify/run.mjs --tier 3 --reference <export dir> --reference-url <app url> \
+//     --candidate <url> --rewrites <file.json> [--allow <file>]... [--scenarios <file>]... [--states <file>]
 //
 // A tier runs every lower tier first. See docs/verification.md for what each tier needs.
 //
@@ -16,7 +17,9 @@
 //   1  PHP: scripts/check.sh.
 //   2  Node tooling without a reference: the selftests of the parity tools and the
 //      search and lucide oracles (need PHP on PATH).
-//   3  Parity against a reference export.
+//   3  Parity against a reference: golden DOM against the export directory, computed
+//      style, pixels and behaviour against the running reference app. Scenarios and
+//      pixel states default to the demo fixtures in verify/fixtures/demo.
 //
 // Exit codes: 0 green, 1 a step failed, 2 usage error.
 
@@ -48,6 +51,20 @@ const tierRaw = option('tier');
 if (tierRaw === undefined) usage('Missing: --tier');
 const tier = Number(tierRaw);
 if (![0, 1, 2, 3].includes(tier)) usage(`--tier must be 0, 1, 2 or 3, got: ${tierRaw}`);
+
+// Tier 3 options are checked before any tier runs, so a usage error doesn't wait for tiers 0–2.
+const tier3Options = {
+  reference: option('reference') ?? process.env.PHOLIO_REFERENCE,
+  referenceUrl: option('reference-url') ?? process.env.PHOLIO_REFERENCE_URL,
+  rewrites: option('rewrites'),
+  candidate: option('candidate'),
+};
+if (tier === 3 && Object.values(tier3Options).some((value) => !value)) {
+  usage(
+    'Tier 3 needs --reference <export dir> (or PHOLIO_REFERENCE), --reference-url <app url> '
+      + '(or PHOLIO_REFERENCE_URL), --rewrites <file.json> and --candidate <url>',
+  );
+}
 
 let failed = 0;
 let passed = 0;
@@ -352,16 +369,22 @@ async function tier2() {
 }
 
 async function tier3() {
-  const reference = option('reference') ?? process.env.PHOLIO_REFERENCE;
-  const rewrites = option('rewrites');
-  const candidate = option('candidate');
-  if (!reference || !rewrites || !candidate) {
-    usage('Tier 3 needs --reference <dir> (or PHOLIO_REFERENCE), --rewrites <file.json> and --candidate <url>');
-  }
-  const shared = ['--reference', reference, '--rewrites', rewrites, '--candidate', candidate];
-  for (const tool of ['verify/golden-dom.mjs', 'verify/computed-style.mjs', 'verify/pixel-diff.mjs', 'verify/behaviour.mjs']) {
-    await check(...scriptStep(tool, shared));
-  }
+  const { reference, referenceUrl, rewrites, candidate } = tier3Options;
+  const all = (name) => argv.flatMap((a, i) => (a === `--${name}` && argv[i + 1] ? [argv[i + 1]] : []));
+  const repeat = (name, values) => values.flatMap((v) => [`--${name}`, v]);
+  const demo = (file) => `verify/fixtures/demo/${file}`;
+  const scenarios = all('scenarios').length
+    ? all('scenarios')
+    : ['layout', 'overlays', 'catalogue'].map((kind) => demo(`behaviour-scenarios-${kind}.json`));
+  const states = option('states') ?? demo('pixel-states.json');
+  const common = ['--candidate', candidate, '--rewrites', rewrites];
+
+  // Without --allow, golden-dom.mjs uses verify/allow/golden-dom.json.
+  await check(...scriptStep('verify/golden-dom.mjs', ['--reference', reference, ...common, ...repeat('allow', all('allow'))]));
+  const app = ['--reference', referenceUrl, ...common, '--pages', reference];
+  await check(...scriptStep('verify/computed-style.mjs', app));
+  await check(...scriptStep('verify/pixel-diff.mjs', [...app, '--states', states]));
+  await check(...scriptStep('verify/behaviour.mjs', ['--reference', referenceUrl, ...common, ...repeat('scenarios', scenarios)]));
 }
 
 const tiers = [tier0, tier1, tier2, tier3];
