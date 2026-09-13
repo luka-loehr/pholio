@@ -128,5 +128,9 @@ export function initTheme() {
     get resolvedTheme() { return resolved(); },
     set: change,
     toggle() { change(resolved() === 'dark' ? 'light' : 'dark'); },
+    // Re-marks the active icon on all theme switchers. Needed for switchers that
+    // are created from a <template> after start (the start page's mobile menu):
+    // their static icon classes don't know the current theme.
+    refresh() { update(); },
   };
 }
