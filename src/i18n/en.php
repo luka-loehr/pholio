@@ -26,8 +26,6 @@ return [
     'Copy Link(accordion)(aria-label)' => 'Copy Link',
     'Copy Markdown(page actions)' => 'Copy Markdown',
     'Copy llms.txt URL(page actions)' => 'Copy llms.txt URL',
-    'Copy page(page actions)' => 'Copy page',
-    'More page actions(page actions)(aria-label)' => 'More page actions',
     'View as Markdown(page actions)' => 'View as Markdown',
     'Copy Text(code block)(aria-label)' => 'Copy Text',
     'Dark(theme switcher)(aria-label)' => 'Dark',
