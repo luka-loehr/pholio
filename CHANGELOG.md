@@ -25,10 +25,15 @@ with no dependencies.
   tabs, table of contents with a popover on small screens, breadcrumbs, previous
   and next links, light and dark schemes with a keyboard shortcut, Inter and the
   lucide icons, in plain CSS and small JavaScript modules.
-- **Color presets.** `theme.preset` selects one of eleven built-in presets for
-  light and dark: neutral (the default), black, vitepress, dusk, catppuccin,
-  ocean, purple, solar, emerald, ruby and aspen. `theme.light`, `theme.dark` and
+- **Color presets.** Eleven built-in presets for light and dark: neutral (the
+  default), black, vitepress, dusk, catppuccin, ocean, purple, solar, emerald,
+  ruby and aspen. Every build's stylesheet carries all of them, each scoped to
+  `<html data-preset>`; `theme.preset` sets the initial one, and a script can
+  recolor a page by changing the attribute. `theme.light`, `theme.dark` and
   `theme.palette_css` adjust single tokens or add a palette on top.
+- **No overscroll bounce.** The page doesn't drag past its top or bottom, and the
+  sidebar, the table of contents, the search results and the popovers keep their
+  scrolling to themselves instead of bouncing or scrolling the page.
 - **Components** as declarative tags: callouts, cards, tabs, steps, accordions,
   file trees, type tables, screenshots with a dark variant, zoomable images,
   banners, an inline table of contents and dynamic code blocks.
@@ -42,9 +47,15 @@ with no dependencies.
 - **Agent-ready output.** A Markdown twin of every page, `llms.txt` and
   `llms-full.txt`, `skill.md` with Agent Skills discovery, an agent card,
   `robots.txt`, `sitemap.xml`, JSON-LD, and content negotiation with discovery
-  headers in `.htaccess`, `_headers` and `pholio dev`.
+  headers in `.htaccess`, `_headers` and `pholio dev`. OpenAI's agents
+  (ChatGPT-User, OAI-SearchBot, GPTBot) get the Markdown as `text/plain`, and
+  only the Markdown files a build writes are served; any other `.md` answers 404.
+  The twins open with a neutral line naming the llms.txt index, and llms.txt and
+  skill.md describe their sections instead of giving commands. Headings, labels
+  and fixed sentences follow the site language, in English and German.
 - **Page menu.** "Copy page" next to the page title, with a menu to copy the page
-  as Markdown or open it in ChatGPT or Claude.
+  as Markdown or open it in ChatGPT (with the page URL and a pointer to its
+  Markdown version) or Claude (with the Markdown URL).
 - **Install script.** `curl -fsSL https://pholio.lukaloehr.com/install.sh | sh`
   installs the latest release after verifying its checksum, PHP and PCRE2, with
   `--version`, `--system`, `--prune` and `--dir` for a per-project copy.
