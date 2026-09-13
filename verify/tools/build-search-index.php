@@ -20,8 +20,10 @@ declare(strict_types=1);
  *                         It decides which hit comes first on equal scores; a reference export
  *                         records its bundler's order, which the file system can't reproduce.
  *   --drafts              include pages whose file name starts with "_"
+ *   --texts <file.json>   also write the indexed pages with their plain text (SearchIndex::documents),
+ *                         which verify/search-parity.mjs rebuilds the postings from
  *
- * `verify/search-parity.mjs` calls this tool; the result is identical to the index `pholio build`
+ * `verify/search-parity.mjs` calls this tool; the index is identical to the one `pholio build`
  * writes for the same content, base URL and tokenizer.
  *
  * Exit codes: 0 written, 1 input error, 2 usage error.
@@ -38,7 +40,7 @@ function usage(string $message): never
 {
     fwrite(STDERR, $message . PHP_EOL
         . 'Usage: php build-search-index.php --content <dir> --base-url <url> [--tokenizer english|german]'
-        . ' [--extensions md,mdx] [--frontmatter-alias <from=to>]... [--order <file.json>] [--drafts] <out.json>' . PHP_EOL);
+        . ' [--extensions md,mdx] [--frontmatter-alias <from=to>]... [--order <file.json>] [--drafts] [--texts <file.json>] <out.json>' . PHP_EOL);
     exit(2);
 }
 
@@ -49,7 +51,7 @@ function fail(string $message): never
 }
 
 $args = array_slice($argv ?? [], 1);
-$options = ['content' => null, 'base-url' => null, 'tokenizer' => 'english', 'extensions' => 'md', 'order' => null];
+$options = ['content' => null, 'base-url' => null, 'tokenizer' => 'english', 'extensions' => 'md', 'order' => null, 'texts' => null];
 $drafts = false;
 $aliases = [];
 $positional = [];
@@ -116,18 +118,19 @@ if ($options['order'] !== null) {
 
 $tree = new Tree($content, $baseUrl, $drafts, $extensions);
 
-$index = SearchIndex::build(
-    $tree,
-    static function (array $page) use ($content, $aliases): Document {
-        $path = $content . '/' . $page['file'];
+$load = static function (array $page) use ($content, $aliases): Document {
+    $path = $content . '/' . $page['file'];
 
-        return Markdown::parse((string) file_get_contents($path), $path, $aliases);
-    },
-    $baseUrl,
-    $order,
-    $drafts,
-    $options['tokenizer'],
-);
+    return Markdown::parse((string) file_get_contents($path), $path, $aliases);
+};
+$index = SearchIndex::build($tree, $load, $baseUrl, $order, $drafts, $options['tokenizer']);
+
+if ($options['texts'] !== null) {
+    $texts = json_encode(SearchIndex::documents($tree, $load, $baseUrl, $order, $drafts), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    if (file_put_contents($options['texts'], $texts . "\n") === false) {
+        fail('Cannot write: ' . $options['texts']);
+    }
+}
 
 $json = json_encode($index, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 if (file_put_contents($positional[0], $json . "\n") === false) {
@@ -136,5 +139,5 @@ if (file_put_contents($positional[0], $json . "\n") === false) {
 
 fwrite(
     STDERR,
-    sprintf("%d pages, %d documents, %d bytes\n", count($index['pages']), count($index['docs']), strlen($json)),
+    sprintf("%d pages, %d words, %d bytes\n", count($index['pages']), count($index['postings']), strlen($json)),
 );
