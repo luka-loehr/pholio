@@ -1,0 +1,22 @@
+{
+  "_comment": "Redirects of old guide addresses (CRLF line endings)",
+  "redirects": [
+    { "from": "/guide/login.html", "to": "/guide/getting-started/login/", "status": 301 },
+    { "from": "/guide/password.html", "to": "/guide/getting-started/forgot-password/", "status": 301 },
+    { "from": "/guide/billing.html", "to": "/guide/billing/", "status": 301 },
+    { "from": "/guide/tickets.html", "to": "/guide/support/tickets/", "status": 308 },
+    { "from": "/guide/reports.html", "to": "/guide/admin/reports/", "status": 302 },
+    { "from": "/guide/café.html", "to": "/guide/admin/cafe/", "status": 301 }
+  ],
+  "options": {
+    "trailingSlash": true,
+    "caseSensitive": false,
+    "cacheSeconds": 86400,
+    "exceptions": null
+  },
+  "stats": {
+    "created": "2026-09-01T08:15:00+02:00",
+    "count": 6,
+    "permanentShare": 0.6666666666666666
+  }
+}
