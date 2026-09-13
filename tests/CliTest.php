@@ -90,10 +90,12 @@ test('--version prints VERSION', function (): void {
     assert_same('pholio ' . trim((string) file_get_contents(__DIR__ . '/../VERSION')) . "\n", $out);
 });
 
-test('no command prints usage and exits 2', function (): void {
-    [$code, , $err] = pholio([]);
-    assert_same(2, $code);
-    assert_contains('Usage:', $err);
+test('no command prints the short help and exits 0', function (): void {
+    [$code, $out] = pholio([]);
+    assert_same(0, $code);
+    foreach (['pholio init [dir]', 'pholio dev [dir]', 'pholio build [dir]', 'pholio check [dir]', 'pholio --help'] as $needle) {
+        assert_contains($needle, $out);
+    }
 });
 
 test('unknown command and flag exit 2', function (): void {
@@ -120,12 +122,43 @@ test('removed flags are unknown', function (): void {
     }
 });
 
-test('missing config file exits 2', function (): void {
+test('a directory without config and content exits 2 and points to init', function (): void {
     $dir = Fs::tempDir('pholio-cli-test-');
     try {
         [$code, , $err] = pholio(['build'], $dir);
         assert_same(2, $code);
-        assert_contains('config file not found: pholio.config.php', $err);
+        assert_contains('no pholio.config.php and no content/ directory in ', $err);
+        assert_contains('"pholio init"', $err);
+        [$code, , $err] = pholio(['build', '--config', 'missing.php'], $dir);
+        assert_same(2, $code);
+        assert_contains('config file not found: missing.php', $err);
+        [$code, , $err] = pholio(['build', 'nope'], $dir);
+        assert_same(2, $code);
+        assert_contains('project directory not found', $err);
+        [$code, , $err] = pholio(['build', 'a', 'b'], $dir);
+        assert_same(2, $code);
+        assert_contains('only one project directory', $err);
+    } finally {
+        Fs::removeDir($dir);
+    }
+});
+
+test('build takes the project directory as argument or from the working directory', function (): void {
+    $dir = site();
+    try {
+        [$code, , $err] = pholio_inline(['build', $dir, '--quiet']);
+        assert_same(0, $code, $err);
+        assert_true(is_file($dir . '/out/guide/index.html'));
+        assert_same(2, pholio_inline(['build', $dir, '--config', $dir . '/pholio.config.php'])[0], 'dir and --config together');
+        $cwd = getcwd();
+        chdir($dir);
+        try {
+            Fs::removeDir($dir . '/out');
+            assert_same(0, pholio_inline(['build', '--quiet'])[0]);
+            assert_true(is_file($dir . '/out/index.html'));
+        } finally {
+            chdir((string) $cwd);
+        }
     } finally {
         Fs::removeDir($dir);
     }
