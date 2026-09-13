@@ -1,6 +1,6 @@
-/* vitepress: built-in color preset, selected with theme.preset. */
+/* vitepress: built-in color preset, active while <html data-preset="vitepress">; theme.preset sets the initial value. */
 
-:root {
+:where(:root[data-preset="vitepress"]) {
   --color-fd-muted: hsl(0, 0%, 96.1%);
   --color-fd-popover: hsl(0, 0%, 100%);
   --color-fd-popover-foreground: hsl(0, 0%, 15.1%);
@@ -20,7 +20,7 @@
   --color-fd-primary: hsl(226, 55%, 45%);
 }
 
-.dark {
+:where(:root[data-preset="vitepress"]).dark {
   --color-fd-ring: hsl(234, 100%, 83%);
   --color-fd-primary: hsl(234, 100%, 83%);
   --color-fd-secondary-foreground: hsl(60, 100%, 98%);
@@ -39,34 +39,34 @@
   --color-fd-muted-foreground: hsl(240, 5%, 58%);
 }
 
-.prose {
+:where(:root[data-preset="vitepress"]) .prose {
   --tw-prose-body: color-mix(in oklab, var(--color-fd-foreground) 85%, transparent);
   --tw-prose-headings: color-mix(in oklab, var(--color-fd-foreground) 85%, transparent);
   --tw-prose-links: var(--color-fd-primary);
   --tw-prose-code: var(--color-fd-primary);
 }
 
-.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+:where(:root[data-preset="vitepress"]) .prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
   border: none;
   background-color: color-mix(in oklab, var(--color-fd-primary) 10%, transparent);
 }
 
-#nd-sidebar {
+:where(:root[data-preset="vitepress"]) #nd-sidebar {
   background-color: hsl(240, 8%, 97%);
   border-color: transparent;
 }
 
-.dark #nd-sidebar {
+:where(:root[data-preset="vitepress"]).dark #nd-sidebar {
   --color-fd-muted-foreground: hsl(240, 6%, 64%);
   background-color: hsl(240, 4%, 9%);
 }
 
 @layer utilities {
-  button[data-search-full] {
+  :where(:root[data-preset="vitepress"]) button[data-search-full] {
     background-color: var(--color-fd-background);
   }
 
-  figure.shiki {
+  :where(:root[data-preset="vitepress"]) figure.shiki {
     background-color: var(--color-fd-card);
   }
 }
