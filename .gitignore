@@ -7,9 +7,6 @@
 # Dev tooling (Node lives only in verify/)
 node_modules/
 npm-debug.log*
-/verify/.cache/
-/verify/reference/
-/verify/report/
 /verify/test-results/
 .build/
 
