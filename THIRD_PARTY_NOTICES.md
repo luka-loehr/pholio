@@ -65,6 +65,23 @@ authoritative for that file.
 Both themes are identical to `tm-themes` 1.12.3, which `@shikijs/themes` 4.4.3
 bundles unchanged.
 
+### Brand marks
+
+The page menu next to the page title links to ChatGPT and Claude and shows each
+service's mark to identify it. The SVG files are copied unchanged into
+`vendor-data/brands/`; the build inlines their `viewBox` and path data unchanged,
+filled with the text color (black on light, white on dark).
+
+| Mark | File | Version | License | Source | License text |
+| --- | --- | --- | --- | --- | --- |
+| OpenAI (Blossom) | `vendor-data/brands/openai.svg` | Simple Icons 15.22.0, the last release that ships it (sha256 `2b4a04dd…`) | CC0-1.0 | https://cdn.jsdelivr.net/npm/simple-icons@15.22.0/icons/openai.svg; mark source and guidelines https://openai.com/brand | [`licenses/simple-icons-CC0-1.0.txt`](licenses/simple-icons-CC0-1.0.txt) |
+| Claude (starburst) | `vendor-data/brands/claude.svg` | Simple Icons 16.31.0 (sha256 `2d6fda79…`) | CC0-1.0 | https://cdn.jsdelivr.net/npm/simple-icons@16.31.0/icons/claude.svg; mark source https://claude.ai | [`licenses/simple-icons-CC0-1.0.txt`](licenses/simple-icons-CC0-1.0.txt) |
+
+CC0 covers the SVG files, not the marks. OpenAI, the OpenAI logo and ChatGPT are
+trademarks of OpenAI; Claude and the Claude logo are trademarks of Anthropic.
+Pholio uses them only to name the service a link opens, as nominative use, and
+implies no endorsement; see OpenAI's guidelines at https://openai.com/brand.
+
 ## Design origin and derived values
 
 No code from these projects is shipped. Pholio reproduces their interface and
