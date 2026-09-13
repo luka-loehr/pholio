@@ -7,7 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * Card grid, `Cards` from `fumadocs-ui/dist/components/card.js`.
+ * Card grid, `Cards` from the reference UI's `dist/components/card.js`.
  */
 function nd_cards(array $props, string $children): string
 {
@@ -17,7 +17,7 @@ function nd_cards(array $props, string $children): string
 /**
  * A single card, `Card` from card.js.
  *
- * With `href` the element becomes an `a` (through `fumadocs-core/link`, so with
+ * With `href` the element becomes an `a` (through the reference `link` helper, so with
  * `rel`/`target` only for external targets), otherwise a `div`. `data-card` is
  * always present and renders as `data-card="true"`, because React prints the
  * boolean that way. The description is a `p`; the child `div` stays in the DOM
