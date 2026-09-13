@@ -36,7 +36,7 @@ it through PHP:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh -s -- --dir vendor/pholio
-php vendor/pholio/bin/pholio init docs
+php vendor/pholio/bin/pholio init my-docs
 ```
 
 Pholio is a drop-in, not a package, so a clone works the same way:
@@ -45,8 +45,8 @@ Pholio is a drop-in, not a package, so a clone works the same way:
 ## Create a project
 
 ```bash
-pholio init docs
-cd docs
+pholio init my-docs
+cd my-docs
 ```
 
 `init` creates the project layout with a small sample site. `--name "My Docs"`
@@ -55,7 +55,7 @@ becomes "My Docs"), and `--lang de` switches the interface to German. It refuses
 to overwrite existing files and exits 2 unless you pass `--force`.
 
 ```
-docs/
+my-docs/
   pholio.config.php   optional; every key has a default
   content/            Markdown pages and meta.json files
   assets/             images and files, published at /assets/
@@ -97,7 +97,7 @@ pholio build
 `dev` builds with drafts, serves the site at `http://127.0.0.1:8080` and
 rebuilds when the content, the config or `assets/` changes. `build` writes the
 site into `public/`. Commands without a directory argument work on the current
-directory; `pholio build docs` does the same from the parent. Deploy by copying
+directory; `pholio build my-docs` does the same from the parent. Deploy by copying
 `public/`; nothing runs on the server.
 
 ## Try the demo
