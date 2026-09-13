@@ -8,28 +8,27 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Announcement bar, `Banner` from the reference UI's `dist/components/banner.js`.
+ * Announcement bar (`Banner`).
  *
- * The `<style>` elements sit inside the bar, as in the reference (the golden DOM
- * comparison keeps `<style>` in the body): the layout variable
+ * The `<style>` elements sit inside the bar: the layout variable
  * `--fd-banner-height` (only with `changeLayout`), the hide rule for
  * `html.nd-banner-<id>` and, for `rainbow`, the `fd-moving-banner` keyframes.
  *
  * Not carried over is the inline `<script>` that sets `nd-banner-<id>` on
  * `<html>` before the first paint once the bar was closed: the Content Security
  * Policy forbids inline scripts. js/banner.js sets the class at startup and
- * removes the bar (like the original's `useEffect`). Difference: a closed bar is
- * briefly visible until the module loads.
+ * removes the bar. A closed bar is therefore briefly visible until the module
+ * loads.
  */
 
-/** `encodeBase32` from banner.js (alphabet a–z2–7, no padding). */
+/** Base32 encoding of the banner id (alphabet a–z2–7, no padding). */
 function nd_banner_base32(string $value): string
 {
     $alphabet = 'abcdefghijklmnopqrstuvwxyz234567';
     $encoded = '';
     $buffer = 0;
     $bits = 0;
-    // `charCodeAt` yields UTF-16 units; above 0xFF the buffer overflows as in the original.
+    // `charCodeAt` yields UTF-16 units; above 0xFF the buffer overflows on purpose, so ids stay stable.
     $units = unpack('v*', (string) mb_convert_encoding($value, 'UTF-16LE', 'UTF-8')) ?: [];
     foreach ($units as $unit) {
         $buffer = (($buffer << 8) | $unit) & 0xFFFFFFFF;
@@ -85,7 +84,7 @@ function nd_banner(array $props, string $children, string $closeLabel): string
     ], $inner);
 }
 
-/** `flow()` from banner.js with the default colours. */
+/** The moving rainbow gradient with the default colours. */
 function nd_banner_flow(): string
 {
     $colors = ['rgba(0,149,255,0.56)', 'rgba(231,77,255,0.77)', 'rgba(255,0,0,0.73)', 'rgba(131,255,166,0.66)'];
