@@ -99,6 +99,7 @@ final class Shiki
         }
         $grammar = $registry->grammar($lang);
         $grammar->theme = $theme;
+        $disabledBefore = Scanner::$withDisabledPatterns;
         $state = null;
         $final = [];
         foreach ($lines as $line) {
@@ -126,6 +127,9 @@ final class Shiki
             }
             $final[] = $out;
             $state = $r['ruleStack'];
+        }
+        if (Scanner::$withDisabledPatterns !== $disabledBefore) {
+            $registry->warnSimplified($lang);
         }
         return $final;
     }
