@@ -96,3 +96,79 @@ test('German values equal the original table', function (): void {
     assert_same(['Back to reference(footnote)(aria-label)', 'Last updated(page)', 'Open(home card)'], array_keys($added));
     echo '     ', count($original), " original entries compared\n";
 });
+
+/**
+ * The string tables of theme/js/i18n.js: language => key => text. Parses the
+ * `STRINGS = { en: { 'key': 'text', ... }, de: { ... } }` literal line by line;
+ * any line inside a table that is not a quoted pair is an error.
+ *
+ * @return array<string, array<string, string>>
+ */
+function js_i18n_tables(string $file): array
+{
+    $code = (string) file_get_contents($file);
+    if (preg_match('/export const STRINGS = \{\n(.*?)\n\};/s', $code, $m) !== 1) {
+        throw new \RuntimeException('no "export const STRINGS = {...};" literal in ' . $file);
+    }
+    $string = '(\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\]|\\\\.)*")';
+    $unquote = static fn(string $s): string => stripcslashes(substr($s, 1, -1));
+
+    $tables = [];
+    $language = null;
+    foreach (explode("\n", $m[1]) as $number => $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '//')) {
+            continue;
+        }
+        if (preg_match('/^([a-z]{2,3}): \{$/', $line, $open) === 1 && $language === null) {
+            $language = $open[1];
+            $tables[$language] = [];
+        } elseif ($line === '},' || $line === '}') {
+            if ($language === null) {
+                throw new \RuntimeException("unexpected closing brace in STRINGS, line {$number}");
+            }
+            $language = null;
+        } elseif ($language !== null && preg_match('/^' . $string . ':\s*' . $string . ',?$/', $line, $pair) === 1) {
+            $tables[$language][$unquote($pair[1])] = $unquote($pair[2]);
+        } else {
+            throw new \RuntimeException("cannot parse STRINGS line {$number}: {$line}");
+        }
+    }
+
+    return $tables;
+}
+
+test('theme/js/i18n.js strings equal the PHP tables', function (): void {
+    $file = __DIR__ . '/../theme/js/i18n.js';
+    if (!is_file($file)) {
+        throw new \RuntimeException('theme/js/i18n.js not found');
+    }
+    $tables = js_i18n_tables($file);
+    assert_same(['en', 'de'], array_keys($tables), 'languages in theme/js/i18n.js');
+    assert_true(count($tables['en']) > 0, 'parsed 0 keys from the en table of theme/js/i18n.js');
+    assert_same(array_keys($tables['en']), array_keys($tables['de']), 'en and de key sets in theme/js/i18n.js');
+    foreach ($tables as $language => $table) {
+        $php = I18n::load($language);
+        foreach ($table as $key => $text) {
+            assert_true(array_key_exists($key, $php), "theme/js/i18n.js {$language}: key missing in src/i18n/{$language}.php: {$key}");
+            assert_same($php[$key], $text, "theme/js/i18n.js {$language}: {$key}");
+        }
+    }
+    echo '     ', count($tables['en']), " keys per language compared\n";
+});
+
+test('the JavaScript table parser fails loudly', function (): void {
+    $dir = sys_get_temp_dir() . '/pholio-i18n-js-' . bin2hex(random_bytes(4));
+    mkdir($dir);
+    try {
+        file_put_contents($dir . '/a.js', "export const OTHER = {};\n");
+        assert_throws(\RuntimeException::class, fn() => js_i18n_tables($dir . '/a.js'), 'no "export const STRINGS');
+        file_put_contents($dir . '/b.js', "export const STRINGS = {\n  en: {\n    'Search(search dialog)': t('x'),\n  },\n};\n");
+        assert_throws(\RuntimeException::class, fn() => js_i18n_tables($dir . '/b.js'), 'cannot parse');
+        file_put_contents($dir . '/c.js', "export const STRINGS = {\n  en: {\n    \"It\\'s(x)\": 'It\\'s',\n  },\n};\n");
+        assert_same(['en' => ["It's(x)" => "It's"]], js_i18n_tables($dir . '/c.js'));
+    } finally {
+        array_map('unlink', glob($dir . '/*') ?: []);
+        rmdir($dir);
+    }
+});
