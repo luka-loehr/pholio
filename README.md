@@ -34,7 +34,7 @@ pholio dev      # http://127.0.0.1:8080
 pholio build    # static site in public/
 ```
 
-Requires PHP 8.2+ with `mbstring` and `ctype`. More in [Getting started](docs/getting-started.md).
+Requires PHP 8.2+ with `mbstring` and `ctype` (PCRE2 10.43+ recommended for full syntax highlighting). More in [Getting started](docs/getting-started.md).
 
 ---
 
