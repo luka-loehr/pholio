@@ -80,7 +80,6 @@ internal shape documented in `src/Config.php`.
 | `src/templates/` | The document shell |
 | `src/i18n/` | Interface strings: `en.php` (every key), `de.php` |
 | `theme/css/` | `notebook.css` and its parts, hand-written in cascade order |
-| `theme/presets/` | The built-in color presets, one stylesheet each |
 | `theme/js/` | ES modules, one per behavior |
 | `theme/fonts/` | Inter |
 | `vendor-data/` | Shiki grammars and themes, lucide icon data |
@@ -126,9 +125,6 @@ softened by restoring the sidebar's scroll position and open folders from
 - **2026-09-12 — Committed output as the test oracle.** The demo build and the
   highlighter's output are committed. A checklist review finds the differences
   you thought to look for; a diff against committed output finds the others.
-- **2026-09-13 — Color presets as token sets.** A preset is a light and a dark
-  set of color tokens written at the palette marker, so every component follows
-  it without a single component rule, and a site's own tokens still win.
 - **2026-09-13 — Files for agents are derived, not written.** The Markdown
   twins, llms.txt, skill.md and the agent card are computed from the page tree
   and the configuration, the same way every build. No model writes them, so
