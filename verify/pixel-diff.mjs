@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Pixel comparison: a Fumadocs reference app against a Pholio build.
+// Pixel comparison: a reference app against a Pholio build.
 //
 //   node verify/pixel-diff.mjs --reference http://127.0.0.1:3000 --candidate http://127.0.0.1:4000 \
 //        --pages <export>/tree.json --rewrites <file.json>
