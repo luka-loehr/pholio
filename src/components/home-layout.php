@@ -11,8 +11,7 @@ require_once __DIR__ . '/home-hero.php';
 require_once __DIR__ . '/home-cards.php';
 
 /**
- * The start page: the reference `HomeLayout` (`layouts/home/index.js` and
- * `slots/container.js`) with the content of the reference start page. The
+ * The start page layout: header, then the configured hero and cards. The
  * outer `main` carries the layout width, the inner one comes from the page.
  * Hero and cards are each optional (`home.hero`, `home.cards`).
  */
