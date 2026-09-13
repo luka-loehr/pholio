@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * The hero of the start page, as in the reference start page: a background
+ * The hero of the start page: a background
  * image (light and dark as two images), two gradients on top, then kicker,
  * headline, lead paragraph and the buttons.
  *
@@ -16,7 +16,7 @@ require_once __DIR__ . '/../lib/Icons.php';
  * optional; each omitted one leaves out its `img`. `headline` separates lines
  * with "\n", which become `<br>`.
  *
- * Buttons keep the spacing of the reference JSX: a primary button is label,
+ * Buttons keep a fixed spacing: a primary button is label,
  * space, icon; a secondary button is icon, space, label. Without an icon only
  * the label remains.
  */
