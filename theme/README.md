@@ -6,8 +6,7 @@ Copied into every build below `asset_base`.
 | --- | --- |
 | `theme/css/notebook.css` | Entry stylesheet. Its `@import` parts are inlined by the build into one file |
 | `theme/css/*.css` | The parts in cascade order: tokens, reset, fonts, animations, layout, components, catalog, prose, utilities |
-| `theme/css/tokens.css` | Color tokens, and the `/* @pholio:palette */` marker where the build writes `theme.preset`, `theme.light`, `theme.dark` and `theme.palette_css` |
-| `theme/presets/*.css` | Built-in color presets, one file per preset, each scoped to `<html data-preset>`; all are in every build and `theme.preset` sets the initial one |
+| `theme/css/tokens.css` | Color tokens, and the `/* @pholio:palette */` marker where the build writes `theme.light`, `theme.dark` and `theme.palette_css` |
 | `theme/js/*.js` | ES modules, one per behavior: theme, dialog, search, collapsible, popover, scroll area, sidebar, tabs, table of contents, copy, hotkeys and the catalog components; `notebook.js` wires them up |
 | `theme/js/i18n.js` | The interface strings JavaScript renders, in sync with `src/i18n/` |
 | `theme/fonts/inter/` | Inter, split by `unicode-range` |
