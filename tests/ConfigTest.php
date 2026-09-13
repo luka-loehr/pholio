@@ -37,6 +37,7 @@ test('defaults for a minimal config', function (): void {
     assert_same('Lanternfly', $c['homeTitle']);
     assert_same(['title' => 'Lanternfly', 'logo' => null, 'logoSize' => 24, 'url' => '/'], $c['nav']);
     assert_same(['md'], $c['content']['extensions']);
+    assert_same(null, $c['content']['linkPrefix']);
     assert_same(null, $c['content']['assetPrefix']);
     assert_same('/', $c['content']['assetTarget']);
     assert_same(null, $c['home']);
@@ -107,7 +108,7 @@ test('paths resolve against the config directory', function (): void {
     $c = config([
         'content_dir' => '/abs/content',
         'output_dir' => '../public/docs/',
-        'content' => ['asset_root' => 'media', 'asset_prefix' => '/media-assets/'],
+        'content' => ['asset_root' => 'media', 'asset_prefix' => '/media-assets/', 'link_prefix' => '/reference/docs/'],
         'copy' => ['brand' => '{assets}/brand'],
         'theme' => ['palette_css' => 'palette.css'],
         'redirects_file' => 'content/redirects.json',
@@ -117,6 +118,7 @@ test('paths resolve against the config directory', function (): void {
     assert_same('/site/../public/docs', $c['outDir']);
     assert_same('/site/media', $c['content']['assetRoot']);
     assert_same('/media-assets', $c['content']['assetPrefix']);
+    assert_same('/reference/docs', $c['content']['linkPrefix']);
     assert_same([['from' => '/site/brand', 'to' => '/assets/brand']], $c['copy']);
     assert_same('/site/palette.css', $c['theme']['paletteCss']);
     assert_same('/site/content/redirects.json', $c['redirectsFile']);
