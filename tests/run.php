@@ -7,12 +7,11 @@ declare(strict_types=1);
  *
  * As a script it runs every tests/*Test.php in a fresh PHP process:
  *
- *   php tests/run.php [--only Config,Cli] [--require-node] [--require-reference]
+ *   php tests/run.php [--only Config,Cli] [--require-node]
  *
  * A test file passes with exit code 0 and fails otherwise. A line starting with
- * "SKIP:" marks skipped work; --require-node and --require-reference turn skips
- * into failures (the test prints "SKIP: node" or "SKIP: reference" style reasons,
- * and both flags reject any skip).
+ * "SKIP:" marks skipped work; --require-node turns skips into failures
+ * (the test prints a "SKIP: node" style reason; the flag rejects any skip).
  *
  * Included from a test file (`require __DIR__ . '/run.php';`) it defines the
  * helpers below instead and prints a summary when the file ends:
@@ -27,8 +26,8 @@ declare(strict_types=1);
  *   pcre2_supports_full_highlighting(): bool
  *   require_full_pcre2_or_skip(string $why, bool $wholeFile = false)
  *
- * PCRE2 older than 10.43 simplifies some syntax colours (src/lib/Highlight/OnigRegex.php), so byte-exact
- * references cannot match there. Tests that compare such output call require_full_pcre2_or_skip(), which
+ * PCRE2 older than 10.43 simplifies some syntax colours (src/lib/Highlight/OnigRegex.php), so the committed
+ * expected output cannot match there. Tests that compare such output call require_full_pcre2_or_skip(), which
  * skips on an old PCRE2, or fails when the environment sets PHOLIO_REQUIRE_PCRE2=1.
  */
 
@@ -169,10 +168,10 @@ function pholio_run_suite(array $args): int
             $only = array_filter(array_map('trim', explode(',', $args[++$i])), 'strlen');
         } elseif (str_starts_with($arg, '--only=')) {
             $only = array_filter(array_map('trim', explode(',', substr($arg, 7))), 'strlen');
-        } elseif ($arg === '--require-node' || $arg === '--require-reference') {
+        } elseif ($arg === '--require-node') {
             $requireSkipsFree = true;
         } else {
-            fwrite(STDERR, "run.php: unknown argument: {$arg}\nusage: php tests/run.php [--only Name,Name] [--require-node] [--require-reference]\n");
+            fwrite(STDERR, "run.php: unknown argument: {$arg}\nusage: php tests/run.php [--only Name,Name] [--require-node]\n");
 
             return 2;
         }
