@@ -105,7 +105,7 @@
     },
     {
       "name": "sidebar-collapsed-reload",
-      "_purpose": "After a reload the reference starts expanded (useState(false)); a stored state must not come back.",
+      "_purpose": "After a reload the reference starts expanded (useState(false)); a stored state must not come back. With the sidebar collapsed the column geometry is an intentional difference from the reference (Luka's decision, 2026-09-13), so grid-template-columns is not observed; state, --fd-sidebar-col and translate stay strict.",
       "page": "/reference/code-blocks",
       "width": 1440,
       "height": 900,
@@ -119,14 +119,14 @@
       "observe": {
         "selectors": ["#nd-sidebar", "#nd-notebook-layout", "button[data-collapsed]"],
         "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed", "data-column-changed"],
-        "styleProps": ["--fd-sidebar-col", "translate", "box-shadow", "visibility", "grid-template-columns"],
+        "styleProps": ["--fd-sidebar-col", "translate", "box-shadow", "visibility"],
         "animations": false
       },
       "sample": ["settled"]
     },
     {
       "name": "sidebar-collapsed-navigation",
-      "_purpose": "Page change through a link: the reference keeps the collapsed state (client navigation), without a transition.",
+      "_purpose": "Page change through a link: the reference keeps the collapsed state (client navigation), without a transition. With the sidebar collapsed the column geometry is an intentional difference from the reference (Luka's decision, 2026-09-13), so grid-template-columns is not observed; state, --fd-sidebar-col and translate stay strict.",
       "page": "/reference/code-blocks",
       "width": 1440,
       "height": 900,
@@ -140,7 +140,7 @@
       "observe": {
         "selectors": ["#nd-sidebar", "#nd-notebook-layout", "button[data-collapsed]"],
         "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed", "data-column-changed"],
-        "styleProps": ["--fd-sidebar-col", "translate", "box-shadow", "visibility", "grid-template-columns"],
+        "styleProps": ["--fd-sidebar-col", "translate", "box-shadow", "visibility"],
         "animations": false
       },
       "sample": ["settled"]
