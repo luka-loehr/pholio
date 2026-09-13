@@ -2,7 +2,7 @@
 
 The reference for the PHP syntax highlighter (`src/lib/Highlight.php`). Each sample `<lang>/<name>.<ext>` has
 its reference `<name>.<ext>.expected.html` (or `.expected.error.txt`) next to it, produced by the real
-fumadocs-core `rehypeCode` (Shiki, JavaScript regex engine) from `verify/node_modules`. An optional
+`rehypeCode` of the reference core package (Shiki, JavaScript regex engine) from `verify/node_modules`. An optional
 `<name>.<ext>.meta.json` sets `lang`, `info` and `mode` (`fence` or `dynamic`); see the header of
 `../highlight-oracle.mjs`.
 
