@@ -1,20 +1,19 @@
 // scroll-into-view.js — replacement for the packages `scroll-into-view-if-needed` and
-// `compute-scroll-into-view`, which the reference uses for the auto scroll of the sidebar
-// (components/sidebar/base.js → useAutoScroll) and of the table of contents
-// (reference core toc → TOCItem).
+// `compute-scroll-into-view`, used for the auto scroll of the sidebar
+// (sidebar.js) and of the table of contents (toc.js).
 //
-// Ported is exactly the part of the original computation these two calls
+// Ported is exactly the part of the package's computation these two calls
 // hit: collect scrollable ancestors up to the boundary, compute the target
 // scroll per ancestor for `start` / `center` / `end` / `nearest`, and with
 // `scrollMode: "if-needed"` stop as soon as the element is already visible.
 //
-// IMPORTANT (taken from the original code, not from its documentation):
+// IMPORTANT (taken from the package's code, not from its documentation):
 // `scrollIntoView(el, { boundary, scrollMode: 'if-needed' })` passes neither
-// `block` nor `inline`. The original's normaliser forwards a non-empty
+// `block` nor `inline`. The package's normaliser forwards a non-empty
 // options object unchanged, so `block` stays `undefined` — and every
 // `undefined` branch of the computation ends up **centring**. The sidebar's
 // auto scroll therefore centres the active entry as soon as it is not visible.
-// This case distinction is reproduced 1:1 here.
+// This case distinction is kept exactly.
 
 const isElement = (value) => typeof value === 'object' && value != null && value.nodeType === 1;
 
