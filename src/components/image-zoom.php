@@ -7,19 +7,17 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * Zoomable image, `ImageZoom` from the reference UI's `dist/components/image-zoom.js`:
- * `Uncontrolled` from react-medium-image-zoom 5.4.9 with `zoomMargin: 20` and
- * `wrapElement: "span"`, holding the reference framework `Image` (next/image).
+ * Zoomable image (`ImageZoom`), with the markup and behaviour of
+ * react-medium-image-zoom 5.4.9 (`zoomMargin: 20`, `wrapElement: "span"`).
  *
- * The static page carries only what the hydrated reference shows before the
- * image has loaded: wrapper and content with `data-rmiz-content="not-found"`.
+ * The static page carries only the state before the image has loaded: wrapper
+ * and content with `data-rmiz-content="not-found"`.
  * Ghost, zoom button and dialog portal are created by js/image-zoom.js once the
  * image is decoded.
  *
- * Deviation from the reference: next/image serves `src`/`srcset` through its
- * image optimiser (`/_next/image?url=…&w=…`), which doesn't exist without Node.
- * The rebuild writes the real path and no `srcset`. `sizes`, `data-nimg` and
- * `style="color:transparent"` stay as in the original.
+ * The image is served from its real path, without `srcset`: a static site has
+ * no image optimiser. `sizes`, `data-nimg` and `style="color:transparent"` are
+ * kept because the styles select on them.
  *
  * @param array{src:string, alt?:?string, width?:?int, height?:?int} $props
  */
