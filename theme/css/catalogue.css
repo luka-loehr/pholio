@@ -663,16 +663,10 @@
     background-color: var(--color-fd-secondary);
   }
 
-  /* .nd-banner-rainbow  <-  bg-fd-background */
+  /* .nd-banner-rainbow  <-  bg-fd-secondary border-b */
   .nd-banner-rainbow {
-    background-color: var(--color-fd-background);
-  }
-
-  /* .nd-banner-flow  <-  -z-1 absolute inset-0 (gradient and animation are inline) */
-  .nd-banner-flow {
-    position: absolute;
-    inset: 0;
-    z-index: calc(1 * -1);
+    border-bottom: 1px solid var(--color-fd-border);
+    background-color: var(--color-fd-secondary);
   }
 
   /* .nd-banner-close  <-  -translate-y-1/2 [&_svg]:size-4.5 absolute inset-e-2 p-1.5 rounded-md text-fd-muted-foreground/50 top-1/2 (+ nd-btn nd-btn-ghost) */
