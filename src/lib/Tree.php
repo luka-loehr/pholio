@@ -10,7 +10,7 @@ require_once __DIR__ . '/Frontmatter.php';
 /**
  * A node of the page tree: page, folder or separator.
  *
- * An object instead of an array because Fumadocs relies on node identity in
+ * An object instead of an array because the reference relies on node identity in
  * several places (`path.includes(node)`, `item.index !== path[i + 1]`, change
  * of ownership while collecting folders).
  */
@@ -50,8 +50,8 @@ final class Node
 
 /**
  * Page tree of a content directory (`meta.json` plus Markdown frontmatter), a
- * port of `fumadocs-core/dist/dynamic-lx_V4971.js` (`createPageTreeBuilder`,
- * `loader`, `createGetUrl`) and the helpers built on it in `fumadocs-ui`.
+ * port of the reference core's `dist/dynamic-lx_V4971.js` (`createPageTreeBuilder`,
+ * `loader`, `createGetUrl`) and the helpers built on it in the reference UI.
  *
  * The base URL is configurable because the docs can live under any path.
  */
@@ -224,7 +224,7 @@ final class Tree
         usort($this->pages, static fn(array $a, array $b): int => strcmp($a['file'], $b['file']));
     }
 
-    /** `getSlugs` from `fumadocs-core/source/plugins/slugs.js`. */
+    /** `getSlugs` from the reference core's `source/plugins/slugs.js`. */
     private static function getSlugs(string $file): array
     {
         $dir = dirname($file);
@@ -996,7 +996,7 @@ final class Tree
 
     // ------------------------------------------------------------------ Helpers
 
-    /** `isActive` from `fumadocs-ui/utils/urls.js`. */
+    /** `isActive` from the reference UI's `utils/urls.js`. */
     public static function isActive(string $href, string $pathname, bool $nested = false): bool
     {
         $href = self::normalize($href);
