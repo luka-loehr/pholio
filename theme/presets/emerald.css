@@ -1,6 +1,6 @@
-/* emerald: built-in color preset, selected with theme.preset. */
+/* emerald: built-in color preset, active while <html data-preset="emerald">; theme.preset sets the initial value. */
 
-:root {
+:where(:root[data-preset="emerald"]) {
   --color-fd-background: hsl(165, 45%, 96%);
   --color-fd-foreground: hsl(165, 40%, 18%);
   --color-fd-primary: hsl(168, 70%, 40%);
@@ -19,7 +19,7 @@
   --color-fd-popover-foreground: hsl(165, 40%, 18%);
 }
 
-.dark {
+:where(:root[data-preset="emerald"]).dark {
   --color-fd-background: hsl(200, 30%, 7%);
   --color-fd-foreground: hsl(168, 40%, 88%);
   --color-fd-primary: hsl(168, 70%, 60%);
