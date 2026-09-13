@@ -9,8 +9,8 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * File tree, `Files`/`Folder`/`File` from the reference UI's `dist/components/files.js`
- * on `components/ui/collapsible.js` (Base UI `Collapsible`).
+ * File tree (`Files`/`Folder`/`File`), folders on the markup of Base UI
+ * `Collapsible`.
  *
  * A folder is a collapsible root `div[data-open|data-closed]` with trigger and
  * panel. While closed, Base UI doesn't mount the panel; it then sits in
