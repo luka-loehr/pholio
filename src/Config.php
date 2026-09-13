@@ -149,7 +149,7 @@ require_once __DIR__ . '/I18n.php';
  *     llmsTxt: bool, llmsFullTxt: bool, skill: bool, agentCard: bool,
  *     robotsTxt: bool, sitemap: bool, structuredData: bool,
  *     headers: bool,                Link and X-Llms-Txt headers and content negotiation (.htaccess, _headers)
- *     pageActions: bool,            "Copy page" button and menu; false when markdown is off
+ *     pageActions: bool,            "Copy Markdown" and "Open" buttons; false when markdown is off
  *     instructions: ?string,        "## Agent Instructions" block of llms.txt and skill.md
  *     exclude: list<string>,        fnmatch globs on page URLs and content file paths
  *   },                              every flag is false when agents.enabled is false
