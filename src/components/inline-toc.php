@@ -10,7 +10,7 @@ require_once __DIR__ . '/../lib/Ids.php';
 
 /**
  * Collapsible table of contents inside the text, `InlineTOC` from
- * `fumadocs-ui/dist/components/inline-toc.js` (Base UI `Collapsible`).
+ * the reference UI's `dist/components/inline-toc.js` (Base UI `Collapsible`).
  *
  * While closed the list isn't mounted and sits in
  * `<template data-collapsible-panel>` (js/collapsible.js). The arrow carries
