@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * The breadcrumb above the title (`layouts/notebook/page/slots/breadcrumb.js`).
+ * The breadcrumb above the title.
  *
  * `Tree::breadcrumb()` decides which stations appear: the root folder resets
  * the list, and a folder is dropped when its index page follows right after it.
