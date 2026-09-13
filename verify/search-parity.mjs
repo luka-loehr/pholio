@@ -22,7 +22,8 @@
 //     and the time per keystroke: every prefix of every fixture query, once on a fresh engine
 //     and five times warm. --copies builds the content that many times side by side, for a
 //     larger corpus. Each given budget must hold; p95 is over the warm keystrokes, the maximum
-//     over all of them.
+//     is the slowest keystroke's median over its six runs (cold and warm), so one garbage
+//     collection pause does not count but a query that is always slow does.
 //
 // Common options:
 //   --extensions <list>  page file extensions for the index build, default "md"
@@ -491,14 +492,20 @@ function perf() {
     return performance.now() - started;
   });
   const warmTimes = [];
+  const perKeystroke = coldTimes.map((time) => [time]);
   for (let round = 0; round < 5; round++) {
-    for (const query of keystrokes) {
+    keystrokes.forEach((query, k) => {
       const started = performance.now();
       cold.search(query);
-      warmTimes.push(performance.now() - started);
-    }
+      const time = performance.now() - started;
+      warmTimes.push(time);
+      perKeystroke[k].push(time);
+    });
   }
   warmTimes.sort((a, b) => a - b);
+  // A single garbage collection or JIT pause on a shared machine must not fail the budget;
+  // a query that is slow every time still does.
+  const medians = perKeystroke.map((times) => percentile(times.sort((a, b) => a - b), 0.5));
 
   const measured = {
     bytes: bytes.length,
@@ -506,14 +513,15 @@ function perf() {
     loadMs: loads[3],
     p50Ms: percentile(warmTimes, 0.5),
     p95Ms: percentile(warmTimes, 0.95),
-    maxMs: Math.max(...coldTimes, ...warmTimes),
+    maxMs: Math.max(...medians),
   };
   const ms = (value) => `${value.toFixed(3)} ms`;
   console.log(
     `${index.pages.length} pages, ${index.postings.length} words, ${keystrokes.length} keystrokes\n`
       + `index      ${measured.bytes} bytes, ${measured.gzip} gzip\n`
       + `load       ${ms(measured.loadMs)} (median of 7)\n`
-      + `keystroke  p50 ${ms(measured.p50Ms)}, p95 ${ms(measured.p95Ms)}, max ${ms(measured.maxMs)} (cold max ${ms(Math.max(...coldTimes))})\n`,
+      + `keystroke  p50 ${ms(measured.p50Ms)}, p95 ${ms(measured.p95Ms)}, max ${ms(measured.maxMs)} (worst median of 6 runs;`
+      + ` single slowest ${ms(Math.max(...coldTimes, ...warmTimes))})\n`,
   );
 
   const { check, summary } = checker();
