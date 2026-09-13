@@ -9,13 +9,13 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * Collapsible table of contents inside the text, `InlineTOC` from
- * the reference UI's `dist/components/inline-toc.js` (Base UI `Collapsible`).
+ * Collapsible table of contents inside the text (`InlineTOC`), on the markup of
+ * Base UI `Collapsible`.
  *
  * While closed the list isn't mounted and sits in
  * `<template data-collapsible-panel>` (js/collapsible.js). The arrow carries
  * `group-data-open:rotate-180`, but the group is the trigger with
- * `data-panel-open`, so in the reference it never rotates.
+ * `data-panel-open`, so it never rotates.
  *
  * @param list<array{depth:int, title:string, url:string}> $items
  */
@@ -31,7 +31,7 @@ function nd_inline_toc(string $label, array $items): string
 
     $links = '';
     foreach ($items as $item) {
-        // `paddingInlineStart: 12 * max(depth - 1, 0)`; React writes 0 without a unit.
+        // `paddingInlineStart: 12 * max(depth - 1, 0)`; 0 is written without a unit.
         $padding = 12 * max($item['depth'] - 1, 0);
         $links .= Html::tag('a', [
             'href' => $item['url'],
