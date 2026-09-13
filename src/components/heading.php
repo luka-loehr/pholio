@@ -8,12 +8,11 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Heading in the article, rebuilt from the reference UI's `dist/components/heading.js`.
+ * Heading in the article.
  *
- * Without `id` the original prints the bare heading. With `id` it gets the group
+ * Without `id` it is the bare heading. With `id` it gets the group
  * classes, an anchor `a[data-card]` around the text and the copy button on the
- * right (`buttonVariants({variant:"ghost", size:"icon-xs"})` plus the extra classes
- * from heading.js). The icon is `Link`; the JavaScript swaps it for `CopyCheck`
+ * right (the ghost `icon-xs` button plus a few heading classes). The icon is `Link`; the JavaScript swaps it for `CopyCheck`
  * for 1.5 s.
  *
  * @param array{level:int,id?:string|null,copyLabel?:string} $props
@@ -48,9 +47,9 @@ function nd_heading(array $props, string $children): string
 }
 
 /**
- * Class list of the copy button: `buttonVariants({variant:"ghost", size:"icon-xs"})`
- * from `components/ui/button.js`, followed by the additions from heading.js.
- * `not-prose` keeps its reference name, because the typography rules point at it.
+ * Class list of the copy button: the ghost `icon-xs` button variant, followed by
+ * the heading additions. `not-prose` keeps its name, because the typography rules
+ * point at it.
  */
 function nd_heading_button_class(): string
 {
