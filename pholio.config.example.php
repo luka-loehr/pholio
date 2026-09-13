@@ -146,12 +146,8 @@ return [
     // --------------------------------------------------------------- theme --
 
     'theme' => [
-        // Initial color preset, written as <html data-preset>: neutral, black,
-        // vitepress, dusk, catppuccin, ocean, purple, solar, emerald, ruby or aspen.
-        // Every preset is in the stylesheet, so a script can switch the attribute.
-        'preset' => 'neutral',
-
-        // Color tokens without the "--color-fd-" prefix, written after the preset.
+        // Static color tokens without the "--color-fd-" prefix, written at the palette
+        // marker in theme/css/tokens.css.
         'light' => [
             'primary' => 'hsl(220 85% 45%)',
         ],
