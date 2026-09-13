@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Syntax-check every tracked PHP file. No dependencies beyond php and git.
+# verify/highlight-samples/ holds highlighter inputs, some invalid on purpose; they are not linted.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -13,7 +14,7 @@ while IFS= read -r file; do
         php -l "$file" || true
         status=1
     fi
-done < <(git ls-files '*.php' 'bin/pholio')
+done < <(git ls-files '*.php' 'bin/pholio' ':!verify/highlight-samples/')
 
 echo "checked ${count} file(s)"
 exit "$status"
