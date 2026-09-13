@@ -9,7 +9,7 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * Accordion list, rebuilt from `fumadocs-ui/dist/components/accordion.js`
+ * Accordion list, rebuilt from the reference UI's `dist/components/accordion.js`
  * (`Accordions`, `Accordion`, `CopyButton`) on `components/ui/accordion.js` and
  * Base UI `Accordion` (@base-ui/react 1.8.0).
  *
