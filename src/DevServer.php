@@ -16,7 +16,9 @@ declare(strict_types=1);
  * the start page's directory (PHOLIO_HOME_URL, default "/"), its headers go on
  * every response, 404s included, and a page is answered with its Markdown twin
  * (`x.md` next to `x/index.html`) for `Accept: text/markdown` or an AI
- * assistant's user agent, and as text/plain for `Accept: text/plain`.
+ * assistant's user agent, and as text/plain for `Accept: text/plain` or one of
+ * OpenAI's agents. As in production, only the Markdown files the build writes are
+ * served (AgentHeaders::servesMarkdown); any other `.md` is 404.
  */
 
 require_once __DIR__ . '/AgentHeaders.php';
@@ -46,12 +48,26 @@ foreach ($segments as $segment) {
 }
 
 $file = $root . '/' . implode('/', $segments);
-$twin = $rules === [] ? null : AgentHeaders::negotiate((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+$userAgent = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+
+$relative = implode('/', $segments);
+$homeDir = ltrim($home, '/');
+if (str_ends_with(strtolower($relative), '.md')) {
+    $inside = $homeDir === '' || str_starts_with($relative, $homeDir . '/');
+    $below = $homeDir === '' ? $relative : substr($relative, strlen($homeDir) + 1);
+    if (!$inside || !AgentHeaders::servesMarkdown($below, static fn(string $path): bool => is_file($root . $home . '/' . $path))) {
+        pholio_dev_not_found($path);
+
+        return true;
+    }
+}
+
+$twin = $rules === [] ? null : AgentHeaders::negotiate((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), $userAgent);
 if ($twin !== null && !is_file($file)) {
     $base = rtrim($file, '/');
     foreach ($segments === [] ? [$base . '/index.md'] : [$base . '.md', $base . '/index.md'] as $candidate) {
         if (is_file($candidate)) {
-            pholio_dev_send($candidate, $twin === 'plain' ? 'text/plain; charset=utf-8' : 'text/markdown; charset=utf-8');
+            pholio_dev_send($candidate, AgentHeaders::twinContentType($twin, $userAgent));
 
             return true;
         }
@@ -61,7 +77,7 @@ if ($twin !== null && !is_file($file)) {
 if (is_file($file)) {
     $types = [
         'html' => 'text/html; charset=utf-8',
-        'md' => 'text/markdown; charset=utf-8',
+        'md' => AgentHeaders::twinContentType('markdown', $userAgent),
         'txt' => 'text/plain; charset=utf-8',
         'json' => 'application/json',
         'xml' => 'application/xml; charset=utf-8',
