@@ -1,0 +1,329 @@
+{
+  "_doc": [
+    "Behaviour scenarios for the layout of the demo site (examples/demo): sidebar (collapse, hover, drawer), sidebar scroll area, table of contents and the collapsible table of contents. Format: see the header of verify/behaviour.mjs.",
+    "Paths are demo site paths. Against a reference app, pass its rewrites file; for a self comparison use the same base URL on both sides with --no-rewrite.",
+    "The 4 px hover zone of the collapsed sidebar is approached with a real mouse pointer: React implements onPointerEnter through pointerover, so a dispatched pointerenter doesn't reach the reference. It is the first child of [data-sidebar-placeholder] in both versions.",
+    "Numbers measured in the middle of a transition (height, opacity, grid-template-columns) and getAnimations().currentTime fluctuate even when the reference is compared with itself; the scenarios therefore check attributes and custom properties at frame0 and settled.",
+    "Class independent: selectors use ids, data attributes, roles and structure only, and `class` is never observed. What the class list used to show is observed as a computed style in styleProps (translate, rotate, box-shadow, opacity, visibility, color, transition-property).",
+    "The demo sidebar has no nested folders, so the folder open and close scenarios of a larger site have no demo equivalent."
+  ],
+  "scenarios": [
+    {
+      "name": "sidebar-collapse",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar", "#nd-notebook-layout"],
+        "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed", "data-column-changed"],
+        "styleProps": ["--fd-sidebar-col", "transition-property", "box-shadow", "border-top-left-radius", "visibility"],
+        "animations": false
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "sidebar-edge-hover",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 500 },
+        { "hover": "[data-sidebar-placeholder] > div", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar"],
+        "attributes": ["data-collapsed", "data-hovered"],
+        "styleProps": ["translate", "box-shadow", "transition-property"],
+        "animations": true
+      },
+      "sample": ["frame0", "frame1", "animationend", "settled"]
+    },
+    {
+      "name": "sidebar-leave-far",
+      "_purpose": "Pointer further than 100 px from the edge: 0 ms delay.",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 500 },
+        { "hover": "[data-sidebar-placeholder] > div" },
+        { "wait": 400 },
+        { "hover": "#nd-page h1" },
+        { "wait": 60, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar"],
+        "attributes": ["data-hovered"],
+        "styleProps": ["box-shadow"]
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "sidebar-leave-near",
+      "_purpose": "Pointer closer than 100 px to the edge (header on the left): 500 ms delay.",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 500 },
+        { "hover": "[data-sidebar-placeholder] > div" },
+        { "wait": 400 },
+        { "hover": "#nd-subnav a" },
+        { "wait": 300, "sample": true },
+        { "wait": 400, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar"],
+        "attributes": ["data-hovered"],
+        "styleProps": ["box-shadow"]
+      },
+      "sample": ["frame0"]
+    },
+    {
+      "name": "sidebar-expand",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "click": "button[data-collapsed]" },
+        { "wait": 600 },
+        { "click": "button[data-collapsed]", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar", "#nd-notebook-layout"],
+        "attributes": ["data-collapsed", "data-hovered", "data-sidebar-collapsed", "data-column-changed"],
+        "styleProps": ["--fd-sidebar-col", "transition-property", "box-shadow", "border-top-left-radius", "visibility"],
+        "animations": false
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "short-window-active-entry",
+      "_purpose": "On load the active entry is scrolled into the visible area of the sidebar.",
+      "page": "/reference/markdown-extras",
+      "width": 1440,
+      "height": 520,
+      "actions": [
+        { "wait": 600, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar [data-id$='-viewport']", "#nd-sidebar a[data-active='true']"],
+        "attributes": ["tabindex", "data-has-overflow-y", "data-overflow-y-start", "data-overflow-y-end"],
+        "styleProps": ["--scroll-area-overflow-y-start", "--scroll-area-overflow-y-end"]
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "sidebar-scroll-and-hover",
+      "_purpose": "The scrollbar appears only on overflow and becomes visible on hover; thumb size from the scroll measurements.",
+      "page": "/reference/markdown-extras",
+      "width": 1440,
+      "height": 520,
+      "actions": [
+        { "scroll": "#nd-sidebar [data-id$='-viewport']", "y": 200 },
+        { "wait": 150 },
+        { "hover": "#nd-sidebar [data-id$='-viewport']" },
+        { "wait": 200, "sample": true },
+        { "wait": 600, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar [data-id$='-scrollbar']", "#nd-sidebar [data-id$='-scrollbar'] > div", "#nd-sidebar [data-id$='-viewport']"],
+        "attributes": ["data-orientation", "data-hovering", "data-scrolling", "data-has-overflow-y", "aria-hidden"],
+        "styleProps": ["--scroll-area-thumb-height", "opacity", "height", "transform", "--scroll-area-overflow-y-start"]
+      },
+      "sample": ["frame0"]
+    },
+    {
+      "name": "toc-third-heading",
+      "_purpose": "data-active, --track-top/--track-bottom and the scroll position in the table of contents.",
+      "page": "/reference/code-blocks",
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        { "evaluate": "document.querySelectorAll('#nd-page h2[id],#nd-page h3[id]')[2].scrollIntoView()" },
+        { "wait": 900, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-toc a[href^='#']", "#nd-toc div:has(> a[href^='#']) > div:first-child", "#nd-toc div:has(> a[href^='#']) > div:first-child > svg"],
+        "attributes": ["data-active", "style", "viewBox"],
+        "styleProps": ["--track-top", "--track-bottom", "clip-path", "color"]
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "toc-popover-open",
+      "page": "/reference/code-blocks",
+      "width": 1024,
+      "height": 900,
+      "actions": [
+        { "click": "[data-toc-popover-trigger]", "sample": true }
+      ],
+      "observe": {
+        "selectors": [
+          "[data-toc-popover]",
+          "[data-toc-popover] > header",
+          "[data-toc-popover-trigger]",
+          "[data-toc-popover-trigger] > span > span",
+          "[data-toc-popover-trigger] svg[role='progressbar']",
+          "[data-toc-popover-content]",
+          "[data-toc-popover-trigger] svg:not([role])"
+        ],
+        "attributes": ["data-open", "data-closed", "data-starting-style", "data-ending-style", "aria-expanded", "aria-valuenow"],
+        "styleProps": ["--collapsible-panel-height", "box-shadow", "opacity", "translate", "color", "rotate"],
+        "animations": false,
+        "text": true
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "toc-popover-outside-click",
+      "_purpose": "A click outside the header closes; a real mouse click would hit the panel, so a click event is dispatched on the heading.",
+      "page": "/reference/code-blocks",
+      "width": 1024,
+      "height": 900,
+      "actions": [
+        { "click": "[data-toc-popover-trigger]" },
+        { "wait": 500 },
+        { "evaluate": "document.querySelector('#nd-page h1').dispatchEvent(new MouseEvent('click',{bubbles:true}))", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["[data-toc-popover]", "[data-toc-popover] > header", "[data-toc-popover-trigger] svg:not([role])"],
+        "attributes": ["data-open", "data-closed", "data-ending-style", "aria-expanded"],
+        "styleProps": ["box-shadow", "rotate"],
+        "animations": false
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "toc-popover-progress",
+      "_purpose": "The ring shows (last active entry + 1) / count; circumference 2*PI*7.5.",
+      "page": "/reference/code-blocks",
+      "width": 1024,
+      "height": 900,
+      "actions": [
+        { "evaluate": "window.scrollTo(0, 2000)" },
+        { "wait": 900, "sample": true }
+      ],
+      "observe": {
+        "selectors": [
+          "[data-toc-popover-trigger] svg[role='progressbar']",
+          "[data-toc-popover-trigger] svg[role='progressbar'] circle:nth-of-type(2)",
+          "[data-toc-popover-trigger] > span > span"
+        ],
+        "attributes": ["aria-valuenow", "stroke-dasharray", "stroke-dashoffset"],
+        "text": true,
+        "styleProps": ["color", "opacity", "translate"]
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "drawer-open",
+      "page": "/reference/code-blocks",
+      "width": 390,
+      "height": 844,
+      "actions": [
+        { "click": "[aria-controls='nd-sidebar-mobile']", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar-mobile", "#nd-notebook-layout > div[data-state]", "[data-sidebar-placeholder]", "[aria-controls='nd-sidebar-mobile']"],
+        "attributes": ["data-state", "aria-expanded", "aria-label"],
+        "styleProps": ["animation-name", "animation-duration", "visibility"],
+        "animations": false
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "drawer-overlay-click",
+      "page": "/reference/code-blocks",
+      "width": 390,
+      "height": 844,
+      "actions": [
+        { "click": "[aria-controls='nd-sidebar-mobile']" },
+        { "wait": 500 },
+        { "evaluate": "document.querySelector('#nd-notebook-layout > div[data-state]').click()", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar-mobile", "#nd-notebook-layout > div[data-state]"],
+        "attributes": ["data-state"],
+        "styleProps": ["animation-name", "animation-duration", "visibility"],
+        "animations": false
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "drawer-close-button",
+      "page": "/reference/code-blocks",
+      "width": 390,
+      "height": 844,
+      "actions": [
+        { "click": "[aria-controls='nd-sidebar-mobile']" },
+        { "wait": 500 },
+        { "click": "#nd-sidebar-mobile [aria-controls='nd-sidebar-mobile']", "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar-mobile", "#nd-notebook-layout > div[data-state]", "[aria-controls='nd-sidebar-mobile']"],
+        "attributes": ["data-state", "aria-expanded", "aria-label"],
+        "styleProps": ["animation-name", "animation-duration", "visibility"],
+        "animations": false
+      },
+      "sample": ["frame0", "settled"]
+    },
+    {
+      "name": "drawer-alignment",
+      "_purpose": "The drawer sits at the inline end, 85 % wide, at most 380 px; Esc does NOT close it.",
+      "page": "/reference/code-blocks",
+      "width": 390,
+      "height": 844,
+      "actions": [
+        { "click": "[aria-controls='nd-sidebar-mobile']" },
+        { "wait": 500 },
+        { "press": "Escape" },
+        { "wait": 300, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar-mobile"],
+        "attributes": ["data-state"],
+        "styleProps": ["width", "inset-inline-end", "inset-block-start", "max-width", "visibility", "z-index"]
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "drawer-scroll-position-first-section",
+      "_purpose": "After loading at 390 px the drawer stays at the top when the active entry is visible. The reference measures the if-needed check when the animation starts (fd-sidebar-out at 0 ms); a shifted sidebar would let the entry overflow the window edge and scroll.",
+      "page": "/guide/installation",
+      "width": 390,
+      "height": 844,
+      "actions": [
+        { "wait": 1500, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar-mobile [data-id$='-viewport']"],
+        "attributes": ["data-has-overflow-y", "data-overflow-y-start", "data-overflow-y-end", "tabindex"],
+        "styleProps": ["--scroll-area-overflow-y-start", "--scroll-area-overflow-y-end"]
+      },
+      "sample": ["settled"]
+    },
+    {
+      "name": "drawer-scroll-position-last-entry",
+      "_purpose": "The last entry of the tree is active; the automatic scroll runs for every active entry in tree order, the last one wins.",
+      "page": "/reference/markdown-extras",
+      "width": 390,
+      "height": 844,
+      "actions": [
+        { "wait": 1500, "sample": true }
+      ],
+      "observe": {
+        "selectors": ["#nd-sidebar-mobile [data-id$='-viewport']"],
+        "attributes": ["data-has-overflow-y", "data-overflow-y-start", "data-overflow-y-end", "tabindex"],
+        "styleProps": ["--scroll-area-overflow-y-start", "--scroll-area-overflow-y-end"]
+      },
+      "sample": ["settled"]
+    }
+  ]
+}
