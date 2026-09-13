@@ -6,6 +6,8 @@ namespace Pholio;
 
 use Closure;
 
+require_once __DIR__ . '/../I18n.php';
+
 /**
  * llms.txt (https://llmstxt.org): a Markdown index of the site for language models.
  *
@@ -13,17 +15,21 @@ use Closure;
  *
  *   > Site description
  *
- *   ## Agent Instructions          agents.instructions, when set
+ *   ## Notes for agents            agents.instructions, when set
  *
  *   ## <section>                   one per top-level folder, in navigation order
  *
  *   - [Page title](url): summary
  *
- *   ## Optional                    external links of the navigation
+ *   ## Optional                    external links of the navigation; the name has a meaning in the
+ *                                  llms.txt format, so it stays English in every language
+ *
+ * Headings and fixed sentences follow the site language (I18n, "(agent files)" keys)
+ * and describe the files rather than instruct the reader.
  *
  * When that file would be longer than LIMIT characters, llms.txt lists section
  * indexes instead (`_llms/<section>.md`, each with its page count), preceded by a
- * two-line instruction to follow them recursively. A section index that is too
+ * sentence explaining that together they list every page. A section index that is too
  * long itself lists its direct pages and one index per subfolder
  * (`_llms/<section>/<folder>.md`), and entries that still don't fit are split into
  * parts (`_llms/<section>-part-1.md`). No page is ever left out.
@@ -80,10 +86,12 @@ final class LlmsTxt
             $lines[] = self::groupLine($section, $published($base . '.md'));
         }
         $files['llms.txt'] = $head
-            . "\n\nThis index lists section indexes instead of pages, because all {$total} pages do not fit into {$limit} characters."
-            . "\nFetch every index below and follow the " . $published(self::INDEX_DIR . '/') . ' indexes they link to recursively: together they list every page.'
+            . "\n\n" . self::t(
+                'The {count} pages of this documentation do not fit into one index of {limit} characters, so this index lists section indexes. The section indexes and the {dir} indexes they link to list every page.(agent files)',
+                ['{count}' => (string) $total, '{limit}' => (string) $limit, '{dir}' => $published(self::INDEX_DIR . '/')],
+            )
             . self::instructions($instructions)
-            . "\n\n## Sections\n\n" . implode("\n", $lines)
+            . "\n\n## " . self::t('Sections(agent files)') . "\n\n" . implode("\n", $lines)
             . $optionalBlock;
 
         return $files;
@@ -116,7 +124,7 @@ final class LlmsTxt
             self::group($item['group'], $childBase, $published, $limit, $files);
             $entries[] = self::groupLine($item['group'], $published($childBase . '.md'));
         }
-        $note = "\n\nFollow the indexes below recursively: together with the pages listed here they cover every page of this section.";
+        $note = "\n\n" . self::t('This section index lists some of its pages directly and the rest in the indexes below; together they cover every page of this section.(agent files)');
         $body = $head . $note . "\n\n" . implode("\n", $entries);
         if (mb_strlen($body) <= $limit) {
             $files[$base . '.md'] = $body;
@@ -139,10 +147,14 @@ final class LlmsTxt
         }
         $links = [];
         foreach ($parts as $i => $part) {
-            $label = $group['name'] . ', part ' . ($i + 1) . ' of ' . count($parts);
+            $label = self::t('{name}, part {number} of {total}(agent files)', [
+                '{name}' => $group['name'], '{number}' => (string) ($i + 1), '{total}' => (string) count($parts),
+            ]);
             $path = $base . '-part-' . ($i + 1) . '.md';
             $files[$path] = '# ' . self::line($label) . "\n\n" . implode("\n", $part);
-            $links[] = '- ' . self::link($label, $published($path)) . ': ' . count($part) . ' entries';
+            $links[] = '- ' . self::link($label, $published($path)) . ': ' . (count($part) === 1
+                ? self::t('1 entry(agent files)')
+                : self::t('{count} entries(agent files)', ['{count}' => (string) count($part)]));
         }
         $files[$base . '.md'] = $head . $note . "\n\n" . implode("\n", $links);
     }
@@ -187,7 +199,23 @@ final class LlmsTxt
     {
         return $instructions === null || trim($instructions) === ''
             ? ''
-            : "\n\n## Agent Instructions\n\n" . trim($instructions);
+            : "\n\n## " . self::t('Notes for agents(agent files)') . "\n\n" . trim($instructions);
+    }
+
+    /** "1 page" or "{count} pages" in the site language. */
+    public static function pages(int $count): string
+    {
+        return $count === 1 ? self::t('1 page(agent files)') : self::t('{count} pages(agent files)', ['{count}' => (string) $count]);
+    }
+
+    /**
+     * A translated text with its placeholders filled in.
+     *
+     * @param array<string,string> $values placeholder => value
+     */
+    public static function t(string $key, array $values = []): string
+    {
+        return strtr(I18n::t($key), $values);
     }
 
     /** @param array<string,mixed> $group */
@@ -195,7 +223,7 @@ final class LlmsTxt
     {
         $out = self::head($group['name'], $group['description'] ?? null);
 
-        return $out . "\n\n" . $count . ($count === 1 ? ' page.' : ' pages.');
+        return $out . "\n\n" . self::pages($count) . '.';
     }
 
     /** @param array<string,mixed> $group */
@@ -204,7 +232,7 @@ final class LlmsTxt
         $count = count(self::flatten($group));
         $description = $group['description'] ?? null;
 
-        return '- ' . self::link($group['name'], $url) . ': ' . $count . ($count === 1 ? ' page' : ' pages')
+        return '- ' . self::link($group['name'], $url) . ': ' . self::pages($count)
             . ($description !== null && self::line($description) !== '' ? '. ' . self::line($description) : '');
     }
 
