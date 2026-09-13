@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Announcement bar, `Banner` from `fumadocs-ui/dist/components/banner.js`.
+ * Announcement bar, `Banner` from the reference UI's `dist/components/banner.js`.
  *
  * The `<style>` elements sit inside the bar, as in the reference (the golden DOM
  * comparison keeps `<style>` in the body): the layout variable
