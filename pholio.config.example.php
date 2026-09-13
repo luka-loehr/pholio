@@ -37,7 +37,7 @@ return [
 
     // Content language. Drives <html lang>, the UI translations and the search
     // tokenizer. Shipped translations: "en", "de".
-    'language' => 'de',
+    'language' => 'en',
 
     // ------------------------------------------------------------ in / out --
 
@@ -65,7 +65,7 @@ return [
     'home' => [
         'hero' => [
             // Small uppercase line above the headline.
-            'kicker' => 'Project · Documentation',
+            'kicker' => 'Lanternfly · Documentation',
             // The headline. "\n" becomes a line break.
             'headline' => "Everything you need,\nin one place.",
             'lead' => 'Guides, reference and background for users and administrators.',
@@ -129,9 +129,10 @@ return [
         // Where the client-side index is written, relative to output_dir.
         'index_path' => 'search-index.json',
 
-        // Tokenizer profile. "german" and "english" differ only in the
+        // Tokenizer profile. "english" and "german" differ only in the
         // character set; neither stems, matching the Fumadocs default.
-        'tokenizer' => 'german',
+        // Follows 'language' when omitted.
+        'tokenizer' => 'english',
     ],
 
     // ----------------------------------------------------------- redirects --
@@ -139,7 +140,7 @@ return [
     // Old path => new path. Written as 301 rules into the generated .htaccess
     // and, where the host supports it, a _redirects file.
     'redirects' => [
-        '/docs/install' => '/guide/installation/',
+        '/docs/install' => '/docs/guide/installation/',
     ],
 
     // ------------------------------------------------------------- planned --
