@@ -1,95 +1,157 @@
 ---
 title: Content format
-description: The Markdown subset Pholio accepts and the component tags it understands.
+description: The Markdown Pholio accepts, the component tags it understands and the meta.json tree files.
 icon: file-text
 ---
 
-Pholio parses a fixed grammar. There is no fallback: an unknown construct, a
-missing image, a broken internal link or a duplicate slug stops the build with
-a message naming the file and the line.
+Pholio parses a fixed grammar. There is no fallback: an unknown construct stops
+the build with exit code 3 and a message naming the file and the line, for
+example `pholio: content/guide/index.md:12: Unknown component <Tip>; allowed: …`.
+
+## Files and URLs
+
+Every `*.md` file below `content_dir` is a page (`content.extensions` changes the
+list). `guide/installation.md` is published at `{docs}/guide/installation`,
+`guide/index.md` at `{docs}/guide`. URLs have no trailing slash. Files whose name
+starts with `_` are drafts and only built with `--dev`.
 
 ## Frontmatter
 
-Every file starts with YAML frontmatter.
+Every file starts with frontmatter. Values are plain scalars; YAML lists,
+objects and anchors are errors, and so is any key outside this table
+(`content.frontmatter_aliases` maps other names onto these).
 
 | Key | Required | Meaning |
 | --- | --- | --- |
 | `title` | yes | Page title, used in the tree, the breadcrumb and `<title>` |
-| `description` | no | Shown under the heading and used in the search index |
-| `heading` | no | Overrides the visible `h1` when it should differ from `title` |
-| `icon` | no | A lucide icon name, used in cards and folder headers |
-| `full` | no | Renders the page without the table of contents column |
+| `description` | no | Shown under the heading and indexed for search |
+| `heading` | no | Visible `h1` when it should differ from `title` |
+| `icon` | no | lucide icon name, used in the sidebar and in cards |
+| `full` | no | `true` renders the page without the table of contents column |
+| `updated` | no | Text of the "Last updated" line under the page |
 
 ## Markdown
 
-Headings `##` to `####`. The `h1` comes from the frontmatter, so a `#` in the
-body is an error. Beyond that: paragraphs, `**bold**`, `*italic*`, `` `code` ``,
-links, images, ordered and unordered lists including nesting, GitHub-flavoured
-tables with alignment, blockquotes, horizontal rules, and a hard line break
-from two trailing spaces.
+- Headings `##` to `####`. The `h1` comes from the frontmatter, so `#` in the body
+  is an error. Heading ids follow `github-slugger`: lowercase, punctuation
+  removed, spaces to hyphens, non-ASCII letters kept, duplicates suffixed `-1`,
+  `-2`.
+- Paragraphs, `**bold**`, `*italic*`, `~~strikethrough~~`, `` `code` ``, links,
+  images, blockquotes, horizontal rules, hard breaks from two trailing spaces.
+- Ordered, unordered and nested lists, task lists `- [x]`.
+- GitHub-flavoured tables with column alignment.
+- Footnotes `[^1]` with their definitions.
 
-Relative links between articles are resolved and checked. A link to a page that
-does not exist is a build error, not a 404 discovered later.
+A plain Markdown image renders as a single bordered image. Its width and height
+are read from the file: below `content.asset_root` when image URLs are rewritten
+with `content.asset_prefix`, otherwise relative to `content_dir`.
 
-Heading ids follow `github-slugger`: lowercased, punctuation removed, spaces to
-hyphens, non-ASCII letters preserved, duplicates suffixed `-1`, `-2`.
+## Code blocks
+
+Fenced code is highlighted at build time with the bundled TextMate grammars and
+GitHub light and dark themes: `css`, `diff`, `html`, `java`, `javascript` (`js`),
+`json`, `php`, `shellscript` (`bash`, `sh`), `sql`, `typescript` (`ts`), `xml` and
+`yaml`. Any other language stops the build.
+
+````markdown
+```ts title="search.ts" lineNumbers
+const hits = await archive.search('invoice'); // [!code highlight]
+```
+````
+
+| Meta | Effect |
+| --- | --- |
+| `title="…"` | File name bar above the code |
+| `lineNumbers`, `lineNumbers=40` | Line numbers, optionally starting at another value |
+| `tab="…"` | Consecutive blocks with `tab` are merged into one tab group |
+| `{1,3-4}` | Accepted for compatibility, no effect |
+
+Notation comments at the end of a line, in the comment syntax of the language:
+`[!code highlight]`, `[!code focus]`, `[!code ++]`, `[!code --]`, and
+`[!code word:term]` on its own line to highlight a word in the lines below.
 
 ## Component tags
 
 Tags sit on their own line, attributes are quoted, and nesting works as in HTML.
-They are data: no expressions, no imports, no evaluation.
+They are data: no expressions, no imports, no evaluation. Attribute values have
+four notations:
 
-### Callout
+- text: `title="Before you start"`
+- list: `items="macOS|Linux|Windows"`, a literal `|` written as `\|`
+- boolean: `persist` for true, `persist="false"` for false
+- number: `defaultIndex="1"`
 
-<Callout type="info" title="Optional title">
-The body is regular Markdown.
-</Callout>
+Icons are lucide names such as `book-open`; an unknown name stops the build.
+
+| Tag | Attributes | Children |
+| --- | --- | --- |
+| `Callout` | `type` (`info`, `warning`, `error`, `success`, `idea`; aliases `warn`, `tip`), `title`, `icon` | Markdown |
+| `Cards` | none | `Card` |
+| `Card` | `title` (required), `description`, `href`, `icon` | none |
+| `Screenshot` | `src` (required), `dark`, `alt` | none |
+| `ImageZoom` | `src` (required), `alt`, `width`, `height` | none |
+| `Banner` | `id`, `variant` (`normal`, `rainbow`), `height`, `changeLayout` | Markdown |
+| `Tabs` | `items`, `groupId`, `persist`, `updateAnchor`, `defaultIndex`, `label` | `Tab` |
+| `Tab` | `value` | Markdown |
+| `Accordions` | `type` (`single`, `multiple`), `defaultValue` | `Accordion` |
+| `Accordion` | `title` (required), `id`, `value` | Markdown |
+| `Steps` | none | `Step` |
+| `Step` | none | Markdown |
+| `Files` | none | `Folder`, `File` |
+| `Folder` | `name` (required), `defaultOpen`, `disabled` | `Folder`, `File` |
+| `File` | `name` (required), `icon` | none |
+| `TypeTable` | none | `TypeProp` |
+| `TypeProp` | `name`, `type` (both required), `default`, `typeDescription`, `typeDescriptionLink`, `required`, `deprecated` | Markdown |
+| `InlineTOC` | `label` | none |
+| `DynamicCodeBlock` | `lang` (required) | verbatim code |
 
 ```markdown
-<Callout type="info" title="Optional title">
-The body is regular Markdown.
+<Callout type="warning" title="Before you start">
+Back up your configuration.
 </Callout>
+
+<Screenshot src="/images/pipeline.svg" dark="/images/pipeline-dark.svg" alt="The pipeline" />
+
+<Tabs items="macOS|Linux" groupId="os" persist>
+<Tab value="macOS">
+Archives live in `~/Library/Application Support`.
+</Tab>
+<Tab value="Linux">
+Archives live in `~/.local/share`.
+</Tab>
+</Tabs>
 ```
 
-| Attribute | Values |
+`Screenshot` shows `dark` in the dark colour scheme and `src` in the light one.
+Without `dark` the same image is shown in both.
+
+## meta.json
+
+A folder's `meta.json` names the folder and orders its pages. It is optional; a
+folder without one lists its pages alphabetically.
+
+| Key | Meaning |
 | --- | --- |
-| `type` | `info`, `warning`, `error`, `success`, `idea`. `warn` and `tip` are accepted aliases. |
-| `title` | Optional bold first line. |
+| `title`, `description`, `icon` | Folder title, description and icon, used in the sidebar and by `home.cards.from_tree` |
+| `root` | The folder is a root area with its own sidebar, listed in the area switcher |
+| `pages` | Order of the entries, see below |
+| `defaultOpen` | The folder starts expanded in the sidebar |
+| `collapsible` | `false` keeps the folder permanently expanded |
 
-### Cards and Card
+Entries in `pages`:
 
-```markdown
-<Cards>
-  <Card title="Exporting" description="Save a conversation." href="/docs/export" icon="download" />
-</Cards>
-```
+- `"installation"`: a page or subfolder by its file or folder name
+- `"---Components---"`, `"---[icon]Components---"`: a separator with an optional icon
+- `"..."`: every remaining entry alphabetically, `"z...a"` in reverse
+- `"...folder"`: the entries of a subfolder, inlined
+- `"[Title](https://example.org)"`, `"external:[Title](https://example.org)"`: a link
 
-`Card` takes `title`, `description`, `href` and `icon`. Without `href` it
-renders as a static card rather than a link.
+## What stops the build
 
-### Screenshot
+Exit code 3 with file and line: unknown frontmatter keys or YAML constructs, a
+`#` heading, unknown component tags or attributes, a tag inside a parent it
+doesn't belong to, unknown lucide icons, unknown code languages, invalid
+`meta.json`, duplicate slugs and a folder group name used as a file name.
 
-```markdown
-<Screenshot src="chat/export.webp" alt="The export dialog" />
-```
-
-The dark variant is found automatically next to the file as
-`<name>-dark.webp`, and both are emitted so the image follows the colour
-scheme without a flash. Pass `dark` explicitly to override. A missing dark twin
-is a build error.
-
-An image written as plain Markdown renders as a single bordered image with no
-dark twin.
-
-## Planned tags
-
-These are specified and will be added in a later phase: `Tabs` and `Tab`,
-`Accordions` and `Accordion`, `Steps` and `Step`, `Files`, `Folder` and `File`,
-`TypeTable`, `Banner`, `InlineTOC`, `ImageZoom`, and fenced code blocks with a
-title, line numbers and line highlighting.
-
-## Registering your own
-
-A tag is a PHP function returning HTML, registered under the `components` key
-of the configuration. It receives the parsed attributes and the rendered
-children, and it is the only place where code enters the content pipeline.
+Not checked yet: whether an internal link points at an existing page, and
+whether an image file exists. A missing image renders without width and height.
