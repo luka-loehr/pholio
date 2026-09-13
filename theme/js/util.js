@@ -3,7 +3,7 @@
 // Usage (ES module in the browser, no bundler):
 //   import { clientId, transitionStatus, isTypingTarget, onClickOutside } from './util.js';
 //
-// Each function reproduces a concrete behaviour of @base-ui/react or fumadocs-ui.
+// Each function reproduces a concrete behaviour of @base-ui/react or the reference UI.
 // The source is named in the comment above it, so deviations stay checkable.
 
 // ---- Ids -------------------------------------------------------------------
@@ -88,7 +88,7 @@ export function animationsFinished(el, done) {
 
 // ---- Keyboard --------------------------------------------------------------
 //
-// Original: fumadocs-ui/dist/provider/base.js – isTypingTarget
+// Original: reference UI dist/provider/base.js – isTypingTarget
 export function isTypingTarget(target) {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
