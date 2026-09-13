@@ -5,7 +5,7 @@
 // Used by: sidebar folders (`js/sidebar.js`), the TOC popover
 // (`js/toc-popover.js`) and the start page menu.
 //
-// DOM shape (as the original renders it):
+// DOM shape:
 //
 //   <div data-open|data-closed>
 //     <button|a  aria-expanded aria-controls data-panel-open>…<svg data-icon …></svg></button>
@@ -14,8 +14,8 @@
 //   </div>
 //
 // Base UI **does not mount the panel** while the section is closed
-// (`keepMounted` is off). So that the port's initial DOM matches the reference,
-// the content of a closed section sits in a `<template>`; opening creates the
+// (`keepMounted` is off). Likewise the content of a closed section sits in a
+// `<template>`; opening creates the
 // panel from it, closing removes it again. This also matches the state loss of
 // nested folders on unmount.
 //
@@ -30,7 +30,7 @@
 // This module toggles no classes. State lives in `data-open`/`data-closed`
 // (root, panel), `data-panel-open`/`aria-expanded`/`aria-controls` (trigger) and
 // the phase attributes; the CSS hooks onto them, e.g.
-// `:not([data-panel-open]) > .nd-sidebar-chevron` rotates the folder chevron (verify/CLASS-MAP.md).
+// `:not([data-panel-open]) > .nd-sidebar-chevron` rotates the folder chevron.
 
 const PANEL_SELECTOR = ':scope > [id]:not(template)';
 const TEMPLATE_SELECTOR = ':scope > template[data-collapsible-panel]';
@@ -111,8 +111,7 @@ export class Collapsible {
       ?? (options.template ? null : (this.findPanel(root) ?? (beside ? this.findPanel(beside) : null)));
     this.open = root.hasAttribute('data-open');
     // A panel that is open on first render skips its opening animation
-    // (shouldPreventMountAnimationRef); the reference writes `animation-name:none`
-    // inline for that. It is dropped on the first close.
+    // (shouldPreventMountAnimationRef) through an inline `animation-name:none`. It is dropped on the first close.
     this.mountAnimationSuppressed = this.open;
     this.panelId = this.panel?.id ?? this.template?.content.firstElementChild?.id ?? null;
     this.abort = null;
@@ -196,8 +195,8 @@ export class Collapsible {
     if (this.panel && this.panel.isConnected) return this.panel;
     if (!this.template) return null;
     const node = this.template.content.firstElementChild.cloneNode(true);
-    // A freshly mounted panel never has `animation-name:none`; in the original
-    // only a panel that was already open on first render carries it.
+    // A freshly mounted panel never has `animation-name:none`; only a panel that
+    // was already open on first render carries it.
     node.style.removeProperty('animation-name');
     this.template.parentNode.insertBefore(node, this.template);
     this.panel = node;
@@ -232,9 +231,9 @@ export class Collapsible {
   }
 
   /**
-   * In the original `data-starting-style` / `data-ending-style` are not only on
-   * the panel: `transitionStatusMapping` also applies to the root and the
-   * trigger (measured in the reference). Without an argument both are removed.
+   * `data-starting-style` / `data-ending-style` are not only on the panel: as
+   * with Base UI's `transitionStatusMapping` they also apply to the root and the
+   * trigger. Without an argument both are removed.
    */
   setPhase(phase) {
     for (const el of [this.root, this.trigger, this.panel]) {
@@ -275,9 +274,9 @@ export class Collapsible {
 
     const restore = resetLayoutStyles(panel);
     this.setDimensions(panel, `${panel.scrollHeight}px`, `${panel.scrollWidth}px`);
-    // Measured in the reference: the alignment styles are back in frame 1,
-    // `data-starting-style` disappears only after that (React commits the
-    // rAF-triggered state change in the task after the frame).
+    // The alignment styles are back in frame 1; `data-starting-style` disappears
+    // only in the task after that frame, so the transition starts from the
+    // measured height.
     this.frame = nextFrame(() => {
       restore();
       this.timer = setTimeout(() => {
@@ -326,8 +325,8 @@ export class Collapsible {
             if (this.open) return;
             this.removePanel();
             if (this.panel) this.setDimensions(this.panel, 'auto', 'auto');
-            // The original clears `data-ending-style` on root and trigger only
-            // in the render after unmount; one task later matches that.
+            // `data-ending-style` on root and trigger is cleared one task after
+            // the panel is removed.
             setTimeout(() => { if (!this.open) this.setPhase(null); }, 0);
           });
         });
