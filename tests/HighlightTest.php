@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Byte parity of the PHP syntax highlighter (src/lib/Highlight.php) with fumadocs and Shiki.
+ * Byte parity of the PHP syntax highlighter (src/lib/Highlight.php) with the reference build and Shiki.
  *
  * The reference is the committed `*.expected.html` (or `.expected.error.txt`) next to every sample under
  * verify/highlight-samples/**, byte for byte. With `node` and verify/node_modules, a fresh run of
