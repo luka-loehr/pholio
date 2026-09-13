@@ -28,9 +28,10 @@
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/luka-loehr/pholio/main/scripts/install.sh | sh
-php vendor/pholio/bin/pholio init docs
-php vendor/pholio/bin/pholio dev docs      # http://127.0.0.1:8080
-php vendor/pholio/bin/pholio build docs    # static site in docs/public/
+pholio init docs
+cd docs
+pholio dev      # http://127.0.0.1:8080
+pholio build    # static site in public/
 ```
 
 Requires PHP 8.2+ with `mbstring` and `ctype`. More in [Getting started](docs/getting-started.md).
@@ -40,7 +41,7 @@ Requires PHP 8.2+ with `mbstring` and `ctype`. More in [Getting started](docs/ge
 ## Project structure
 
 ```
-docs/
+my-docs/
 ├── pholio.config.php   optional, every key has a default
 ├── content/            Markdown pages and meta.json files
 ├── assets/             images and files, published at /assets/
