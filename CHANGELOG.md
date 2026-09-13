@@ -18,7 +18,13 @@ or the configuration schema; such changes are listed under **Changed**.
 - `verify/search-query.mjs`, which prints the top results of one query against a built search index,
   with `--explain` for the score of every term.
 - `keywords` frontmatter key: comma-separated search terms a page does not use in its text, such as
-  synonyms, weighted just below the title.
+  synonyms, weighted like the title.
+- `verify/search-dialog.mjs`, part of tier 2: the search dialog in Chromium, Firefox and WebKit with the
+  demo served under `/docs/` and its `.htaccess` headers (hotkeys, results, keyboard navigation, worker fallback).
+
+### Fixed
+
+- ⌘K and Ctrl+K also open search when the key arrives as uppercase "K" (Caps Lock, synthetic key events).
 
 ### Changed
 
@@ -29,6 +35,10 @@ or the configuration schema; such changes are listed under **Changed**.
   at most 8 pages with 3 headings each.
 - The search index is a compact inverted index (format version 2) without body text; it loads
   on the first hover, focus or open of a search trigger, and queries run in a Web Worker.
+
+### Removed
+
+- The zbsearch notice, licence text and `verify/` dependency: the search no longer derives from zbsearch.
 
 ## [0.1.0] - 2026-09-13
 
