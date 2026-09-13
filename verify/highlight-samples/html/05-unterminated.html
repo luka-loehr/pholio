@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:">
+  <title>Search the guide</title>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    const SEARCH_INDEX = "/guide/search.json?v=" + Date.now();
+  </script>
+</head>
+<body>
+  <search>
+    <form role="search" action="/guide/search" onsubmit="return validate(this)">
+      <label for="q" class="visually-hidden">Search term</label>
+      <input type="search" id="q" name="q" value="" autofocus spellcheck=false>
+      <button>Search</button>
+    </form>
+  </search>
+
+  <ol id="results" aria-live="polite"></ol>
+
+  <dialog id="help">
+    <p>Tip: press <kbd>Ctrl</kbd>&thinsp;+&thinsp;<kbd>K</kbd> to open the search — ¡olé!</p>
+    <form method="dialog"><button value="ok">OK</button></form>
+  </dialog>
+
+  <script>
+    function validate(form) {
+      const q = form.q.value.trim();
+      if (q.length < 2) {
+        alert('Please enter at least 2 characters.');
+        return false;
+      }
+      return true;
+    }
+
+    document.on('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        document.getElementById('q').focus();
+      }
+    });
+  </script>
+
+  <noscript><p style="color:red">Search needs JavaScript.</p></noscript>
+
+  <iframe src="about:blank" title="empty" sandbox></iframe>
+  <video controls muted playsinline><source src="intro.webm" type="video/webm"><track kind="captions" src="en.vtt" srclang="en" default></video>
+</body>
+</html>
+<!-- Appendix: this comment is deliberately never closed
+     and contains <b>markup</b> as well as &amp; entities
