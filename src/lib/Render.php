@@ -122,7 +122,7 @@ final class RenderContext
  * AST to HTML for the article body, the content of `div.prose`.
  *
  * The rules come from two sources: the element mapping in
- * `fumadocs-ui/dist/mdx.js` (headings to `Heading`, `a` to `Link`, `img` to the
+ * the reference UI's `dist/mdx.js` (headings to `Heading`, `a` to `Link`, `img` to the
  * reference's override, `table` to a scroll frame) and the remark/rehype
  * behaviour seen in the frozen reference DOM. Unknown nodes throw; there is no
  * silent fallback.
@@ -353,7 +353,7 @@ final class Render
     }
 
     /**
-     * Link. `fumadocs-core/link` adds `rel`/`target` only to external targets
+     * Link. The reference `link` helper adds `rel`/`target` only to external targets
      * (`^\w+:` or `//`); internal links stay plain `a` elements.
      *
      * @param array<string,mixed> $node
