@@ -51,4 +51,4 @@ committed build.
 
 Code fences use only the bundled grammars: css, diff, html, java, javascript
 (`js`), json, php, shellscript (`bash`, `sh`), sql, typescript (`ts`), xml and
-yaml. Any other language fails the build, as it does in Fumadocs.
+yaml. Any other language fails the build.
