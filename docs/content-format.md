@@ -30,6 +30,7 @@ objects and anchors are errors, and so is any key outside this table
 | `icon` | no | lucide icon name, used in the sidebar and in cards |
 | `full` | no | `true` renders the page without the table of contents column |
 | `updated` | no | Text of the "Last updated" line under the page |
+| `noindex` | no | `true` keeps the page out of `llms.txt`, `llms-full.txt`, `skill.md` and `sitemap.xml` and adds `<meta name="robots" content="noindex">`; the page is still built |
 
 ## Markdown
 
