@@ -17,13 +17,12 @@ declare(strict_types=1);
  *                         map a frontmatter key onto an allowed one (content.frontmatter_aliases),
  *                         repeatable, e.g. --frontmatter-alias date=updated
  *   --order <file.json>   JSON list of content files (relative to --content) in insertion order.
- *                         It decides which hit comes first on equal scores; a reference export
- *                         records its bundler's order, which the file system can't reproduce.
+ *                         It decides which hit comes first on equal scores.
  *   --drafts              include pages whose file name starts with "_"
  *   --texts <file.json>   also write the indexed pages with their plain text (SearchIndex::documents),
- *                         which verify/search-parity.mjs rebuilds the postings from
+ *                         which verify/search-check.mjs rebuilds the postings from
  *
- * `verify/search-parity.mjs` calls this tool; the index is identical to the one `pholio build`
+ * `verify/search-check.mjs` calls this tool; the index is identical to the one `pholio build`
  * writes for the same content, base URL and tokenizer.
  *
  * Exit codes: 0 written, 1 input error, 2 usage error.
