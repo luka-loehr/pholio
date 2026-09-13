@@ -10,12 +10,12 @@ require_once __DIR__ . '/../lib/Tree.php';
 require_once __DIR__ . '/tabs-dropdown.php';
 
 /**
- * The section cards of the start page, as in the reference start page.
+ * The section cards of the start page.
  *
  * The cards come from `home.cards.items` or, with `fromTree`, from the root
  * folders of the page tree: title, description and icon from each folder's
  * `meta.json`, the target is the docs root joined with the folder's slug. Icon
- * names may be given as lucide names (`book-open`) or React names (`BookOpen`).
+ * names may be given as lucide names (`book-open`) or PascalCase names (`BookOpen`).
  */
 function nd_home_cards(array $config, Tree $tree): string
 {
