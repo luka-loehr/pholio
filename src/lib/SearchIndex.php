@@ -57,7 +57,7 @@ require_once __DIR__ . '/Tree.php';
  * (FOLDING), combining marks U+0300–U+036F dropped, for `german` also ae/oe/ue
  * read as a/o/u, then split at everything but a–z and 0–9. Hyphen and underscore
  * chains add their joined forms ("chat-export" → chat, export, chatexport).
- * `search.js` implements the same functions; `verify/search-parity.mjs` checks that
+ * `search.js` implements the same functions; a Node check in `verify/` makes sure
  * both agree and rebuilds the postings from `documents()`.
  */
 final class SearchIndex
