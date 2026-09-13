@@ -202,6 +202,34 @@ security headers and MIME types, maps slashless page URLs to their
 `index.html`, and turns every redirect into a 301 rule. A redirect's `from` must
 lie below `base_path`, and its `to` must be a path.
 
+## Agents
+
+What a build publishes for AI agents: a Markdown twin of every page, `llms.txt`,
+`llms-full.txt`, `skill.md`, the agent card, `robots.txt`, `sitemap.xml`, JSON-LD and
+the discovery headers. [Agents](agents.md) describes each file.
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `site.url` | `null` | Origin the site is served from, e.g. `https://docs.example.org`, without a path (`base_path` adds it). Makes the URLs in the agent files absolute. `sitemap.xml` and `.well-known/agent-card.json` need it and are skipped with a warning while it is `null` |
+| `site.description` | `null` | One sentence about the site for `llms.txt`, `skill.md`, the agent card and JSON-LD. `null` uses `home.hero.lead`, then the root `meta.json` description |
+| `agents.enabled` | `true` | `false` turns every agent file and the page actions off |
+| `agents.markdown` | `true` | `<page>.md` next to every page, and `index.md` for the start page |
+| `agents.llms_txt` | `true` | `llms.txt` and `.well-known/llms.txt` |
+| `agents.llms_full_txt` | `true` | `llms-full.txt` and `.well-known/llms-full.txt` |
+| `agents.skill` | `true` | `skill.md` and the Agent Skills indexes below `.well-known/` |
+| `agents.agent_card` | `true` | `.well-known/agent-card.json` (needs `site.url`) |
+| `agents.robots_txt` | `true` | `robots.txt`, unless a `copy` directory or `output.keep` provides one |
+| `agents.sitemap` | `true` | `sitemap.xml` (needs `site.url`) |
+| `agents.structured_data` | `true` | JSON-LD in every page's `<head>` |
+| `agents.headers` | `true` | The `Link` and `X-Llms-Txt` headers and content negotiation in `.htaccess`, the `_headers` file and `pholio dev` |
+| `agents.page_actions` | `true` | "Copy page" and its menu next to the page title. Off when `agents.markdown` is off |
+| `agents.instructions` | `null` | Text of the `## Agent Instructions` section in `llms.txt` and `skill.md` |
+| `agents.exclude` | `[]` | Globs matched against page URLs (`/guide/internal/*`) and content file paths (`internal/*.md`); matching pages stay out of `llms.txt`, `llms-full.txt` and `skill.md`. `*` also matches `/` |
+
+A page with `noindex: true` in its frontmatter is still built, but left out of
+`llms.txt`, `llms-full.txt`, `skill.md` and `sitemap.xml`, and gets
+`<meta name="robots" content="noindex">`.
+
 ## Profiles
 
 | Key | Default | Meaning |
