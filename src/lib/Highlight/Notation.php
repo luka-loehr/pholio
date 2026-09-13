@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pholio\Highlight;
 
 /**
- * Comment notations from @shikijs/transformers 4.4.3 in the reference build's order
+ * Comment notations from @shikijs/transformers 4.4.3, applied in this order
  * (transformerNotationHighlight, …WordHighlight, …Diff, …Focus, each with matchAlgorithm "v3").
  *
  * JavaScript quirks that can become visible are reproduced: `trim()` with the JavaScript notion of whitespace,
