@@ -42,7 +42,6 @@ test('defaults for a minimal config', function (): void {
     assert_same(null, $c['content']['assetPrefix']);
     assert_same('/', $c['content']['assetTarget']);
     assert_same(null, $c['home']);
-    assert_same('neutral', $c['theme']['preset']);
     assert_same('', $c['theme']['fontClass']);
     assert_same('d', $c['theme']['hotkey']);
     assert_same(['icons' => [], 'manifest' => null, 'themeColor' => null], $c['head']);
@@ -203,10 +202,10 @@ test('profiles merge recursively and unknown profiles fail', function (): void {
 });
 
 test('overrides from the command line', function (): void {
-    $c = config([], null, ['output_dir' => '/tmp/out', 'search.tokenizer' => 'german', 'theme.preset' => 'ocean']);
+    $c = config([], null, ['output_dir' => '/tmp/out', 'search.tokenizer' => 'german', 'theme.hotkey' => 'k']);
     assert_same('/tmp/out', $c['outDir']);
     assert_same('german', $c['search']['tokenizer']);
-    assert_same('ocean', $c['theme']['preset']);
+    assert_same('k', $c['theme']['hotkey']);
     config_error([], '--set nope: unknown key', null, ['nope' => 'x']);
     config_error([], 'only string keys', null, ['logo_size' => '3']);
     config_error([], 'search.tokenizer: expected one of', null, ['search.tokenizer' => 'klingon']);
