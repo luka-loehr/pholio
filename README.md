@@ -49,7 +49,6 @@ Requires PHP 8.2+ with `mbstring` and `ctype` (PCRE2 10.43+ recommended for full
 - [Themes](docs/themes.md)
 - [Agents](docs/agents.md)
 - [Architecture](docs/architecture.md)
-- [Testing](docs/testing.md)
 - [Roadmap](docs/roadmap.md)
 - [Demo site](examples/demo/README.md)
 
