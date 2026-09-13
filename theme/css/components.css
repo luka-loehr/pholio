@@ -219,7 +219,7 @@
      ==================================================================== */
 
   /* Source of the utility lists: the class constants and templates in
-     js/search-dialog.js, taken over word for word from fumadocs-ui
+     js/search-dialog.js, taken over word for word from the reference UI
      (search/dialog). The active result hangs on `aria-selected="true"`. */
 
   /* .nd-dialog  <-  fixed left-1/2 top-4 md:top-[calc(50%-250px)] z-50 w-[calc(100%-1rem)] max-w-screen-sm -translate-x-1/2 rounded-xl border bg-fd-popover text-fd-popover-foreground shadow-2xl overflow-hidden data-closed:animate-fd-dialog-out data-open:animate-fd-dialog-in focus-visible:outline-none *:border-b *:has-[+:last-child[data-empty=true]]:border-b-0 *:data-[empty=true]:border-b-0 *:last:border-b-0 */
@@ -386,7 +386,7 @@
   }
 
   /* Separator between the breadcrumbs of a result: `ChevronRight` with
-     `size-4 rtl:rotate-180` (fumadocs-ui search.js, SearchDialogListItem). */
+     `size-4 rtl:rotate-180` (reference UI search.js, SearchDialogListItem). */
   /* .nd-search-crumb-sep  <-  size-4 rtl:rotate-180 */
   .nd-search-crumb-sep {
     width: calc(var(--spacing) * 4);
@@ -1698,6 +1698,21 @@
   @media (hover: hover) {
     .nd-hero-btn-secondary:hover {
       background-color: var(--color-fd-accent);
+    }
+  }
+
+  /* The secondary hero button sits over image and gradient with a 70 % opaque
+     background and `backdrop-blur`. Chromium rasterises such an element
+     differently once a transition of its background colour has run: in the
+     reference that happens during hydration, here theme-init.js sets the
+     theme before the first paint and no transition runs. The result was two
+     differing corner pixels at 1024 px dark, although every computed style
+     matches. `@starting-style` runs the same transition (`transition-colors`,
+     150 ms) once on the first style resolution; the final value stays the
+     same. */
+  @starting-style {
+    .nd-hero-btn-secondary {
+      background-color: transparent;
     }
   }
 
