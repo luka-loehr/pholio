@@ -3,7 +3,7 @@
  * Verbatim from the compiled reference stylesheet:
  *   css/[root-of-the-server]__1br6yta._.css
  *
- * The .prose rules come from @fumadocs/tailwind/typography; they live in
+ * The .prose rules come from the reference typography plugin; they live in
  * @layer utilities there and stay in the same layer here, so the later
  * components.css (unlayered or @layer components) can override them as in the
  * original.
@@ -12,7 +12,7 @@
  *   l.  451–485   .fd-step:before, .fd-steps (+ @media 40rem, l. 477–485)
  *   l.  777–1210  .prose … .prose-no-margin      (the 76 .prose rules)
  *   l. 1276–1292  .fd-scroll-container::-webkit-scrollbar*
- *   l. 3935–4088  .shiki rules (unlayered, from fumadocs-ui/css/lib/shiki.css)
+ *   l. 3935–4088  .shiki rules (unlayered, from the reference UI's css/lib/shiki.css)
  *
  * Two traps when updating the ranges:
  *   - The @media block ends at l. 485, not 484. If the closing brace is missing,
@@ -513,7 +513,7 @@
   }
 }
 
-/* --- fumadocs-ui/css/lib/shiki.css (unlayered, l. 3935–4088) --- */
+/* --- reference UI css/lib/shiki.css (unlayered, l. 3935–4088) --- */
 
 .shiki:not(.not-fumadocs-codeblock *) {
   --padding-left: calc(var(--spacing) * 4);
