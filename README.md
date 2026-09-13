@@ -2,7 +2,7 @@
 
 # Pholio – Beautiful documentation, powered by Markdown
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg?style=flat)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?style=flat)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-%E2%89%A5%208.2-777bb4.svg?style=flat)](https://www.php.net/releases/8.2/en.php)
 [![CI](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml/badge.svg)](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml)
@@ -13,11 +13,12 @@
 
 ## Features
 
-- **Markdown first**, plus a few component tags: callouts, cards, tabs, steps, file trees, type tables
+- **Markdown first**, plus a few component tags: callouts, cards, tabs, steps, accordions, file trees, type tables
 - **One polished theme** with light and dark mode, sidebar, table of contents and keyboard shortcuts
+- **Eleven color presets**, one line to switch, with your own color tokens on top
 - **Instant search** built at compile time, no backend
 - **Agent-ready**: Markdown for every page, `llms.txt`, `skill.md` and content negotiation, generated from your content
-- **Syntax highlighting** at build time, with titles, line numbers and code tabs
+- **Syntax highlighting** at build time, with titles, line numbers, diffs and code tabs
 - **Zero dependencies**: PHP 8.2 is all you need
 - **Static output** that runs on any host, with a ready `.htaccess` for Apache
 - **English and German** interface
@@ -43,9 +44,12 @@ Requires PHP 8.2+ with `mbstring` and `ctype` (PCRE2 10.43+ recommended for full
 
 - [Getting started](docs/getting-started.md)
 - [Content format](docs/content-format.md)
+- [Components](docs/components.md)
 - [Configuration](docs/configuration.md)
+- [Themes](docs/themes.md)
+- [Agents](docs/agents.md)
 - [Architecture](docs/architecture.md)
-- [Verification](docs/verification.md)
+- [Testing](docs/testing.md)
 - [Roadmap](docs/roadmap.md)
 - [Demo site](examples/demo/README.md)
 
