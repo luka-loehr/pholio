@@ -7,7 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * Card grid, `Cards` from the reference UI's `dist/components/card.js`.
+ * Card grid (`Cards`).
  */
 function nd_cards(array $props, string $children): string
 {
@@ -15,12 +15,11 @@ function nd_cards(array $props, string $children): string
 }
 
 /**
- * A single card, `Card` from card.js.
+ * A single card (`Card`).
  *
- * With `href` the element becomes an `a` (through the reference `link` helper, so with
- * `rel`/`target` only for external targets), otherwise a `div`. `data-card` is
- * always present and renders as `data-card="true"`, because React prints the
- * boolean that way. The description is a `p`; the child `div` stays in the DOM
+ * With `href` the element becomes an `a` (with `rel`/`target` only for external
+ * targets, see Html::isExternal), otherwise a `div`. `data-card` is always
+ * present as `data-card="true"`, which the styles select on. The description is a `p`; the child `div` stays in the DOM
  * even when empty (`empty:hidden` hides it through CSS).
  *
  * @param array{title?:string,description?:string|null,href?:string|null,icon?:string|null} $props
