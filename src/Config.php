@@ -137,6 +137,22 @@ require_once __DIR__ . '/I18n.php';
  *   redirects: list<array{from:string, to:string, reason:?string}>, from the config only
  *   redirectsFile: ?string,         absolute path of a JSON list of {from, to, reason}, read at build
  *   server: array{htaccess: bool, csp: string},
+ *
+ *   // agents (see docs/agents.md)
+ *   site: array{
+ *     url: ?string,                 origin without trailing slash, e.g. "https://docs.example.org";
+ *                                   null: agent files use base-path URLs, absolute-only files are skipped
+ *     description: ?string,         one-sentence site summary for llms.txt, skill.md, JSON-LD
+ *   },
+ *   agents: array{
+ *     markdown: bool,               <page>.md twins
+ *     llmsTxt: bool, llmsFullTxt: bool, skill: bool, agentCard: bool,
+ *     robotsTxt: bool, sitemap: bool, structuredData: bool,
+ *     headers: bool,                Link and X-Llms-Txt headers and content negotiation (.htaccess, _headers)
+ *     pageActions: bool,            "Copy page" button and menu; false when markdown is off
+ *     instructions: ?string,        "## Agent Instructions" block of llms.txt and skill.md
+ *     exclude: list<string>,        fnmatch globs on page URLs and content file paths
+ *   },                              every flag is false when agents.enabled is false
  * }
  */
 final class Config
@@ -264,6 +280,26 @@ final class Config
             'server' => [
                 'htaccess' => ['bool', true],
                 'csp' => ['string', self::DEFAULT_CSP],
+            ],
+
+            'site' => [
+                'url' => ['?string', null],
+                'description' => ['?string', null],
+            ],
+            'agents' => [
+                'enabled' => ['bool', true],
+                'markdown' => ['bool', true],
+                'llms_txt' => ['bool', true],
+                'llms_full_txt' => ['bool', true],
+                'skill' => ['bool', true],
+                'agent_card' => ['bool', true],
+                'robots_txt' => ['bool', true],
+                'sitemap' => ['bool', true],
+                'structured_data' => ['bool', true],
+                'headers' => ['bool', true],
+                'page_actions' => ['bool', true],
+                'instructions' => ['?string', null],
+                'exclude' => ['list<string>', []],
             ],
 
             'profiles' => ['profiles', []],
@@ -715,6 +751,17 @@ final class Config
             $copy[] = ['from' => rtrim((string) $path((string) $from), '/'), 'to' => (string) $url($to), 'optional' => false];
         }
 
+        $siteUrl = $c['site']['url'] === null ? null : rtrim($c['site']['url'], '/');
+        if ($siteUrl !== null && preg_match('#^https?://[^/?\#\s]+$#i', $siteUrl) !== 1) {
+            throw new ConfigException(
+                'site.url: expected the origin the site is served from, like "https://docs.example.org", without a path (base_path adds it), got '
+                . self::show($c['site']['url']),
+                $configFile,
+            );
+        }
+        $agents = $c['agents'];
+        $on = static fn(string $key): bool => $agents['enabled'] && $agents[$key];
+
         $indexPath = trim($c['search']['index_path'], '/');
         if ($indexPath === '' || str_contains($indexPath, '..')) {
             throw new ConfigException('search.index_path: expected a relative file path', $configFile);
@@ -795,6 +842,26 @@ final class Config
             'redirects' => $c['redirects'],
             'redirectsFile' => $path($c['redirects_file']),
             'server' => $c['server'],
+
+            'site' => [
+                'url' => $siteUrl,
+                'description' => $c['site']['description'] === null ? null : $text($c['site']['description']),
+            ],
+            'agents' => [
+                'markdown' => $on('markdown'),
+                'llmsTxt' => $on('llms_txt'),
+                'llmsFullTxt' => $on('llms_full_txt'),
+                'skill' => $on('skill'),
+                'agentCard' => $on('agent_card'),
+                'robotsTxt' => $on('robots_txt'),
+                'sitemap' => $on('sitemap'),
+                'structuredData' => $on('structured_data'),
+                'headers' => $on('headers'),
+                // The buttons copy and open the Markdown twin, so they need it.
+                'pageActions' => $on('page_actions') && $on('markdown'),
+                'instructions' => $agents['instructions'] === null ? null : $text($agents['instructions']),
+                'exclude' => $agents['exclude'],
+            ],
         ];
     }
 
