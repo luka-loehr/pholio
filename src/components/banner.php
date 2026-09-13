@@ -12,7 +12,7 @@ require_once __DIR__ . '/../lib/Icons.php';
  *
  * The `<style>` elements sit inside the bar: the layout variable
  * `--fd-banner-height` (only with `changeLayout`), the hide rule for
- * `html.nd-banner-<id>` and, for `rainbow`, the `fd-moving-banner` keyframes.
+ * `html.nd-banner-<id>`. The `rainbow` variant is a solid bar with a border.
  *
  * Not carried over is the inline `<script>` that sets `nd-banner-<id>` on
  * `<html>` before the first paint once the bar was closed: the Content Security
@@ -65,9 +65,6 @@ function nd_banner(array $props, string $children, string $closeLabel): string
     if ($key !== null) {
         $inner .= Html::tag('style', [], '.' . $key . ' #' . $id . ' { display: none; }');
     }
-    if ($variant === 'rainbow') {
-        $inner .= nd_banner_flow();
-    }
     $inner .= $children;
     if ($key !== null) {
         $inner .= Html::tag('button', [
@@ -82,25 +79,4 @@ function nd_banner(array $props, string $children, string $closeLabel): string
         'class' => $variant === 'rainbow' ? 'nd-banner nd-banner-rainbow' : 'nd-banner nd-banner-normal',
         'style' => ['height' => $height],
     ], $inner);
-}
-
-/** The moving rainbow gradient with the default colours. */
-function nd_banner_flow(): string
-{
-    $colors = ['rgba(0,149,255,0.56)', 'rgba(231,77,255,0.77)', 'rgba(255,0,0,0.73)', 'rgba(131,255,166,0.66)'];
-    $stops = [];
-    foreach ([...$colors, $colors[0]] as $i => $color) {
-        $stops[] = $color . ' ' . ($i * 50 / count($colors)) . '%';
-    }
-
-    $style = 'mask-image:linear-gradient(to bottom,white,transparent), radial-gradient(circle at top center, white, transparent);'
-        . 'mask-composite:intersect;'
-        . 'animation:fd-moving-banner 20s linear infinite;'
-        . 'background-image:repeating-linear-gradient(70deg, ' . implode(', ', $stops) . ');'
-        . 'background-size:200% 100%;'
-        . 'filter:saturate(2)';
-
-    return Html::tag('div', ['class' => 'nd-banner-flow', 'style' => $style])
-        . Html::tag('style', [], "@keyframes fd-moving-banner {\n            from { background-position: 0% 0;  }\n"
-            . "            to { background-position: 100% 0;  }\n         }");
 }
