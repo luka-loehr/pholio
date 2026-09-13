@@ -196,7 +196,7 @@ node verify/agent-score.mjs --base https://docs.example.org
 node verify/agent-score.mjs --demo --min-score 100
 ```
 
-Tier 2 of the verification runs the second line: the demo served by the
+`node verify/run.mjs` runs the second line: the demo served by the
 `pholio dev` router has to score 100.
 
 ## An MCP server
