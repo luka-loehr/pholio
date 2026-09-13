@@ -3,12 +3,12 @@
  * Order and cascade:
  *   1. @layer properties  – fallback initial values of the --tw-* variables
  *                           for browsers without @property (Safari branch)
- *   2. @layer theme       – Tailwind theme plus the default (neutral) colours
+ *   2. @layer theme       – Tailwind theme plus the default colours
  *   3. unlayered          – the default dark palette and sidebar overrides
  *                           and --fd-sidebar-drawer-offset
  *   4. unlayered          – the site palette, inserted by the build at the
- *                           `@pholio:palette` marker (theme.preset, theme.light,
- *                           theme.dark, theme.palette_css)
+ *                           `@pholio:palette` marker (theme.light, theme.dark,
+ *                           theme.palette_css)
  *   5. @property          – registered --tw-* variables
  *
  * Important: blocks 3 and 4 are unlayered and therefore win against
