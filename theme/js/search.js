@@ -9,27 +9,30 @@
 //   "passworter" meet → split at everything but a–z and 0–9. Hyphen and underscore
 //   chains also yield their joined form: "chat-export" gives chat, export, chatexport.
 //
-// Matching, per query term ("slot"):
+// Query terms: stopwords ("wie", "ich", "the", …) are dropped unless nothing else is
+// left. Each remaining term matches
 //   exact word · prefix (always for the last term while it is being typed, and for
 //   terms of four or more letters) · joined neighbours ("chat export" finds
-//   "chatexport") and, the other way round, a one-word term split into two words
-//   ("codetabs" finds "code tabs") · infix inside compounds ("export" finds "datenexport") ·
-//   inflected forms of a shorter indexed word ("exportieren" finds "export") ·
-//   typos (edit distance 1, or 2 from seven letters, same first letter), tried only
-//   for terms nothing else matched.
+//   "chatexport") and a one-word term split into two words ("codetabs" finds
+//   "code tabs") · infix inside compounds ("export" finds "datenexport") · shorter
+//   indexed words ("exportieren" finds "export") and words sharing all but the last
+//   three letters ("herunterladen" finds "herunterladbar") · typos (edit distance 1,
+//   or 2 from seven letters, same first letter), tried for every term without an
+//   exact, prefix or joined match.
 //
 // Ranking of pages (results are grouped by page):
-//   tier 6  the query equals the title, the frontmatter heading, the slug or
+//   tier 3  the query equals the title, the frontmatter heading, the slug or
 //           "<parent breadcrumb> <title>"
-//   tier 5  the title starts with or contains the query as a phrase
-//   tier 4  every term is in the title or the path (breadcrumbs, URL segments)
-//   tier 3  one heading contains every term
-//   tier 2  every term occurs on the page (sections holding all of them score higher)
-//   tier 1  some terms occur
-//   Inside a tier: the sum over terms of the best field score, where title ≫ path,
-//   heading ≫ text, weighted by idf and by how well the word matched, plus bonuses
-//   when one section holds every term and when a heading reads exactly like the query.
-//   All weights are the constants below.
+//   tier 2  the title starts with or contains the query as a phrase
+//   tier 1  every term is in the title or the keywords (the path may add terms)
+//   tier 0  everything else
+//   Inside a tier, the score: per term the fields it occurs in (title ≫ keywords ≫
+//   heading ≈ description ≫ text with length normalisation ≫ path), weighted by the
+//   term's rarity (BM25 idf) and how well the word matched; summed over terms and
+//   multiplied by the square of the share of the query the page covers. Pages where
+//   one section, one heading or the title and description hold most of the query,
+//   and pages with a heading that reads exactly like the query, are boosted.
+//   All weights are in WEIGHTS below.
 //
 // Result rows: the page, then up to three of its sections, best matching first,
 // shown by their heading. Every row carries plain `content` and `marks`
@@ -49,12 +52,24 @@ export const FOLDING =
 
 export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
+// Page slot flags.
 export const FIELD_TITLE = 1;
 export const FIELD_PATH = 2;
+export const FIELD_DESCRIPTION = 4;
+export const FIELD_KEYWORDS = 8;
+// Section slot flag; the text count sits in bits 3–5.
 export const FIELD_HEADING = 4;
 
-export const MAX_PAGES = 10;
+export const MAX_PAGES = 8;
 export const MAX_CHILDREN = 3;
+
+// Query words that carry no meaning of their own. German queries mix in English.
+const STOPWORDS_ENGLISH = 'a an and are as at be by can do does for from how i in is it my me of on or the this that to what when where why with you your';
+const STOPWORDS_GERMAN = 'aber alle als also am an auch auf aus bei bin bis bitte da dann das dass dem den der des dich die dir doch du ein eine einem einen einer eines er es fur gibt hat habe haben hier ich ihr im in ist ja jetzt kann kannst konnen man mein meine meinem meinen meiner meines mich mir mit muss nach nicht noch nochmal nur ob oder sich sie sind so soll um und uns von vor war was welche welcher welches wenn werden wer wie wieso wird wo zu zum zur ins beim vom uber dies diese dieser dieses jede jeder jedes kein keine etwas sehr immer wieder';
+const STOPWORDS = {
+  english: STOPWORDS_ENGLISH,
+  german: `${STOPWORDS_GERMAN} ${STOPWORDS_ENGLISH}`,
+};
 
 const MAX_TERMS = 8;
 const PREFIX_MIN_NON_LAST = 4;   // earlier terms match as prefixes from this length
@@ -65,21 +80,52 @@ const TYPO_MIN = 4;
 const TYPO_LIMIT = 12;
 const SPLIT_MIN = 6;             // one-word terms from this length may split into two words
 const STEM_MIN = 5;              // shortest indexed word a longer term may extend
-const DETAIL_LIMIT = 60;         // pages that get the tier check
-const SAME_SECTION_BONUS = 40;   // every term inside one section
-const EXACT_HEADING_BONUS = 40;  // a heading that reads exactly like the query
+const SHARED_STEM_MIN = 8;       // terms from this length also match words sharing all but their last three letters
+const SHARED_STEM_LIMIT = 48;
+const TAIL_TERM_MIN = 8;         // terms from this length also match an indexed word they end with ("systemprompt" → "prompt")
+const TAIL_MIN = 4;
+const ENDINGS = ['ern', 'en', 'er', 'es', 'e', 'n', 's']; // stripped before a short prefix match ("logs" → "logging")
+const ENDING_STEM_MIN = 3;
+const ENDING_GROWTH = 4;         // letters a word may have beyond the stripped stem
+const ENDING_LIMIT = 48;
+const DETAIL_LIMIT = 60;         // pages that get the tier check and the boosts
 
-// Field scores: title ≫ path ≈ heading ≫ text (by number of text blocks, saturating).
-const WEIGHT_TITLE = 12;
-const WEIGHT_PATH = 5;
-const WEIGHT_HEADING = 5;
-const WEIGHT_TEXT = [0, 1, 1.5, 1.8, 2.1, 2.3, 2.5, 2.6];
+const QUALITY_TYPO = [1, 0.5, 0.3];
+
+/**
+ * Ranking weights. `createSearch(index, { weights })` overrides single values, for
+ * tuning tools; the dialog always uses these.
+ */
+export const WEIGHTS = Object.freeze({
+  // Match quality of a word for a term (1 = exact).
+  qualityInfix: 0.36,
+  qualitySharedStem: 0.45,
+  qualityEnding: 0.6,
+  // Field weights per term. The title needs little here: titleBoost and the tiers already
+  // put title matches first, and a high value let generic title words outrank specific text.
+  title: 2,
+  keywords: 8,
+  heading: 2.5,
+  description: 5.6,
+  path: 1.5,
+  text: 1.5,                     // text saturates towards text × (textK1 + 1)
+  textK1: 1.2,                   // BM25 saturation of the text block count
+  textB: 0.75,                   // BM25 length normalisation by the page's text blocks
+  // Page score multipliers.
+  coveragePower: 0.5,            // score × coverage^power, coverage = idf share of the query found
+  sectionBoost: 1.8,             // × (1 + boost × share²) for the section holding most of the query
+  headingBoost: 0.5,             // the same for one heading
+  summaryBoost: 1,               // the same for title, keywords and description together
+  titleBoost: 1,                 // × (1 + boost × share) for the query share in the title and keywords
+  pathBoost: 0.5,                // × (1 + boost × share) for the query share in the breadcrumbs and URL, with a title match
+  exactHeadingBoost: 0.8,        // × (1 + boost) for a heading that reads exactly like the query
+});
 
 // ------------------------------------------------------------------ Normalising
 
 const FOLD_MAP = new Map(FOLDING.split(' ').map((entry) => [entry[0], entry.slice(1)]));
-const FOLD_CHARS = /[\u00df-\u017f]/g;
-const COMBINING = /[\u0300-\u036f]+/g;
+const FOLD_CHARS = /[ß-ſ]/g;
+const COMBINING = /[̀-ͯ]+/g;
 const SEPARATORS = /[^a-z0-9]+/;
 const CHAINS = /[a-z0-9]+(?:[-_][a-z0-9]+)+/g;
 
@@ -175,13 +221,6 @@ export function encodeWords(list) {
   }).join(' ');
 }
 
-function fieldScore(flags) {
-  return (flags & FIELD_TITLE ? WEIGHT_TITLE : 0)
-    + (flags & FIELD_PATH ? WEIGHT_PATH : 0)
-    + (flags & FIELD_HEADING ? WEIGHT_HEADING : 0)
-    + WEIGHT_TEXT[flags >> 3];
-}
-
 // -------------------------------------------------------------------- Distance
 
 /**
@@ -230,10 +269,13 @@ const PARTS = /[\p{L}\p{N}]+/gu;
  *   search: (query: string, options?: {pages?: number, children?: number}) => Array<{
  *     id: string, type: 'page'|'heading', url: string, content: string,
  *     marks: Array<[number, number]>, breadcrumbs?: string[]}>,
- *   rankPages: (query: string) => Array<{url: string, title: string, tier: number, score: number}>,
+ *   rankPages: (query: string) => Array<{url: string, title: string, tier: number, score: number,
+ *     terms: Array<{term: string, score: number, fields: number}>}>,
+ *   explain: (query: string) => Array<{term: string, weight: number, words: Array<[string, number]>}>,
  * }}
  */
-export function createSearch(index) {
+export function createSearch(index, { weights = {} } = {}) {
+  const W = { ...WEIGHTS, ...weights };
   if (!index || index.v !== INDEX_VERSION) {
     throw new Error(`search.js: expected a version ${INDEX_VERSION} search index, got ${JSON.stringify(index?.v ?? null)}`);
   }
@@ -248,6 +290,7 @@ export function createSearch(index) {
   if (vocabulary.length !== postingStrings.length) {
     throw new Error(`search.js: ${vocabulary.length} words but ${postingStrings.length} posting lists in the search index`);
   }
+  const stopwords = new Set(STOPWORDS[tokenizer].split(' ').map((word) => normalize(word, tokenizer)));
 
   // Slots: each page's own slot, then one per section (see SearchIndex.php).
   const pages = [];
@@ -264,9 +307,28 @@ export function createSearch(index) {
   });
   const pageCount = pages.length;
   const slotPage = Int32Array.from(slotPages);
+  const lengths = Float64Array.from(index.lengths ?? pages.map(() => 1));
+  const averageLength = lengths.reduce((sum, length) => sum + length, 0) / Math.max(1, pageCount) || 1;
 
   const decoded = new Array(vocabulary.length);
   const postingsOf = (word) => (decoded[word] ??= decodePostings(postingStrings[word]));
+
+  // BM25 idf over pages, per word.
+  const idfs = new Float64Array(vocabulary.length).fill(-1);
+  function idfOf(word) {
+    if (idfs[word] < 0) {
+      const list = postingsOf(word);
+      let pagesWithWord = 0;
+      for (let e = 0, previous = -1; e < list.length; e += 2) {
+        if (slotPage[list[e]] !== previous) {
+          previous = slotPage[list[e]];
+          pagesWithWord++;
+        }
+      }
+      idfs[word] = Math.log(1 + (pageCount - pagesWithWord + 0.5) / (pagesWithWord + 0.5));
+    }
+    return idfs[word];
+  }
 
   // ---- Vocabulary lookups ----
 
@@ -341,7 +403,7 @@ export function createSearch(index) {
       const candidate = vocabulary[word];
       if (prefix ? candidate.length < term.length - max : Math.abs(candidate.length - term.length) > max) continue;
       const distance = editDistance(term, candidate, max, prefix);
-      if (distance <= max) found.push([word, distance]);
+      if (distance > 0 && distance <= max) found.push([word, distance]);
     }
     found.sort((a, b) => a[1] - b[1] || postingStrings[b[0]].length - postingStrings[a[0]].length || a[0] - b[0]);
     return found.slice(0, limit);
@@ -351,10 +413,11 @@ export function createSearch(index) {
 
   function parse(query) {
     const normal = normalize(typeof query === 'string' ? query : '', tokenizer);
-    const terms = [...new Set(normal.split(SEPARATORS).filter(Boolean))].slice(0, MAX_TERMS);
-    // A trailing separator means the last word is complete.
-    const typing = terms.length > 0 && /[a-z0-9]$/.test(normal);
-    return { terms, typing };
+    const all = [...new Set(normal.split(SEPARATORS).filter(Boolean))];
+    const content = all.filter((term) => !stopwords.has(term));
+    // A trailing separator means the last word is complete; a dropped stopword there too.
+    const typing = all.length > 0 && /[a-z0-9]$/.test(normal) && (content.length === 0 || content.at(-1) === all.at(-1));
+    return { all: all.slice(0, MAX_TERMS), terms: (content.length > 0 ? content : all).slice(0, MAX_TERMS), typing };
   }
 
   function hasPrefix(term) {
@@ -388,31 +451,62 @@ export function createSearch(index) {
     const slots = terms.map((term, i) => ({
       term,
       prefix: (typing && i === last) || term.length >= PREFIX_MIN_NON_LAST,
+      strong: false,              // an exact, prefix or joined match exists
+      qualities: new Map(),       // word id → best quality
       words: new Set(),
       candidates: [],
     }));
     const add = (slot, word, quality) => {
-      slot.candidates.push(word, quality);
-      slot.words.add(vocabulary[word]);
+      if (quality > (slot.qualities.get(word) ?? 0)) slot.qualities.set(word, quality);
     };
 
     slots.forEach((slot, i) => {
       const { term } = slot;
       const exact = exactWord(term);
-      if (exact >= 0) add(slot, exact, 1);
+      if (exact >= 0) {
+        add(slot, exact, 1);
+        slot.strong = true;
+      }
       if (slot.prefix) {
         const floor = typing && i === last ? 0.6 : 0.45;
         for (const word of prefixWords(term, PREFIX_LIMIT)) {
-          if (word !== exact) add(slot, word, floor + (0.35 * term.length) / vocabulary[word].length);
+          if (word === exact) continue;
+          add(slot, word, floor + (0.35 * term.length) / vocabulary[word].length);
+          slot.strong = true;
         }
       }
       if (term.length >= INFIX_MIN) {
-        for (const word of infixWords(term, INFIX_LIMIT)) add(slot, word, 0.4);
+        for (const word of infixWords(term, INFIX_LIMIT)) add(slot, word, W.qualityInfix);
       }
       // Inflected or extended forms of an indexed word ("exportieren" finds "export").
       for (let cut = term.length - 1; cut >= Math.max(STEM_MIN, Math.ceil(term.length / 2)); cut--) {
         const word = exactWord(term.slice(0, cut));
         if (word >= 0) add(slot, word, 0.35 + (0.3 * cut) / term.length);
+      }
+      // Other endings of the same stem ("herunterladen" finds "herunterladbare").
+      if (term.length >= SHARED_STEM_MIN) {
+        for (const word of prefixWords(term.slice(0, Math.max(STEM_MIN, term.length - 3)), SHARED_STEM_LIMIT)) {
+          add(slot, word, W.qualitySharedStem);
+        }
+      }
+      // The last part of a compound ("lehrerfazit" finds "fazit").
+      if (term.length >= TAIL_TERM_MIN) {
+        for (let cut = 3; term.length - cut >= TAIL_MIN; cut++) {
+          const word = exactWord(term.slice(cut));
+          if (word >= 0) {
+            add(slot, word, 0.3 + (0.3 * (term.length - cut)) / term.length);
+            break;
+          }
+        }
+      }
+      // Plural and inflection endings: the stem as a short prefix ("logs" finds "logging").
+      for (const ending of ENDINGS) {
+        const stem = term.slice(0, term.length - ending.length);
+        if (!term.endsWith(ending) || stem.length < ENDING_STEM_MIN) continue;
+        for (const word of prefixWords(stem, ENDING_LIMIT)) {
+          if (vocabulary[word].length <= stem.length + ENDING_GROWTH) add(slot, word, W.qualityEnding);
+        }
+        break;
       }
     });
 
@@ -424,16 +518,24 @@ export function createSearch(index) {
         const quality = vocabulary[word] === joined ? 1 : 0.6 + (0.35 * joined.length) / vocabulary[word].length;
         add(slots[i], word, quality);
         add(slots[i + 1], word, quality);
+        slots[i].strong = true;
+        slots[i + 1].strong = true;
       }
     }
 
     slots.forEach((slot, i) => {
-      if (slot.candidates.length > 0 || slot.term.length < TYPO_MIN) return;
+      if (slot.strong || slot.term.length < TYPO_MIN) return;
       for (const [word, distance] of typoWords(slot.term, typing && i === last, TYPO_LIMIT)) {
-        add(slot, word, distance === 1 ? 0.5 : 0.3);
+        add(slot, word, QUALITY_TYPO[distance]);
       }
     });
 
+    for (const slot of slots) {
+      for (const [word, quality] of slot.qualities) {
+        slot.candidates.push(word, quality);
+        slot.words.add(vocabulary[word]);
+      }
+    }
     return slots;
   }
 
@@ -483,6 +585,26 @@ export function createSearch(index) {
     return count;
   }
 
+  // Share of the query weight a section holds, with `mask` 1 heading, 3 heading or text.
+  function sectionShare(sectionHits, section, slotWeights, totalWeight, mask) {
+    let share = 0;
+    for (let i = 0; i < slotWeights.length; i++) if (sectionHits[section.slot * slotWeights.length + i] & mask) share += slotWeights[i];
+    return share / totalWeight;
+  }
+
+  function fieldScore(pageFlags, heading, texts, page) {
+    let score = (pageFlags & FIELD_TITLE ? W.title : 0)
+      + (pageFlags & FIELD_KEYWORDS ? W.keywords : 0)
+      + (pageFlags & FIELD_DESCRIPTION ? W.description : 0)
+      + (pageFlags & FIELD_PATH ? W.path : 0)
+      + (heading ? W.heading : 0);
+    if (texts > 0) {
+      const norm = 1 - W.textB + (W.textB * lengths[page]) / averageLength;
+      score += (W.text * texts * (W.textK1 + 1)) / (texts + W.textK1 * norm);
+    }
+    return score;
+  }
+
   function rank(query) {
     const parsed = parse(query);
     if (parsed.terms.length === 0) return null;
@@ -493,32 +615,42 @@ export function createSearch(index) {
     const scores = new Float64Array(pageCount * width);
     const fields = new Uint8Array(pageCount * width);
     const sectionHits = new Uint8Array(slotPage.length * width);
+    // A term's weight: quality times the rarity of its best matching word.
+    const slotWeights = new Float64Array(width);
     const seen = new Uint8Array(pageCount);
     const touched = [];
 
     slots.forEach((slot, i) => {
       const { candidates } = slot;
+      // Every matched word of a term counts with the term's rarity, the rarity of its best
+      // match: a rare loose variant ("datenschutzerklarung" for "datenschutz") must not outweigh it.
+      let bestQuality = 0;
+      let slotIdf = 0;
+      for (let c = 0; c < candidates.length; c += 2) {
+        const quality = candidates[c + 1];
+        if (quality < bestQuality) continue;
+        const idf = idfOf(candidates[c]);
+        if (quality > bestQuality || idf > slotIdf) {
+          bestQuality = quality;
+          slotIdf = idf;
+        }
+      }
+      slotWeights[i] = bestQuality * slotIdf;
       for (let c = 0; c < candidates.length; c += 2) {
         const list = postingsOf(candidates[c]);
-        let pagesWithWord = 0;
-        for (let e = 0, previous = -1; e < list.length; e += 2) {
-          if (slotPage[list[e]] !== previous) {
-            previous = slotPage[list[e]];
-            pagesWithWord++;
-          }
-        }
-        const weight = candidates[c + 1] * Math.log(1 + pageCount / pagesWithWord);
+        const weight = candidates[c + 1] * slotIdf;
 
-        // Entries of one page are adjacent; their flags add up to one page score.
+        // Entries of one page are adjacent: its own slot first, then its sections.
         let page = -1;
-        let flags = 0;
+        let pageFlags = 0;
+        let heading = false;
         let texts = 0;
         const flush = () => {
           if (page < 0) return;
           const at = page * width + i;
-          const score = weight * fieldScore(flags | (Math.min(texts, 7) << 3));
+          const score = weight * fieldScore(pageFlags, heading, texts, page);
           if (score > scores[at]) scores[at] = score;
-          fields[at] |= flags;
+          fields[at] |= pageFlags;
           if (!seen[page]) {
             seen[page] = 1;
             touched.push(page);
@@ -530,53 +662,86 @@ export function createSearch(index) {
           if (slotPage[id] !== page) {
             flush();
             page = slotPage[id];
-            flags = 0;
+            pageFlags = 0;
+            heading = false;
             texts = 0;
           }
-          flags |= value & 7;
+          if (id === pages[page].slot) {
+            pageFlags = value;
+            continue;
+          }
+          if (value & FIELD_HEADING) heading = true;
           texts += value >> 3;
-          if (id !== pages[page].slot) sectionHits[id * width + i] |= (value & FIELD_HEADING ? 1 : 0) | (value >> 3 ? 2 : 0);
+          sectionHits[id * width + i] |= (value & FIELD_HEADING ? 1 : 0) | (value >> 3 ? 2 : 0);
         }
         flush();
       }
     });
 
+    // Terms no page contains cannot tell pages apart; they do not count against coverage.
+    const totalWeight = slotWeights.reduce((sum, weight) => sum + weight, 0) || 1;
     const candidates = touched.map((page) => {
-      let matched = 0;
-      let inTitleOrPath = 0;
       let score = 0;
+      let covered = 0;
+      let matched = 0;
       for (let i = 0; i < width; i++) {
-        const value = scores[page * width + i];
-        if (value > 0) {
+        if (scores[page * width + i] > 0) {
+          score += scores[page * width + i];
+          covered += slotWeights[i];
           matched++;
-          score += value;
-          if (fields[page * width + i] & (FIELD_TITLE | FIELD_PATH)) inTitleOrPath++;
         }
       }
-      return { page, matched, inTitleOrPath, score, tier: 0 };
+      return { page, matched, score: score * (covered / totalWeight) ** W.coveragePower, tier: 0 };
     });
-    candidates.sort((a, b) => b.matched - a.matched || b.score - a.score || a.page - b.page);
+    candidates.sort((a, b) => b.score - a.score || a.page - b.page);
     const ranked = candidates.slice(0, DETAIL_LIMIT);
 
-    const joinedQuery = terms.join('');
+    const joinedTerms = terms.join('');
+    const joinedAll = parsed.all.join('');
+    const activeSlots = slotWeights.filter((weight) => weight > 0).length;
     for (const candidate of ranked) {
       const page = pages[candidate.page];
       const detail = detailOf(page);
-      const all = candidate.matched === width;
-      if (width > 1 && all && page.sections.some((section) => sectionTerms(sectionHits, section, width, 3) === width)) {
-        candidate.score += SAME_SECTION_BONUS;
+      if (width > 1) {
+        let section = 0;
+        let heading = 0;
+        for (const s of page.sections) {
+          section = Math.max(section, sectionShare(sectionHits, s, slotWeights, totalWeight, 3));
+          heading = Math.max(heading, sectionShare(sectionHits, s, slotWeights, totalWeight, 1));
+        }
+        let summary = 0;
+        for (let i = 0; i < width; i++) {
+          if (fields[candidate.page * width + i] & (FIELD_TITLE | FIELD_KEYWORDS | FIELD_DESCRIPTION)) summary += slotWeights[i];
+        }
+        summary /= totalWeight;
+        candidate.score *= (1 + W.sectionBoost * section ** 2) * (1 + W.headingBoost * heading ** 2) * (1 + W.summaryBoost * summary ** 2);
       }
-      if (detail.headings.includes(joinedQuery)) candidate.score += EXACT_HEADING_BONUS;
-      candidate.score = Math.min(candidate.score, 999);
-      if (detail.joined.includes(joinedQuery)) candidate.tier = 6;
-      else if (typing && joinedQuery.length >= 2 && detail.joined.some((joined) => joined.startsWith(joinedQuery))) candidate.tier = 5;
-      else if (isPhrase(detail.titleWords, terms, typing)) candidate.tier = 5;
-      else if (candidate.inTitleOrPath === width) candidate.tier = 4;
-      else if (all && page.sections.some((section) => sectionTerms(sectionHits, section, width, 1) === width)) candidate.tier = 3;
-      else candidate.tier = all ? 2 : 1;
+      let titleShare = 0;
+      let pathShare = 0;
+      for (let i = 0; i < width; i++) {
+        const flags = fields[candidate.page * width + i];
+        if (flags & (FIELD_TITLE | FIELD_KEYWORDS)) titleShare += slotWeights[i];
+        else if (flags & FIELD_PATH) pathShare += slotWeights[i];
+      }
+      candidate.score *= 1 + W.titleBoost * (titleShare / totalWeight);
+      // The topic page of a section: one term names the section, another the page ("datenschutz … projekt").
+      if (titleShare > 0) candidate.score *= 1 + W.pathBoost * (pathShare / totalWeight);
+      if (detail.headings.includes(joinedTerms) || detail.headings.includes(joinedAll)) candidate.score *= 1 + W.exactHeadingBoost;
+
+      let inTitle = 0;
+      let inTitleOrPath = 0;
+      for (let i = 0; i < width; i++) {
+        const flags = fields[candidate.page * width + i];
+        if (flags & (FIELD_TITLE | FIELD_KEYWORDS)) inTitle++;
+        if (flags & (FIELD_TITLE | FIELD_KEYWORDS | FIELD_PATH)) inTitleOrPath++;
+      }
+      if (detail.joined.includes(joinedTerms) || detail.joined.includes(joinedAll)) candidate.tier = 3;
+      else if (typing && width <= 3 && joinedAll.length >= 2 && detail.joined.some((joined) => joined.startsWith(joinedAll))) candidate.tier = 2;
+      else if (isPhrase(detail.titleWords, parsed.all, typing) || isPhrase(detail.titleWords, terms, typing)) candidate.tier = 2;
+      else if (candidate.matched === width && activeSlots === width && inTitle > 0 && inTitleOrPath === width) candidate.tier = 1;
     }
     ranked.sort((a, b) => b.tier - a.tier || b.score - a.score || a.page - b.page);
-    return { slots, ranked, sectionHits, width };
+    return { slots, ranked, sectionHits, width, scores, fields, slotWeights };
   }
 
   // ---- Rows ----
@@ -634,14 +799,33 @@ export function createSearch(index) {
     return items;
   }
 
-  /** Ranked pages with tier and score, for tests and tools. */
+  /** Ranked pages with tier, score and each term's score and page fields, for tests and tools. */
   function rankPages(query) {
     const result = rank(query);
     if (result === null) return [];
-    return result.ranked.map(({ page, tier, score }) => ({ url: pages[page].url, title: pages[page].title, tier, score }));
+    const { slots, width, scores, fields } = result;
+    return result.ranked.map(({ page, tier, score }) => ({
+      url: pages[page].url,
+      title: pages[page].title,
+      tier,
+      score,
+      terms: slots.map((slot, i) => ({ term: slot.term, score: scores[page * width + i], fields: fields[page * width + i] })),
+    }));
   }
 
-  return { search, rankPages };
+  /** The query terms after stopwords and compound splitting, each with its weight and best matched words. */
+  function explain(query) {
+    const result = rank(query);
+    if (result === null) return [];
+    return result.slots.map((slot, i) => {
+      const matched = [];
+      for (let c = 0; c < slot.candidates.length; c += 2) matched.push([vocabulary[slot.candidates[c]], slot.candidates[c + 1]]);
+      matched.sort((a, b) => b[1] - a[1]);
+      return { term: slot.term, weight: result.slotWeights[i], words: matched.slice(0, 12) };
+    });
+  }
+
+  return { search, rankPages, explain };
 }
 
 export default createSearch;
