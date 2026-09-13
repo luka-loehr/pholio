@@ -179,10 +179,11 @@ search dialog opens.
 | `search.tokenizer` | `null` | `english` or `german`. `null` follows `language`: a language starting with `de` gives `german`, anything else `english` |
 | `search.hotkey` | `['⌘', 'K']` | Keys shown in the search field |
 
-The two tokenizers are the zbsearch splitter profiles of the same name. They
-differ only in which characters count as part of a word: `english` keeps
-apostrophes, hyphens and a few accented vowels, `german` keeps the German
-letters. Neither removes stopwords or stems, which matches the reference.
+Both tokenizers lowercase, fold diacritics and ligatures (`ä` → `a`, `ß` → `ss`),
+split at everything but letters and digits and also index hyphenated words
+joined, so "chat export", "chat-export" and "chatexport" find the same page.
+`german` additionally reads `ae`, `oe` and `ue` as `a`, `o` and `u`, so
+"Passwörter" and "Passwoerter" meet. Neither removes stopwords or stems.
 
 ## Server
 
