@@ -120,7 +120,25 @@ if [ "$pcre_ok" = 0 ]; then
     say "warning: highlighting patterns are switched off and highlighting will not match the reference."
 fi
 
-cat <<NEXT
+if php "$dir/bin/pholio" --help 2>/dev/null | grep -q 'pholio init'; then
+    cat <<NEXT
+
+Next steps:
+
+  # Create pholio.config.php, content/ and assets/ with a sample site, then serve it
+  php $dir/bin/pholio init
+  php $dir/bin/pholio dev
+
+  # Build into public/
+  php $dir/bin/pholio build
+
+  # Or try the demo site
+  php $dir/bin/pholio build --config $dir/examples/demo/pholio.config.php
+
+Documentation: https://github.com/$REPO#readme
+NEXT
+else
+    cat <<NEXT
 
 Next steps:
 
@@ -136,3 +154,4 @@ Next steps:
 
 Documentation: https://github.com/$REPO#readme
 NEXT
+fi
