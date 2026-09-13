@@ -5,13 +5,11 @@
 //   <script src="…/assets/js/theme-init.js"></script>
 //
 // Why a separate file: the site runs under a Content-Security-Policy without
-// 'unsafe-inline', so the inline script that next-themes writes into <body>
-// in the reference build cannot be used. Runtime behaviour (switching,
+// 'unsafe-inline', so an inline bootstrap script cannot be used. Runtime behaviour (switching,
 // storage, matchMedia listener, view transition) lives in theme.js.
 //
-// The expression below is, character for character, the bootstrap script from
-// the reference HTML (pages/**/ssr.html of the reference export); the SHA-256
-// of the expression starts with adb6e78a31e7ec36. Arguments as in the reference:
+// The expression below is the bootstrap script of next-themes, unchanged.
+// Arguments:
 //   attribute "class", storageKey "theme", defaultTheme "system", forcedTheme null,
 //   themes ["light","dark"], value null, enableSystem true, enableColorScheme true
 // Effect: class `light` or `dark` on <html>, plus style.colorScheme; with
