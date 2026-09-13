@@ -53,7 +53,7 @@ import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 import {
-  ALPHABET, FIELD_HEADING, FIELD_PATH, FIELD_TITLE, FOLDING, INDEX_VERSION, TOKENIZERS,
+  ALPHABET, FIELD_DESCRIPTION, FIELD_HEADING, FIELD_KEYWORDS, FIELD_PATH, FIELD_TITLE, FOLDING, INDEX_VERSION, TOKENIZERS,
   createSearch, decodePostings, decodeWords, encodePostings, encodeWords, words,
 } from '../theme/js/search.js';
 
@@ -145,13 +145,14 @@ function selftest() {
   const constants = JSON.parse(runPhp(
     'echo json_encode(["version" => SearchIndex::VERSION, "tokenizers" => SearchIndex::TOKENIZERS,'
       + ' "folding" => SearchIndex::FOLDING, "alphabet" => SearchIndex::ALPHABET,'
-      + ' "fields" => [SearchIndex::FIELD_TITLE, SearchIndex::FIELD_PATH, SearchIndex::FIELD_HEADING]], JSON_UNESCAPED_UNICODE);',
+      + ' "fields" => [SearchIndex::FIELD_TITLE, SearchIndex::FIELD_PATH, SearchIndex::FIELD_HEADING,'
+      + ' SearchIndex::FIELD_DESCRIPTION, SearchIndex::FIELD_KEYWORDS]], JSON_UNESCAPED_UNICODE);',
   ));
   check('index version equals', constants.version === INDEX_VERSION, `${constants.version} vs ${INDEX_VERSION}`);
   check('tokenizer profiles equal', JSON.stringify(constants.tokenizers) === JSON.stringify(TOKENIZERS));
   check('folding table equals', constants.folding === FOLDING);
   check('posting alphabet equals', constants.alphabet === ALPHABET);
-  check('field flags equal', JSON.stringify(constants.fields) === JSON.stringify([FIELD_TITLE, FIELD_PATH, FIELD_HEADING]));
+  check('field flags equal', JSON.stringify(constants.fields) === JSON.stringify([FIELD_TITLE, FIELD_PATH, FIELD_HEADING, FIELD_DESCRIPTION, FIELD_KEYWORDS]));
 
   const combining = String.fromCharCode(0x301);
   const samples = [
@@ -218,7 +219,7 @@ function selftest() {
 
   let unknown = false;
   try {
-    createSearch({ v: INDEX_VERSION, tokenizer: 'french', base: '/', crumbs: [], pages: [], words: '', postings: [] });
+    createSearch({ v: INDEX_VERSION, tokenizer: 'french', base: '/', crumbs: [], pages: [], lengths: [], words: '', postings: [] });
   } catch {
     unknown = true;
   }
@@ -313,6 +314,8 @@ function slotFlags(document, baseUrl, tokenizer) {
   const page = new Map();
   mark(page, document.title, FIELD_TITLE);
   if (document.heading !== null) mark(page, document.heading, FIELD_TITLE);
+  if (document.description !== null) mark(page, document.description, FIELD_DESCRIPTION);
+  if (document.keywords !== null) mark(page, document.keywords, FIELD_KEYWORDS);
   for (const crumb of document.crumbs ?? []) mark(page, crumb, FIELD_PATH);
   for (const segment of document.url.slice(baseUrl.length).split('/')) mark(page, segment, FIELD_PATH);
 
@@ -334,9 +337,11 @@ function rebuild(documents, baseUrl, tokenizer) {
   const crumbs = [];
   const crumbIds = new Map();
   const pages = [];
+  const lengths = [];
   const lists = new Map();
   let slot = 0;
   for (const document of documents) {
+    lengths.push(document.sections.reduce((sum, section) => sum + section.length - 2, 0));
     let crumbId = -1;
     if (document.crumbs !== null) {
       const key = JSON.stringify(document.crumbs);
@@ -357,7 +362,7 @@ function rebuild(documents, baseUrl, tokenizer) {
   }
   // Words hold only a–z and 0–9, so code unit order is byte order.
   const sorted = [...lists.keys()].sort();
-  return { crumbs, pages, words: encodeWords(sorted), postings: sorted.map((word) => encodePostings(lists.get(word))) };
+  return { crumbs, pages, lengths, words: encodeWords(sorted), postings: sorted.map((word) => encodePostings(lists.get(word))) };
 }
 
 function consistency() {
@@ -367,6 +372,7 @@ function consistency() {
 
   check('header: version, base and tokenizer', index.v === INDEX_VERSION && index.base === baseUrl && index.tokenizer === tokenizer);
   check('breadcrumb lists equal', JSON.stringify(index.crumbs) === JSON.stringify(rebuilt.crumbs));
+  check('page lengths equal', JSON.stringify(index.lengths) === JSON.stringify(rebuilt.lengths));
   const page = index.pages.findIndex((entry, i) => JSON.stringify(entry) !== JSON.stringify(rebuilt.pages[i]));
   check(
     `${index.pages.length} page entries equal`,
