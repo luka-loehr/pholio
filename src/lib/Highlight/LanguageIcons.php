@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pholio\Highlight;
 
 /**
- * Language icons of the Fumadocs transformer rehype-code:icon (fumadocs-core 16.15.9, transformer-icon.js), verbatim.
+ * Language icons of the reference transformer rehype-code:icon (reference core 16.15.9, transformer-icon.js), verbatim.
  * The icon ends up as an SVG string in the `icon` attribute of the `pre`.
  */
 final class LanguageIcons
