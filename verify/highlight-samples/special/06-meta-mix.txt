@@ -1,0 +1,3 @@
+<?php
+echo "a"; // [!code word:echo]
+echo "b";
