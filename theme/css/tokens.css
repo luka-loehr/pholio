@@ -1,27 +1,23 @@
 /* tokens.css — design tokens of the notebook theme
  *
- * Copied verbatim from the compiled Tailwind v4 stylesheet of the reference export:
- *   css/[root-of-the-server]__1br6yta._.css
- *
- * Order and cascade are exactly as in the original:
- *   1. @layer properties  (l. 2–73)    – fallback initial values of the --tw-* variables
- *                                        for browsers without @property (Safari branch)
- *   2. @layer theme       (l. 75–171)  – Tailwind theme plus the reference default
- *                                        colours from its css/lib/default-colors.css
- *   3. unlayered          (l. 3894–3926) – the default dark palette and sidebar overrides
- *                                        from css/neutral.css and --fd-sidebar-drawer-offset
+ * Order and cascade:
+ *   1. @layer properties  – fallback initial values of the --tw-* variables
+ *                           for browsers without @property (Safari branch)
+ *   2. @layer theme       – Tailwind theme plus the default (neutral) colours
+ *   3. unlayered          – the default dark palette and sidebar overrides
+ *                           and --fd-sidebar-drawer-offset
  *   4. unlayered          – the site palette, inserted by the build at the
- *                                        `@pholio:palette` marker (theme.light, theme.dark,
- *                                        theme.palette_css)
- *   5. @property          (l. 4147–4502) – registered --tw-* variables
+ *                           `@pholio:palette` marker (theme.preset, theme.light,
+ *                           theme.dark, theme.palette_css)
+ *   5. @property          – registered --tw-* variables
  *
- * Important: blocks 3 and 4 are unlayered in the original and therefore win against
+ * Important: blocks 3 and 4 are unlayered and therefore win against
  * every @layer rule. The @layer theme palette still stays, because it defines tokens
  * a site palette usually doesn't override (--color-fd-info/warning/error/success/idea,
  * --color-fd-diff-*, --color-fd-overlay, --animate-*).
  *
- * Not included: --fd-layout-width. The token isn't global in the reference; only the
- * start page sets it as a utility (1400px, l. 2953). The notebook layout uses the
+ * Not included: --fd-layout-width. The token isn't global; only the
+ * start page sets it (1400px). The notebook layout uses the
  * fallback var(--fd-layout-width, 97rem).
  */
 
@@ -196,7 +192,7 @@
   }
 }
 
-/* --- Default dark palette and sidebar overrides (unlayered, l. 3894–3926) --- */
+/* --- Default dark palette and sidebar overrides (unlayered) --- */
 
 .dark {
   --color-fd-background: #121212;
@@ -234,7 +230,7 @@
 
 /* @pholio:palette */
 
-/* --- @property: registered --tw-* variables (l. 4147–4502) --- */
+/* --- @property: registered --tw-* variables --- */
 
 @property --tw-border-style {
   syntax: "*";
