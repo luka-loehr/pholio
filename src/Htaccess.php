@@ -86,6 +86,24 @@ final class Htaccess
             $agentHeaders .= "\n    Header always " . ($name === 'Vary' ? 'merge' : 'set') . ' ' . $name . " '" . $value . "'";
         }
 
+        // OpenAI's agents reject text/markdown: every .md they get, requested directly or
+        // negotiated (the second pass after the internal rewrite), is sent as text/plain.
+        $plainAgents = AgentHeaders::plainUserAgentPattern();
+        $quotedBase = preg_quote($base);
+        $markdown = <<<RULES
+
+    # Markdown: only the files the build writes, a page's twin (x.md next to x/index.html,
+    # index.md next to index.html), skill.md, the _llms/ indexes and .well-known/. Any other .md is 404.
+    RewriteCond %{HTTP_USER_AGENT} (?:{$plainAgents}) [NC]
+    RewriteRule \.md$ - [NC,E=PHOLIO_PLAIN:1]
+    RewriteCond %{REQUEST_URI} !^{$quotedBase}(?:index\.md$|skill\.md$|_llms/|\.well-known/)
+    RewriteCond %{REQUEST_FILENAME} ^(.+)\.md$ [NC]
+    RewriteCond %1/index.html !-f
+    RewriteRule \.md$ - [NC,R=404,L]
+
+RULES;
+        $agentHeaders .= "\n    Header set Content-Type \"text/plain; charset=utf-8\" env=PHOLIO_PLAIN";
+
         $negotiation = '';
         if ($negotiate) {
             $agents = 'RewriteCond %{HTTP_USER_AGENT} (?:' . AgentHeaders::userAgentPattern() . ') [NC]';
@@ -232,7 +250,7 @@ FileETag MTime Size
 
     # Old URLs: one permanent redirect per configured entry.
 {$redirectBlock}
-{$negotiation}
+{$markdown}{$negotiation}
     # The start page without a trailing slash.
     RewriteRule ^$ index.html [L]
 
