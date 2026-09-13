@@ -1,0 +1,39 @@
+# Translation catalogue for error messages — résumé
+fr:
+  errors:
+    general: "Une erreur est survenue."
+    not_found: 'La page « %{path} » est introuvable.'
+    access: >
+      Vous n'avez pas le droit
+      d'ouvrir cette page.
+    validation:
+      required: "%{field} ne peut pas être vide"
+      length: "%{field} doit contenir entre %{min} et %{max} caractères"
+      date: Saisissez une date au format JJ.MM.AAAA
+  confirm:
+    delete: "Vraiment supprimer ?\nCette action est irréversible."
+    yes: Oui
+    no: Non
+    # Careful: the Norway problem – without quotes this would be a boolean
+    abbreviation_no: "no"
+    on: "on"
+  numbers:
+    separator: ","
+    thousands: "."
+    examples: [1.5, -2, +3, 1e3, 0b101, 0x_invalid, 12:30:00]
+en:
+  errors:
+    general: An error occurred.
+    not_found: "Page \"%{path}\" was not found."
+    access: >-
+      You are not allowed
+      to access this page.
+    validation: &validation_en
+      required: "%{field} must not be empty"
+      length: '%{field} must be between %{min} and %{max} characters'
+  copy:
+    validation: *validation_en
+  confirm:
+    delete: "Really delete?
+      This cannot be undone."
+    hint: "This string is deliberately never closed
