@@ -14,9 +14,17 @@ component reads. Pick a preset with one line in `pholio.config.php`:
 ],
 ```
 
-The default is `neutral`. Adjust single tokens with `theme.light` and
-`theme.dark`, or add a whole stylesheet with `theme.palette_css`; both apply on
-top of the preset. [Configuration](/docs/configuration#theme) lists the keys.
+The default is `neutral`. Every preset ships in the stylesheet and is scoped to
+`<html data-preset="name">`, so `theme.preset` only sets the preset a page starts
+with, and a script can switch presets live:
+
+```js
+document.documentElement.dataset.preset = 'ocean';
+```
+
+Adjust single tokens with `theme.light` and `theme.dark`, or add a whole
+stylesheet with `theme.palette_css`; both apply on top of whichever preset is
+active. [Configuration](/docs/configuration#theme) lists the keys.
 
 Each preset below is the demo site's callouts and cards page, first in the
 light scheme, then in the dark one.
