@@ -12,6 +12,10 @@ declare(strict_types=1);
  *   --content <dir>       content directory (required)
  *   --base-url <url>      docs root URL the page URLs start with (required), e.g. "/" or "/docs"
  *   --tokenizer <name>    "english" (default) or "german"
+ *   --extensions <list>   comma-separated page file extensions without dot, default "md"
+ *   --frontmatter-alias <from=to>
+ *                         map a frontmatter key onto an allowed one (content.frontmatter_aliases),
+ *                         repeatable, e.g. --frontmatter-alias date=updated
  *   --order <file.json>   JSON list of content files (relative to --content) in insertion order.
  *                         It decides which hit comes first on equal scores; a reference export
  *                         records its bundler's order, which the file system can't reproduce.
@@ -34,7 +38,7 @@ function usage(string $message): never
 {
     fwrite(STDERR, $message . PHP_EOL
         . 'Usage: php build-search-index.php --content <dir> --base-url <url> [--tokenizer english|german]'
-        . ' [--order <file.json>] [--drafts] <out.json>' . PHP_EOL);
+        . ' [--extensions md,mdx] [--frontmatter-alias <from=to>]... [--order <file.json>] [--drafts] <out.json>' . PHP_EOL);
     exit(2);
 }
 
@@ -45,14 +49,23 @@ function fail(string $message): never
 }
 
 $args = array_slice($argv ?? [], 1);
-$options = ['content' => null, 'base-url' => null, 'tokenizer' => 'english', 'order' => null];
+$options = ['content' => null, 'base-url' => null, 'tokenizer' => 'english', 'extensions' => 'md', 'order' => null];
 $drafts = false;
+$aliases = [];
 $positional = [];
 
 for ($i = 0; $i < count($args); $i++) {
     $arg = $args[$i];
     if ($arg === '--drafts') {
         $drafts = true;
+        continue;
+    }
+    if ($arg === '--frontmatter-alias') {
+        $pair = explode('=', (string) ($args[++$i] ?? ''), 2);
+        if (count($pair) !== 2 || $pair[0] === '' || $pair[1] === '') {
+            usage('--frontmatter-alias expects <from=to>');
+        }
+        $aliases[$pair[0]] = $pair[1];
         continue;
     }
     if (str_starts_with($arg, '--')) {
@@ -79,6 +92,11 @@ if (!in_array($options['tokenizer'], SearchIndex::TOKENIZERS, true)) {
     usage('--tokenizer must be one of ' . implode(', ', SearchIndex::TOKENIZERS) . ', got: ' . $options['tokenizer']);
 }
 
+$extensions = array_values(array_filter(array_map('trim', explode(',', (string) $options['extensions'])), 'strlen'));
+if ($extensions === []) {
+    usage('--extensions needs at least one extension');
+}
+
 $content = rtrim((string) $options['content'], '/');
 if (!is_dir($content)) {
     fail('Content directory not found: ' . $content);
@@ -96,14 +114,14 @@ if ($options['order'] !== null) {
     }
 }
 
-$tree = new Tree($content, $baseUrl);
+$tree = new Tree($content, $baseUrl, $drafts, $extensions);
 
 $index = SearchIndex::build(
     $tree,
-    static function (array $page) use ($content): Document {
+    static function (array $page) use ($content, $aliases): Document {
         $path = $content . '/' . $page['file'];
 
-        return Markdown::parse((string) file_get_contents($path), $path);
+        return Markdown::parse((string) file_get_contents($path), $path, $aliases);
     },
     $baseUrl,
     $order,
