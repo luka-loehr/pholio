@@ -146,8 +146,12 @@ return [
     // --------------------------------------------------------------- theme --
 
     'theme' => [
-        // Color tokens without the "--color-fd-" prefix, written at the palette
-        // marker in theme/css/tokens.css.
+        // Built-in color preset: neutral, black, vitepress, dusk, catppuccin,
+        // ocean, purple, solar, emerald, ruby or aspen. Written first at the
+        // palette marker in theme/css/tokens.css, and as <html data-preset>.
+        'preset' => 'neutral',
+
+        // Color tokens without the "--color-fd-" prefix, written after the preset.
         'light' => [
             'primary' => 'hsl(220 85% 45%)',
         ],
@@ -158,8 +162,7 @@ return [
         // Stylesheet inserted at the same marker, after the token maps.
         'palette_css' => null,
 
-        // <html data-preset> and an extra class on <html>.
-        'preset' => null,
+        // An extra class on <html>.
         'font_class' => '',
 
         // Key that toggles the color scheme.
