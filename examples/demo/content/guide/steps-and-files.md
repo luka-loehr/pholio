@@ -42,7 +42,7 @@ A file tree shows what `lanternfly init` creates. Folders can start open.
 
 <Files>
   <Folder name="notes" defaultOpen>
-    <File name="lanternfly.toml" />
+    <File name="lanternfly.yaml" />
     <Folder name="index" defaultOpen>
       <File name="terms.bin" />
       <File name="documents.bin" />
