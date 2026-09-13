@@ -206,8 +206,8 @@ if $cmd --help 2>/dev/null | grep -q 'pholio init'; then
 
 Next steps:
 
-  $cmd init docs     # creates pholio.config.php, content/ and assets/
-  cd docs
+  $cmd init my-docs  # creates pholio.config.php, content/ and assets/
+  cd my-docs
   $cmd dev           # preview at http://127.0.0.1:8080, rebuilds when you save
   $cmd build         # writes the static site into public/
 
