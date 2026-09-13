@@ -2,22 +2,18 @@
  * tabs, code tabs, accordion, file tree, type table, banner, inline table of
  * contents, code block shell and image zoom.
  *
- * Origin, layer and how to read the comments as in layout.css and components.css:
- * every nd- class names the utilities the reference emits on the same element; the
- * declarations are the ones Tailwind generated for them, in the order of their
- * lines in the reference stylesheet (l. = line in the reference export's
- * css/[root-of-the-server]__1br6yta._.css).
- * Mapping from utility list to nd- classes: class-map-catalogue.json in the verify tooling.
+ * Layer and how to read the comments as in layout.css and components.css: every
+ * nd- class names the Tailwind utilities its declarations are written from, in
+ * Tailwind's output order.
  *
  * Not here, because they already exist: `.fd-steps`/`.fd-step` (prose.css), card and
  * callout icons (components.css), `.shiki` line rules (prose.css).
- * Without a rule, as in the reference: `sr-only` (Tailwind didn't generate it),
+ * Deliberately without a rule: `sr-only`,
  * `footnotes`, `data-footnote-backref`, `contains-task-list`, `task-list-item`.
  *
  * Included after utilities.css; the rules live in `@layer components`, except
- * `[&>figure:only-child]:-m-4` (in `@layer utilities`, so it wins against prose.css as
- * in the reference). The image zoom rules are unlayered, like their own stylesheet in
- * the reference.
+ * `[&>figure:only-child]:-m-4` (in `@layer utilities`, so it wins against prose.css).
+ * The image zoom rules are unlayered.
  */
 
 @layer components {
@@ -134,8 +130,7 @@
   }
 
   /* .nd-codetabs-trigger  <-  [&_svg]:size-3.5 font-medium gap-2 group inline-flex items-center px-2 py-1.5 relative text-nowrap text-sm transition-colors
-     + active text-fd-primary, otherwise hover:text-fd-accent-foreground (two class lists in the original,
-     here on the trigger's data-active) */
+     + active text-fd-primary, otherwise hover:text-fd-accent-foreground (on the trigger's data-active) */
   .nd-codetabs-trigger {
     position: relative;
     display: inline-flex;
@@ -416,9 +411,8 @@
   }
 
   /* Collapsible panel (CollapsibleContent in components/ui/collapsible.js) of file tree,
-     type table and inline table of contents: the same class list as the panel of the
-     collapsible TOC bar; class-map.json already maps it to `nd-collapsible-panel`
-     (rule in layout.css). */
+     type table and inline table of contents: the same styles as the panel of the
+     collapsible TOC bar, so it reuses `nd-collapsible-panel` (rule in layout.css). */
 
   /* ====================================================================
      File tree (files.js)
@@ -674,7 +668,7 @@
     background-color: var(--color-fd-background);
   }
 
-  /* .nd-banner-flow  <-  -z-1 absolute inset-0 (gradient and animation are inline, as in the original) */
+  /* .nd-banner-flow  <-  -z-1 absolute inset-0 (gradient and animation are inline) */
   .nd-banner-flow {
     position: absolute;
     inset: 0;
@@ -763,7 +757,7 @@
   }
 }
 
-/* After prose.css, as in the reference (l. 3872 in utilities, after `.prose :where(figure)` l. 1080):
+/* In `utilities`, after prose.css, so it beats `.prose :where(figure)`:
    a single figure without not-prose in the panel keeps -1rem instead of a 2em margin. */
 @layer utilities {
   /* .nd-tabbox-panel  <-  [&>figure:only-child]:-m-4 */
@@ -773,10 +767,8 @@
 }
 
 /* ======================================================================
-   Image zoom: the reference UI's dist/components/image-zoom2.css (react-medium-image-zoom),
-   its own unlayered stylesheet in the reference. It is missing from the reference
-   export's css/; the values are copied verbatim from node_modules and confirmed
-   through computed style in the reference browser window.
+   Image zoom: the stylesheet of react-medium-image-zoom, unlayered, for
+   js/image-zoom.js.
    ====================================================================== */
 
 [data-rmiz] {
