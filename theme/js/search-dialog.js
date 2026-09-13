@@ -1,4 +1,5 @@
-// The search dialog: exactly the content fumadocs-ui renders (search-default.js).
+// The search dialog: the reference theme's markup and keyboard behaviour, with Pholio's
+// own engine (search.js) behind it.
 //
 // Usage:
 //   import { mountSearchDialog } from './search-dialog.js';
@@ -16,23 +17,27 @@
 //   The visible backdrop and the footer are already in the static HTML
 //   (components/search-dialog.php) and are only toggled here.
 //
-// Behaviour as in the reference:
-//   · 100 ms debounce (useDocsSearch, delayMs = 100), loading state on the magnifier
+// Behaviour:
+//   · the index loads once per page, when a trigger is hovered or focused or the
+//     dialog opens; search-worker.js answers queries off the main thread, with
+//     search.js on the main thread as the fallback when a module worker fails
+//   · every keystroke sends the query; the worker answers only the newest one, an
+//     answer for an older input value is dropped, and the list renders at most once
+//     per animation frame as one markup write
+//   · the magnifier pulses only when an answer takes longer than 120 ms
 //   · empty input → items = null → data-empty="true", viewport hidden
 //   · no hits → "No results found"
-//   · ↑/↓ cycle through `items.at(idx % items.length)`, Enter navigates,
+//   · ↑/↓ cycle through `items.at(idx % items.length)`, Enter navigates (Enter while
+//     the answer for the current input is pending navigates once it arrives),
 //     pointer movement sets the active item, the active item is scrolled
 //     `nearest` into the viewport
-//   · result cache per query, the index is loaded on first open
+//   · answers are cached per query
 //
 // Labels come from i18n.js in the document language.
-//
-// The search itself lives in search.js (createSearch from the index JSON);
-// this module only knows `search(query) → items` from it.
 
 import { createDialog } from './dialog.js';
 import { t } from './i18n.js';
-import { html, icon, debounce, scrollIntoViewIfNeeded, clientId } from './util.js';
+import { html, icon, scrollIntoViewIfNeeded, clientId } from './util.js';
 
 const ICON_SEARCH_PATHS = '<path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle>';
 const ICON_CHEVRON_PATHS = '<path d="m9 18 6-6-6-6"></path>';
@@ -46,93 +51,26 @@ const CLOSE_BUTTON_CLASS = 'nd-btn nd-search-close';
 
 const POPUP_CLASS = 'nd-dialog';
 
-// ---- Markdown of the hits ---------------------------------------------------
-//
-// `search.js` returns Markdown with <mark> tags. It is rendered with the minimal
-// table from the reference's search.js (mdComponents): mark → span.text-fd-primary,
-// a → span, p → p.min-w-0, strong, code. No other nodes occur in the index.
+const LOADING_DELAY_MS = 120;
+const CACHE_SIZE = 100;
 
 function escapeHtml(value) {
   return value.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
 
-// mdComponents.custom from the reference's search.js: rehypeCustomElements replaces
-// every element the browser doesn't know (`<Card …/>` from the Markdown) with a tile
-// showing the tag name and one field per attribute.
-const CUSTOM_TAG = /^<([A-Za-z][A-Za-z0-9-]*)((?:\s+[A-Za-z-]+="[^"]*")*)\s*(\/?)>/;
-
-function renderCustom(match) {
-  const tagName = match[1].toLowerCase();
-  const attrs = [...match[2].matchAll(/([A-Za-z-]+)="([^"]*)"/g)];
-  const fields = attrs
-    .map(([, key, value]) => `<code class="nd-search-tag-field">`
-      + `<span class="nd-search-tag-key">${escapeHtml(key)}: </span>${escapeHtml(value)}</code>`)
-    .join('');
-  return `<span class="nd-search-tag"><code class="nd-search-tag-name">${escapeHtml(tagName)}</code>${fields}</span>`;
-}
-
-function renderInline(text) {
-  let out = '';
-  let i = 0;
-  while (i < text.length) {
-    if (text.startsWith('<mark>', i)) {
-      const end = text.indexOf('</mark>', i);
-      const inner = end < 0 ? text.slice(i + 6) : text.slice(i + 6, end);
-      out += `<span class="nd-search-mark">${renderInline(inner)}</span>`;
-      i = end < 0 ? text.length : end + 7;
-      continue;
-    }
-    if (text[i] === '<' && !text.startsWith('</', i)) {
-      const match = CUSTOM_TAG.exec(text.slice(i));
-      if (match && document.createElement(match[1]) instanceof HTMLUnknownElement) {
-        out += renderCustom(match);
-        i += match[0].length;
-        // Child content up to the closing tag is appended.
-        const close = `</${match[1]}>`;
-        const end = match[3] === '/' ? -1 : text.indexOf(close, i);
-        if (end >= 0) {
-          out = `${out.slice(0, -7)}<span class="nd-search-tag-children">${renderInline(text.slice(i, end))}</span></span>`;
-          i = end + close.length;
-        }
-        continue;
-      }
-    }
-    if (text.startsWith('**', i)) {
-      const end = text.indexOf('**', i + 2);
-      if (end > 0) {
-        out += `<strong class="nd-search-strong">${renderInline(text.slice(i + 2, end))}</strong>`;
-        i = end + 2;
-        continue;
-      }
-    }
-    if (text[i] === '`') {
-      const end = text.indexOf('`', i + 1);
-      if (end > 0) {
-        out += `<code class="nd-search-code">${escapeHtml(text.slice(i + 1, end))}</code>`;
-        i = end + 1;
-        continue;
-      }
-    }
-    if (text[i] === '\\' && i + 1 < text.length) {
-      out += escapeHtml(text[i + 1]);
-      i += 2;
-      continue;
-    }
-    out += escapeHtml(text[i]);
-    i += 1;
-  }
-  return out;
-}
-
-function renderMarkdown(content) {
-  return content
-    .split(/\n{2,}/)
-    .filter((block) => block.trim() !== '')
-    .map((block) => `<p class="nd-search-md-p">${renderInline(block.trim())}</p>`)
-    .join('');
-}
-
 // ---- One hit button ---------------------------------------------------------
+
+// Plain text with the matched ranges wrapped as marks.
+function renderContent(content, marks = []) {
+  let out = '';
+  let at = 0;
+  for (const [start, end] of marks) {
+    if (start < at) continue;
+    out += `${escapeHtml(content.slice(at, start))}<span class="nd-search-mark">${escapeHtml(content.slice(start, end))}</span>`;
+    at = end;
+  }
+  return `<p class="nd-search-md-p">${out}${escapeHtml(content.slice(at))}</p>`;
+}
 
 function renderItem(item, active) {
   const crumbs = (item.breadcrumbs ?? [])
@@ -145,15 +83,67 @@ function renderItem(item, active) {
     ? icon('hash', 'nd-search-item-hash', ICON_HASH_PATHS)
     : '';
   const variant = item.type === 'heading' ? 'nd-search-item-heading' : item.type === 'text' ? 'nd-search-item-text' : 'nd-search-item-page';
-  return html(
-    // Active via aria-selected; .nd-search-item[aria-selected="true"] carries the look.
-    `<button type="button" aria-selected="${active}" class="nd-search-item">`
+  // Active via aria-selected; .nd-search-item[aria-selected="true"] carries the look.
+  return `<button type="button" aria-selected="${active}" class="nd-search-item">`
     + `<div class="nd-search-crumbs">${crumbs}</div>`
     + line
     + hash
-    + `<div class="nd-search-item-body ${variant}">${renderMarkdown(item.content)}</div>`
-    + '</button>',
-  );
+    + `<div class="nd-search-item-body ${variant}">${renderContent(item.content, item.marks)}</div>`
+    + '</button>';
+}
+
+// ---- Engine client ----------------------------------------------------------
+
+// Loads the engine once and calls `deliver(query, items)` for every answer.
+function connectEngine(url, deliver) {
+  if (!url) {
+    console.warn('search-dialog.js: <meta name="nd-search-index"> is missing, search stays empty.');
+    return { query: (query) => deliver(query, []) };
+  }
+  const indexHref = new URL(url, document.baseURI).href;
+
+  const mainThread = () => {
+    const engine = fetch(indexHref)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((json) => import('./search.js').then((mod) => mod.createSearch(json)))
+      .catch((error) => {
+        console.warn(`search-dialog.js: search index not loaded (${error.message})`);
+        return null;
+      });
+    return { query: (query) => engine.then((ready) => deliver(query, ready ? ready.search(query) : [])) };
+  };
+
+  let worker = null;
+  try {
+    worker = new Worker(new URL('./search-worker.js', import.meta.url), { type: 'module' });
+  } catch {
+    return mainThread();
+  }
+
+  let fallback = null;
+  let last = null;
+  worker.addEventListener('message', (event) => {
+    const message = event.data;
+    if (message?.type === 'result') deliver(message.query, message.items);
+    else if (message?.type === 'error') console.warn(`search-dialog.js: search index not loaded (${message.message})`);
+  });
+  // A worker that fails to start (no module workers, blocked script) hands over to the main thread.
+  worker.addEventListener('error', (event) => {
+    event.preventDefault();
+    if (fallback) return;
+    worker.terminate();
+    fallback = mainThread();
+    if (last !== null) fallback.query(last);
+  });
+  worker.postMessage({ type: 'load', url: indexHref });
+
+  return {
+    query(query) {
+      last = query;
+      if (fallback) fallback.query(query);
+      else worker.postMessage({ type: 'query', query });
+    },
+  };
 }
 
 // ---- The dialog -------------------------------------------------------------
@@ -203,40 +193,79 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
   }
 
   let items = null;            // null = no query, [] = no hits
+  let itemsQuery = '';         // the input value `items` answers
+  let rendered = null;         // the items the viewport currently shows
   let activeId = null;
-  let engine = null;           // createSearch(...) from search.js
-  let enginePromise = null;
+  let engine = null;
+  let frame = 0;
+  let loadingTimer = 0;
+  let enterPending = false;
   const cache = new Map();
 
   function setLoading(on) {
     searchIcon.classList.toggle('nd-search-loading', on);
   }
 
+  function warm() {
+    engine ??= connectEngine(indexUrl ?? document.querySelector('meta[name="nd-search-index"]')?.content, deliver);
+    return engine;
+  }
+
+  function deliver(query, result) {
+    cache.delete(query);
+    cache.set(query, result);
+    if (cache.size > CACHE_SIZE) cache.delete(cache.keys().next().value);
+    if (query !== input.value) return;             // typed on in the meantime
+    show(query, result);
+  }
+
+  function show(query, result) {
+    items = result;
+    itemsQuery = query;
+    activeId = result && result.length ? result[0].id : null;
+    scheduleRender();
+  }
+
+  function scheduleRender() {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      clearTimeout(loadingTimer);
+      setLoading(false);
+      renderList();
+      if (enterPending && itemsQuery === input.value) {
+        enterPending = false;
+        const selected = items?.find((item) => item.id === activeId);
+        if (selected) select(selected);
+      }
+    });
+  }
+
   function renderList() {
+    rendered = items;
     list.setAttribute('data-empty', String(items === null));
     viewport.classList.toggle('nd-hidden', items === null);
-    viewport.textContent = '';
-    if (items === null) return;
-    if (items.length === 0) {
-      viewport.append(html(`<div class="nd-search-empty">${TEXTS.noResults}</div>`));
+    if (items === null) {
+      viewport.textContent = '';
       return;
     }
-    for (const item of items) {
-      const button = renderItem(item, item.id === activeId);
-      button.addEventListener('pointermove', () => setActive(item.id));
-      button.addEventListener('click', () => select(item));
-      viewport.append(button);
+    if (items.length === 0) {
+      viewport.innerHTML = `<div class="nd-search-empty">${TEXTS.noResults}</div>`;
+      return;
     }
+    viewport.innerHTML = items.map((item) => renderItem(item, item.id === activeId)).join('');
     scrollActiveIntoView();
   }
 
   function setActive(id) {
     if (activeId === id) return;
     activeId = id;
-    if (!items) return;
-    [...viewport.children].forEach((button, i) => {
-      const active = items[i] && items[i].id === id;
-      button.setAttribute('aria-selected', String(Boolean(active)));
+    // A pending render applies the new state itself.
+    if (frame || !rendered) return;
+    const buttons = viewport.children;
+    rendered.forEach((item, i) => {
+      const selected = String(item.id === id);
+      if (buttons[i] && buttons[i].getAttribute('aria-selected') !== selected) buttons[i].setAttribute('aria-selected', selected);
     });
     scrollActiveIntoView();
   }
@@ -252,69 +281,53 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
     else window.location.href = item.url;
   }
 
-  // The index is fetched on first open and kept afterwards.
-  function loadEngine() {
-    if (enginePromise) return enginePromise;
-    // The build writes <base>/search-index.json and names its URL in
-    // <meta name="nd-search-index">. There is no hard-wired fallback URL.
-    const url = indexUrl ?? document.querySelector('meta[name="nd-search-index"]')?.content;
-    if (!url) {
-      console.warn('search-dialog.js: <meta name="nd-search-index"> is missing, search stays empty.');
-      engine = { search: () => [] };
-      enginePromise = Promise.resolve(engine);
-      return enginePromise;
-    }
-    enginePromise = fetch(url)
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
-      .then((json) => import('./search.js').then((mod) => {
-        engine = mod.createSearch(json);
-        return engine;
-      }))
-      .catch(() => {
-        engine = { search: () => [] };
-        return engine;
-      });
-    return enginePromise;
-  }
-
-  async function runQuery(query) {
-    if (query.length === 0) {
-      items = null;
-      activeId = null;
-      setLoading(false);
-      renderList();
+  function runQuery(value) {
+    if (value.trim() === '') {
+      clearTimeout(loadingTimer);
+      enterPending = false;
+      show(value, null);
       return;
     }
-    if (cache.has(query)) {
-      items = cache.get(query);
-      activeId = items.length ? items[0].id : null;
-      setLoading(false);
-      renderList();
+    if (cache.has(value)) {
+      show(value, cache.get(value));
       return;
     }
-    setLoading(true);
-    const ready = await loadEngine();
-    if (input.value !== query) return;             // a newer query is running
-    const result = ready.search(query);
-    cache.set(query, result);
-    items = result;
-    activeId = result.length ? result[0].id : null;
-    setLoading(false);
-    renderList();
+    clearTimeout(loadingTimer);
+    loadingTimer = setTimeout(() => setLoading(true), LOADING_DELAY_MS);
+    warm().query(value);
   }
-
-  const query = debounce((value) => { runQuery(value); }, 100);
 
   input.addEventListener('input', () => {
     // React mirrors the value of a controlled input into the attribute as well.
     input.setAttribute('value', input.value);
-    setLoading(true);
-    query(input.value);
+    runQuery(input.value);
+  });
+
+  // Pointer and click on the rows, delegated; rows map to `rendered` by position.
+  const rowItem = (target) => {
+    const button = target instanceof Element ? target.closest('button.nd-search-item') : null;
+    if (!button || button.parentElement !== viewport || !rendered) return null;
+    return rendered[Array.prototype.indexOf.call(viewport.children, button)] ?? null;
+  };
+  viewport.addEventListener('pointermove', (event) => {
+    const item = rowItem(event.target);
+    if (item) setActive(item.id);
+  });
+  viewport.addEventListener('click', (event) => {
+    const item = rowItem(event.target);
+    if (item) select(item);
   });
 
   // Keyboard: the same rules as SearchDialogList.onKey.
   popup.addEventListener('keydown', (event) => {
-    if (!items || event.isComposing || event.keyCode === 229) return;
+    if (event.isComposing || event.keyCode === 229) return;
+    const pending = input.value.trim() !== '' && itemsQuery !== input.value;
+    if (event.key === 'Enter' && pending) {
+      enterPending = true;
+      event.preventDefault();
+      return;
+    }
+    if (!items) return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       let idx = items.findIndex((item) => item.id === activeId);
       if (idx === -1) idx = 0;
@@ -346,17 +359,26 @@ export function mountSearchDialog({ handle = null, indexUrl = null } = {}) {
     initialFocus: () => input,
     onOpenChange: (open) => {
       if (open) {
-        loadEngine();
+        warm();
         requestAnimationFrame(() => requestAnimationFrame(() => observer.observe(viewport)));
         return;
       }
       // On close Base UI detaches the popup; --fd-animated-height and the observer
       // are recreated on the next open, so reset them here.
+      enterPending = false;
       observer.disconnect();
       list.style.removeProperty('--fd-animated-height');
       if (list.getAttribute('style') === '') list.removeAttribute('style');
     },
   });
+
+  // Hovering or focusing a trigger starts loading the index before the click.
+  const addTrigger = dialog.addTrigger;
+  dialog.addTrigger = (el) => {
+    addTrigger(el);
+    el?.addEventListener('pointerenter', warm, { once: true });
+    el?.addEventListener('focus', warm, { once: true });
+  };
 
   closeButton.addEventListener('click', () => dialog.close());
   return dialog;
