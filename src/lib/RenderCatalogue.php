@@ -150,7 +150,7 @@ final class RenderCatalogue
             case 'Tabs':
                 return nd_tabs([
                     'items' => $attrs['items'] ?? throw new ContentException(
-                        '<Tabs> without items is not supported: the original renders no tab list then.'
+                        '<Tabs> without items is not supported: add items="…" with one value per tab.'
                     ),
                     'defaultIndex' => $attrs['defaultIndex'] ?? 0,
                     'groupId' => $attrs['groupId'] ?? null,
