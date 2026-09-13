@@ -14,6 +14,24 @@ use Pholio\Fs;
 
 const BUILD_DEMO_CONFIG = __DIR__ . '/../examples/demo/pholio.config.php';
 
+/**
+ * Whether this PHP links PCRE2 10.43 or newer. Older versions simplify some syntax colours and warn about it
+ * on stderr. With PHOLIO_REQUIRE_PCRE2=1 in the environment an old PCRE2 counts as a failure, not a reason to
+ * relax an assertion.
+ */
+function build_full_pcre2(): bool
+{
+    return version_compare(explode(' ', PCRE_VERSION)[0], '10.43', '>=') || getenv('PHOLIO_REQUIRE_PCRE2') === '1';
+}
+
+/** stderr without the PCRE2 fallback warnings, which an old PCRE2 prints even with --quiet. */
+function build_without_pcre2_warnings(string $err): string
+{
+    return build_full_pcre2()
+        ? $err
+        : (string) preg_replace('/^pholio: PCRE2 \S+ is older than 10\.43; some syntax colours are simplified \([^)]*\)\n/m', '', $err);
+}
+
 /** @return array{0:int, 1:string, 2:string} exit code, stdout, stderr */
 function build_cli(array $args): array
 {
@@ -85,11 +103,11 @@ test('the demo builds with exit 0 and reports pages, index entries and redirects
     })($stdout));
 });
 
-test('--quiet prints nothing and --only renders matching pages only', function (): void {
+test('--quiet prints nothing but PCRE2 fallback warnings, and --only renders matching pages only', function (): void {
     $out = build_temp() . '/site';
     [$code, $stdout, $err] = build_cli(['build', '--config', BUILD_DEMO_CONFIG, '--out', $out, '--only', '/reference/', '--quiet']);
     assert_same(0, $code, $err);
-    assert_same('', $stdout . $err);
+    assert_same('', $stdout . build_without_pcre2_warnings($err));
     assert_true(is_file($out . '/reference/code-blocks/index.html'));
     assert_true(!is_file($out . '/guide/installation/index.html'));
 });
