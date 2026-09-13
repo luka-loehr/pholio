@@ -1,0 +1,46 @@
+%YAML 1.2
+---
+# Document 1: translations with Unicode
+title: "Workspace – café & façade 🎉"
+emoji: 👩‍🏫📚✏️
+astral: 𝔄𝔭𝔫𝔯𝔞𝔦𝔪
+protected: "10 € copy fee"
+escapes: "Line 1\nLine 2\tTab \"quoted\" \\ \x41 é \U0001F389 \/ \0"
+single: 'It''s “quoted” – no \n escape'
+empty_double: ""
+empty_single: ''
+façade: Rue de la Paix 1
+taille: 1.72
+topics_flat: [Algebra-0, "Geometry", "Astronomy", Façade-3, "Botany", "Physics", Chemistry-6, "Biology", "History", Civics-9, "Geography", "Fine Arts", Music-12, "Sports", "Computing", Philosophy-15, "Ethics", "Economics", Spanish-18, "Linguistics", "Robotics", Film-21, "Algebra", "Geometry", Astronomy-24, "Façade Design", "Botany", Physics-27, "Chemistry", "Biology", History-30, "Civics", "Geography", Fine-33, "Music", "Sports", Computing-36, "Philosophy", "Ethics", Economics-39, "Spanish", "Linguistics", Robotics-42, "Film & Theatre", "Algebra", Geometry-45, "Astronomy", "Façade Design", Botany-48, "Physics", "Chemistry", Biology-51, "History", "Civics", Geography-54, "Fine Arts", "Music", Sports-57, "Computing", "Philosophy", Ethics-60, "Economics", "Spanish", Linguistics-63, "Robotics", "Film & Theatre", Algebra-66, "Geometry", "Astronomy", Façade-69, "Botany", "Physics", Chemistry-72, "Biology", "History", Civics-75, "Geography", "Fine Arts", Music-78, "Sports", "Computing", Philosophy-81, "Ethics", "Economics", Spanish-84, "Linguistics", "Robotics", Film-87, "Algebra", "Geometry", Astronomy-90, "Façade Design", "Botany", Physics-93, "Chemistry", "Biology", History-96, "Civics", "Geography", Fine-99, "Music", "Sports", Computing-102, "Philosophy", "Ethics", Economics-105, "Spanish", "Linguistics", Robotics-108, "Film & Theatre", "Algebra", Geometry-111, "Astronomy", "Façade Design", Botany-114, "Physics", "Chemistry", Biology-117, "History", "Civics", Geography-120, "Fine Arts", "Music", Sports-123, "Computing", "Philosophy", Ethics-126, "Economics", "Spanish", Linguistics-129, "Robotics", "Film & Theatre", Algebra-132, "Geometry", "Astronomy", Façade-135, "Botany", "Physics", Chemistry-138, "Biology", "History", Civics-141, "Geography", "Fine Arts", Music-144, "Sports", "Computing", Philosophy-147, "Ethics", "Economics", Spanish-150, "Linguistics", "Robotics", Film-153, "Algebra", "Geometry", Astronomy-156, "Façade Design", "Botany", Physics-159, "Chemistry", "Biology", History-162, "Civics", "Geography", Fine-165, "Music", "Sports", Computing-168, "Philosophy", "Ethics", Economics-171, "Spanish", "Linguistics", Robotics-174, "Film & Theatre", "Algebra", Geometry-177, "Astronomy", "Façade Design", Botany-180, "Physics", "Chemistry", Biology-183, "History", "Civics", Geography-186, "Fine Arts", "Music", Sports-189, "Computing", "Philosophy", Ethics-192, "Economics", "Spanish", Linguistics-195, "Robotics", "Film & Theatre", Algebra-198, "Geometry"]
+...
+---
+# Document 2: block scalars with indicators
+literal_strip: |-
+  No newline at the end
+literal_keep: |+
+  Newlines are kept   
+
+
+
+folded_keep: >+
+  Folded
+  with newlines
+
+folded_strip: >-
+  Folded and
+  without newline
+indentation: |2
+    indented by two extra spaces
+  baseline
+---
+# Document 3: list at the top level
+- !!str 2026
+- !!int "42"
+- !!float 1
+- !!binary R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
+- !custom_tag { a: 1 }
+- [nested, [deeper, {x: 1, y: [2, 3]}]]
+- ? a
+  : b
+- "End"
+
