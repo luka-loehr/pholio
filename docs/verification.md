@@ -103,5 +103,5 @@ of the site Pholio was first built for, against that site's own reference.
 ## Last reference run
 
 Each release records the tier-3 run it was verified with: date, Pholio commit,
-reference export and pass counts per stage. No release has been tagged yet, so
-nothing is recorded.
+reference export and pass counts per stage. Entries are added
+when a release is tagged, starting with 0.1.0.
