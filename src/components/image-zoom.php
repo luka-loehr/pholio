@@ -7,9 +7,9 @@ namespace Pholio;
 require_once __DIR__ . '/../lib/Html.php';
 
 /**
- * Zoomable image, `ImageZoom` from `fumadocs-ui/dist/components/image-zoom.js`:
+ * Zoomable image, `ImageZoom` from the reference UI's `dist/components/image-zoom.js`:
  * `Uncontrolled` from react-medium-image-zoom 5.4.9 with `zoomMargin: 20` and
- * `wrapElement: "span"`, holding `Image` from `fumadocs-core/framework` (next/image).
+ * `wrapElement: "span"`, holding the reference framework `Image` (next/image).
  *
  * The static page carries only what the hydrated reference shows before the
  * image has loaded: wrapper and content with `data-rmiz-content="not-found"`.
