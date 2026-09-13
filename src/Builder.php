@@ -29,7 +29,8 @@ require_once __DIR__ . '/Htaccess.php';
  *   new Tree(string $contentDir, string $baseUrl, bool $includeDrafts, list<string> $extensions)
  *   Markdown::parse(string $source, string $file, array<string,string> $frontmatterAliases): Document
  *   Ids::reset(); Toc::build($document->headings())
- *   RenderContext::create(baseUrl:, linkPrefix:, assetPrefix:, assetTarget:, copyLabel:, imageSize:)
+ *   new RenderContext(Slugger, Closure $link, Closure $asset, string $copyLabel, ?Closure $imageSize),
+ *   RenderContext::replacePrefix(string $value, string $from, string $to)
  *   Render::body(Document, RenderContext)
  *   SearchIndex::build(Tree, callable $load, string $baseUrl, ?array $order, bool $includeDrafts, string $tokenizer)
  *   nd_header($config, $url, $tabs, $selected), nd_sidebar($config, $tree, $url, $groups),
@@ -152,7 +153,8 @@ class Builder
         $config = $this->config;
 
         $url = $page['url'];
-        $document = $this->parse($config['contentDir'] . '/' . ltrim($page['file'], '/'));
+        $file = $config['contentDir'] . '/' . ltrim($page['file'], '/');
+        $document = $this->parse($file);
         $toc = Toc::build($document->headings());
         $frontmatter = $document->frontmatter;
 
@@ -170,7 +172,7 @@ class Builder
         $inner = nd_header($config, $url, $tabs['tabs'], $tabs['selected'])
             . nd_sidebar($config, $tree, $url, $tabs['groups'])
             . nd_toc_popover($toc, $pageName)
-            . nd_page($data, $tree->breadcrumb($url), $this->body($document), $tree->footerItems($url))
+            . nd_page($data, $tree->breadcrumb($url), $this->body($document, $file), $tree->footerItems($url))
             . nd_toc($toc);
 
         $title = str_replace('{title}', (string) ($frontmatter['title'] ?? $data['title']), $config['titleTemplate']);
@@ -210,44 +212,126 @@ class Builder
         ];
     }
 
-    /** The contents of the prose container, rendered from the Markdown AST. */
-    protected function body(Document $document): string
+    /**
+     * The contents of the prose container, rendered from the Markdown AST.
+     *
+     * $pageFile is the page's Markdown file; relative image paths resolve
+     * against its directory (see resolveAsset()).
+     */
+    protected function body(Document $document, string $pageFile): string
     {
         $content = $this->config['content'];
+        $baseUrl = $this->config['baseUrl'];
+        $linkPrefix = $content['linkPrefix'];
 
-        return Render::body($document, RenderContext::create(
-            baseUrl: $this->config['baseUrl'],
-            linkPrefix: $content['linkPrefix'],
-            assetPrefix: $content['assetPrefix'],
-            assetTarget: $content['assetTarget'],
-            copyLabel: I18n::t('Copy Anchor Link(heading anchor)(aria-label)'),
-            imageSize: fn(string $src): ?array => $this->imageSize($src),
+        return Render::body($document, new RenderContext(
+            new Slugger(),
+            static fn(string $href): string => $linkPrefix === null ? $href : RenderContext::replacePrefix($href, $linkPrefix, $baseUrl),
+            fn(string $src): string => $this->resolveAsset($src, $pageFile)['url'],
+            I18n::t('Copy Anchor Link(heading anchor)(aria-label)'),
+            fn(string $src): ?array => $this->imageSize($src, $pageFile),
         ));
     }
 
     /**
-     * Natural size of a content image.
+     * Published URL and source file of an image or file referenced from a page.
      *
-     * $src is the path as written in the content. With `content.asset_prefix`
-     * set, the prefix is stripped and the file is looked up below
-     * `content.asset_root`; otherwise the path is resolved below the content
-     * directory. SVG carries its size in attributes or the viewBox, raster
-     * images are read with getimagesize().
+     * - A relative path ("../assets/images/x.png") resolves against the page
+     *   file's directory and must lie inside a `copy` source directory (by
+     *   default assets/); the URL is that directory's URL plus the rest.
+     * - A path starting with `content.asset_prefix` is rewritten to
+     *   `content.asset_target`; its file lies below `content.asset_root`.
+     * - Any other absolute path ("/assets/images/x.png") stays as written; its
+     *   file is looked up in the `copy` directory whose URL it starts with.
+     * - URLs with a scheme, protocol-relative URLs and fragments stay as written.
+     *
+     * @return array{url:string, file:?string}
+     * @throws ContentException for a relative path outside the copied directories
+     */
+    public function resolveAsset(string $src, ?string $pageFile = null): array
+    {
+        if ($src === '' || $src[0] === '#' || str_starts_with($src, '//') || preg_match('#^[a-z][a-z0-9+.-]*:#i', $src) === 1) {
+            return ['url' => $src, 'file' => null];
+        }
+        $content = $this->config['content'];
+        $path = (string) (parse_url($src, PHP_URL_PATH) ?? $src);
+        $suffix = substr($src, strlen($path));
+
+        if ($src[0] !== '/') {
+            if ($pageFile === null) {
+                return ['url' => $src, 'file' => null];
+            }
+            $file = self::normalizePath(dirname($pageFile) . '/' . $path);
+            foreach ($this->config['copy'] as $copy) {
+                if (str_starts_with($file, $copy['from'] . '/')) {
+                    return ['url' => rtrim($copy['to'], '/') . '/' . substr($file, strlen($copy['from']) + 1) . $suffix, 'file' => $file];
+                }
+            }
+            $dirs = array_map(fn(array $c): string => $this->relativeToProject($c['from']) . '/', $this->config['copy']);
+            throw new ContentException(
+                'image "' . $src . '" resolves to ' . $this->relativeToProject($file) . ', outside the copied asset directories ('
+                . ($dirs === [] ? 'none configured' : implode(', ', $dirs)) . '); move the file there or use its published URL',
+                $pageFile,
+            );
+        }
+
+        $prefix = $content['assetPrefix'];
+        if ($prefix !== null && ($path === $prefix || str_starts_with($path, $prefix . '/'))) {
+            $root = $content['assetRoot'] ?? $this->config['contentDir'];
+
+            return [
+                'url' => RenderContext::replacePrefix($src, $prefix, $content['assetTarget']),
+                'file' => rtrim($root, '/') . '/' . ltrim(substr($path, strlen($prefix)), '/'),
+            ];
+        }
+
+        foreach ($this->config['copy'] as $copy) {
+            $to = rtrim($copy['to'], '/');
+            if (str_starts_with($path, $to . '/')) {
+                return ['url' => $src, 'file' => $copy['from'] . '/' . substr($path, strlen($to) + 1)];
+            }
+        }
+
+        return ['url' => $src, 'file' => $this->config['contentDir'] . $path];
+    }
+
+    /**
+     * Natural size of a content image, from the file resolveAsset() finds.
+     * SVG carries its size in attributes or the viewBox, raster images are read
+     * with getimagesize().
      *
      * @return array{0:int,1:int}|null
      */
-    public function imageSize(string $src): ?array
+    public function imageSize(string $src, ?string $pageFile = null): ?array
     {
-        $content = $this->config['content'];
-        $path = (string) (parse_url($src, PHP_URL_PATH) ?: $src);
-        $prefix = $content['assetPrefix'];
-        if ($prefix !== null && ($path === $prefix || str_starts_with($path, $prefix . '/'))) {
-            $path = substr($path, strlen($prefix));
-        }
-        $root = $content['assetRoot'] ?? $this->config['contentDir'];
-        $file = rtrim($root, '/') . '/' . ltrim($path, '/');
+        $file = $this->resolveAsset($src, $pageFile)['file'];
 
-        return self::measure($file);
+        return $file === null ? null : self::measure($file);
+    }
+
+    /** Resolve "." and ".." segments without touching the file system. */
+    public static function normalizePath(string $path): string
+    {
+        $out = [];
+        foreach (explode('/', $path) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                array_pop($out);
+                continue;
+            }
+            $out[] = $segment;
+        }
+
+        return '/' . implode('/', $out);
+    }
+
+    private function relativeToProject(string $path): string
+    {
+        $dir = $this->config['configDir'];
+
+        return str_starts_with($path, $dir . '/') ? substr($path, strlen($dir) + 1) : $path;
     }
 
     /** @return array{0:int,1:int}|null */
@@ -373,10 +457,13 @@ class Builder
         return $out;
     }
 
-    /** The `copy` directories, verbatim and without *.md files. */
+    /** The `copy` directories, verbatim and without *.md files; a missing optional one is skipped. */
     protected function writeCopies(string $target): void
     {
         foreach ($this->config['copy'] as $copy) {
+            if (!is_dir($copy['from']) && ($copy['optional'] ?? false)) {
+                continue;
+            }
             if (!is_dir($copy['from'])) {
                 throw new ConfigException('copy source directory not found: ' . $copy['from'], $this->config['configFile'] ?: null);
             }
