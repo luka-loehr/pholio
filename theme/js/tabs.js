@@ -1,12 +1,11 @@
-// tabs.js — tabs: reference UI components/tabs.js and components/ui/tabs.js
-// on Base UI Tabs (@base-ui/react 1.8.0: tabs/root/TabsRoot.js, tabs/tab/TabsTab.js,
+// tabs.js — tabs with the behaviour of Base UI Tabs (@base-ui/react 1.8.0: tabs/root/TabsRoot.js, tabs/tab/TabsTab.js,
 // tabs/panel/TabsPanel.js, internals/composite/root/useCompositeRoot.js).
 //
 // Static DOM (components/tabs.php): root, tab list, exactly one panel and a
 // <template data-nd-tabs> with all panels and the configuration
 // (data-values, data-default, data-group-id, data-persist, data-update-anchor, data-guard).
 //
-// Behaviour as in the original:
+// Behaviour:
 //   · Click on an inactive tab → onValueChange. With groupId all blocks of the
 //     same group follow, the value goes into sessionStorage (with persist also into
 //     localStorage); without groupId only this block switches.
@@ -18,9 +17,9 @@
 //     data-index on the panel is 0.
 //   · Roving tabindex: arrow left/right (wrapping), Home, End only move
 //     focus (activateOnFocus is off); Enter/Space trigger the native click.
-//   · The calling reference Tabs ignores values that are not in items (data-guard).
-//   · updateAnchor only writes when a panel has an id prop; Pholio has none,
-//     so the address stays unchanged, as in the reference.
+//   · With data-guard, values that are not in items are ignored.
+//   · updateAnchor only writes when a panel has an id; Pholio's tabs have none,
+//     so the address stays unchanged.
 //   · Hash: if the target is inside the mounted panel, it is scrolled to after one frame.
 
 const groups = new Map();
@@ -46,7 +45,7 @@ function attach(template) {
   const persist = template.hasAttribute('data-persist');
   const updateAnchor = template.hasAttribute('data-update-anchor');
   const guard = template.hasAttribute('data-guard');
-  // Pholio has no id on <Tab>; the map stays empty (valueToIdMap in the original).
+  // Pholio has no id on <Tab>; the map stays empty.
   const valueToId = new Map();
 
   let value = template.dataset.default;
