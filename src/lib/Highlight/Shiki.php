@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pholio\Highlight;
 
 /**
- * codeToHast from @shikijs/core 4.4.3 for exactly the reference build's settings:
+ * codeToHast from @shikijs/core 4.4.3 for exactly Pholio's settings:
  * themes {light: github-light, dark: github-dark}, defaultColor false, CSS variables `--shiki-*`,
  * mergeWhitespaces true, structure "classic", tabindex "0".
  */
