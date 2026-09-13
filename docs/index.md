@@ -27,7 +27,7 @@ Pholio 0.1.0 builds complete documentation sites. What comes next is on the
   <Card title="One configuration file" description="Title, logo, navigation, start page, palette, search, redirects, profiles. Plain PHP data, validated before the build." href="/docs/configuration" icon="settings" />
   <Card title="Color presets" description="Eleven built-in presets for light and dark, one line to switch, your own tokens on top." href="/docs/themes" icon="palette" />
   <Card title="Ready for agents" description="Markdown for every page, llms.txt, skill.md and content negotiation, generated from your content." href="/docs/agents" icon="bot" />
-  <Card title="Tested, not assumed" description="PHP tests, a committed demo snapshot and browser checks of search and the agent files." href="/docs/testing" icon="check-circle" />
+  <Card title="Search without a backend" description="An index built at compile time and ranked in the browser, with typo, prefix and umlaut matching." href="/docs/configuration#search" icon="search" />
 </Cards>
 
 ## What it deliberately is not
