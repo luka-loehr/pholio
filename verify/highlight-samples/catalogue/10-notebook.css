@@ -1,0 +1,1 @@
+#nd-sidebar[data-collapsed='true'] { translate: calc(var(--fd-sidebar-width) * -1) 0; }
