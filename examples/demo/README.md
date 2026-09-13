@@ -8,7 +8,7 @@ on plausible prose than on "lorem ipsum". Lanternfly does not exist.
 
 | Path | Contents |
 | --- | --- |
-| `pholio.config.php` | Configuration: title, logo, nav, start page hero and cards, palette, search, one redirect |
+| `pholio.config.php` | Configuration: title, logo, nav, start page hero and cards, palette, search, one redirect; images published under `/images` |
 | `content/meta.json` | Two root areas, Guide and Reference |
 | `content/guide/` | Overview, installation, writing pages, callouts and cards, tabs and accordions, steps and files |
 | `content/reference/` | Overview, code blocks, API types, Markdown extras |
@@ -20,11 +20,11 @@ on plausible prose than on "lorem ipsum". Lanternfly does not exist.
 | --- | --- |
 | `Callout`, every type and alias | `guide/callouts-and-cards.md` |
 | `Cards` / `Card`, with and without icons and links | `guide/callouts-and-cards.md`, `guide/index.md`, `reference/index.md` |
-| `Banner`, rainbow variant | `guide/index.md` |
+| `Banner`, rainbow variant, `changeLayout="false"` | `guide/index.md` |
 | `Screenshot` with dark twin | `guide/index.md` |
 | `ImageZoom`, plain Markdown image, blockquote | `guide/writing-pages.md` |
-| `InlineTOC`, `Steps` / `Step`, code tabs | `guide/installation.md` |
-| `Tabs` / `Tab` with `defaultIndex`, `groupId`, `persist`; `Accordions` single and multiple | `guide/tabs-and-accordions.md` |
+| `InlineTOC`, `Steps` / `Step`, code tabs, `updated` frontmatter | `guide/installation.md` |
+| `Tabs` / `Tab` with `updateAnchor`, `defaultIndex`, `groupId`, `persist`; `Accordions` single and multiple | `guide/tabs-and-accordions.md` |
 | `Files` / `Folder` / `File` | `guide/steps-and-files.md` |
 | Code blocks: title, `lineNumbers`, notation comments, code tabs, `DynamicCodeBlock` | `reference/code-blocks.md` |
 | `TypeTable` / `TypeProp` with `required`, `default`, `typeDescription`, `deprecated` | `reference/api-types.md` |
@@ -32,23 +32,15 @@ on plausible prose than on "lorem ipsum". Lanternfly does not exist.
 
 ## Building it
 
-The generator has not been moved into this repository yet, so this does not
-work today. Once it has:
+From the repository root:
 
 ```bash
-cd examples/demo
-php ../../bin/pholio build --config pholio.config.php
-php -S localhost:8080 -t out
+php bin/pholio build --config examples/demo/pholio.config.php
+php -S localhost:8080 -t examples/demo/out
 ```
 
-Then open <http://localhost:8080>. The config sets `strict_content` on, so a
-page without a description or a broken internal link fails the build. This
-site is meant to pass that check and to exercise every tag the parser knows.
+Then open <http://localhost:8080>. The output directory is ignored by git.
 
-## Assumptions to confirm when the generator lands
-
-- `Screenshot` finds a dark twin as `<name>-dark.<ext>` for any extension,
-  not only `.webp`.
-- Asset paths in `Screenshot` and `ImageZoom` resolve against `assets/`;
-  plain Markdown images resolve relative to the page file.
-- `Accordions type` and `Folder defaultOpen` follow Fumadocs' prop names.
+Code fences use only the bundled grammars: css, diff, html, java, javascript
+(`js`), json, php, shellscript (`bash`, `sh`), sql, typescript (`ts`), xml and
+yaml. Any other language fails the build, as it does in Fumadocs.
