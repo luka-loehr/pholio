@@ -119,7 +119,7 @@ test('a bad config exits 2 and names the key', function (): void {
     $page = "---\ntitle: Start\n---\n\nText\n";
     $cases = [
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'titel' => 'x']" => 'unknown key: titel (did you mean "title"?)',
-        "['content_dir' => 'content', 'output_dir' => 'out']" => 'missing required key: title',
+        "['title' => 42, 'content_dir' => 'content', 'output_dir' => 'out']" => 'title: expected a string, got 42',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'logo_size' => '24']" => 'logo_size: expected an integer, got "24"',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'base_url' => 'https://example.org']" => 'planned: base_url is not implemented yet',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'nav' => [['title' => 'A', 'href' => '/a', 'active' => 'all']]]" => 'nav.0.active: expected one of exact, prefix, got "all"',
