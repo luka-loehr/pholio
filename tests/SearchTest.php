@@ -86,7 +86,8 @@ $demo = SearchIndex::build($demoTree, search_loader(SEARCH_DEMO), '/');
 $demoDocuments = SearchIndex::documents($demoTree, search_loader(SEARCH_DEMO), '/');
 
 test('demo index: header, one entry per tree page, words sorted and unique, one posting list per word', function () use ($demo, $demoTree): void {
-    assert_same(['v', 'base', 'tokenizer', 'crumbs', 'pages', 'words', 'postings'], array_keys($demo));
+    assert_same(['v', 'base', 'tokenizer', 'crumbs', 'pages', 'lengths', 'words', 'postings'], array_keys($demo));
+    assert_same(count($demo['pages']), count($demo['lengths']));
     assert_same([2, '/', 'english'], [$demo['v'], $demo['base'], $demo['tokenizer']]);
     assert_same(array_column($demoTree->pages(), 'url'), array_column($demo['pages'], 0));
     $words = SearchIndex::decodeWords($demo['words']);
@@ -100,7 +101,7 @@ test('demo index: header, one entry per tree page, words sorted and unique, one 
     }
 });
 
-test('demo index: postings stay inside the slots, page slots carry only title and path flags', function () use ($demo): void {
+test('demo index: postings stay inside the slots, page slots carry only title, path, description and keyword flags', function () use ($demo): void {
     $pageSlots = array_flip(search_page_slots($demo));
     $total = 0;
     foreach ($demo['pages'] as $page) {
@@ -113,7 +114,7 @@ test('demo index: postings stay inside the slots, page slots carry only title an
             assert_true($slot > $previous && $slot < $total, 'slot order and range');
             $previous = $slot;
             if (isset($pageSlots[$slot])) {
-                assert_true($flags >= 1 && $flags <= 3, 'page slot flags ' . $flags);
+                assert_true($flags >= 1 && $flags <= 15, 'page slot flags ' . $flags);
             } else {
                 assert_true(($flags & 3) === 0 && $flags >= 4, 'section slot flags ' . $flags);
             }
@@ -244,7 +245,7 @@ test('sections: description skipped when a text repeats it; frontmatter heading 
     $dir = search_fixture([
         'meta.json' => ['pages' => ['index', 'export']],
         'index.md' => "---\ntitle: Home\ndescription: Same text.\n---\n\nSame text.\n\n## Part\n\nOther text.\n",
-        'export.md' => "---\ntitle: Export\nheading: \"Chat: Export\"\n---\n\n## Formats\n\nMarkdown and PDF.\n",
+        'export.md' => "---\ntitle: Export\nheading: \"Chat: Export\"\nkeywords: download, Dark-Mode\n---\n\n## Formats\n\nMarkdown and PDF.\n",
     ]);
     $tree = new Tree($dir, '/', false, ['md']);
     // The tree lists index pages last; the file order puts Home first.
@@ -253,6 +254,8 @@ test('sections: description skipped when a text repeats it; frontmatter heading 
     assert_same([[null, null, 'Same text.'], ['part', 'Part', 'Other text.']], $documents[0]['sections']);
     assert_same(null, $documents[0]['heading']);
     assert_same('Chat: Export', $documents[1]['heading']);
+    assert_same(['Same text.', null], [$documents[0]['description'], $documents[0]['keywords']]);
+    assert_same([null, 'download, Dark-Mode'], [$documents[1]['description'], $documents[1]['keywords']]);
     assert_same([['formats', 'Formats', 'Markdown and PDF.']], $documents[1]['sections']);
 
     $index = SearchIndex::build($tree, search_loader($dir), '/', $order);
@@ -264,6 +267,10 @@ test('sections: description skipped when a text repeats it; frontmatter heading 
     assert_same([3 => SearchIndex::FIELD_TITLE | SearchIndex::FIELD_PATH], search_postings($index, 'export'));
     assert_same([4 => 1 << 3], search_postings($index, 'pdf'));
     assert_same([2 => SearchIndex::FIELD_HEADING], search_postings($index, 'part'));
+    // Description on the page slot and as the first text; keywords with their joined forms.
+    assert_same([0 => SearchIndex::FIELD_DESCRIPTION, 1 => 1 << 3], search_postings($index, 'same'));
+    assert_same([3 => SearchIndex::FIELD_KEYWORDS], search_postings($index, 'darkmode'));
+    assert_same([2, 1], $index['lengths']);
 });
 
 /** Runs verify/search-parity.mjs with Node; skips when Node is missing. */
