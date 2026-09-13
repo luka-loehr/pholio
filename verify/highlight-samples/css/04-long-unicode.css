@@ -1,0 +1,47 @@
+/* Fonts, animations and Unicode – café, naïve, 🎉, 𝔄 */
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("../fonts/source-sans-3.woff2") format("woff2") tech(variations),
+       url('../fonts/source-sans-3.woff') format("woff");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+20AC, U+1F3??;
+}
+
+:root {
+  --shadow-long: 0px 0px 2px rgb(0 0 0 / 0.05), 1px 3px 3px rgb(7 13 29 / 0.15), 2px 6px 4px rgb(14 26 58 / 0.25), 3px 9px 5px rgb(21 39 87 / 0.35), 4px 1px 6px rgb(28 52 116 / 0.45), 5px 4px 7px rgb(35 65 145 / 0.55), 6px 7px 8px rgb(42 78 174 / 0.65), 7px 10px 9px rgb(49 91 203 / 0.75), 8px 2px 10px rgb(56 104 232 / 0.85), 0px 5px 11px rgb(63 117 5 / 0.95), 1px 8px 12px rgb(70 130 34 / 0.05), 2px 0px 13px rgb(77 143 63 / 0.15), 3px 3px 14px rgb(84 156 92 / 0.25), 4px 6px 2px rgb(91 169 121 / 0.35), 5px 9px 3px rgb(98 182 150 / 0.45), 6px 1px 4px rgb(105 195 179 / 0.55), 7px 4px 5px rgb(112 208 208 / 0.65), 8px 7px 6px rgb(119 221 237 / 0.75), 0px 10px 7px rgb(126 234 10 / 0.85), 1px 2px 8px rgb(133 247 39 / 0.95), 2px 5px 9px rgb(140 4 68 / 0.05), 3px 8px 10px rgb(147 17 97 / 0.15), 4px 0px 11px rgb(154 30 126 / 0.25), 5px 3px 12px rgb(161 43 155 / 0.35), 6px 6px 13px rgb(168 56 184 / 0.45), 7px 9px 14px rgb(175 69 213 / 0.55), 8px 1px 2px rgb(182 82 242 / 0.65), 0px 4px 3px rgb(189 95 15 / 0.75), 1px 7px 4px rgb(196 108 44 / 0.85), 2px 10px 5px rgb(203 121 73 / 0.95), 3px 2px 6px rgb(210 134 102 / 0.05), 4px 5px 7px rgb(217 147 131 / 0.15), 5px 8px 8px rgb(224 160 160 / 0.25), 6px 0px 9px rgb(231 173 189 / 0.35), 7px 3px 10px rgb(238 186 218 / 0.45), 8px 6px 11px rgb(245 199 247 / 0.55), 0px 9px 12px rgb(252 212 20 / 0.65), 1px 1px 13px rgb(3 225 49 / 0.75), 2px 4px 14px rgb(10 238 78 / 0.85), 3px 7px 2px rgb(17 251 107 / 0.95), 4px 10px 3px rgb(24 8 136 / 0.05), 5px 2px 4px rgb(31 21 165 / 0.15), 6px 5px 5px rgb(38 34 194 / 0.25), 7px 8px 6px rgb(45 47 223 / 0.35), 8px 0px 7px rgb(52 60 252 / 0.45), 0px 3px 8px rgb(59 73 25 / 0.55), 1px 6px 9px rgb(66 86 54 / 0.65), 2px 9px 10px rgb(73 99 83 / 0.75), 3px 1px 11px rgb(80 112 112 / 0.85), 4px 4px 12px rgb(87 125 141 / 0.95), 5px 7px 13px rgb(94 138 170 / 0.05), 6px 10px 14px rgb(101 151 199 / 0.15), 7px 2px 2px rgb(108 164 228 / 0.25), 8px 5px 3px rgb(115 177 1 / 0.35), 0px 8px 4px rgb(122 190 30 / 0.45), 1px 0px 5px rgb(129 203 59 / 0.55), 2px 3px 6px rgb(136 216 88 / 0.65), 3px 6px 7px rgb(143 229 117 / 0.75), 4px 9px 8px rgb(150 242 146 / 0.85), 5px 1px 9px rgb(157 255 175 / 0.95), 6px 4px 10px rgb(164 12 204 / 0.05), 7px 7px 11px rgb(171 25 233 / 0.15), 8px 10px 12px rgb(178 38 6 / 0.25), 0px 2px 13px rgb(185 51 35 / 0.35), 1px 5px 14px rgb(192 64 64 / 0.45), 2px 8px 2px rgb(199 77 93 / 0.55), 3px 0px 3px rgb(206 90 122 / 0.65), 4px 3px 4px rgb(213 103 151 / 0.75), 5px 6px 5px rgb(220 116 180 / 0.85), 6px 9px 6px rgb(227 129 209 / 0.95), 7px 1px 7px rgb(234 142 238 / 0.05), 8px 4px 8px rgb(241 155 11 / 0.15), 0px 7px 9px rgb(248 168 40 / 0.25), 1px 10px 10px rgb(255 181 69 / 0.35), 2px 2px 11px rgb(6 194 98 / 0.45), 3px 5px 12px rgb(13 207 127 / 0.55), 4px 8px 13px rgb(20 220 156 / 0.65), 5px 0px 14px rgb(27 233 185 / 0.75), 6px 3px 2px rgb(34 246 214 / 0.85), 7px 6px 3px rgb(41 3 243 / 0.95), 8px 9px 4px rgb(48 16 16 / 0.05), 0px 1px 5px rgb(55 29 45 / 0.15), 1px 4px 6px rgb(62 42 74 / 0.25), 2px 7px 7px rgb(69 55 103 / 0.35), 3px 10px 8px rgb(76 68 132 / 0.45), 4px 2px 9px rgb(83 81 161 / 0.55), 5px 5px 10px rgb(90 94 190 / 0.65), 6px 8px 11px rgb(97 107 219 / 0.75);
+  --icon-arrow: "\2192";
+  --icon-emoji: "🎉";
+  --icon-astral: "\1F393";
+  --nbsp: "a b";
+}
+
+.quote::before { content: "«"; }
+.quote::after { content: "\BB"; }
+.escape\:hover\@md { color: red; }
+.\31 0col-class, #\#id, .ñandú-class, .🎉 { outline: 1px dashed currentColor; }   
+   
+
+
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.98); }
+  50.5% { opacity: .6; }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes spin { 0% { rotate: 0turn; } 100% { rotate: 1turn; } }
+
+.toast {
+  animation: fade-in 180ms cubic-bezier(0.2, 0, 0, 1) both, spin 2s steps(8, end) infinite;
+  inset: auto 1rem 1rem auto;
+  width: calc(100vw - 2rem);
+  max-width: 24rem;
+  translate: 0 calc(-1 * env(safe-area-inset-bottom, 0px));
+  margin: -0.5em +1e1px 1E-1em 0;
+  z-index: 2147483647;
+  aspect-ratio: 16 / 9;
+  transition: opacity .2s ease-in-out, visibility 0s linear .2s;
+}
+
