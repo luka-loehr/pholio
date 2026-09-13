@@ -96,9 +96,9 @@ ranking visible on the next run.
 
 ## What Pholio can't prove alone
 
-Tier 3 needs a Fumadocs Notebook app built from the same content. This
-repository has none, so DOM, style and pixel parity is proven in the tier-3 run
-of the site Pholio was first built for, against that site's own reference.
+Tier 3 needs a reference app built from the same content. This repository has
+none, so DOM, style and pixel comparisons run in the tier-3 run of the site
+Pholio was first built for, against that site's own reference build.
 
 ## Last reference run
 
