@@ -11,7 +11,7 @@ icon: rocket
   with PHP (`php -r 'echo PCRE_VERSION;'`). On an older PCRE2 the build still
   succeeds; the few grammar patterns that need lookbehinds of variable length are
   switched off, and Pholio warns once per affected grammar that some syntax
-  colours are simplified.
+  colors are simplified.
 
 That is the whole list for building a site. Node is needed only for the
 comparison tooling in `verify/`, which never reaches a published site.

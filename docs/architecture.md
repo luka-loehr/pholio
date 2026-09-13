@@ -7,7 +7,7 @@ icon: layers
 ## The pipeline
 
 ```
-pholio.config.php     Config.php: validate, apply defaults and profile, normalise
+pholio.config.php     Config.php: validate, apply defaults and profile, normalize
 content/**            Markdown files and one meta.json per folder
   |
   v
@@ -40,7 +40,7 @@ time if a project ever needs it, but nothing in the design assumes a PHP
 runtime in production.
 
 **No dependencies.** The only external ingredients are vendored with their
-licence files: the Inter font, the lucide icon paths, the Shiki grammars and
+license files: the Inter font, the lucide icon paths, the Shiki grammars and
 themes and the values derived from the compiled Tailwind output. `verify/` may use Node and
 Playwright because it is never deployed.
 
@@ -50,7 +50,7 @@ the file and line. There is no silent fallback, because a documentation site
 that renders something wrong is worse than one that refuses to build.
 
 **Search without a backend.** The index is built at compile time and shipped as
-compact JSON: an inverted index from normalised words to pages and sections,
+compact JSON: an inverted index from normalized words to pages and sections,
 without the body text. The browser loads it the first time a search trigger is
 hovered, focused or opened and ranks in a Web Worker: title and phrase matches
 first, then a score over fields (title, keywords, description, headings, text)
@@ -60,7 +60,7 @@ ranking weights are the `WEIGHTS` object in `theme/js/search.js`;
 `node verify/search-query.mjs --explain` shows how a query was scored.
 
 **Configuration is data.** One array, validated against a schema before
-anything runs. Components never read the public keys; they read the normalised
+anything runs. Components never read the public keys; they read the normalized
 internal shape documented in `src/Config.php`.
 
 ## Repository layout
@@ -74,10 +74,10 @@ internal shape documented in `src/Config.php`.
 | `src/templates/` | The document shell |
 | `src/i18n/` | Interface strings: `en.php` (every key), `de.php` |
 | `theme/css/` | `notebook.css` and its parts, hand-written in cascade order |
-| `theme/js/` | ES modules, one per behaviour |
+| `theme/js/` | ES modules, one per behavior |
 | `theme/fonts/` | Inter |
 | `vendor-data/` | Shiki grammars and themes, lucide icon data |
-| `licenses/` | Licence texts of the vendored material, copied into every build |
+| `licenses/` | License texts of the vendored material, copied into every build |
 | `verify/` | Node comparison tooling, never shipped |
 | `tests/` | PHP tests, fixtures and the demo snapshot |
 | `docs/` | This documentation, in Pholio's content format |
@@ -114,10 +114,10 @@ softened by restoring the sidebar's scroll position and open folders from
 - **2026-09-12 — Vanilla-JS ports of the Base UI primitives.** Dialog, popover,
   collapsible, scroll area and tabs are rebuilt as small classes that set the
   same state attributes in the same order, because the CSS and the animations
-  depend on that order. Copying a React runtime to get five behaviours was not
+  depend on that order. Copying a React runtime to get five behaviors was not
   a trade worth making.
 - **2026-09-12 — Four-stage verification.** DOM, computed styles, pixels,
-  behaviour. A checklist review of a theme rebuild finds the differences you
+  behavior. A checklist review of a theme rebuild finds the differences you
   thought to look for. A diff finds the others.
 - **2026-09-12 — One file per commit.** Long history, but every change is
   readable and revertible on its own. It has already paid for itself while

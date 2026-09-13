@@ -1,7 +1,7 @@
 # `examples/demo/` — every component on one small site
 
 A neutral demo site in Pholio's content format. It documents **Lanternfly**, a
-fictional command-line tool, because a component catalogue is easier to judge
+fictional command-line tool, because a component catalog is easier to judge
 on plausible prose than on "lorem ipsum". Lanternfly does not exist.
 
 ## What is in it
@@ -12,7 +12,7 @@ on plausible prose than on "lorem ipsum". Lanternfly does not exist.
 | `content/meta.json` | Two root areas, Guide and Reference |
 | `content/guide/` | Overview, installation, writing pages, callouts and cards, tabs and accordions, steps and files |
 | `content/reference/` | Overview, code blocks, API types, Markdown extras |
-| `assets/` | Self-made SVGs only: logo, hero light and dark, a pipeline diagram with a dark twin, a colour scale |
+| `assets/` | Self-made SVGs only: logo, hero light and dark, a pipeline diagram with a dark twin, a color scale |
 
 ## Component coverage
 

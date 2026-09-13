@@ -15,8 +15,8 @@ npm ci
 npx playwright install chromium-headless-shell   # only for browser-based tools
 ```
 
-Dependencies are pinned to exact versions: `playwright`, `shiki`, `fumadocs-core`,
-`lucide-react`, `react` and `react-dom`, the versions the reference uses.
+Dependencies are pinned to exact versions: `playwright`, `shiki`, the reference UI core package, `lucide-react`, `react` and
+`react-dom`, the versions the reference uses (see `verify/package.json`).
 
 ## Tiers
 
@@ -28,16 +28,16 @@ Dependencies are pinned to exact versions: `playwright`, `shiki`, `fumadocs-core
 | 3 | + a reference export, the running reference app and a rewrites file | `node verify/run.mjs --tier 3 --reference <export dir> --reference-url <app url> --candidate <url> --rewrites <file.json>` |
 
 Tier 3 compares the golden DOM against the export directory and computed style, pixels and
-behaviour against the running reference app. `--reference` and `--reference-url` can also come
+behavior against the running reference app. `--reference` and `--reference-url` can also come
 from `PHOLIO_REFERENCE` and `PHOLIO_REFERENCE_URL`. `--allow` (repeatable) is passed to
 `golden-dom.mjs`, which otherwise uses `verify/allow/golden-dom.json`. `--scenarios`
 (repeatable) defaults to the demo layout and overlays scenarios and `--states` to the demo
-pixel states, all in `verify/fixtures/demo/`. The demo catalogue scenarios are pending
+pixel states, all in `verify/fixtures/demo/`. The demo catalog scenarios are pending
 verification against the reference, so no tier runs them unless passed with `--scenarios`.
 
 A tier runs every lower tier first. Tier 0 is a selftest of `verify/lib`: syntax of every
-module, argument and rewrite handling, page lists, PNG round trip, pixel diff, colour
-normalisation, the static server and Playwright resolution. `--require-playwright` fails
+module, argument and rewrite handling, page lists, PNG round trip, pixel diff, color
+normalization, the static server and Playwright resolution. `--require-playwright` fails
 when Playwright can't be found, `--launch-browser` starts Chromium once.
 
 ## Shared modules (`verify/lib`)
@@ -47,8 +47,8 @@ when Playwright can't be found, `--launch-browser` starts Chromium once.
 | `cli.mjs` | Flags, `~` expansion, JSON helpers, reference → candidate path rewrites, URL joining |
 | `pages.mjs` | Page list from the export's `tree.json` plus extra pages, `--only` filter, page URL pairs |
 | `browser.mjs` | Playwright resolution and launch, one context per page, theme, animation settling, image loading |
-| `dom-walk.mjs` | Normalised element tree and computed style collection in the browser |
-| `color.mjs` | CSS Color 4 normalisation of every colour in a property value to `rgba()` |
+| `dom-walk.mjs` | Normalized element tree and computed style collection in the browser |
+| `color.mjs` | CSS Color 4 normalization of every color in a property value to `rgba()` |
 | `png.mjs` | Dependency-free PNG reader and writer |
 | `pixel.mjs` | YIQ pixel diff with antialiasing and rounding detection |
 | `serve-site.mjs` | Static server for a built site, optional fallback `--origin` |
@@ -93,12 +93,12 @@ first hit:
 | `verify/computed-style.mjs` | About 70 CSS properties per element, at three widths, light and dark, including hover and focus states | `--reference <app url>`, `--candidate <url>`, `--pages <export dir or tree.json>`, `--rewrites <file>` |
 | `verify/pixel-diff.mjs` | Full-page screenshot diff, tolerance zero outside text antialiasing | as computed-style, plus optional `--states <file>` |
 | `verify/behaviour.mjs` | Keyboard, focus order, scroll lock, click-outside, animation keyframes via `getAnimations()` | `--reference <app url>`, `--candidate <url>`, `--rewrites <file>`, repeatable `--scenarios <file>` |
-| `verify/catalogue-states.mjs` | Static, interactive and layered states of the component catalogue | `--mode`, `--site <dir>`, `--out <dir>`; `--reference <export dir>` and `--cuts <file>` for `static` and `states` |
-| `verify/search-parity.mjs` | `theme/js/search.js` against `src/lib/SearchIndex.php` (normalisation, codecs, the rebuilt index), relevance cases and performance budgets | `--selftest`, `--consistency --content <dir> --base-url <path>`, `--relevance` or `--perf` with `--fixture <file>` and `--index <file>` or `--content` |
+| `verify/catalogue-states.mjs` | Static, interactive and layered states of the component catalog | `--mode`, `--site <dir>`, `--out <dir>`; `--reference <export dir>` and `--cuts <file>` for `static` and `states` |
+| `verify/search-parity.mjs` | `theme/js/search.js` against `src/lib/SearchIndex.php` (normalization, codecs, the rebuilt index), relevance cases and performance budgets | `--selftest`, `--consistency --content <dir> --base-url <path>`, `--relevance` or `--perf` with `--fixture <file>` and `--index <file>` or `--content` |
 | `verify/search-query.mjs` | One query against a built index, printing the top pages as the search dialog ranks them: title, breadcrumbs, matched headings | `--index <search-index.json> "query"`, optional `--limit <n>`, `--json`, `--explain` (per-term weights, matched words and scores) |
 | `verify/search-dialog.mjs` | The real search dialog in Chromium, Firefox and WebKit, with the demo served under `/docs/` and the headers of its `.htaccess`: hotkeys, results, index and worker paths, arrow keys and Enter, the main-thread fallback | optional `--browsers chromium,firefox,webkit` |
 | `verify/lucide-oracle.mjs` | Icon markup against lucide-react | `--check --all` or `--check --sample <n>`, optional `--seed <n>` |
-| `verify/fixtures/demo/` | Demo site data: search queries, behaviour scenarios and pixel states | |
+| `verify/fixtures/demo/` | Demo site data: search queries, behavior scenarios and pixel states | |
 | `verify/class-map.json` | Utility class to `nd-*` component class translation, so the DOM diff keeps working after the CSS is rewritten | |
 
 All stages must be green. A stage reports a diff, never a score.

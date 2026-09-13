@@ -7,7 +7,7 @@
 [![PHP](https://img.shields.io/badge/PHP-%E2%89%A5%208.2-777bb4.svg?style=flat)](https://www.php.net/releases/8.2/en.php)
 [![CI](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml/badge.svg)](https://github.com/luka-loehr/pholio/actions/workflows/ci.yml)
 
-**Pholio** turns a folder of Markdown files into a fast, polished documentation site. One theme, done right: light and dark, instant search, highlighted code. No Composer, no npm, no framework, just PHP at build time and static files afterwards.
+**Pholio** turns a folder of Markdown files into beautiful documentation: one polished theme, instant search and highlighted code, built by plain PHP into static files.
 
 ---
 
@@ -38,18 +38,6 @@ Requires PHP 8.2+ with `mbstring` and `ctype` (PCRE2 10.43+ recommended for full
 
 ---
 
-## Project structure
-
-```
-my-docs/
-├── pholio.config.php   optional, every key has a default
-├── content/            Markdown pages and meta.json files
-├── assets/             images and files, published at /assets/
-└── public/             the built site
-```
-
----
-
 ## Documentation
 
 - [Getting started](docs/getting-started.md)
@@ -65,13 +53,14 @@ my-docs/
 ## License
 
 MIT – [View License](LICENSE)  
-Third-party fonts, icons, grammars and design sources keep their own licences: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+Third-party fonts, icons, grammars and design sources keep their own licenses: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
 ---
 
 ## Support
 
-- [Report bugs](https://github.com/luka-loehr/pholio/issues)
+- [Report bugs](https://github.com/luka-loehr/pholio/issues)  
+- [luka@lukaloehr.com](mailto:luka@lukaloehr.com)  
 
 ---
 

@@ -57,7 +57,7 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ### Removed
 
-- The zbsearch notice and licence text: the search no longer derives from zbsearch.
+- The zbsearch notice and license text: the search no longer derives from zbsearch.
 
 ## [0.1.0] - 2026-09-13
 
@@ -71,7 +71,7 @@ reproduction.
   both directions) and `pholio dev` (build with drafts, serve with PHP's built-in
   server, rebuild on changes), with `--config`, `--profile`, `--content`, `--out`,
   `--only`, `--dev` and `--set`, and documented exit codes.
-- **Configuration.** One PHP file returning a plain array, validated and normalised
+- **Configuration.** One PHP file returning a plain array, validated and normalized
   with errors naming the key; profiles merged over the base configuration;
   `pholio.config.example.php` documents every key.
 - **Content format.** A strict Markdown subset with front matter, one `meta.json`
@@ -85,7 +85,7 @@ reproduction.
   themes packaged by Shiki, translated from Oniguruma to PCRE2 (full parity needs
   PCRE2 10.43 or newer).
 - **Search without a backend.** A search index built at compile time and ranking
-  in the browser with zbsearch's parameters, with English and German tokenisers.
+  in the browser with zbsearch's parameters, with English and German tokenizers.
 - **Theme.** The Notebook layout in plain CSS and JavaScript modules: sidebar,
   header tabs, table of contents popover, search dialog, theme switch, light and
   dark schemes, Inter fonts and lucide icons.
@@ -98,9 +98,9 @@ reproduction.
   `scripts/lint.sh`, `scripts/check.sh`, `scripts/update-snapshots.sh` and
   `scripts/serve-demo.sh`.
 - **Verification tooling** in `verify/` (Node, development only) in tiers 0 to 3:
-  golden DOM, computed styles, pixel diff and behaviour against a reference
+  golden DOM, computed styles, pixel diff and behavior against a reference
   export, plus search and lucide oracles.
-- Documentation in `docs/`, written in Pholio's own format, and the licences and
+- Documentation in `docs/`, written in Pholio's own format, and the licenses and
   notices of all vendored material.
 
 [Unreleased]: https://github.com/luka-loehr/pholio/compare/v0.2.0...HEAD

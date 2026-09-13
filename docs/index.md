@@ -23,10 +23,10 @@ configuration schema are settled; what comes next is on the
 ## What you get
 
 <Cards>
-  <Card title="Markdown in, HTML out" description="A strict Markdown subset plus a few declarative component tags. Anything unrecognised stops the build." href="/docs/content-format" icon="file-text" />
+  <Card title="Markdown in, HTML out" description="A strict Markdown subset plus a few declarative component tags. Anything unrecognized stops the build." href="/docs/content-format" icon="file-text" />
   <Card title="One configuration file" description="Title, logo, navigation, start page, palette, search, redirects, profiles. Plain PHP data, validated before the build." href="/docs/configuration" icon="settings" />
-  <Card title="Zero dependencies" description="Vendored fonts, icons and grammars with their licences. Nothing to install, nothing to update." href="/docs/architecture" icon="package" />
-  <Card title="Tested, not assumed" description="PHP tests, a committed demo snapshot and browser checks for DOM, styles, pixels and behaviour." href="/docs/verification" icon="check-circle" />
+  <Card title="Zero dependencies" description="Vendored fonts, icons and grammars with their licenses. Nothing to install, nothing to update." href="/docs/architecture" icon="package" />
+  <Card title="Tested, not assumed" description="PHP tests, a committed demo snapshot and browser checks for DOM, styles, pixels and behavior." href="/docs/verification" icon="check-circle" />
 </Cards>
 
 ## What it deliberately is not

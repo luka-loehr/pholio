@@ -6,7 +6,7 @@ the build instead of degrading silently.
 | Path | What lives there |
 | --- | --- |
 | `Cli.php` | `pholio build`, `check` and `dev`: argument parsing and the mapping of errors to exit codes |
-| `Config.php` | Loads `pholio.config.php`, validates it against the schema and normalises it. Its docblock documents the internal shape every other file reads |
+| `Config.php` | Loads `pholio.config.php`, validates it against the schema and normalizes it. Its docblock documents the internal shape every other file reads |
 | `Builder.php` | One build run: pages, start page, theme assets with the palette inserted, `copy` directories, search index, `.htaccess` |
 | `Htaccess.php` | The generated `.htaccess`: hardening, redirects, slashless URLs |
 | `DevServer.php` | Router for PHP's built-in server, used by `pholio dev` |

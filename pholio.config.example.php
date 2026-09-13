@@ -47,7 +47,7 @@ return [
     // the start page, e.g. '/overview'.
     'docs_root_suffix' => '/overview',
 
-    // URL of the theme's CSS, JS, fonts and licences ({assets}). Relative to
+    // URL of the theme's CSS, JS, fonts and licenses ({assets}). Relative to
     // base_path unless it starts with "/" or a scheme. /assets/ stays free for
     // the site's own files.
     'asset_base' => 'pholio/',
@@ -146,7 +146,7 @@ return [
     // --------------------------------------------------------------- theme --
 
     'theme' => [
-        // Colour tokens without the "--color-fd-" prefix, written at the palette
+        // Color tokens without the "--color-fd-" prefix, written at the palette
         // marker in theme/css/tokens.css.
         'light' => [
             'primary' => 'hsl(220 85% 45%)',
@@ -162,7 +162,7 @@ return [
         'preset' => null,
         'font_class' => '',
 
-        // Key that toggles the colour scheme.
+        // Key that toggles the color scheme.
         'hotkey' => 'd',
 
         // Planned: "light" or "dark" as the initial scheme.

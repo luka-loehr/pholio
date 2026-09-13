@@ -6,7 +6,7 @@ icon: check-circle
 
 "Identical to the reference" is not a matter of taste here. A reference build
 is frozen once, and a Pholio build is compared against it in four stages: DOM,
-computed styles, pixels, behaviour. Each stage reports a diff rather than a
+computed styles, pixels, behavior. Each stage reports a diff rather than a
 score. What a machine can run depends on what it has installed, so the checks
 are split into three tiers.
 
@@ -16,7 +16,7 @@ are split into three tiers.
 | --- | --- | --- | --- |
 | 1 | PHP 8.2, PCRE2 10.43 | `php -l` on every tracked PHP file, `php tests/run.php`, and the demo built against `tests/snapshots/demo` | `./scripts/check.sh` |
 | 2 | Tier 1, Node, `npm ci` in `verify/`, Chromium | The selftests of the DOM, style and pixel tools, the search consistency check and the relevance cases of `verify/fixtures/demo/search-relevance.json`, the search dialog in Chromium, Firefox and WebKit under a subpath, the lucide oracle | `node verify/run.mjs --tier 2` |
-| 3 | Tier 2, a reference export and its rewrites file | Golden DOM, computed styles, pixels, behaviour and component states against the reference | `node verify/run.mjs --tier 3 --reference <dir> --rewrites <file.json> --candidate <url>` |
+| 3 | Tier 2, a reference export and its rewrites file | Golden DOM, computed styles, pixels, behavior and component states against the reference | `node verify/run.mjs --tier 3 --reference <dir> --rewrites <file.json> --candidate <url>` |
 
 `verify/run.mjs` runs every lower tier first, including tier 0, a Node-only
 selftest of `verify/lib`. Setup for tiers 2 and 3:
@@ -48,7 +48,7 @@ The snapshot is generated output and is committed as one commit per run.
 
 ## 1. Golden DOM
 
-The reference pages are read from the browser after hydration, normalised
+The reference pages are read from the browser after hydration, normalized
 (framework scripts, generated ids and framework comments removed, whitespace
 collapsed, class lists mapped through a translation table), and then compared
 element by element and attribute by attribute against the Pholio output.
@@ -61,23 +61,23 @@ accepted.
 
 Because stage one guarantees the same tree, both documents can be walked in
 lockstep. For every element about seventy CSS properties are compared: box,
-typography, colour, borders, shadows, transforms, transitions, animations,
+typography, color, borders, shadows, transforms, transitions, animations,
 masks, filters, position, z-index, overflow and grid templates.
 
-This runs at three widths and in both colour schemes, and it repeats with
+This runs at three widths and in both color schemes, and it repeats with
 elements hovered and focused, because a hover rule that is subtly wrong is
 invisible in a screenshot of a resting page.
 
 ## 3. Pixels
 
-Full-page screenshots of both versions per page, width and colour scheme, with
+Full-page screenshots of both versions per page, width and color scheme, with
 zero tolerance outside a mask covering text antialiasing. Beyond resting pages
 this covers the states that only exist while something is open: search with
 results, search empty, sidebar collapsed, collapsed and hovered, the
 table-of-contents popover, the mobile drawer, the tabs dropdown, both theme
 states, and the page scrolled so a later heading is active.
 
-## 4. Behaviour and motion
+## 4. Behavior and motion
 
 Scripts drive both versions through the same actions and compare the states in
 between: the order in which state attributes appear when a dialog opens, frame
@@ -90,7 +90,7 @@ queries, including their order and their highlighting.
 <Callout type="info" title="Why a fixed query set">
 Search is the one part where a plausible approximation would go unnoticed for
 months. A frozen query set, including word beginnings, accented letters,
-two-word queries and deliberate misses, makes any divergence in tokenisation or
+two-word queries and deliberate misses, makes any divergence in tokenization or
 ranking visible on the next run.
 </Callout>
 

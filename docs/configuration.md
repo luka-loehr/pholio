@@ -20,7 +20,7 @@ is a usage error.
 `src/Config.php` validates the file before anything is built. An unknown key,
 a value of the wrong type or a planned key set to anything but its default
 stops the command with exit code 2 and names the key path, for example
-`pholio: unknown key: search.tokeniser (did you mean "tokenizer"?)`.
+`pholio: unknown key: search.tokenize (did you mean "tokenizer"?)`.
 
 ## Rules for values
 
@@ -56,7 +56,7 @@ only their default value until the feature exists.
 | `base_path` | `/` | URL of the start page. `/docs/` when the site sits in a subfolder |
 | `docs_path` | `null` | URL of the docs root. `null` uses `base_path` |
 | `docs_root_suffix` | `null` | Path appended to the docs root page, e.g. `/overview`. Needed when the docs root and the start page would share one URL |
-| `asset_base` | `pholio/` | URL of the theme's CSS, JavaScript, fonts and licences. Relative to `base_path` unless it starts with `/` or a scheme. The default keeps `/assets/` free for the site's own files |
+| `asset_base` | `pholio/` | URL of the theme's CSS, JavaScript, fonts and licenses. Relative to `base_path` unless it starts with `/` or a scheme. The default keeps `/assets/` free for the site's own files |
 | `language` | `en` | `<html lang>`, the interface strings and the default search tokenizer. Shipped: `en`, `de`. Any other language needs `translations` for every key |
 | `translations` | `[]` | Interface string overrides, translation key => text. An unknown key is an error |
 
@@ -131,8 +131,8 @@ first content page the root.
 
 ## Theme
 
-`theme.light` and `theme.dark` map colour token names, without the
-`--color-fd-` prefix, to CSS colours. The build writes them, followed by the
+`theme.light` and `theme.dark` map color token names, without the
+`--color-fd-` prefix, to CSS colors. The build writes them, followed by the
 contents of `theme.palette_css`, at the palette marker `/* @pholio:palette */`
 in `theme/css/tokens.css`. That block is unlayered, like the site palette in
 the reference stylesheet, so it wins over the default tokens. Anything you
@@ -140,12 +140,12 @@ leave out keeps its default.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `theme.light` | `[]` | Token => colour for the light scheme |
-| `theme.dark` | `[]` | Token => colour for the dark scheme |
+| `theme.light` | `[]` | Token => color for the light scheme |
+| `theme.dark` | `[]` | Token => color for the dark scheme |
 | `theme.palette_css` | `null` | Stylesheet inserted at the palette marker, for palettes a token map can't express |
 | `theme.preset` | `null` | Value of `<html data-preset>`. `null` omits the attribute |
 | `theme.font_class` | `''` | Extra class on `<html>` |
-| `theme.hotkey` | `d` | Key that toggles the colour scheme |
+| `theme.hotkey` | `d` | Key that toggles the color scheme |
 | `theme.default_scheme` | `system` | Planned: `light` or `dark` as the scheme before the visitor chooses |
 | `theme.custom_css` | `null` | Planned: stylesheet appended after the theme CSS |
 

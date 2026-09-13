@@ -40,7 +40,7 @@ objects and anchors are errors, and so is any key outside this table
 - Paragraphs, `**bold**`, `*italic*`, `~~strikethrough~~`, `` `code` ``, links,
   images, blockquotes, horizontal rules, hard breaks from two trailing spaces.
 - Ordered, unordered and nested lists, task lists `- [x]`.
-- GitHub-flavoured tables with column alignment.
+- GitHub-flavored tables with column alignment.
 - Footnotes `[^1]` with their definitions.
 
 A plain Markdown image renders as a single bordered image, with its width and
@@ -127,7 +127,7 @@ Archives live in `~/.local/share`.
 </Tabs>
 ```
 
-`Screenshot` shows `dark` in the dark colour scheme and `src` in the light one.
+`Screenshot` shows `dark` in the dark color scheme and `src` in the light one.
 Without `dark` the same image is shown in both.
 
 ## meta.json

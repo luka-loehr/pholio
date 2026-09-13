@@ -11,7 +11,7 @@ tooling and the tests are in this repository. `php bin/pholio build` builds the
 demo site in `examples/demo/`, `pholio check` compares a build with committed
 output, and `pholio dev` serves a site while you edit it.
 
-The content format covers the full component catalogue: callouts, cards,
+The content format covers the full component catalog: callouts, cards,
 screenshots, image zoom, banners, tabs, accordions, steps, file trees, type
 tables, an inline table of contents and highlighted code blocks.
 

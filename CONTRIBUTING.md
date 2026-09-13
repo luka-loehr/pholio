@@ -17,7 +17,7 @@ committed together, once per build run.
 Conventional prefix, then the file, then what changed:
 
 ```
-feat(components): src/components/callout.php – icon and colour strip per type
+feat(components): src/components/callout.php – icon and color strip per type
 fix(theme): theme/css/notebook.css – sidebar mask at 12px, not 16px
 docs: docs/configuration.md – document the search tokenizer key
 ```
