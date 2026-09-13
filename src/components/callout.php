@@ -8,7 +8,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 
 /**
- * Callout box, rebuilt from `fumadocs-ui/dist/components/callout.js`
+ * Callout box, rebuilt from the reference UI's `dist/components/callout.js`
  * (`Callout` = `CalloutContainer` + `CalloutTitle` + `CalloutDescription`).
  *
  * Structure: a container with `--callout-color`, inside it the colour stripe
