@@ -2,6 +2,7 @@
 title: Installation
 description: Install Lanternfly with your package manager of choice and check that it runs.
 icon: download
+updated: 2026-09-13
 ---
 
 <InlineTOC />
@@ -24,7 +25,7 @@ brew install lanternfly
 sudo apt install lanternfly
 ```
 
-```powershell tab="winget"
+```sh tab="winget"
 winget install Lanternfly.Lanternfly
 ```
 
