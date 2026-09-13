@@ -14,7 +14,7 @@ concurrency:
 # The PHP matrix runs on the stable ubuntu-latest image, whose PHP links PCRE2 10.42: that is what users on
 # stable distributions have, so the highlighter's pre-10.43 fallback is exercised there (and forced in
 # tests/HighlightFallbackTest.php). The ubuntu-26.04 jobs (PCRE2 10.43 or newer, PHOLIO_REQUIRE_PCRE2=1) are the
-# required full-fidelity gate: scripts/check.sh with the byte-exact highlight references and the demo snapshot.
+# required full-fidelity gate: scripts/check.sh with the highlighter samples and the demo snapshot.
 jobs:
   tag:
     name: Tag matches VERSION and CHANGELOG
@@ -67,7 +67,7 @@ jobs:
           php -r 'exit(version_compare(explode(" ", PCRE_VERSION)[0], "10.43", ">=") ? 0 : 1);' \
             || echo "::warning::PCRE2 $(php -r 'echo PCRE_VERSION;') is older than 10.43: highlighting of a few languages is simplified"
 
-      # On PCRE2 older than 10.43 the byte-exact highlight tests and the snapshot check skip themselves;
+      # On PCRE2 older than 10.43 the highlighter samples and the snapshot check skip themselves;
       # the ubuntu-26.04 jobs below set PHOLIO_REQUIRE_PCRE2=1, which turns those skips into failures.
       - name: Check (lint, tests, demo; PCRE2 10.43+ comparisons skip on older PCRE2)
         run: ./scripts/check.sh
@@ -82,7 +82,7 @@ jobs:
           fi
 
   highlight:
-    name: PHP ${{ matrix.php }} – full fidelity, byte-exact highlight and snapshot (ubuntu-26.04)
+    name: PHP ${{ matrix.php }} – full fidelity, highlighter samples and snapshot (ubuntu-26.04)
     needs: tag
     runs-on: ubuntu-26.04
     timeout-minutes: 20
