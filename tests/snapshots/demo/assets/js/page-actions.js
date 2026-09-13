@@ -11,7 +11,9 @@
 // · The chevron opens the menu, a popover (popover.js) filled from
 //   <template data-page-actions-popup>, aligned to the end of the trigger; the chevron
 //   rotates through data-popup-open. The chat links get their href here, because the
-//   prompt names the absolute URL of the twin. Choosing a chat link closes the menu.
+//   prompts name absolute URLs: Claude's the twin (data-prompt), ChatGPT's the page itself
+//   with a note on the twin (data-prompt-chatgpt), since ChatGPT's reader rejects
+//   text/markdown. Choosing a chat link closes the menu.
 // · ArrowDown, ArrowUp, Home and End move between the items; Escape and a click outside
 //   close the menu and return focus to the chevron (popover.js).
 
@@ -28,6 +30,16 @@ function markChecked(element) {
   window.clearTimeout(timers.get(element));
   element.setAttribute('data-checked', '');
   timers.set(element, window.setTimeout(() => element.removeAttribute('data-checked'), CHECKED_MS));
+}
+
+/**
+ * The prompt for a chat action: ChatGPT gets the page URL and a note on the Markdown twin,
+ * Claude the twin's URL. `templates` holds data-prompt and data-prompt-chatgpt.
+ */
+export function chatPrompt(action, templates, pageUrl, markdownUrl) {
+  return action === 'chatgpt' && templates.chatgpt
+    ? templates.chatgpt.replace('{url}', pageUrl).replace('{markdown}', markdownUrl)
+    : (templates.claude ?? '').replace('{url}', markdownUrl);
 }
 
 /** The chat URL with the prompt prefilled. */
@@ -57,7 +69,8 @@ export function boot(doc = document) {
     booted.add(root);
 
     const markdownUrl = new URL(root.getAttribute('data-markdown-url'), window.location.href).href;
-    const prompt = (root.getAttribute('data-prompt') ?? '').replace('{url}', markdownUrl);
+    const pageUrl = `${window.location.origin}${window.location.pathname}`;
+    const templates = { claude: root.getAttribute('data-prompt'), chatgpt: root.getAttribute('data-prompt-chatgpt') };
 
     let cached = null;
     const load = () => {
@@ -103,7 +116,7 @@ export function boot(doc = document) {
           if (action === 'copy') {
             item.addEventListener('click', () => copy(item));
           } else {
-            item.setAttribute('href', chatUrl(action, prompt));
+            item.setAttribute('href', chatUrl(action, chatPrompt(action, templates, pageUrl, markdownUrl)));
             item.addEventListener('click', () => popover.close());
           }
         }

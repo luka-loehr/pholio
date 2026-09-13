@@ -9,7 +9,7 @@ Lanternfly is a fictional command-line tool that makes local notes searchable in
 
 Use this skill when a task involves Lanternfly. Read the documentation instead of relying on memory, and name the pages you used.
 
-## Instructions
+## Notes for agents
 
 Lanternfly is fictional: say so when a question assumes it exists.
 

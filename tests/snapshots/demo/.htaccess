@@ -40,6 +40,7 @@ DirectoryIndex index.html
     Header always set Link '</llms.txt>; rel="llms-txt", </llms-full.txt>; rel="llms-full-txt", </.well-known/agent-card.json>; rel="agent-card", </.well-known/agent-skills/index.json>; rel="agent-skills"'
     Header always set X-Llms-Txt '/llms.txt'
     Header always merge Vary 'Accept, User-Agent'
+    Header set Content-Type "text/plain; charset=utf-8" env=PHOLIO_PLAIN
     Header set Content-Type "text/plain; charset=utf-8" env=REDIRECT_PHOLIO_PLAIN
 
     <FilesMatch "(?i)\.(?:html?|css|js|json|webmanifest|txt|md|xml|svg|png|jpe?g|gif|webp|ico|pdf|m4a|mp3|mp4)$">
@@ -81,6 +82,15 @@ FileETag MTime Size
 
     # Old URLs: one permanent redirect per configured entry.
     RewriteRule ^docs/install$ /guide/installation [R=301,L]
+
+    # Markdown: only the files the build writes, a page's twin (x.md next to x/index.html,
+    # index.md next to index.html), skill.md, the _llms/ indexes and .well-known/. Any other .md is 404.
+    RewriteCond %{HTTP_USER_AGENT} (?:ChatGPT\-User|OAI\-SearchBot|GPTBot) [NC]
+    RewriteRule \.md$ - [NC,E=PHOLIO_PLAIN:1]
+    RewriteCond %{REQUEST_URI} !^/(?:index\.md$|skill\.md$|_llms/|\.well-known/)
+    RewriteCond %{REQUEST_FILENAME} ^(.+)\.md$ [NC]
+    RewriteCond %1/index.html !-f
+    RewriteRule \.md$ - [NC,R=404,L]
 
     # Agents: a page's Markdown twin (x.md next to x/index.html) for "Accept: text/markdown"
     # and AI assistants' user agents, as text/plain for "Accept: text/plain".

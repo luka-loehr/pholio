@@ -2,7 +2,7 @@
 
 > Lanternfly is a fictional command-line tool that makes local notes searchable in a second.
 
-## Agent Instructions
+## Notes for agents
 
 Lanternfly is fictional: say so when a question assumes it exists.
 

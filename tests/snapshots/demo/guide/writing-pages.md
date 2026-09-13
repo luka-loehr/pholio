@@ -1,6 +1,4 @@
-> ## Documentation Index
-> Fetch the complete documentation index at: https://lanternfly.example/llms.txt
-> Use this file to discover all available pages before exploring further.
+> Documentation index: https://lanternfly.example/llms.txt, a list of every page in this documentation.
 
 # Writing pages
 
