@@ -1,0 +1,58 @@
+diff --git a/src/Markdown.php b/src/Markdown.php
+index 3f2a1c9..8b7d0e4 100644
+--- a/src/Markdown.php
++++ b/src/Markdown.php
+@@ -118,14 +118,19 @@ final class Markdown
+     private function emphasis(string $text): string
+     {
+		// Delimiter stack following CommonMark “process emphasis”
+-		$stack = [];
++		$stack = [];   
++		$floor = [];
+		foreach ($this->delimiters as $i => $d) {
+-			if ($d['type'] === '*') {
++			if ($d['type'] === '*' || $d['type'] === '_') {
+				$stack[] = $i;
+			}
+		}
+
+-		return $text;
++		// An unmatched closing delimiter stays literal text — naïve but correct
++		if ($stack === []) {
++			return $text;
++		}
++
++		return $this->process($text, $stack, $floor);
+     }
+
+     /**
+diff --git a/content/redirects.json b/content/redirects.json
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/content/redirects.json
+@@ -0,0 +1,5 @@
++{
++  "/guide/login.html": "/guide/getting-started/login/",
++  "/guide/billing.html": "/guide/billing/",
++  "/guide/café.html": "/guide/admin/cafe/"
++}
+\ No newline at end of file
+diff --git a/theme/js/old.js b/theme/js/old.js
+deleted file mode 100644
+index 9c8d7e6..0000000
+--- a/theme/js/old.js
++++ /dev/null
+@@ -1,3 +0,0 @@
+-// deprecated
+-export const x = 1;
+-console.log(x);
+diff --git a/images/logo.png b/images/logo.png
+index 1234567..89abcde 100644
+Binary files a/images/logo.png and b/images/logo.png differ
+diff --git a/scripts/deploy.sh b/scripts/deploy.sh
+old mode 100644
+new mode 100755
+similarity index 100%
+rename from deploy.sh
+rename to scripts/deploy.sh
