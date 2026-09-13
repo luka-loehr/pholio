@@ -29,7 +29,7 @@ require_once __DIR__ . '/Htaccess.php';
  *   new Tree(string $contentDir, string $baseUrl, bool $includeDrafts, list<string> $extensions)
  *   Markdown::parse(string $source, string $file, array<string,string> $frontmatterAliases): Document
  *   Ids::reset(); Toc::build($document->headings())
- *   RenderContext::create(baseUrl:, assetPrefix:, assetTarget:, copyLabel:, imageSize:)
+ *   RenderContext::create(baseUrl:, linkPrefix:, assetPrefix:, assetTarget:, copyLabel:, imageSize:)
  *   Render::body(Document, RenderContext)
  *   SearchIndex::build(Tree, callable $load, string $baseUrl, ?array $order, bool $includeDrafts, string $tokenizer)
  *   nd_header($config, $url, $tabs, $selected), nd_sidebar($config, $tree, $url, $groups),
@@ -217,6 +217,7 @@ class Builder
 
         return Render::body($document, RenderContext::create(
             baseUrl: $this->config['baseUrl'],
+            linkPrefix: $content['linkPrefix'],
             assetPrefix: $content['assetPrefix'],
             assetTarget: $content['assetTarget'],
             copyLabel: I18n::t('Copy Anchor Link(heading anchor)(aria-label)'),
