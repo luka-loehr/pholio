@@ -24,6 +24,12 @@ declare(strict_types=1);
  *   assert_throws(string $class, callable $fn, ?string $messageContains = null): Throwable
  *   skip(string $reason)       skip the current test
  *   skip_all(string $reason)   skip the rest of the file, exit 0
+ *   pcre2_supports_full_highlighting(): bool
+ *   require_full_pcre2_or_skip(string $why, bool $wholeFile = false)
+ *
+ * PCRE2 older than 10.43 simplifies some syntax colours (src/lib/Highlight/OnigRegex.php), so byte-exact
+ * references cannot match there. Tests that compare such output call require_full_pcre2_or_skip(), which
+ * skips on an old PCRE2, or fails when the environment sets PHOLIO_REQUIRE_PCRE2=1.
  */
 
 if (realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? '')) === __FILE__) {
@@ -118,6 +124,37 @@ if (!function_exists('test')) {
     {
         echo "SKIP: {$reason}\n";
         exit(0);
+    }
+
+    /** Whether this PHP links PCRE2 10.43 or newer, which the highlighter needs for its complete grammars. */
+    function pcre2_supports_full_highlighting(): bool
+    {
+        return version_compare(explode(' ', PCRE_VERSION)[0], '10.43', '>=');
+    }
+
+    /**
+     * Skips the current test ($wholeFile: the rest of the file) when PCRE2 is older than 10.43. With
+     * PHOLIO_REQUIRE_PCRE2=1 in the environment that is a failure instead, so a full-fidelity job cannot pass
+     * by skipping.
+     */
+    function require_full_pcre2_or_skip(string $why, bool $wholeFile = false): void
+    {
+        if (pcre2_supports_full_highlighting()) {
+            return;
+        }
+        $reason = 'PCRE2 ' . explode(' ', PCRE_VERSION)[0] . ' < 10.43: ' . $why;
+        if (getenv('PHOLIO_REQUIRE_PCRE2') === '1') {
+            $reason .= ' (PHOLIO_REQUIRE_PCRE2=1 requires PCRE2 10.43 or newer)';
+            if ($wholeFile) {
+                echo "FAIL {$reason}\n";
+                exit(1);
+            }
+            throw new TestFailure($reason);
+        }
+        if ($wholeFile) {
+            skip_all($reason);
+        }
+        skip($reason);
     }
 }
 
