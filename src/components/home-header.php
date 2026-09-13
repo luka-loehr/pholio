@@ -14,15 +14,14 @@ require_once __DIR__ . '/theme-switch.php';
 require_once __DIR__ . '/header.php';
 
 /**
- * The HomeLayout header (`layouts/home/slots/header.js`).
+ * The header of the start page.
  *
  * On the outside a Base UI `NavigationMenu.Root`; while closed only
  * `header#nd-nav[data-closed]` with its `nav` element is in the DOM, and Base UI
  * mounts the collapsible menu only on opening.
  *
  * Below `lg` the menu is a Base UI collapsible. Its panel sits as
- * `<template data-collapsible-panel>` in `nav` right after the row, structured
- * as reference export `states/home-menu-open-settled.html`; js/collapsible.js
+ * `<template data-collapsible-panel>` in `nav` right after the row; js/collapsible.js
  * mounts it and sets the phases. While open, `header#nd-nav` carries `data-open`
  * and the trigger `data-panel-open`; shadow, rounding and arrow in layout.css
  * key off these attributes.
