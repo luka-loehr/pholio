@@ -65,10 +65,18 @@ export const MAX_CHILDREN = 3;
 
 // Query words that carry no meaning of their own. German queries mix in English.
 const STOPWORDS_ENGLISH = 'a an and are as at be by can do does for from how i in is it my me of on or the this that to what when where why with you your';
-const STOPWORDS_GERMAN = 'aber alle als also am an auch auf aus bei bin bis bitte da dann das dass dem den der des dich die dir doch du ein eine einem einen einer eines er es fur gibt hat habe haben hier ich ihr im in ist ja jetzt kann kannst konnen man mein meine meinem meinen meiner meines mich mir mit muss nach nicht noch nochmal nur ob oder sich sie sind so soll um und uns von vor war was welche welcher welches wenn werden wer wie wieso wird wo zu zum zur ins beim vom uber dies diese dieser dieses jede jeder jedes kein keine etwas sehr immer wieder';
+const STOPWORDS_GERMAN = 'aber alle als also am an auch auf aus bei bin bis bitte da dann das dass dem den der des dich die dir doch du ein eine einem einen einer eines er es fur gibt hat habe haben hier ich ihr im in ist ja jetzt kann kannst konnen man mein meine meinem meinen meiner meines mich mir mit muss nach nicht noch nochmal nur ob oder sich sie sind so soll um und uns von vor war was welche welcher welches wenn werden wer wie wieso wird wo zu zum zur ins beim vom uber dies diese dieser dieses jede jeder jedes kein keine etwas sehr immer wieder ohne ganz ganze ganzen';
 const STOPWORDS = {
   english: STOPWORDS_ENGLISH,
   german: `${STOPWORDS_GERMAN} ${STOPWORDS_ENGLISH}`,
+};
+
+// Word prefixes a compound may start with instead of a word ("regenerieren", "erlassen").
+const PREFIXES_ENGLISH = 're un pre';
+const PREFIXES_GERMAN = 'ab an auf aus be bei ein ent er ge mit nach um un ver vor weg zer zu';
+const PREFIXES = {
+  english: PREFIXES_ENGLISH,
+  german: `${PREFIXES_GERMAN} ${PREFIXES_ENGLISH}`,
 };
 
 const MAX_TERMS = 8;
@@ -89,6 +97,7 @@ const ENDING_STEM_MIN = 3;
 const ENDING_GROWTH = 4;         // letters a word may have beyond the stripped stem
 const ENDING_LIMIT = 48;
 const DETAIL_LIMIT = 60;         // pages that get the tier check and the boosts
+const FIELD_MATCH_QUALITY = 0.7; // weaker matches score, but count as neither a title, description nor section hit
 
 const QUALITY_TYPO = [1, 0.5, 0.3];
 
@@ -98,25 +107,33 @@ const QUALITY_TYPO = [1, 0.5, 0.3];
  */
 export const WEIGHTS = Object.freeze({
   // Match quality of a word for a term (1 = exact).
-  qualityInfix: 0.36,
-  qualitySharedStem: 0.45,
-  qualityEnding: 0.6,
+  qualityInfix: 0,               // the end of an indexed compound ("konten" in "schulerkonten"); off: on the
+                                 // persona query sets it pulled in more wrong pages than right ones
+  qualityInnerInfix: 0.15,       // inside a word: "chat" in "einschatzung" barely counts
+  qualitySharedStem: 0.63,
+  qualityEnding: 0.72,
   // Field weights per term. The title needs little here: titleBoost and the tiers already
   // put title matches first, and a high value let generic title words outrank specific text.
-  title: 2,
-  keywords: 8,
-  heading: 2.5,
-  description: 5.6,
+  title: 3.4,
+  keywords: 4,
+  heading: 3,
+  description: 2,
   path: 1.5,
   text: 1.5,                     // text saturates towards text × (textK1 + 1)
-  textK1: 1.2,                   // BM25 saturation of the text block count
-  textB: 0.75,                   // BM25 length normalisation by the page's text blocks
+  textK1: 2.4,                   // BM25 saturation of the text block count
+  textB: 1,                   // BM25 length normalisation by the page's text blocks
+  headingB: 0.25,                 // the same for headings and section boosts, by the page's number of sections:
+                                 // a glossary or long essay has a heading for everything
+  termShareCap: 0.3,             // most of a multi-term query's weight one term may carry
   // Page score multipliers.
-  coveragePower: 0.5,            // score × coverage^power, coverage = idf share of the query found
+  coveragePowerShort: 1,         // score × coverage^power, coverage = idf share of the query found: for two terms
+  coveragePowerLong: 0,          // for four terms or more, the mean for three: long questions carry incidental words,
+                                 // so after stopwords their coverage does not count
   sectionBoost: 1.8,             // × (1 + boost × share²) for the section holding most of the query
   headingBoost: 0.5,             // the same for one heading
   summaryBoost: 1,               // the same for title, keywords and description together
-  titleBoost: 1,                 // × (1 + boost × share) for the query share in the title and keywords
+  titleBoost: 0,                 // × (1 + boost × share) for the query share in the title and keywords; off: the
+                                 // tiers and the title weight already put title matches first
   pathBoost: 0.5,                // × (1 + boost × share) for the query share in the breadcrumbs and URL, with a title match
   exactHeadingBoost: 0.8,        // × (1 + boost) for a heading that reads exactly like the query
 });
@@ -291,6 +308,7 @@ export function createSearch(index, { weights = {} } = {}) {
     throw new Error(`search.js: ${vocabulary.length} words but ${postingStrings.length} posting lists in the search index`);
   }
   const stopwords = new Set(STOPWORDS[tokenizer].split(' ').map((word) => normalize(word, tokenizer)));
+  const prefixes = new Set(PREFIXES[tokenizer].split(' '));
 
   // Slots: each page's own slot, then one per section (see SearchIndex.php).
   const pages = [];
@@ -309,6 +327,8 @@ export function createSearch(index, { weights = {} } = {}) {
   const slotPage = Int32Array.from(slotPages);
   const lengths = Float64Array.from(index.lengths ?? pages.map(() => 1));
   const averageLength = lengths.reduce((sum, length) => sum + length, 0) / Math.max(1, pageCount) || 1;
+  const averageSections = pages.reduce((sum, page) => sum + page.sections.length, 0) / Math.max(1, pageCount) || 1;
+  const sectionNorms = Float64Array.from(pages, (page) => 1 - W.headingB + (W.headingB * page.sections.length) / averageSections);
 
   const decoded = new Array(vocabulary.length);
   const postingsOf = (word) => (decoded[word] ??= decodePostings(postingStrings[word]));
@@ -420,6 +440,16 @@ export function createSearch(index, { weights = {} } = {}) {
     return { all: all.slice(0, MAX_TERMS), terms: (content.length > 0 ? content : all).slice(0, MAX_TERMS), typing };
   }
 
+  // A word that is a compound ending in the term: the part before it is an indexed word,
+  // possibly with a linking "s" ("schulerkonten", "arbeitsblatt"), or a word prefix
+  // ("regenerieren"), not a stray letter ("klassen").
+  function isCompoundTail(word, term) {
+    if (!word.endsWith(term)) return false;
+    const head = word.slice(0, word.length - term.length);
+    if (prefixes.has(head)) return true;
+    return head.length >= 3 && (exactWord(head) >= 0 || (head.endsWith('s') && exactWord(head.slice(0, -1)) >= 0));
+  }
+
   function hasPrefix(term) {
     const at = lowerBound(term);
     return at < vocabulary.length && vocabulary[at].startsWith(term);
@@ -476,7 +506,9 @@ export function createSearch(index, { weights = {} } = {}) {
         }
       }
       if (term.length >= INFIX_MIN) {
-        for (const word of infixWords(term, INFIX_LIMIT)) add(slot, word, W.qualityInfix);
+        for (const word of infixWords(term, INFIX_LIMIT)) {
+          add(slot, word, isCompoundTail(vocabulary[word], term) ? W.qualityInfix : W.qualityInnerInfix);
+        }
       }
       // Inflected or extended forms of an indexed word ("exportieren" finds "export").
       for (let cut = term.length - 1; cut >= Math.max(STEM_MIN, Math.ceil(term.length / 2)); cut--) {
@@ -597,7 +629,7 @@ export function createSearch(index, { weights = {} } = {}) {
       + (pageFlags & FIELD_KEYWORDS ? W.keywords : 0)
       + (pageFlags & FIELD_DESCRIPTION ? W.description : 0)
       + (pageFlags & FIELD_PATH ? W.path : 0)
-      + (heading ? W.heading : 0);
+      + (heading ? W.heading / sectionNorms[page] : 0);
     if (texts > 0) {
       const norm = 1 - W.textB + (W.textB * lengths[page]) / averageLength;
       score += (W.text * texts * (W.textK1 + 1)) / (texts + W.textK1 * norm);
@@ -620,10 +652,10 @@ export function createSearch(index, { weights = {} } = {}) {
     const seen = new Uint8Array(pageCount);
     const touched = [];
 
-    slots.forEach((slot, i) => {
+    // Every matched word of a term counts with the term's rarity, the rarity of its best
+    // match: a rare loose variant ("datenschutzerklarung" for "datenschutz") must not outweigh it.
+    const slotIdfs = slots.map((slot, i) => {
       const { candidates } = slot;
-      // Every matched word of a term counts with the term's rarity, the rarity of its best
-      // match: a rare loose variant ("datenschutzerklarung" for "datenschutz") must not outweigh it.
       let bestQuality = 0;
       let slotIdf = 0;
       for (let c = 0; c < candidates.length; c += 2) {
@@ -636,9 +668,26 @@ export function createSearch(index, { weights = {} } = {}) {
         }
       }
       slotWeights[i] = bestQuality * slotIdf;
+      return slotIdf;
+    });
+    // In a longer query no single term carries more than termShareCap of the weight, so one
+    // rare compound ("schulerdaten") does not decide it alone.
+    if (width > 1) {
+      const cap = W.termShareCap * slotWeights.reduce((sum, weight) => sum + weight, 0);
+      for (let i = 0; i < width; i++) {
+        if (slotWeights[i] > cap) {
+          slotIdfs[i] *= cap / slotWeights[i];
+          slotWeights[i] = cap;
+        }
+      }
+    }
+
+    slots.forEach((slot, i) => {
+      const { candidates } = slot;
       for (let c = 0; c < candidates.length; c += 2) {
         const list = postingsOf(candidates[c]);
-        const weight = candidates[c + 1] * slotIdf;
+        const weight = candidates[c + 1] * slotIdfs[i];
+        const counts = candidates[c + 1] >= FIELD_MATCH_QUALITY;
 
         // Entries of one page are adjacent: its own slot first, then its sections.
         let page = -1;
@@ -650,7 +699,7 @@ export function createSearch(index, { weights = {} } = {}) {
           const at = page * width + i;
           const score = weight * fieldScore(pageFlags, heading, texts, page);
           if (score > scores[at]) scores[at] = score;
-          fields[at] |= pageFlags;
+          if (counts) fields[at] |= pageFlags;
           if (!seen[page]) {
             seen[page] = 1;
             touched.push(page);
@@ -672,7 +721,7 @@ export function createSearch(index, { weights = {} } = {}) {
           }
           if (value & FIELD_HEADING) heading = true;
           texts += value >> 3;
-          sectionHits[id * width + i] |= (value & FIELD_HEADING ? 1 : 0) | (value >> 3 ? 2 : 0);
+          if (counts) sectionHits[id * width + i] |= (value & FIELD_HEADING ? 1 : 0) | (value >> 3 ? 2 : 0);
         }
         flush();
       }
@@ -680,6 +729,9 @@ export function createSearch(index, { weights = {} } = {}) {
 
     // Terms no page contains cannot tell pages apart; they do not count against coverage.
     const totalWeight = slotWeights.reduce((sum, weight) => sum + weight, 0) || 1;
+    const coveragePower = width <= 2 ? W.coveragePowerShort
+      : width >= 4 ? W.coveragePowerLong
+      : (W.coveragePowerShort + W.coveragePowerLong) / 2;
     const candidates = touched.map((page) => {
       let score = 0;
       let covered = 0;
@@ -691,7 +743,7 @@ export function createSearch(index, { weights = {} } = {}) {
           matched++;
         }
       }
-      return { page, matched, score: score * (covered / totalWeight) ** W.coveragePower, tier: 0 };
+      return { page, matched, score: score * (covered / totalWeight) ** coveragePower, tier: 0 };
     });
     candidates.sort((a, b) => b.score - a.score || a.page - b.page);
     const ranked = candidates.slice(0, DETAIL_LIMIT);
@@ -714,7 +766,8 @@ export function createSearch(index, { weights = {} } = {}) {
           if (fields[candidate.page * width + i] & (FIELD_TITLE | FIELD_KEYWORDS | FIELD_DESCRIPTION)) summary += slotWeights[i];
         }
         summary /= totalWeight;
-        candidate.score *= (1 + W.sectionBoost * section ** 2) * (1 + W.headingBoost * heading ** 2) * (1 + W.summaryBoost * summary ** 2);
+        const norm = sectionNorms[candidate.page];
+        candidate.score *= (1 + (W.sectionBoost * section ** 2) / norm) * (1 + (W.headingBoost * heading ** 2) / norm) * (1 + W.summaryBoost * summary ** 2);
       }
       let titleShare = 0;
       let pathShare = 0;
