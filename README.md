@@ -15,7 +15,6 @@
 
 - **Markdown first**, plus a few component tags: callouts, cards, tabs, steps, accordions, file trees, type tables
 - **One polished theme** with light and dark mode, sidebar, table of contents and keyboard shortcuts
-- **Eleven color presets**, one line to switch, with your own color tokens on top
 - **Instant search** built at compile time, no backend
 - **Agent-ready**: Markdown for every page, `llms.txt`, `skill.md` and content negotiation, generated from your content
 - **Syntax highlighting** at build time, with titles, line numbers, diffs and code tabs
@@ -46,7 +45,6 @@ Requires PHP 8.2+ with `mbstring` and `ctype` (PCRE2 10.43+ recommended for full
 - [Content format](docs/content-format.md)
 - [Components](docs/components.md)
 - [Configuration](docs/configuration.md)
-- [Themes](docs/themes.md)
 - [Agents](docs/agents.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
