@@ -75,11 +75,6 @@ derives values from their compiled output, so their notices are carried here.
 | Fumadocs (`fumadocs-ui`, `fumadocs-core`, `@fumadocs/tailwind`) | 16.15.9, 16.15.9, 0.1.1 | MIT, © 2023 Fuma | https://github.com/fuma-nama/fumadocs | The Notebook theme's layout, component structure, class logic, CSS token values, keyframes, prose typography; page-tree, table-of-contents and search behaviour, ported to PHP and vanilla JavaScript | [`licenses/fumadocs-MIT.txt`](licenses/fumadocs-MIT.txt) |
 | Base UI (`@base-ui/react`) | 1.8.0 | MIT, © 2019 Material-UI SAS | https://github.com/mui/base-ui | Behaviour and the names and order of state attributes of dialog, popover, collapsible, scroll area, tabs, accordion and navigation menu, reimplemented in vanilla JavaScript | [`licenses/base-ui-MIT.txt`](licenses/base-ui-MIT.txt) |
 | Tailwind CSS (`tailwindcss`) | 4.3.3 | MIT, © Tailwind Labs, Inc. | https://github.com/tailwindlabs/tailwindcss | The preflight block, theme variables, `@property` registrations and layer order, taken from compiled output | [`licenses/tailwindcss-MIT.txt`](licenses/tailwindcss-MIT.txt) |
-| zbsearch | 4.0.0 | Apache-2.0, © 2023 ZBSearchSearch Inc | https://github.com/micheleriva/zbsearch | Tokenisation, BM25 ranking parameters and result ordering, reimplemented in PHP and vanilla JavaScript | [`licenses/zbsearch-Apache-2.0.txt`](licenses/zbsearch-Apache-2.0.txt) |
-
-**Notice of changes (Apache-2.0, section 4b).** Pholio contains no zbsearch
-source files. Its search is an independent reimplementation in PHP and
-JavaScript written to reproduce zbsearch's observable ranking behaviour.
 
 ## Not shipped
 
