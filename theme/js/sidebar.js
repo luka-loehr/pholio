@@ -1,23 +1,20 @@
 // sidebar.js — sidebar of the notebook layout.
 //
-// Sources (read, not guessed):
-//   reference UI dist/components/sidebar/base.js
-//       SidebarProvider   – `mode` from matchMedia('(width < 768px)'), closeOnRedirect
-//       SidebarContent    – hover rules of the collapsed sidebar
-//       SidebarDrawerOverlay / SidebarDrawerContent – data-state, invisible after animationend
-//       SidebarFolder / SidebarFolderLink – state and click rules
-//       SidebarTrigger    – aria-expanded and changing aria-label
-//       useAutoScroll     – scrollIntoView with boundary #nd-sidebar or #nd-sidebar-mobile
-//   reference UI dist/layouts/notebook/slots/sidebar.js   – collapsed sidebar, hover zone
-//   reference UI dist/layouts/notebook/slots/container.js – --fd-sidebar-col, data-column-changed
+// Parts:
+//   mode              – `mode` from matchMedia('(width < 768px)'), close on navigation
+//   content           – hover rules of the collapsed sidebar, hover zone
+//   drawer, overlay   – data-state, invisible after animationend
+//   folders           – state and click rules
+//   trigger           – aria-expanded and changing aria-label
+//   auto scroll       – scrollIntoView with boundary #nd-sidebar or #nd-sidebar-mobile
+//   layout            – --fd-sidebar-col, data-column-changed
 //
-// Additionally (not in the original): scroll position, open folders and the collapsed
-// state survive page navigation in `sessionStorage`, because the static site reloads
-// where Next switches pages client-side. Storage, folder keys, the parking spot of the
+// Scroll position, open folders and the collapsed state survive page navigation in
+// `sessionStorage`, because the static site reloads on every navigation. Storage, folder keys, the parking spot of the
 // non-matching variant and the restore before first paint are shared with
 // sidebar-restore.js (`window.ndSidebarRestore`, rationale in that file's header).
 //
-// Classes (verify/CLASS-MAP.md): state lives only in attributes — `data-collapsed`,
+// Classes: state lives only in attributes — `data-collapsed`,
 // `data-hovered` and `data-collapse-transition` on the aside, `data-sidebar-collapsed` and
 // `data-column-changed` on the layout, `data-state` on drawer and overlay, `aria-*` on the
 // triggers. The CSS hooks onto them; the sidebar's class list stays `nd-sidebar`. The module
@@ -184,9 +181,7 @@ export class Sidebar {
       this.layout.setAttribute('data-column-changed', String(changed));
       this.layout.style.setProperty('--fd-sidebar-col', collapsed ? '0px' : 'var(--fd-sidebar-width)');
       if (changed) {
-        // In the original `data-column-changed` is true for exactly one commit
-        // (useEffect updates previousCollapsed afterwards).
-        // Measured in the reference: `true` survives one frame, the second shows `false`.
+        // `data-column-changed` is true for exactly one frame; the second shows `false`.
         // The running grid-template-columns transition is not interrupted by this.
         requestAnimationFrame(() => requestAnimationFrame(() => {
           this.layout.setAttribute('data-column-changed', 'false');
@@ -204,10 +199,9 @@ export class Sidebar {
    * `data-column-changed`.
    *
    * Each call corresponds to one render of SidebarContent. The transition class
-   * `transition-[width,inset-block,translate,background-color]` is present in the original
+   * `transition-[width,inset-block,translate,background-color]` is present
    * exactly when the `data-collapsed` of the **previous** render differs from the new
-   * state (`ref.current.getAttribute("data-collapsed") === "true" !== collapsed`
-   * in layouts/notebook/slots/sidebar.js). So it stays after collapsing or
+   * state. So it stays after collapsing or
    * expanding until the next render comes — in practice the next hover change.
    * `data-collapse-transition` reproduces exactly that; without a collapse
    * interaction the attribute is never present.
@@ -250,14 +244,13 @@ export class Sidebar {
     if (this.shouldIgnoreHover(event)) return;
     clearTimeout(this.leaveTimer);
     if (this.hovered) return;
-    // `pointerover` is not a discrete event; React therefore commits the state
-    // only in the next frame. Measured in the reference: right after the
+    // The hover state is committed only in the next frame: right after the
     // pointer event `data-hovered` is still false.
     cancelAnimationFrame(this.hoverFrame);
     clearTimeout(this.hoverTimer);
     this.hoverFrame = requestAnimationFrame(() => {
       this.hoverTimer = setTimeout(() => {
-        // setHover(true) on an already true value does not re-render in React.
+        // Setting an already true hover state changes nothing.
         if (this.hovered) return;
         this.hovered = true;
         this.applyAsideState();
@@ -359,18 +352,16 @@ export class Sidebar {
   // ---- Auto scroll and persistence ------------------------------------------
 
   /**
-   * useAutoScroll (base.js): **every** active entry (SidebarItem, SidebarFolderLink)
+   * Auto scroll: **every** active entry (SidebarItem, SidebarFolderLink)
    * calls `scrollIntoView(el, { boundary, scrollMode: 'if-needed' })` on mount, in
    * tree order; the last one wins. On pages below a menu link that is both the
-   * menu link and the page entry — measured in the reference.
+   * menu link and the page entry.
    *
-   * useAutoScroll passes neither block nor inline; the original therefore centres
+   * The call passes neither block nor inline, so it centres
    * as soon as the entry is not visible (see scroll-into-view.js).
    *
-   * Measurement condition as in the reference: there the drawer mounts only when
-   * useMediaQuery (initial value null) switches to "drawer", and the effects run while
-   * its close animation `fd-sidebar-out` stands at 0 ms, i.e. without offset. Here
-   * the drawer is in the HTML from the start; when this module runs, the animation
+   * The measurement must see the drawer without offset. The drawer is in the HTML
+   * from the start; when this module runs, the animation
    * has already started and pushes it to the right, so the entry sticks out over
    * the window edge and wrongly counts as hidden (measured: 16.5 px at 17 ms).
    * So running animations of the sidebar are set to 0 ms for the measurement and
