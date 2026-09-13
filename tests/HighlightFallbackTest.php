@@ -66,17 +66,13 @@ $reference = null;
 test('the demo builds normally without a fallback warning', function () use (&$reference): void {
     [$code, , $err, $out] = fallback_build('');
     assert_same(0, $code, $err);
-    if (version_compare(explode(' ', PCRE_VERSION)[0], '10.43', '<')) {
-        skip('this PHP links PCRE2 ' . PCRE_VERSION . ', the unforced build takes the fallback itself');
-    }
+    require_full_pcre2_or_skip('the unforced build takes the fallback itself');
     assert_true(!str_contains($err, 'older than 10.43'), 'no fallback warning: ' . $err);
     $reference = fallback_tree($out);
 });
 
 test('an old PCRE2 version alone disables nothing when every pattern compiles', function () use (&$reference): void {
-    if ($reference === null) {
-        skip('needs the unforced build of the previous test');
-    }
+    require_full_pcre2_or_skip('needs the unforced build of the previous test');
     [$code, , $err, $out] = fallback_build('Pholio\Highlight\OnigRegex::$pcreVersion = "10.42";');
     assert_same(0, $code, $err);
     assert_true(!str_contains($err, 'older than 10.43'), 'no fallback warning: ' . $err);
