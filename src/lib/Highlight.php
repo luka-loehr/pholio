@@ -22,11 +22,11 @@ require_once __DIR__ . '/Highlight/LanguageIcons.php';
 require_once __DIR__ . '/Highlight/Shiki.php';
 
 /**
- * Syntax highlighting like the reference rehype-code (Shiki 4.4.3, JavaScript regex engine, github-light/github-dark,
+ * Syntax highlighting as Shiki 4.4.3 produces it (JavaScript regex engine, github-light/github-dark,
  * defaultColor false), in plain PHP: real TextMate grammars and themes from `vendor-data/shiki`.
  *
  * Input is a `code_block` from Markdown.php: `lang` and `meta` {raw, title?, lineNumbers?, noCopy?, tab?,
- * tabGroup?}. As in the original, the key order of `meta` determines the order of the `pre` attributes.
+ * tabGroup?}. The key order of `meta` determines the order of the `pre` attributes.
  *
  * Returns:
  * - html: the `pre` as hast-util-to-html serialises the Shiki HAST (including title/allowCopy/data-line-numbers/icon)
@@ -34,13 +34,13 @@ require_once __DIR__ . '/Highlight/Shiki.php';
  * - preClass, preStyle: classes and CSS variables of the `pre` (the component puts them on the `figure`)
  * - title, lang, lineNumbers (false|true|int), tab, icon (SVG or null), allowCopy
  *
- * Unknown languages throw, as in the reference build (which aborts with "Language `x` not found").
+ * Unknown languages throw ("Language `x` not found"): the build stops instead of printing plain text.
  */
 final class Highlight
 {
     /**
-     * Meta line (info string without the language) like the reference build: remark-code-tab takes out tab/tab-group, then
-     * parseMetaString (title, tab, noCopy, lineNumbers). Result in the shape of Markdown.php.
+     * Meta line (info string without the language): tab/tab-group are taken out first, then
+     * title, tab, noCopy and lineNumbers are parsed. Result in the shape of Markdown.php.
      *
      * @return array<string,mixed>
      */
