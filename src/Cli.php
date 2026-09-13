@@ -113,6 +113,9 @@ TEXT;
     /** @var null|\Closure(array, bool, ?string): Builder replaced by tests */
     public static ?\Closure $builderFactory = null;
 
+    /** How this process was started, for commands printed back to the user. */
+    private string $program = 'pholio';
+
     /** @var resource */
     private $out;
 
@@ -138,6 +141,7 @@ TEXT;
     /** @param list<string> $argv including the program name */
     public function run(array $argv): int
     {
+        $this->program = (string) ($argv[0] ?? 'pholio');
         try {
             return $this->dispatch(array_slice($argv, 1));
         } catch (Exception $e) {
@@ -608,14 +612,38 @@ TEXT;
         foreach ($files as $file) {
             fwrite($this->out, "  {$file}\n");
         }
+        $command = $this->invocation();
+        $target = $given !== '.' && realpath($dir) !== realpath($cwd) ? ' ' . self::shellWord($given) : '';
         fwrite($this->out, "\nNext steps:\n");
-        if ($given !== '.' && realpath($dir) !== realpath($cwd)) {
-            fwrite($this->out, '  cd ' . (str_contains($given, ' ') ? escapeshellarg($given) : $given) . "\n");
-        }
-        fwrite($this->out, "  pholio dev      preview at http://127.0.0.1:8080, rebuilds when you save\n");
-        fwrite($this->out, "  pholio build    write the static site into public/\n");
+        fwrite($this->out, "  {$command} dev{$target}      preview at http://127.0.0.1:8080, rebuilds when you save\n");
+        fwrite($this->out, "  {$command} build{$target}    write the static site into public/\n");
 
         return self::OK;
+    }
+
+    /**
+     * The command a user types to run this Pholio again from the current
+     * directory: "pholio" when that name on PATH is this very script, otherwise
+     * "php <script path as it was called>".
+     */
+    private function invocation(): string
+    {
+        $self = realpath($this->program);
+        if ($self !== false && basename($this->program) === 'pholio') {
+            foreach (explode(PATH_SEPARATOR, (string) getenv('PATH')) as $dir) {
+                $candidate = rtrim($dir, '/') . '/pholio';
+                if ($dir !== '' && is_file($candidate) && realpath($candidate) === $self) {
+                    return 'pholio';
+                }
+            }
+        }
+
+        return 'php ' . self::shellWord($this->program);
+    }
+
+    private static function shellWord(string $word): string
+    {
+        return preg_match('#^[A-Za-z0-9_./:@%+=,-]+$#', $word) === 1 ? $word : escapeshellarg($word);
     }
 
     /** "my-docs" gives "My Docs". */
