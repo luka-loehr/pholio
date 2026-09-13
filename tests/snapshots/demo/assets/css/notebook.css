@@ -2025,12 +2025,16 @@ html {
     height: calc(var(--spacing) * 4);
   }
 
-  /* .nd-toc-scroll  <-  [scrollbar-width:none] min-h-0 ms-px overflow-x-clip overflow-y-auto overscroll-contain py-3 relative text-sm */
+  /* .nd-toc-scroll  <-  [scrollbar-width:none] mask-[linear-gradient(to_bottom,transparent,white_16px,white_calc(100%-16px),transparent)] min-h-0 ms-px overflow-x-clip overflow-y-auto overscroll-contain py-3 relative text-sm */
   .nd-toc-scroll {
     position: relative;
     margin-inline-start: 1px;
     min-height: 0;
     scrollbar-width: none;
+    /* The one fade Pholio keeps: entries soften out at the top and bottom edge of the list
+       instead of being cut off hard under "On this page". */
+    -webkit-mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
+    mask-image: linear-gradient(#0000, #fff 16px calc(100% - 16px), #0000);
     overflow-x: clip;
     overflow-y: auto;
     overscroll-behavior: contain;
