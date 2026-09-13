@@ -1,25 +1,18 @@
 /* prose.css — typography of the article body, steps utilities and Shiki rules
  *
- * Verbatim from the compiled reference stylesheet:
- *   css/[root-of-the-server]__1br6yta._.css
+ * The .prose rules are Tailwind typography plugin output and live in
+ * @layer utilities, so rules that must lose against them go into
+ * @layer components (layout.css, components.css).
  *
- * The .prose rules come from the reference typography plugin; they live in
- * @layer utilities there and stay in the same layer here, so the later
- * components.css (unlayered or @layer components) can override them as in the
- * original.
+ * Contents, in order:
+ *   .fd-step:before, .fd-steps (with @media 40rem)
+ *   .prose … .prose-no-margin
+ *   .fd-scroll-container::-webkit-scrollbar*
+ *   .shiki rules (unlayered)
  *
- * Ranges taken over:
- *   l.  451–485   .fd-step:before, .fd-steps (+ @media 40rem, l. 477–485)
- *   l.  777–1210  .prose … .prose-no-margin      (the 76 .prose rules)
- *   l. 1276–1292  .fd-scroll-container::-webkit-scrollbar*
- *   l. 3935–4088  .shiki rules (unlayered, from the reference UI's css/lib/shiki.css)
- *
- * Two traps when updating the ranges:
- *   - The @media block ends at l. 485, not 484. If the closing brace is missing,
- *     the file stays syntactically valid, but every .prose rule is out of effect
- *     below 40rem.
- *   - The Shiki rules start at l. 3935. Up to l. 3933 there is still
- *     .fd-page-tree-item-name, which belongs in components.css.
+ * Trap when editing: check the braces of the @media 40rem block. With one missing
+ * the file stays valid, but every .prose rule slides into the media query and is
+ * out of effect below 40rem.
  */
 
 @layer utilities {
@@ -513,7 +506,7 @@
   }
 }
 
-/* --- reference UI css/lib/shiki.css (unlayered, l. 3935–4088) --- */
+/* --- Code blocks: .shiki (unlayered) --- */
 
 .shiki:not(.not-pholio-codeblock *) {
   --padding-left: calc(var(--spacing) * 4);
