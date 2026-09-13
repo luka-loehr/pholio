@@ -49,7 +49,7 @@ A new configuration key is added to `src/Config.php` and
   message. Never add a silent fallback.
 - JavaScript is plain ES modules, two spaces, no bundler and no libraries.
 - CSS is hand-written in `theme/css/`, in cascade order. Colors go through the
-  `--color-fd-*` tokens, so presets and site palettes reach every component.
+  `--color-fd-*` tokens, so site palettes reach every component.
 - Node is allowed in `verify/` only, because nothing there is ever shipped.
 
 ## Checks
