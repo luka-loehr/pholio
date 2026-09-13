@@ -1,17 +1,16 @@
 /*
  * sidebar-restore.js — restores the sidebar before first paint.
  *
- * Next switches pages without a reload; the static site reloads. So that the
+ * The static site reloads on every navigation. So that the
  * sidebar doesn't jump, this script restores the open folders, the scroll
  * position and a collapsed sidebar from sessionStorage (`nd-sidebar-state`;
- * collapsed only on in-site navigation and back/forward, since the reference
- * starts expanded after a reload) and removes the variant
- * that doesn't match the window width (the reference renders only the drawer below
- * 768 px, only the desktop sidebar above).
+ * collapsed only on in-site navigation and back/forward, since a reload starts
+ * expanded) and removes the variant that doesn't match the window width (only the
+ * drawer below 768 px, only the desktop sidebar above).
  *
  * INCLUSION (CSP, no inline script): as a classic, synchronous script after
  * the last of the two variants, i.e. after `aside#nd-sidebar-mobile`
- * (the reference renders `SidebarDrawer` after `SidebarContent`):
+ * (the drawer comes after the desktop sidebar):
  *
  *   <script src="…/assets/js/sidebar-restore.js"></script>
  *
