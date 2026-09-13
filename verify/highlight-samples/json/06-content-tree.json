@@ -1,0 +1,74 @@
+{
+  "root": "/guide/",
+  "generated": "2026-09-12T14:32:10.123Z",
+  "nodes": [
+    {
+      "slug": "getting-started",
+      "title": "Getting started",
+      "order": 1,
+      "roles": ["viewer", "editor", "admin", "owner"],
+      "children": [
+        { "slug": "login", "title": "Log in", "order": 1, "children": [] },
+        { "slug": "forgot-password", "title": "Forgot password?", "order": 2, "children": [] },
+        {
+          "slug": "profile",
+          "title": "Profile & settings",
+          "order": 3,
+          "anchors": ["#photo", "#notifications", "#dark-mode"],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "billing",
+      "title": "Billing",
+      "order": 2,
+      "roles": ["admin", "owner"],
+      "meta": {
+        "updated": "2026-09-01",
+        "readingMinutes": 4.5,
+        "words": 1234,
+        "images": 0,
+        "draft": false
+      },
+      "children": [
+        {
+          "slug": "invoices",
+          "title": "Invoices for admins",
+          "order": 1,
+          "redirects": ["/guide/invoices-admin.html", "/guide/invoice_adm.html"],
+          "children": []
+        },
+        {
+          "slug": "plans",
+          "title": "Plans for teams",
+          "order": 2,
+          "note": "Codes: \"M\" = monthly, \"Y\" = yearly — résumé",
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "support",
+      "title": "Support",
+      "order": 3,
+      "roles": ["viewer"],
+      "children": [
+        {
+          "slug": "tickets",
+          "title": "Tickets",
+          "order": 1,
+          "responseHours": 48,
+          "children": []
+        },
+        {
+          "slug": "newsletters",
+          "title": "Newsletters",
+          "order": 2,
+          "children": null
+        }
+      ]
+    }
+  ],
+  "stats": { "pages": 9, "maxDepth": 2, "coverage": 1.0, "errors": [] }
+}
