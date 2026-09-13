@@ -5,9 +5,17 @@ icon: settings
 ---
 
 The configuration is one PHP file returning one array. It holds data only: no
-classes, no environment lookups, no side effects. Start from
-`pholio.config.example.php` in the repository root, which shows the same keys
-with comments.
+classes, no environment lookups, no side effects. It is optional: every key has a
+default, so a project directory with a `content/` folder builds without one.
+`pholio init` writes a small `pholio.config.php`, and
+`pholio.config.example.php` in the repository root shows every key with
+comments.
+
+Pholio looks for the configuration in this order: the file passed with
+`--config`; otherwise `pholio.config.php` in the project directory (the `[dir]`
+argument, default the current directory); otherwise the defaults, with paths
+relative to the project directory. `--config` together with a `[dir]` argument
+is a usage error.
 
 `src/Config.php` validates the file before anything is built. An unknown key,
 a value of the wrong type or a planned key set to anything but its default
@@ -39,7 +47,7 @@ only their default value until the feature exists.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `title` | required | Site name: header wordmark, `<title>`, `{site}` |
+| `title` | `Documentation` | Site name: header wordmark, `<title>`, `{site}` |
 | `title_template` | `{title} – {site}` | Page `<title>` pattern |
 | `logo` | `null` | Logo URL next to the wordmark. `null` shows the wordmark only |
 | `logo_size` | `24` | Logo width and height in pixels |
@@ -48,7 +56,7 @@ only their default value until the feature exists.
 | `base_path` | `/` | URL of the start page. `/docs/` when the site sits in a subfolder |
 | `docs_path` | `null` | URL of the docs root. `null` uses `base_path` |
 | `docs_root_suffix` | `null` | Path appended to the docs root page, e.g. `/overview`. Needed when the docs root and the start page would share one URL |
-| `asset_base` | `assets/` | URL of the theme's CSS, JavaScript, fonts and licences. Relative to `base_path` unless it starts with `/` or a scheme |
+| `asset_base` | `pholio/` | URL of the theme's CSS, JavaScript, fonts and licences. Relative to `base_path` unless it starts with `/` or a scheme. The default keeps `/assets/` free for the site's own files |
 | `language` | `en` | `<html lang>`, the interface strings and the default search tokenizer. Shipped: `en`, `de`. Any other language needs `translations` for every key |
 | `translations` | `[]` | Interface string overrides, translation key => text. An unknown key is an error |
 
@@ -60,15 +68,15 @@ asks for `docs_root_suffix`, a different `docs_path`, or `home => null`.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `content_dir` | required | Markdown sources and `meta.json` tree files |
-| `output_dir` | required | Directory of the start page's `index.html`. `pholio build` writes into it and deletes nothing |
+| `content_dir` | `content` | Markdown sources and `meta.json` tree files |
+| `output_dir` | `public` | Directory of the start page's `index.html`. `pholio build` writes into it and deletes nothing |
 | `content.extensions` | `['md']` | File extensions read as pages, without the dot |
 | `content.link_prefix` | `null` | URL prefix of internal links in the content that is rewritten to the docs root. With `'/handbook'`, a link to `/handbook/guide` in the content points at `{docs}/guide` in the output. `null` leaves links as written |
 | `content.asset_prefix` | `null` | URL prefix of image sources in the content that is rewritten to `content.asset_target`. `null` leaves image sources as written |
 | `content.asset_target` | `{docs}` | URL that `content.asset_prefix` maps to |
 | `content.asset_root` | `null` | Directory that mirrors `content.asset_target`, used to read image width and height. `null` resolves images against `content_dir` |
 | `content.frontmatter_aliases` | `[]` | Extra frontmatter names mapped onto allowed ones, e.g. `['date' => 'updated']` |
-| `copy` | `[]` | Source directory => URL directory, copied into the output verbatim, without `*.md` files |
+| `copy` | `assets` => `{home}/assets` | Source directory => URL directory, copied into the output verbatim, without `*.md` files. Without the key, `assets/` is published at `/assets/` when it exists; an explicit `copy` replaces that default |
 | `output.keep` | `[]` | Paths below `output_dir` that Pholio neither writes nor reports in `pholio check`. A directory covers everything below it |
 
 Rewriting happens at a path boundary only: `/handbook` matches `/handbook` and
