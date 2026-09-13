@@ -63,10 +63,17 @@ export function createPopover({
     const anchor = trigger.getBoundingClientRect();
     const viewportWidth = document.documentElement.clientWidth;
     const viewportHeight = document.documentElement.clientHeight;
+    const dpr = window.devicePixelRatio || 1;
+
+    // Anchor size as in Base UI (internals/useAnchorPositioning.mjs, size.apply): round
+    // both edges to device pixels, then take the difference – not the width itself.
+    // With x = 75.5 and width 298.5 that gives 374 − 76 = 298 (reference), not 299.
+    const anchorWidth = (Math.round((anchor.left + anchor.width) * dpr) - Math.round(anchor.left * dpr)) / dpr;
+    const anchorHeight = (Math.round((anchor.top + anchor.height) * dpr) - Math.round(anchor.top * dpr)) / dpr;
 
     // The popup is `--anchor-width` wide; without this variable it measures wrong.
-    positioner.style.setProperty('--anchor-width', `${Math.round(anchor.width)}px`);
-    positioner.style.setProperty('--anchor-height', `${Math.round(anchor.height)}px`);
+    positioner.style.setProperty('--anchor-width', `${anchorWidth}px`);
+    positioner.style.setProperty('--anchor-height', `${anchorHeight}px`);
     // offsetWidth/offsetHeight instead of getBoundingClientRect: while fd-popover-in
     // runs, the animation shrinks the rectangle (scale 0.95).
     const popRect = { width: popup.offsetWidth, height: popup.offsetHeight };
@@ -81,7 +88,7 @@ export function createPopover({
       ? anchor.bottom + sideOffset
       : anchor.top - sideOffset - popRect.height;
 
-    // Align center, then shift into the viewport.
+    // Align center, then shift into the viewport (unrounded, as floating-ui does internally).
     let left = align === 'start'
       ? anchor.left
       : align === 'end'
@@ -91,8 +98,17 @@ export function createPopover({
     left = Math.max(PADDING, Math.min(left, Math.max(PADDING, maxLeft)));
 
     const availableHeight = usedSide === 'bottom' ? viewportHeight - top - PADDING : top - PADDING;
-    const originX = anchor.left + anchor.width / 2 - left;
-    const originY = usedSide === 'bottom' ? -sideOffset : popRect.height + sideOffset;
+
+    // transform-origin as in Base UI without an arrow and with align center: cross axis =
+    // anchor centre relative to the UNROUNDED popup edge, side axis = −sideOffset.
+    const trim = (v) => Number(v.toFixed(3));
+    const originX = trim(anchor.left + anchor.width / 2 - left);
+    const originY = usedSide === 'bottom' ? `${-sideOffset}px` : `calc(100% + ${sideOffset}px)`;
+
+    // translate as in floating-ui (roundByDPR): each coordinate rounded to device pixels.
+    const roundByDpr = (v) => Math.round(v * dpr) / dpr;
+    const tx = roundByDpr(left + window.scrollX);
+    const ty = roundByDpr(top + window.scrollY);
 
     const parts = [
       'position: absolute',
@@ -103,10 +119,10 @@ export function createPopover({
     ];
     if (transitionNone) parts.push('transition: none');
     parts.push(
-      `--anchor-width: ${Math.round(anchor.width)}px`,
-      `--anchor-height: ${Math.round(anchor.height)}px`,
-      `--transform-origin: ${Math.round(originX)}px ${Math.round(originY)}px`,
-      `transform: translate(${Math.round(left + window.scrollX)}px, ${Math.round(top + window.scrollY)}px)`,
+      `--anchor-width: ${anchorWidth}px`,
+      `--anchor-height: ${anchorHeight}px`,
+      `--transform-origin: ${originX}px ${originY}`,
+      `transform: translate(${tx}px, ${ty}px)`,
     );
     positioner.setAttribute('style', `${parts.join('; ')};`);
 
@@ -129,8 +145,13 @@ export function createPopover({
   function open() {
     if (isOpen) return;
     isOpen = true;
+    // Reference (states/tabs-open-*.html): while open the trigger also carries
+    // data-pressed and aria-controls with the popup's id; both are dropped on
+    // closing (states/tabs-close-esc-settled.html).
     trigger.setAttribute('aria-expanded', 'true');
     trigger.setAttribute('data-popup-open', '');
+    trigger.setAttribute('data-pressed', '');
+    trigger.setAttribute('aria-controls', popupId);
 
     portal = document.createElement('div');
     portal.id = portalId;
@@ -185,6 +206,8 @@ export function createPopover({
     isOpen = false;
     trigger.setAttribute('aria-expanded', 'false');
     trigger.removeAttribute('data-popup-open');
+    trigger.removeAttribute('data-pressed');
+    trigger.removeAttribute('aria-controls');
     document.removeEventListener('keydown', onKeyDown, true);
     releaseOutside?.();
     releaseOutside = null;
