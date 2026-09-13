@@ -1,0 +1,43 @@
+
+{
+	"$schema": "https://example.com/schemas/site.json",
+	"name": "example-docs",
+	"version": "2.4.0",
+	"active": true,
+	"archived": false,
+	"parentId": null,
+	"languages": ["en", "fr"],
+	"navigation": {
+		"start": "/guide",
+		"sections": [
+			{
+				"title": "Getting started",
+				"path": "/guide/getting-started",
+				"pages": ["login", "forgot-password", "profile"]
+			},
+			{
+				"title": "Billing",
+				"path": "/guide/billing",
+				"pages": [],
+				"roles": ["editor", "admin"],
+				"new": true
+			}
+		]
+	},
+	"search": {
+		"minChars": 2,
+		"weights": { "title": 3.5, "heading": 2, "text": 1 },
+		"stopWords": ["the", "a", "an", "and", "or"],
+		"synonyms": {}
+	},
+	"limits": {
+		"maxUpload": 10485760,
+		"ratio": 0.75,
+		"factor": -1.5e-3,
+		"avogadro": 6.022E+23,
+		"zero": 0,
+		"negativeZero": -0,
+		"plus": 1E2,
+		"tiny": 5e-324
+	}
+}
