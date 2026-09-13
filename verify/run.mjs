@@ -14,7 +14,8 @@
 //      the static site server, and Playwright resolution (reported; required with
 //      --require-playwright, launched once with --launch-browser).
 //   1  PHP: scripts/check.sh.
-//   2  Node tooling without a reference: the selftests of the parity tools.
+//   2  Node tooling without a reference: the selftests of the parity tools and the
+//      search oracle over the demo (needs PHP on PATH).
 //   3  Parity against a reference export.
 //
 // Exit codes: 0 green, 1 a step failed, 2 usage error.
@@ -340,6 +341,11 @@ async function tier2() {
   for (const tool of ['verify/golden-dom-selftest.mjs', 'verify/computed-style-selftest.mjs', 'verify/pixel-diff-selftest.mjs']) {
     await check(...scriptStep(tool));
   }
+  await check(...scriptStep('verify/search-parity.mjs', ['--selftest']));
+  await check(...scriptStep('verify/search-parity.mjs', [
+    '--oracle', '--content', 'examples/demo/content', '--base-url', '/',
+    '--queries', 'verify/fixtures/demo/queries.json', '--tokenizer', 'english',
+  ]));
 }
 
 async function tier3() {
