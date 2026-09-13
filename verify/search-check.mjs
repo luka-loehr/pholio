@@ -67,11 +67,11 @@ const argv = process.argv.slice(2);
 function usage(message) {
   console.error(
     `${message}\nUsage:\n`
-      + '  node verify/search-parity.mjs --selftest\n'
-      + '  node verify/search-parity.mjs --consistency --content <dir> --base-url <url> [--tokenizer english|german]\n'
-      + '  node verify/search-parity.mjs --relevance --fixture <file.json> (--index <file> | --content <dir> --base-url <url>'
+      + '  node verify/search-check.mjs --selftest\n'
+      + '  node verify/search-check.mjs --consistency --content <dir> --base-url <url> [--tokenizer english|german]\n'
+      + '  node verify/search-check.mjs --relevance --fixture <file.json> (--index <file> | --content <dir> --base-url <url>'
       + ' [--tokenizer english|german]) [--verbose]\n'
-      + '  node verify/search-parity.mjs --perf --fixture <file.json> (--index <file> | --content <dir> --base-url <url>'
+      + '  node verify/search-check.mjs --perf --fixture <file.json> (--index <file> | --content <dir> --base-url <url>'
       + ' [--tokenizer english|german] [--copies <n>]) [--max-bytes <n>] [--max-gzip <n>] [--max-load-ms <n>]'
       + ' [--max-p95-ms <n>] [--max-ms <n>]\n'
       + '  Build options: [--extensions <list>] [--frontmatter-alias <from=to>]... [--php <bin>]',
