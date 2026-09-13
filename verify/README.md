@@ -94,7 +94,8 @@ first hit:
 | `verify/pixel-diff.mjs` | Full-page screenshot diff, tolerance zero outside text antialiasing | as computed-style, plus optional `--states <file>` |
 | `verify/behaviour.mjs` | Keyboard, focus order, scroll lock, click-outside, animation keyframes via `getAnimations()` | `--reference <app url>`, `--candidate <url>`, `--rewrites <file>`, repeatable `--scenarios <file>` |
 | `verify/catalogue-states.mjs` | Static, interactive and layered states of the component catalogue | `--mode`, `--site <dir>`, `--out <dir>`; `--reference <export dir>` and `--cuts <file>` for `static` and `states` |
-| `verify/search-parity.mjs` | Search splitters against zbsearch, and search answers against the reference oracle or a frozen reference | `--selftest`, or `--oracle --content <dir> --base-url <path> --queries <file> --tokenizer <name>` |
+| `verify/search-parity.mjs` | `theme/js/search.js` against `src/lib/SearchIndex.php` (normalisation, codecs, the rebuilt index), relevance cases and performance budgets | `--selftest`, `--consistency --content <dir> --base-url <path>`, `--relevance` or `--perf` with `--fixture <file>` and `--index <file>` or `--content` |
+| `verify/search-query.mjs` | One query against a built index, printing the top pages as the search dialog ranks them: title, breadcrumbs, matched headings | `--index <search-index.json> "query"`, optional `--limit <n>`, `--json` |
 | `verify/lucide-oracle.mjs` | Icon markup against lucide-react | `--check --all` or `--check --sample <n>`, optional `--seed <n>` |
 | `verify/fixtures/demo/` | Demo site data: search queries, behaviour scenarios and pixel states | |
 | `verify/class-map.json` | Utility class to `nd-*` component class translation, so the DOM diff keeps working after the CSS is rewritten | |
