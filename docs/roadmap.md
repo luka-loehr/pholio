@@ -8,8 +8,8 @@ icon: map
 
 **Status: 0.1.0.** `pholio init` creates a project, `pholio dev` previews it
 while you edit, `pholio build` writes the static site and `pholio check`
-compares a build with committed output. The theme ships eleven color presets,
-the content format covers every component on the
+compares a build with committed output. The content format covers every
+component on the
 [components page](/docs/components), and every build publishes the files AI
 agents look for.
 
