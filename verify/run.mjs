@@ -15,8 +15,8 @@
 //      the static site server, and Playwright resolution (reported; required with
 //      --require-playwright, launched once with --launch-browser).
 //   1  PHP: scripts/check.sh.
-//   2  Node tooling without a reference: the selftests of the parity tools and the
-//      search and lucide oracles (need PHP on PATH).
+//   2  Node tooling without a reference: the selftests of the parity tools, the
+//      search and lucide oracles and the agent score of the demo (need PHP on PATH).
 //   3  Parity against a reference: golden DOM against the export directory, computed
 //      style, pixels and behaviour against the running reference app. Scenarios default
 //      to the demo layout and overlays fixtures, pixel states to the demo pixel states.
@@ -366,6 +366,8 @@ async function tier2() {
   ]));
   // The real dialog under a subpath with the site's CSP, in Chromium, Firefox and WebKit.
   await check(...scriptStep('verify/search-dialog.mjs'));
+  // The demo's files for AI agents, served by pholio dev's router, scored like `mint score`.
+  await check(...scriptStep('verify/agent-score.mjs', ['--demo', '--min-score', '100']));
   // Every icon with an explicit seed, which fixes the class names paired with each icon:
   // a failure reproduces on every run.
   await check(...scriptStep('verify/lucide-oracle.mjs', ['--check', '--all', '--seed', '1']));
