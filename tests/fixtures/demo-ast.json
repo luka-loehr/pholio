@@ -399,7 +399,8 @@
                 "name": "Banner",
                 "attrs": {
                     "id": "demo-notice",
-                    "variant": "rainbow"
+                    "variant": "rainbow",
+                    "changeLayout": false
                 },
                 "blocks": [
                     {
@@ -410,6 +411,23 @@
                                 "value": "This is a demo site. Lanternfly is fictional; the components are real."
                             }
                         ]
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "inlines": [
+                    {
+                        "type": "text",
+                        "value": "The banner above sets "
+                    },
+                    {
+                        "type": "code",
+                        "value": "changeLayout=\"false\""
+                    },
+                    {
+                        "type": "text",
+                        "value": ", so it sits on the page without\npushing the header down."
                     }
                 ]
             },
@@ -484,7 +502,8 @@
                 "type": "component_void",
                 "name": "Screenshot",
                 "attrs": {
-                    "src": "pipeline.svg",
+                    "src": "/images/pipeline.svg",
+                    "dark": "/images/pipeline-dark.svg",
                     "alt": "Content flows through the parser and the components into a static site"
                 }
             },
@@ -509,7 +528,8 @@
         "frontmatter": {
             "title": "Installation",
             "description": "Install Lanternfly with your package manager of choice and check that it runs.",
-            "icon": "download"
+            "icon": "download",
+            "updated": "2026-09-13"
         },
         "headings": [
             {
@@ -623,7 +643,7 @@
                         "blocks": [
                             {
                                 "type": "code_block",
-                                "lang": "powershell",
+                                "lang": "sh",
                                 "meta": {
                                     "raw": "",
                                     "tab": "winget"
@@ -941,7 +961,7 @@
                                 "type": "component_void",
                                 "name": "File",
                                 "attrs": {
-                                    "name": "lanternfly.toml"
+                                    "name": "lanternfly.yaml"
                                 }
                             },
                             {
@@ -1108,7 +1128,15 @@
                     },
                     {
                         "type": "text",
-                        "value": " from\nthe matching label."
+                        "value": " from\nthe matching label. With "
+                    },
+                    {
+                        "type": "code",
+                        "value": "updateAnchor"
+                    },
+                    {
+                        "type": "text",
+                        "value": ", choosing a tab also updates the URL\nhash, so the link you copy opens that tab."
                     }
                 ]
             },
@@ -1120,7 +1148,8 @@
                         "macOS",
                         "Linux",
                         "Windows"
-                    ]
+                    ],
+                    "updateAnchor": true
                 },
                 "blocks": [
                     {
@@ -1304,7 +1333,7 @@
                     "groupId": "language",
                     "items": [
                         "JavaScript",
-                        "Python"
+                        "PHP"
                     ],
                     "persist": true
                 },
@@ -1330,16 +1359,16 @@
                         "type": "component",
                         "name": "Tab",
                         "attrs": {
-                            "value": "Python"
+                            "value": "PHP"
                         },
                         "blocks": [
                             {
                                 "type": "code_block",
-                                "lang": "python",
+                                "lang": "php",
                                 "meta": {
                                     "raw": ""
                                 },
-                                "value": "from lanternfly import open_archive\narchive = open_archive(\"notes\")"
+                                "value": "<?php\n$archive = Lanternfly\\open('notes');"
                             }
                         ]
                     }
@@ -1352,7 +1381,7 @@
                     "groupId": "language",
                     "items": [
                         "JavaScript",
-                        "Python"
+                        "PHP"
                     ],
                     "persist": true
                 },
@@ -1378,16 +1407,16 @@
                         "type": "component",
                         "name": "Tab",
                         "attrs": {
-                            "value": "Python"
+                            "value": "PHP"
                         },
                         "blocks": [
                             {
                                 "type": "code_block",
-                                "lang": "python",
+                                "lang": "php",
                                 "meta": {
                                     "raw": ""
                                 },
-                                "value": "hits = archive.search(\"invoice\")"
+                                "value": "<?php\n$hits = $archive->search('invoice');"
                             }
                         ]
                     }
@@ -1837,7 +1866,7 @@
                 "inlines": [
                     {
                         "type": "image",
-                        "src": "../../assets/color-scale.svg",
+                        "src": "/images/color-scale.svg",
                         "alt": "An indigo colour scale from 50 to 950"
                     }
                 ]
@@ -1871,7 +1900,7 @@
                 "type": "component_void",
                 "name": "ImageZoom",
                 "attrs": {
-                    "src": "color-scale.svg",
+                    "src": "/images/color-scale.svg",
                     "alt": "An indigo colour scale from 50 to 950",
                     "width": 1600,
                     "height": 600
@@ -2209,12 +2238,12 @@
             },
             {
                 "type": "code_block",
-                "lang": "toml",
+                "lang": "yaml",
                 "meta": {
                     "raw": "",
-                    "title": "lanternfly.toml"
+                    "title": "lanternfly.yaml"
                 },
-                "value": "[archive]\nname = \"notes\"\nwatch = true"
+                "value": "archive:\n  name: notes\n  watch: true"
             },
             {
                 "type": "heading",
@@ -2338,12 +2367,12 @@
             },
             {
                 "type": "code_block",
-                "lang": "python",
+                "lang": "yaml",
                 "meta": {
                     "raw": "",
-                    "title": "search.py"
+                    "title": "lanternfly.yaml"
                 },
-                "value": "archive = open_archive(\"notes\")\nhits = archive.search(\"invoice\")  # [!code highlight]"
+                "value": "archive:\n  name: notes\n  watch: true # [!code highlight]"
             },
             {
                 "type": "heading",
@@ -2392,16 +2421,16 @@
                         ]
                     },
                     {
-                        "value": "Python",
+                        "value": "PHP",
                         "blocks": [
                             {
                                 "type": "code_block",
-                                "lang": "python",
+                                "lang": "php",
                                 "meta": {
                                     "raw": "",
-                                    "tab": "Python"
+                                    "tab": "PHP"
                                 },
-                                "value": "hits = archive.search(\"invoice\")"
+                                "value": "<?php\n$hits = $archive->search('invoice');"
                             }
                         ]
                     },
