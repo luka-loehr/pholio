@@ -398,7 +398,7 @@ function diffValue(pathStr, a, b, out) {
 function samplePoints(traceResult) {
   const points = new Map();
   traceResult.steps.forEach((step, i) => {
-    for (const sample of step.samples) points.set(`${i} ${sample.label}`, { action: step.action, sample });
+    for (const sample of step.samples) points.set(`${i}\u0000${sample.label}`, { action: step.action, sample });
   });
   return points;
 }
@@ -423,7 +423,7 @@ function compareToReferences(refs, cand) {
   const keys = new Set([...candPoints.keys(), ...refPoints.flatMap((m) => [...m.keys()])]);
   for (const key of keys) {
     const c = candPoints.get(key);
-    const label = key.split(' ')[1];
+    const label = key.split('\u0000')[1];
     const action = c?.action ?? refPoints.find((m) => m.has(key))?.get(key).action ?? '?';
     const pointName = `${action}@${label}`;
 
