@@ -21,7 +21,7 @@ import { createPopover } from './popover.js';
 import { initTheme } from './theme.js';
 import { initHotkeys } from './hotkeys.js';
 import { initCopyButtons } from './copy.js';
-import { boot as bootCollapsibles } from './collapsible.js';
+import { boot as bootCollapsibles, Collapsible } from './collapsible.js';
 import { boot as bootScrollAreas } from './scroll-area.js';
 import { boot as bootSidebar } from './sidebar.js';
 import { boot as bootToc } from './toc.js';
@@ -74,6 +74,39 @@ export function boot(doc = document) {
       trigger,
       popupClass: POPUP_CLASS,
       content: () => template.content.cloneNode(true),
+    });
+  }
+
+  // Mobile menu of the start page (fumadocs layouts/home/slots/header.js): a
+  // Base UI Collapsible with header#nd-nav as root, the chevron button as
+  // trigger and the panel from <template data-collapsible-panel> in nav.
+  // collapsible.js sets phases, height and aria; here only what the header itself
+  // does: close on a click outside the header (window click as in the original)
+  // and on a click on a menu link, the theme switcher in the panel, and after
+  // mounting, marking the active theme icon.
+  const homeHeader = doc.getElementById('nd-nav');
+  // The small search trigger sits in the same row and also carries
+  // aria-expanded; the menu button is the only one without aria-haspopup.
+  const homeTrigger = homeHeader?.querySelector('.nd-home-nav-narrow > button[aria-expanded]:not([aria-haspopup])');
+  const homeTemplate = homeHeader?.querySelector('nav > template[data-collapsible-panel]');
+  if (homeHeader && homeTrigger && homeTemplate) {
+    const menu = Collapsible.attach(homeHeader, {
+      trigger: homeTrigger,
+      template: homeTemplate,
+      onOpenChange: (open) => {
+        // The panel is created only inside setOpen; mark the icon afterwards.
+        if (open) queueMicrotask(() => theme.refresh());
+      },
+    });
+    homeHeader.addEventListener('click', (event) => {
+      const panel = event.target.closest?.('#nd-home-menu-panel');
+      if (!panel) return;
+      if (event.target.closest('button[data-theme-toggle]')) theme.toggle();
+      else if (event.target.closest('a[href]')) menu.setOpen(false, 'link-press');
+    });
+    window.addEventListener('click', (event) => {
+      if (!menu.open) return;
+      if (event.target !== homeHeader && !homeHeader.contains(event.target)) menu.setOpen(false, 'outside-press');
     });
   }
 
