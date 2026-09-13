@@ -131,28 +131,52 @@ first content page the root.
 
 ## Theme
 
-`theme.light` and `theme.dark` map color token names, without the
-`--color-fd-` prefix, to CSS colors. The build writes them, followed by the
-contents of `theme.palette_css`, at the palette marker `/* @pholio:palette */`
-in `theme/css/tokens.css`. That block is unlayered, like the site palette in
-the reference stylesheet, so it wins over the default tokens. Anything you
-leave out keeps its default.
+`theme.preset` picks one of the built-in color presets, each a light and a dark
+set of color tokens. `theme.light` and `theme.dark` then map single token names,
+without the `--color-fd-` prefix, to CSS colors, and `theme.palette_css` adds a
+stylesheet of your own. The build writes all three, in that order, at the
+palette marker `/* @pholio:palette */` in `theme/css/tokens.css`. The block is
+unlayered, so it wins over the default tokens, and a later part wins over an
+earlier one. Anything you leave out keeps the preset's value.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
+| `theme.preset` | `neutral` | Built-in color preset, see the table below. Also written as `<html data-preset>` |
 | `theme.light` | `[]` | Token => color for the light scheme |
 | `theme.dark` | `[]` | Token => color for the dark scheme |
-| `theme.palette_css` | `null` | Stylesheet inserted at the palette marker, for palettes a token map can't express |
-| `theme.preset` | `null` | Value of `<html data-preset>`. `null` omits the attribute |
+| `theme.palette_css` | `null` | Stylesheet inserted after the preset and the token maps, for palettes a token map can't express |
 | `theme.font_class` | `''` | Extra class on `<html>` |
 | `theme.hotkey` | `d` | Key that toggles the color scheme |
 | `theme.default_scheme` | `system` | Planned: `light` or `dark` as the scheme before the visitor chooses |
 | `theme.custom_css` | `null` | Planned: stylesheet appended after the theme CSS |
 
-<Callout type="warn" title="Opacity is computed, not written">
-Token opacities are emitted as `color-mix(in oklab, …)`, the way Tailwind v4
-does it. Writing them as HSL alpha instead makes the computed styles diverge
-from the reference, and the style comparison catches it.
+[Themes](/docs/themes) shows every preset in both schemes.
+
+| Preset | Character |
+| --- | --- |
+| neutral | Grays with near-black and white accents, the default |
+| black | Pure black and white, higher contrast |
+| vitepress | White pages, indigo links and a tinted sidebar |
+| dusk | Lavender surfaces with a rose accent |
+| catppuccin | Catppuccin Latte and Mocha, mauve accent |
+| ocean | Blue-tinted borders and a deep blue dark scheme with a glow at the top |
+| purple | Violet surfaces and accent |
+| solar | Neutral colors with a slate accent; from 768px the article sits on a raised card |
+| emerald | Mint surfaces with a teal accent |
+| ruby | White surfaces with a crimson accent |
+| aspen | Pale olive surfaces with a lime accent |
+
+```php title="pholio.config.php"
+'theme' => [
+    'preset' => 'ocean',
+    'light' => ['primary' => 'hsl(220 85% 45%)'],
+],
+```
+
+<Callout type="warn" title="Give tokens as opaque colors">
+The theme derives translucent variants of a token with `color-mix(in oklab, …)`,
+the way Tailwind v4 does. A token with its own alpha channel multiplies with
+those steps and ends up fainter than intended.
 </Callout>
 
 ## Document head
