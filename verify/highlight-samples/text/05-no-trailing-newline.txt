@@ -1,0 +1,23 @@
+Minutes of the all-hands meeting on 10.09.2026
+
+Present: 58 of 64 members
+Minutes: René Martín
+
+Item 1: Welcome
+The organisers welcome the new colleagues.
+
+Item 2: Digital guide
+The guide is available at /guide from today. The old
+addresses (e.g. /guide/login.html) redirect automatically.
+Vote: 52 in favour, 2 against, 4 abstentions.
+
+Item 3: Dates
+  - 02.10.2026  Team outing
+  - 23.10.2026  Open day (14:00–19:00)
+  - 18.12.2026  Last working day before the holidays
+
+Item 4: Other business
+"Please remember the on-call rota", said Élodie Çelik.
+Margin note: /* do not minute */ -- was minuted anyway
+
+End of meeting: 16:45. This file ends without a newline
