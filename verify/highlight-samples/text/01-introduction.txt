@@ -1,0 +1,38 @@
+
+Guide to the Example workspace
+==============================
+
+Welcome! This guide explains step by step how viewers,
+editors, admins and owners use the workspace.
+
+Contents
+--------
+	1. Getting started
+	2. Billing
+		2.1 View for admins
+		2.2 View for teams
+	3. Tickets
+	4. Reports
+
+Note:	The tabs in this file are real tabs.
+Column A	Column B	Column C
+red	27	René Martín
+blue	31	Élodie Çelik
+
+The following lines look like code but are plain text:
+
+    // This is not a comment
+    /* and neither is this */
+    # not a heading either
+    <!-- not an HTML comment -->
+    $variable = "not PHP";
+    SELECT * FROM text WHERE code = false;
+
+A URL: https://example.com/guide/getting-started/?source=text#login
+An email: support@example.com
+A path: C:\Users\Example\Documents\Guide.pdf and /var/www/html/index.php
+
+Special characters: & < > " ' ` \ | ~ ^ ° § € @ { } [ ]
+Quotation marks: “English”, «guillemets», ‘single’, "straight", 'straight'
+
+Good luck!
