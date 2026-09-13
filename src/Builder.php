@@ -246,7 +246,6 @@ class Builder
 
         return [
             'lang' => $config['lang'],
-            'preset' => $config['theme']['preset'],
             'fontClass' => $config['theme']['fontClass'],
             'title' => $title,
             'description' => $description,
@@ -477,23 +476,11 @@ class Builder
         }
     }
 
-    /**
-     * The site palette, in cascade order: every built-in color preset (theme/presets/<name>.css,
-     * each scoped to `<html data-preset="name">`, so a page can switch presets by changing the
-     * attribute), the :root and .dark token blocks generated from `theme.light` and `theme.dark`,
-     * then `theme.palette_css`. Later blocks win. `theme.preset` only sets the initial attribute.
-     */
+    /** Generated :root and .dark token blocks followed by `theme.palette_css`. */
     public function palette(): string
     {
         $theme = $this->config['theme'];
         $out = '';
-        foreach (Config::PRESETS as $name) {
-            $preset = self::root() . '/theme/presets/' . $name . '.css';
-            if (!is_file($preset)) {
-                throw new \LogicException('theme preset stylesheet missing: ' . $preset);
-            }
-            $out .= rtrim((string) file_get_contents($preset)) . "\n";
-        }
         foreach ([':root' => $theme['light'], '.dark' => $theme['dark']] as $selector => $tokens) {
             if ($tokens === []) {
                 continue;
