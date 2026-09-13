@@ -12,7 +12,7 @@ require_once __DIR__ . '/../lib/Tree.php';
 require_once __DIR__ . '/tabs-dropdown.php';
 require_once __DIR__ . '/theme-switch.php';
 
-/** `itemVariants` from `layouts/notebook/slots/sidebar.js`, one class per variant. */
+/** Sidebar item classes, one per variant. */
 const ND_ITEM_BASE = 'nd-sidebar-item';
 const ND_ITEM_LINK = 'nd-sidebar-item-link';
 const ND_ITEM_BUTTON = 'nd-sidebar-item-button';
@@ -25,11 +25,9 @@ function nd_item_offset(int $depth): string
 }
 
 /**
- * The sidebar of the notebook layout (`layouts/notebook/slots/sidebar.js`) in
- * both variants.
+ * The sidebar of the docs layout in both variants.
  *
- * From 768 px the reference renders only the desktop sidebar, below that only the
- * drawer (`SidebarDrawer` behind `SidebarContent`). The static page doesn't know
+ * From 768 px only the desktop sidebar is used, below that only the drawer. The static page doesn't know
  * the window width and therefore prints both: the desktop sidebar open in its
  * placeholder, then the overlay as a template and the closed drawer
  * (`data-state="closed"`, `nd-invisible`). Right after them comes
@@ -137,10 +135,8 @@ function nd_sidebar_scroll(
 /**
  * The drawer below 768 px (`SidebarDrawerOverlay` + `SidebarDrawerContent`),
  * closed: overlay as a template, `aside#nd-sidebar-mobile` with
- * `data-state="closed"` and `nd-invisible`. Structure as the reference's drawer
- * at 390 px (reference export `dom-390.html`). Ids come from the page counter,
- * as in the reference; verify/golden-dom.mjs takes ids inside allowed extra
- * nodes out of the numbering of the rest of the page.
+ * `data-state="closed"` and `nd-invisible`. Ids in the drawer are fixed, so the
+ * drawer doesn't shift the generated ids of the rest of the page.
  *
  * @param list<array{active:Node, options:list<array<string,mixed>>}> $groups
  * @param list<Node> $path
@@ -257,7 +253,7 @@ function nd_sidebar_item(
  */
 function nd_sidebar_folder(Node $node, int $depth, array $path, string $url, ?\Closure $ids = null): string
 {
-    // Id source: hydration ids in the desktop sidebar, fixed ids in the drawer.
+    // Id source: generated ids in the desktop sidebar, fixed ids in the drawer.
     $next = $ids ?? static fn (): string => Ids::next();
     $collapsible = $node->collapsible !== false;
     $active = in_array($node, $path, true);
@@ -333,8 +329,7 @@ function nd_sidebar_panel(
         'data-open' => true,
         'class' => [
             'nd-sidebar-panel',
-            // `depth` in the original is the folder depth (here $depth + 1);
-            // the reference draws the vertical line only at depth 1.
+            // The vertical line is drawn only for the panels of top-level folders.
             $depth === 0 ? 'nd-sidebar-panel-line' : null,
         ],
         'style' => $style,
@@ -351,7 +346,7 @@ function nd_chevron(bool $open): string
     return str_replace('aria-hidden="true"', 'data-icon="true" aria-hidden="true"', $svg);
 }
 
-/** Icon of a node; meta.json and frontmatter use the React names (`Users`). */
+/** Icon of a node; meta.json and frontmatter may use PascalCase names (`Users`). */
 function nd_node_icon(?string $icon): string
 {
     return $icon === null || $icon === '' ? '' : Icons::svg(nd_icon_name($icon));
