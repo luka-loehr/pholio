@@ -10,14 +10,13 @@ require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 
 /**
- * The two search triggers from `layouts/shared/slots/search-trigger.js`.
+ * The two search triggers: the full search field and the small button.
  *
  * Both are Base UI `Dialog.Trigger`s and therefore carry
  * `data-base-ui-click-trigger`, `aria-haspopup="dialog"`, `aria-expanded` and a
- * hydration id. In the notebook layout the trigger sits in a context without a
- * `disabled` state and gets `tabindex="0"`; in the HomeLayout Base UI renders
- * `aria-disabled="false"` without `tabindex` instead. Both are taken from the
- * reference DOM, not guessed.
+ * generated id. In the docs layout the trigger sits in a context without a
+ * `disabled` state and gets `tabindex="0"`; on the start page it gets
+ * `aria-disabled="false"` without `tabindex` instead, as Base UI does.
  *
  * @param 'notebook'|'home' $layout
  */
