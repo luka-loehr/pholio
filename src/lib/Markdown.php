@@ -31,11 +31,11 @@ require_once __DIR__ . '/Icons.php';
  * - code_block         {lang:?string, meta:{raw:string, title?:string, lineNumbers?:true|int,
  *                       noCopy?:true, tab?:string, tabGroup?:string}, value:string}
  *                      Fenced with ``` or ~~~. Info string as in micromark code-fenced (lang = first word,
- *                      rest = meta, escapes and entities decoded). meta as in the reference:
- *                      remark-code-tab takes out tab/tab-group, then rehype-code parseMetaString
+ *                      rest = meta, escapes and entities decoded). meta: tab/tab-group
+ *                      are taken out first, then
  *                      (title, noCopy, lineNumbers); raw is the rest ("__raw"), e.g. " {1,3-4}".
  * - code_tabs          {defaultValue:string, groupId:?string, items:[{value:string, blocks:[code_block]}]}
- *                      Consecutive code blocks with tab="…" as in the reference remark-code-tab
+ *                      Consecutive code blocks with tab="…" are grouped
  *                      (a single one too). Inside <Tabs> they become <Tab value> children instead.
  * - footnote_definition {label, identifier, blocks}  (GFM, identifier as in normalizeIdentifier)
  * - component          {name, attrs, blocks, inline?:true}  components with content; inline is set only when
@@ -155,7 +155,7 @@ final class Markdown
     /** Allowed frontmatter keys. */
     private const FRONTMATTER_KEYS = ['title', 'heading', 'description', 'keywords', 'updated', 'full', 'icon', 'noindex'];
 
-    /** Allowed values of <Callout type="…">, including the reference design's aliases. */
+    /** Allowed values of <Callout type="…">, including the aliases `warn` and `tip`. */
     private const CALLOUT_TYPES = ['info', 'warning', 'error', 'success', 'idea', 'warn', 'tip'];
 
     /**
@@ -1318,8 +1318,8 @@ final class Markdown
     }
 
     /**
-     * Meta string as in the reference build: remark-code-tab (tab, tab-group), then rehype-code parseMetaString
-     * (title, tab, noCopy, lineNumbers; the rest as __raw).
+     * Meta string: tab and tab-group first, then title, tab, noCopy and lineNumbers;
+     * the rest as __raw.
      *
      * @return array<string,mixed>
      */
@@ -1358,7 +1358,7 @@ final class Markdown
     }
 
     /**
-     * Reference core codeblock-utils parseCodeBlockAttributes: AttributeRegex with replaceAll.
+     * Attributes (`name="value"`) of a code block meta string, taken out with a global replace.
      *
      * @param list<string> $allowed
      * @return array{rest:string,attributes:array<string,string|int|null>}
@@ -1390,7 +1390,7 @@ final class Markdown
     }
 
     /**
-     * Reference remark-code-tab: consecutive code blocks with tab="…" are grouped.
+     * Code tabs: consecutive code blocks with tab="…" are grouped.
      *
      * @param list<array<string,mixed>> $blocks
      * @return list<array<string,mixed>>
