@@ -1,0 +1,39 @@
+/* notebook.css — entry file of the notebook theme
+ *
+ * The import order is the cascade. For delivery the build joins the parts into a
+ * single file (plain text concatenation in place of the @import lines), so the
+ * browser makes one request; the @import form here is the source and works
+ * directly in the browser during development.
+ *
+ * The layer order has to come before the imports, because it applies the same way
+ * in the compiled reference stylesheet: whatever is unlayered (site palette,
+ * html/body rules, Shiki) wins against every layer.
+ *
+ * The reference stylesheet doesn't declare the layers as a list; it fixes them by
+ * the order of first appearance:
+ *   l.   2  @layer properties {   (lowest priority)
+ *   l.  75  @layer theme {
+ *   l. 173  @layer base {
+ *   l. 432  @layer components;
+ *   l. 434  @layer utilities {    (highest priority)
+ * `properties` must therefore come first. If it were missing from the list,
+ * tokens.css would open the layer itself and it would be the last declared, and so
+ * the strongest: the --tw-* fallback values in it (e.g. --tw-border-style: solid)
+ * would then beat the values that utilities set later.
+ *
+ * catalogue.css (catalogue components) comes last. Its rules live in
+ * `@layer components`; within that layer they therefore come after layout.css and
+ * components.css. The image zoom rules are unlayered, as in the reference.
+ */
+
+@layer properties, theme, base, components, utilities;
+
+@import "./tokens.css";
+@import "./reset.css";
+@import "./fonts.css";
+@import "./animations.css";
+@import "./layout.css";
+@import "./components.css";
+@import "./prose.css";
+@import "./utilities.css";
+@import "./catalogue.css";
