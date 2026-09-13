@@ -22,11 +22,11 @@ require_once __DIR__ . '/../lib/Html.php';
  * - `notebook.js` as a module at the end of <body>.
  *
  * @param array{
- *   lang:string, preset:?string, fontClass:string, title:string, description:?string,
+ *   lang:string, fontClass:string, title:string, description:?string,
  *   scrollArea:bool, assetBase:string, baseUrl:string, searchIndexUrl:string,
  *   icons:list<array{rel:string, type:?string, sizes:?string, href:string}>,
  *   manifest:?string, themeColor:?string, markdownUrl?:?string, robots?:?string, jsonLd?:?string
- * } $head `preset` names the color preset (null omits `data-preset`); `icons`, `manifest` and `themeColor`
+ * } $head `icons`, `manifest` and `themeColor`
  *   come from the `head` config and are emitted in this order after the search index,
  *   followed by the agent additions (lib/AgentSite.php): the alternate link to the
  *   page's Markdown twin, `<meta name="robots">` and the JSON-LD block.
@@ -43,7 +43,6 @@ function nd_document(array $head, string $body): string
     $out = '<!DOCTYPE html>';
     $out .= '<html' . Html::attrs([
         'lang' => $head['lang'],
-        'data-preset' => $head['preset'] ?? null,
         // theme-init.js sets the class `light` and `color-scheme` at runtime.
         'class' => [$head['fontClass'], 'light'],
         // A finished string instead of Html::style(): theme-init.js writes this value
