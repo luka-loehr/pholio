@@ -1,6 +1,6 @@
-/* catppuccin: built-in color preset, selected with theme.preset. */
+/* catppuccin: built-in color preset, active while <html data-preset="catppuccin">; theme.preset sets the initial value. */
 
-:root {
+:where(:root[data-preset="catppuccin"]) {
   --color-fd-popover: hsl(220, 22%, 92%);
   --color-fd-popover-foreground: hsl(234, 16%, 35%);
   --color-fd-secondary-foreground: hsl(234, 16%, 35%);
@@ -19,7 +19,7 @@
   --color-fd-ring: hsl(267, 84%, 81%);
 }
 
-.dark {
+:where(:root[data-preset="catppuccin"]).dark {
   --color-fd-background: hsl(240, 21%, 15%);
   --color-fd-foreground: hsl(226, 64%, 88%);
   --color-fd-ring: hsl(267, 84%, 81%);
@@ -38,12 +38,12 @@
   --color-fd-muted-foreground: hsl(228, 24%, 72%);
 }
 
-#nd-sidebar {
+:where(:root[data-preset="catppuccin"]) #nd-sidebar {
   --color-fd-secondary: hsl(223, 16%, 83%);
   --color-fd-muted: hsl(223, 16%, 83%);
 }
 
-.dark #nd-sidebar {
+:where(:root[data-preset="catppuccin"]).dark #nd-sidebar {
   --color-fd-secondary: hsl(237, 16%, 23%);
   --color-fd-muted: hsl(237, 16%, 23%);
 }
