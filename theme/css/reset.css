@@ -273,6 +273,11 @@
 
 /* --- Page rules (unlayered) --- */
 
+/* The page never drags past its top or bottom edge (rubber-band scrolling). */
+html, body {
+  overscroll-behavior: none;
+}
+
 html {
   scrollbar-gutter: stable;
 }
