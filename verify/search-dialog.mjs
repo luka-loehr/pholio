@@ -173,7 +173,15 @@ const settled = (page) => page.evaluate(({ quietMs, maxMs }) => new Promise((res
     observer.disconnect();
     clearTimeout(timer);
     clearTimeout(cap);
-    resolve();
+    // A render already scheduled for the next frame has not touched the DOM yet: let two
+    // frames pass (headless WebKit on Linux can hold frames back, so at most one second).
+    let resolved = false;
+    const finish = () => {
+      if (!resolved) resolve();
+      resolved = true;
+    };
+    requestAnimationFrame(() => requestAnimationFrame(finish));
+    setTimeout(finish, 1000);
   }
   observer.observe(target, { subtree: true, childList: true, attributes: true, characterData: true });
 }), { quietMs: 300, maxMs: TIMEOUT_MS });
@@ -237,12 +245,20 @@ async function runBrowser(name) {
       await settled(page);
       const selected = () => page.evaluate(() => [...document.querySelectorAll('#fd-search-dialog-content .nd-search-item')]
         .findIndex((button) => button.getAttribute('aria-selected') === 'true'));
+      // A key press may land while a render waits for the next frame, which then applies the
+      // selection: wait for the DOM to show it instead of reading it once.
+      const selects = async (index) => ok(page.waitForFunction(
+        (i) => [...document.querySelectorAll('#fd-search-dialog-content .nd-search-item')]
+          .findIndex((button) => button.getAttribute('aria-selected') === 'true') === i,
+        index,
+        { timeout: TIMEOUT_MS },
+      ));
       const count = await page.locator('#fd-search-dialog-content .nd-search-item').count();
-      check(`${name}: the first result starts selected`, (await selected()) === 0);
+      check(`${name}: the first result starts selected`, await selects(0), `selected: ${await selected()}`);
       await page.keyboard.press('ArrowDown');
-      check(`${name}: ArrowDown selects the next result`, (await selected()) === (count > 1 ? 1 : 0));
+      check(`${name}: ArrowDown selects the next result`, await selects(count > 1 ? 1 : 0), `selected: ${await selected()} of ${count}`);
       await page.keyboard.press('ArrowUp');
-      check(`${name}: ArrowUp selects the first again`, (await selected()) === 0);
+      check(`${name}: ArrowUp selects the first again`, await selects(0), `selected: ${await selected()}`);
       const navigated = ok(page.waitForURL((url) => new URL(url).pathname === expected.url, { timeout: TIMEOUT_MS }));
       await page.keyboard.press('Enter');
       check(`${name}: Enter opens ${expected.url}`, await navigated, `at ${page.url()}`);
