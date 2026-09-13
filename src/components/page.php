@@ -21,11 +21,14 @@ require_once __DIR__ . '/footer.php';
  * @param array{title:string, description:?string, updated:?string, full:bool} $page
  * @param list<array{name:string, url:?string}> $breadcrumb
  * @param array<string, array{name:string,url:string,description:?string}> $footerItems
+ * @param string $actions the page actions (components/page-actions.php); with them the title
+ *        and the buttons share one row
  */
-function nd_page(array $page, array $breadcrumb, string $body, array $footerItems): string
+function nd_page(array $page, array $breadcrumb, string $body, array $footerItems, string $actions = ''): string
 {
     $children = nd_breadcrumb($breadcrumb);
-    $children .= Html::tag('h1', ['class' => 'nd-page-title'], Html::e($page['title']));
+    $title = Html::tag('h1', ['class' => 'nd-page-title'], Html::e($page['title']));
+    $children .= $actions === '' ? $title : Html::tag('div', ['class' => 'nd-page-heading'], $title . $actions);
     if ($page['description'] !== null) {
         $children .= Html::tag('p', ['class' => 'nd-page-desc'], Html::e($page['description']));
     }
