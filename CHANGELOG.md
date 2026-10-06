@@ -7,6 +7,22 @@ and Pholio adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 While the version is below 1.0.0, a minor version may change the content format
 or the configuration schema; such changes are listed under **Changed**.
 
+## [Unreleased]
+
+### Added
+
+- **Link checks.** After the pages are written, every link and image in the
+  prose and on the start page is checked against the finished site: absolute
+  and relative paths, fragments against the element ids of the target page, and
+  absolute links to `site.url`. Every broken one is listed with file and line,
+  and the build exits with code 3. `--only` builds skip the check.
+
+### Fixed
+
+- The table of contents and `InlineTOC` link the generated footnotes heading to
+  its id `footnote-label` instead of `#footnotes` or `#footnotes-1`, which no
+  element had.
+
 ## [0.1.0] - 2026-09-13
 
 The first release: beautiful documentation, powered by Markdown. Pholio turns a
