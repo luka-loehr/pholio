@@ -175,6 +175,59 @@ test('content errors exit 3 with file and line', function (): void {
     }
 });
 
+/** A site with several pages, content path => Markdown body under a title. */
+function build_pages(array $pages, string $config = "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out']"): string
+{
+    $dir = build_temp();
+    foreach ($pages as $path => $body) {
+        Fs::write($dir . '/content', $path, "---\ntitle: " . basename($path, '.md') . "\n---\n\n" . $body);
+    }
+    file_put_contents($dir . '/pholio.config.php', "<?php\nreturn {$config};\n");
+
+    return $dir;
+}
+
+test('broken links, anchors and images exit 3 with file and line, and all of them are listed', function (): void {
+    $dir = build_pages([
+        'index.md' => "Start.\n",
+        'guide/index.md' => "## Usage\n\nIntro.\n",
+        'guide/setup.md' => "See [install](install), [usage](/guide#usage) and [here](#steps).\n\n## Steps\n\n"
+            . "Then [missing](/guide/nope), [no anchor](/guide#nothing)\nand ![a chart](/assets/chart.png).\n",
+        'guide/install.md' => "Back to [setup](setup) or [the guide](../guide).\n",
+    ]);
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+    assert_same(3, $code, $err);
+    assert_contains('pholio: 3 broken links:', $err);
+    assert_contains($dir . '/content/guide/setup.md:9: broken link "/guide/nope": nothing is published at /guide/nope', $err);
+    assert_contains($dir . '/content/guide/setup.md:9: broken link "/guide#nothing": /guide has no element with the id "nothing"', $err);
+    assert_contains($dir . '/content/guide/setup.md:10: broken image "/assets/chart.png": nothing is published at /assets/chart.png', $err);
+});
+
+test('relative links resolve like a browser, against a page URL without a trailing slash', function (): void {
+    // From /guide (guide/index.md) "setup" is /setup, not /guide/setup.
+    $dir = build_pages(['index.md' => "Start.\n", 'guide/index.md' => "Read [setup](setup).\n", 'guide/setup.md' => "Setup.\n"]);
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+    assert_same(3, $code, $err);
+    assert_contains($dir . '/content/guide/index.md:5: broken link "setup": nothing is published at /setup', $err);
+
+    $dir = build_pages(['index.md' => "Start.\n", 'guide/index.md' => "Read [setup](guide/setup) and [files](/assets/a.txt).\n", 'guide/setup.md' => "Setup.\n"]);
+    Fs::write($dir . '/assets', 'a.txt', 'a');
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+    assert_same(0, $code, $err);
+});
+
+test('absolute links to site.url are checked, other hosts and --only builds are not', function (): void {
+    $config = "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'site' => ['url' => 'https://docs.example.org']]";
+    $dir = build_pages(['index.md' => "[Gone](https://docs.example.org/gone), [elsewhere](https://example.org/gone).\n", 'other.md' => "Other.\n"], $config);
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+    assert_same(3, $code, $err);
+    assert_contains('pholio: 1 broken link:', $err);
+    assert_contains('broken link "https://docs.example.org/gone": nothing is published at /gone', $err);
+
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet', '--only', 'other']);
+    assert_same(0, $code, $err);
+});
+
 // ------------------------------------------------------------------ exit 4: I/O
 
 test('an output directory that cannot be created exits 4', function (): void {
