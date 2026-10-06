@@ -216,7 +216,7 @@ test('relative links resolve like a browser, against a page URL without a traili
     assert_same(0, $code, $err);
 });
 
-test('absolute links to site.url are checked, other hosts and --only builds are not', function (): void {
+test('absolute links to site.url are checked; other hosts, --only and --no-link-check builds are not', function (): void {
     $config = "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'site' => ['url' => 'https://docs.example.org']]";
     $dir = build_pages(['index.md' => "[Gone](https://docs.example.org/gone), [elsewhere](https://example.org/gone).\n", 'other.md' => "Other.\n"], $config);
     [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
@@ -225,6 +225,8 @@ test('absolute links to site.url are checked, other hosts and --only builds are 
     assert_contains('broken link "https://docs.example.org/gone": nothing is published at /gone', $err);
 
     [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet', '--only', 'other']);
+    assert_same(0, $code, $err);
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet', '--no-link-check']);
     assert_same(0, $code, $err);
 });
 
