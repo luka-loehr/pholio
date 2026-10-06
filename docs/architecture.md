@@ -51,7 +51,8 @@ themes and the values derived from the compiled Tailwind output. The checks in `
 may use Node and Playwright because they are never deployed.
 
 **Fail loud.** Unknown Markdown, an unknown component, attribute, icon or code
-language, an invalid `meta.json`, a duplicate slug: each one stops the build with
+language, an invalid `meta.json`, a duplicate slug, a link or image that the
+finished site doesn't publish (`lib/LinkCheck.php`): each one stops the build with
 the file and line. There is no silent fallback, because a documentation site
 that renders something wrong is worse than one that refuses to build.
 
