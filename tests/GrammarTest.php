@@ -217,7 +217,7 @@ test('footnotes: case-insensitive identifiers, indented and lazy continuation', 
 });
 
 test('headings() appends "Footnotes" only when there are footnotes', function (): void {
-    assert_same([['level' => 2, 'text' => 'Title'], ['level' => 2, 'text' => 'Footnotes']], Markdown::parse("## Title\n\nText[^1]\n\n[^1]: Note", 'unit')->headings());
+    assert_same([['level' => 2, 'text' => 'Title'], ['level' => 2, 'text' => 'Footnotes', 'id' => 'footnote-label']], Markdown::parse("## Title\n\nText[^1]\n\n[^1]: Note", 'unit')->headings());
     assert_same([['level' => 2, 'text' => 'Title']], Markdown::parse("## Title\n\nText", 'unit')->headings());
 });
 
