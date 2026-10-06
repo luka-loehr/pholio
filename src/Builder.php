@@ -64,11 +64,13 @@ class Builder
      * @param array<string, mixed> $config normalised, see Config
      * @param bool $dev include pages whose file name starts with "_"
      * @param ?string $only render only pages whose URL contains this string
+     * @param bool $checkLinks check every link of the finished build (`--no-link-check` turns it off)
      */
     public function __construct(
         protected readonly array $config,
         protected readonly bool $dev = false,
         protected readonly ?string $only = null,
+        protected readonly bool $checkLinks = true,
     ) {
     }
 
@@ -120,7 +122,7 @@ class Builder
         $indexed = $this->writeSearchIndex($tree, $target);
         $redirects = Htaccess::write($config, $target);
         $warnings = $agents->write($target, fn(string $relative): bool => $this->authored($relative));
-        if ($this->only === null) {
+        if ($this->only === null && $this->checkLinks) {
             $this->checkLinks($target, $written);
         }
 
@@ -129,7 +131,8 @@ class Builder
 
     /**
      * Every link and image of the written pages must reach something the site
-     * publishes (lib/LinkCheck.php). Skipped for `--only`, whose output is partial.
+     * publishes (lib/LinkCheck.php). Skipped for `--only`, whose output is partial,
+     * and for `--no-link-check`.
      *
      * @param list<array{url:string, html:string, file:?string}> $written
      * @throws ContentException listing every broken link
