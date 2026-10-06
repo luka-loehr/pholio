@@ -119,7 +119,7 @@ php bin/pholio build --config examples/demo/pholio.config.php
 ```
 pholio init   [dir] [--name <site name>] [--lang en|de] [--force]
 pholio build  [dir] [--config <file>] [--profile <name>] [--content <dir>] [--out <dir>]
-              [--only <url-part>] [--dev] [--quiet] [--set <key.path>=<value>]
+              [--only <url-part>] [--dev] [--quiet] [--no-link-check] [--set <key.path>=<value>]
 pholio check  [dir] [--config <file>] [--profile <name>] [--content <dir>] [--against <dir>]
               [--dev] [--set <key.path>=<value>]
 pholio dev    [dir] [--config <file>] [--profile <name>] [--content <dir>] [--host 127.0.0.1]
@@ -146,6 +146,7 @@ arguments prints a short overview and exits 0.
 | `--only <url-part>` | Render only pages whose URL contains this text. For iteration, not for deployment |
 | `--dev` | Include drafts, the pages whose file name starts with `_` |
 | `--quiet` | No summary line |
+| `--no-link-check` | `build` skips the link check. For test builds whose content is moved below another base path, not for deployment |
 | `--set <key>=<value>` | Override a string key, e.g. `--set search.tokenizer=german`. Repeatable |
 | `--host`, `--port` | Address of the `dev` server. Default `127.0.0.1:8080` |
 | `--no-watch` | `dev` serves without rebuilding |
