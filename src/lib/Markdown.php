@@ -87,9 +87,10 @@ final class Document
      *
      * As rehype-toc on the hast: when there are footnotes, mdast-util-to-hast (footer.js)
      * appends <h2 id="footnote-label">Footnotes</h2> at the end of the page; headings
-     * from the footnote texts follow after it.
+     * from the footnote texts follow after it. That heading carries its fixed id, so the
+     * table of contents links to it instead of to a slug no element has.
      *
-     * @return list<array{level:int,text:string}>
+     * @return list<array{level:int,text:string,id?:string}>
      */
     public function headings(): array
     {
@@ -98,7 +99,7 @@ final class Document
         self::collectHeadings($this->blocks, $out, $definitions);
 
         if ($definitions !== []) {
-            $out[] = ['level' => 2, 'text' => 'Footnotes'];
+            $out[] = ['level' => 2, 'text' => 'Footnotes', 'id' => 'footnote-label'];
             foreach ($definitions as $definition) {
                 $nested = [];
                 /** @var list<array<string,mixed>> $inner */
