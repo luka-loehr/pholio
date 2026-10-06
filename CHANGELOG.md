@@ -15,7 +15,9 @@ or the configuration schema; such changes are listed under **Changed**.
   prose and on the start page is checked against the finished site: absolute
   and relative paths, fragments against the element ids of the target page, and
   absolute links to `site.url`. Every broken one is listed with file and line,
-  and the build exits with code 3. `--only` builds skip the check.
+  and the build exits with code 3. `--only` builds skip the check, and so does
+  `build --no-link-check`, meant for test builds whose content is moved below
+  another base path.
 
 ### Fixed
 
