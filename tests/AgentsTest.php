@@ -177,7 +177,7 @@ test('a site under /manuals: twins, llms.txt, noindex, exclude, author files, he
     $dir = agents_temp();
     $pages = [
         'index.md' => "---\ntitle: Start\ndescription: The start.\n---\n\nWelcome.\n",
-        'guide/intro.md' => "---\ntitle: Intro\n---\n\nThe first paragraph explains everything. See [hidden](/manuals/guide/hidden) and ![A chart](/manuals/files/chart.svg).\n",
+        'guide/intro.md' => "---\ntitle: Intro\n---\n\nThe first paragraph explains everything. See [hidden](/manuals/guide/hidden) and ![A chart](/manuals/chart.svg).\n",
         'guide/hidden.md' => "---\ntitle: Hidden\nnoindex: true\n---\n\nNot for indexes.\n",
         'guide/internal.md' => "---\ntitle: Internal\n---\n\nTeam only.\n",
         'guide/_draft.md' => "---\ntitle: Draft\n---\n\nUnfinished.\n",
@@ -214,7 +214,7 @@ test('a site under /manuals: twins, llms.txt, noindex, exclude, author files, he
     // A statement of where the index is, not an instruction an agent could take for an injected prompt.
     assert_true(str_starts_with($intro, "> Documentation index: /manuals/llms.txt, a list of every page in this documentation.\n\n# Intro"), $intro);
     assert_contains('[hidden](/manuals/guide/hidden.md)', $intro);
-    assert_contains('![A chart](/manuals/chart.svg)', str_replace('/files/', '/', $intro));
+    assert_contains('![A chart](/manuals/chart.svg)', $intro);
     // Its folder holds only unlisted pages, so there is nothing related to point at.
     assert_true(!str_contains($intro, 'Related topics') && !str_contains($intro, 'Internal'), $intro);
 
