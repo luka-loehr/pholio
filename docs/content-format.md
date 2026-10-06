@@ -157,7 +157,16 @@ Entries in `pages`:
 Exit code 3 with file and line: unknown frontmatter keys or YAML constructs, a
 `#` heading, unknown component tags or attributes, a tag inside a parent it
 doesn't belong to, unknown lucide icons, unknown code languages, invalid
-`meta.json`, duplicate slugs and a folder group name used as a file name.
+`meta.json`, duplicate slugs, a folder group name used as a file name, and
+broken links, fragments and images.
 
-Not checked yet: whether an internal link points at an existing page, and
-whether an image file exists. A missing image renders without width and height.
+After the pages are written, every link and image in the prose and on the
+start page is checked against the finished site, the way a browser resolves it:
+an absolute path (`/guide/install`), a path relative to the page URL (`install`
+from `/guide/setup` is `/guide/install`; from `/guide`, whose URL has no trailing
+slash, it is `/install`), a fragment (`#usage`, `/guide#usage`) and an absolute
+link to `site.url`. A link must reach a page or a file the site publishes, and a
+fragment an element id on that page. Every broken link is listed with the file
+and line it is written on, and the build exits with code 3. Links to other hosts
+are not fetched, and builds with `--only` skip the check because their output is
+partial.
