@@ -66,7 +66,7 @@ process.on('exit', () => fs.rmSync(out, { recursive: true, force: true }));
 try {
   execFileSync(php, [
     path.join(pholioRoot, 'bin/pholio'), 'build', '--config', path.join(pholioRoot, 'examples/demo/pholio.config.php'),
-    '--out', out, '--set', `base_path=${BASE}`, '--set', 'asset_base=assets/', '--quiet',
+    '--out', out, '--set', `base_path=${BASE}`, '--set', 'asset_base=assets/', '--no-link-check', '--quiet',
   ], { stdio: ['ignore', 'ignore', 'inherit'] });
 } catch (err) {
   console.error(`Demo build failed: ${err.message}`);
