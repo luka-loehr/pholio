@@ -2617,7 +2617,8 @@
             },
             {
                 "level": 2,
-                "text": "Footnotes"
+                "text": "Footnotes",
+                "id": "footnote-label"
             }
         ],
         "blocks": [
