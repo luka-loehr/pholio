@@ -100,15 +100,18 @@ class Builder
         $agents = $this->agentSite($tree);
 
         $pages = 0;
+        $written = [];
         foreach ($tree->pages() as $page) {
             if ($this->only !== null && !str_contains($page['url'], $this->only)) {
                 continue;
             }
             Fs::write($target, $this->outputPath($page['url']), $this->renderPage($tree, $page, $agents));
+            $written[] = ['url' => $page['url'], 'html' => $target . '/' . $this->outputPath($page['url']), 'file' => $config['contentDir'] . '/' . ltrim($page['file'], '/'), 'prose' => true];
             $pages++;
         }
         if ($config['home'] !== null && ($this->only === null || str_contains($config['homeUrl'], $this->only))) {
             Fs::write($target, $this->outputPath($config['homeUrl'], true), $this->renderHome($tree, $agents));
+            $written[] = ['url' => $config['homeUrl'], 'html' => $target . '/' . $this->outputPath($config['homeUrl'], true), 'file' => $config['configFile'] ?: null];
             $pages++;
         }
 
@@ -117,8 +120,28 @@ class Builder
         $indexed = $this->writeSearchIndex($tree, $target);
         $redirects = Htaccess::write($config, $target);
         $warnings = $agents->write($target, fn(string $relative): bool => $this->authored($relative));
+        if ($this->only === null) {
+            $this->checkLinks($target, $written);
+        }
 
         return ['pages' => $pages, 'indexed' => $indexed, 'redirects' => $redirects, 'warnings' => $warnings];
+    }
+
+    /**
+     * Every link and image of the written pages must reach something the site
+     * publishes (lib/LinkCheck.php). Skipped for `--only`, whose output is partial.
+     *
+     * @param list<array{url:string, html:string, file:?string}> $written
+     * @throws ContentException listing every broken link
+     */
+    protected function checkLinks(string $target, array $written): void
+    {
+        $findings = (new LinkCheck($target, $this->config['homeUrl'], self::siteRoot($this->config, $target), $this->config['site']['url']))->check($written);
+        if ($findings !== []) {
+            throw new ContentException(
+                count($findings) . ' broken link' . (count($findings) === 1 ? '' : 's') . ":\n  " . implode("\n  ", $findings),
+            );
+        }
     }
 
     /** Require the libraries, components and templates once. */
