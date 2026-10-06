@@ -148,7 +148,7 @@ test('demo documents: section anchors are the table of contents anchors, descrip
         // The table of contents also lists the generated footnotes section; every other entry is a section, in order.
         $missing = array_values(array_diff($anchors, $headingAnchors));
         assert_same($headingAnchors, array_values(array_intersect($anchors, $headingAnchors)), 'sections of ' . $page['url'] . ' in TOC order');
-        assert_true(count($missing) <= 1 && ($missing === [] || str_starts_with($missing[0], 'footnotes')), 'only the footnotes section is missing on ' . $page['url'] . ': ' . implode(', ', $missing));
+        assert_true(count($missing) <= 1 && ($missing === [] || $missing[0] === 'footnote-label'), 'only the footnotes section is missing on ' . $page['url'] . ': ' . implode(', ', $missing));
         foreach (array_slice($sections, 1) as $section) {
             assert_true($section[0] !== null, 'only the first section may lack an anchor on ' . $page['url']);
         }
