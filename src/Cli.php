@@ -46,7 +46,7 @@ Pholio – beautiful documentation, powered by Markdown.
 Usage:
   pholio init   [dir] [--name <site name>] [--lang en|de] [--force]
   pholio build  [dir] [--config <file>] [--profile <name>] [--content <dir>] [--out <dir>]
-                [--only <url-part>] [--dev] [--quiet] [--set <key.path>=<value>]
+                [--only <url-part>] [--dev] [--quiet] [--no-link-check] [--set <key.path>=<value>]
   pholio check  [dir] [--config <file>] [--profile <name>] [--content <dir>] [--against <dir>]
                 [--dev] [--set <key.path>=<value>]
   pholio dev    [dir] [--config <file>] [--profile <name>] [--content <dir>] [--host 127.0.0.1]
@@ -78,6 +78,8 @@ Options:
   --only <url-part>      Render only pages whose URL contains this string.
   --dev                  Include pages whose file name starts with "_".
   --quiet                No summary line.
+  --no-link-check        build: skip the link check, for test builds whose content
+                         is moved below another base path. Never for deployment.
   --set <key>=<value>    Override a string config key, e.g. --set search.tokenizer=german
   --host <host>          dev server host. Default: 127.0.0.1
   --port <port>          dev server port. Default: 8080
@@ -98,7 +100,7 @@ TEXT;
         ],
         'build' => [
             'config' => true, 'profile' => true, 'content' => true, 'out' => true, 'only' => true,
-            'dev' => false, 'quiet' => false, 'set' => true, 'check' => false, 'help' => false,
+            'dev' => false, 'quiet' => false, 'no-link-check' => false, 'set' => true, 'check' => false, 'help' => false,
         ],
         'check' => [
             'config' => true, 'profile' => true, 'content' => true, 'against' => true, 'dev' => false,
@@ -110,7 +112,7 @@ TEXT;
         ],
     ];
 
-    /** @var null|\Closure(array, bool, ?string): Builder replaced by tests */
+    /** @var null|\Closure(array, bool, ?string, bool): Builder replaced by tests */
     public static ?\Closure $builderFactory = null;
 
     /** How this process was started, for commands printed back to the user. */
@@ -264,7 +266,7 @@ TEXT;
         $config = $this->config($options);
         self::requireContent($config);
         $dev = isset($options['dev']);
-        $result = $this->builder($config, $dev, $options['only'] ?? null)->build($config['outDir']);
+        $result = $this->builder($config, $dev, $options['only'] ?? null, !isset($options['no-link-check']))->build($config['outDir']);
 
         if (!isset($options['quiet'])) {
             fwrite($this->err, sprintf(
@@ -295,7 +297,7 @@ TEXT;
     {
         fwrite($this->err, "pholio: \"build --check\" is deprecated, use \"pholio check\"\n");
         unset($options['check']);
-        foreach (['only', 'quiet'] as $unsupported) {
+        foreach (['only', 'quiet', 'no-link-check'] as $unsupported) {
             if (isset($options[$unsupported])) {
                 throw new ConfigException("--{$unsupported} cannot be combined with --check");
             }
@@ -672,11 +674,11 @@ TEXT;
     }
 
     /** @param array<string, mixed> $config */
-    private function builder(array $config, bool $dev, ?string $only): Builder
+    private function builder(array $config, bool $dev, ?string $only, bool $checkLinks = true): Builder
     {
         return self::$builderFactory !== null
-            ? (self::$builderFactory)($config, $dev, $only)
-            : new Builder($config, $dev, $only);
+            ? (self::$builderFactory)($config, $dev, $only, $checkLinks)
+            : new Builder($config, $dev, $only, $checkLinks);
     }
 
     private function error(string $message): void
