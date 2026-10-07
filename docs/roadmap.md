@@ -17,7 +17,7 @@ agents look for.
 ## Next
 
 1. **The planned keys.** `base_url` with canonical links and Open Graph;
-   `theme.default_scheme` and `theme.custom_css`; `search.enabled`; icon links
+   `theme.default_scheme`; `search.enabled`; icon links
    in `nav`; `strict_content`.
 2. **Extension points.** `slots` for sidebar, table of contents and page footer,
    and `components` for tags registered in PHP.
