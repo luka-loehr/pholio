@@ -174,6 +174,10 @@ return [
         // Planned: "light" or "dark" as the initial scheme.
         'default_scheme' => 'system',
 
+        // Code highlighting themes: bundled names (github-light, github-dark) or
+        // paths of TextMate theme files (.json).
+        'code' => ['light' => 'github-light', 'dark' => 'github-dark'],
+
         // Stylesheet appended after the whole theme CSS; its rules win. Write
         // url() values as published URLs, e.g. /assets/fonts/x.woff2.
         'custom_css' => null,
