@@ -6,12 +6,23 @@ namespace Pholio\Highlight;
 
 /**
  * codeToHast from @shikijs/core 4.4.3 for exactly Pholio's settings:
- * themes {light: github-light, dark: github-dark}, defaultColor false, CSS variables `--shiki-*`,
+ * themes {light: github-light, dark: github-dark} (or the site's `theme.code`), defaultColor false, CSS variables `--shiki-*`,
  * mergeWhitespaces true, structure "classic", tabindex "0".
  */
 final class Shiki
 {
-    private const THEMES = ['light' => 'github-light', 'dark' => 'github-dark'];
+    /** @var array{light:string, dark:string} bundled theme names or absolute paths of .json themes */
+    private static array $themes = ['light' => 'github-light', 'dark' => 'github-dark'];
+
+    /**
+     * The code themes of the following renders (`theme.code`): bundled names or absolute .json paths.
+     *
+     * @param array{light:string, dark:string} $themes
+     */
+    public static function useThemes(array $themes): void
+    {
+        self::$themes = ['light' => $themes['light'], 'dark' => $themes['dark']];
+    }
 
     /**
      * @param array<string, string|int|bool|null> $preProperties additional `pre` properties (meta) in order
@@ -22,7 +33,7 @@ final class Shiki
     {
         $registry = Registry::instance();
         $themes = [];
-        foreach (self::THEMES as $key => $name) {
+        foreach (self::$themes as $key => $name) {
             $themes[$key] = $registry->theme($name);
         }
         $perTheme = [];
