@@ -112,7 +112,10 @@ require_once __DIR__ . '/I18n.php';
  *   theme: array{
  *     light: array<string,string>,  token (without --color-fd-) => CSS colour
  *     dark: array<string,string>,
+ *     tokens: array<string,string>, design token (custom property without --, such as font-sans,
+ *                                   radius-lg) => CSS value, for both schemes
  *     paletteCss: ?string,          absolute path of a stylesheet inserted at the palette marker
+ *     customCss: ?string,           absolute path of a stylesheet appended after the theme CSS
  *     fontClass: string,            extra class on <html>, default ""
  *     hotkey: string,               theme toggle key, default "d"
  *     defaultScheme: 'system',
@@ -249,6 +252,7 @@ final class Config
             'theme' => [
                 'light' => ['map<string>', []],
                 'dark' => ['map<string>', []],
+                'tokens' => ['map<string>', []],
                 'palette_css' => ['?string', null],
                 'font_class' => ['string', ''],
                 'hotkey' => ['string', 'd'],
@@ -320,7 +324,6 @@ final class Config
         return [
             [['base_url'], null],
             [['theme', 'default_scheme'], 'system'],
-            [['theme', 'custom_css'], null],
             [['search', 'enabled'], true],
             [['nav', '[]', 'icon'], null],
             [['nav', '[]', 'icon_only'], false],
@@ -812,7 +815,9 @@ final class Config
             'theme' => [
                 'light' => $c['theme']['light'],
                 'dark' => $c['theme']['dark'],
+                'tokens' => $c['theme']['tokens'],
                 'paletteCss' => $path($c['theme']['palette_css']),
+                'customCss' => $path($c['theme']['custom_css']),
                 'fontClass' => $c['theme']['font_class'],
                 'hotkey' => $c['theme']['hotkey'],
                 'defaultScheme' => $c['theme']['default_scheme'],
