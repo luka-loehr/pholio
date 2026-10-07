@@ -16,6 +16,8 @@ or the configuration schema; such changes are listed under **Changed**.
   `theme.custom_css` appends a stylesheet after the theme, for rules such as
   `@font-face`. A site can take on its brand's typography and shapes without
   touching the theme.
+- **Preloading.** `head.preload` fetches files such as web fonts before the
+  stylesheet asks for them, so text doesn't shift when they arrive.
 - **Code themes of your own.** `theme.code.light` and `theme.code.dark` choose
   the highlighting themes: a bundled one by name, or a TextMate theme file of
   the site, for example a monochrome scheme.
