@@ -44,7 +44,7 @@ test('defaults for a minimal config', function (): void {
     assert_same(null, $c['home']);
     assert_same('', $c['theme']['fontClass']);
     assert_same('d', $c['theme']['hotkey']);
-    assert_same(['icons' => [], 'manifest' => null, 'themeColor' => null], $c['head']);
+    assert_same(['icons' => [], 'preload' => [], 'manifest' => null, 'themeColor' => null], $c['head']);
     assert_same(
         ['enabled' => true, 'indexPath' => 'search-index.json', 'indexUrl' => '/search-index.json', 'tokenizer' => 'english', 'hotkey' => ['⌘', 'K']],
         $c['search'],
