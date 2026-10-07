@@ -16,6 +16,9 @@ or the configuration schema; such changes are listed under **Changed**.
   `theme.custom_css` appends a stylesheet after the theme, for rules such as
   `@font-face`. A site can take on its brand's typography and shapes without
   touching the theme.
+- **Code themes of your own.** `theme.code.light` and `theme.code.dark` choose
+  the highlighting themes: a bundled one by name, or a TextMate theme file of
+  the site, for example a monochrome scheme.
 
 - **Link checks.** After the pages are written, every link and image in the
   prose and on the start page is checked against the finished site: absolute
