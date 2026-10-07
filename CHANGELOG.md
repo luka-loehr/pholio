@@ -11,6 +11,12 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ### Added
 
+- **Design tokens and your own CSS.** `theme.tokens` sets fonts, radii and any
+  other custom property of the theme for both color schemes, and
+  `theme.custom_css` appends a stylesheet after the theme, for rules such as
+  `@font-face`. A site can take on its brand's typography and shapes without
+  touching the theme.
+
 - **Link checks.** After the pages are written, every link and image in the
   prose and on the start page is checked against the finished site: absolute
   and relative paths, fragments against the element ids of the target page, and
