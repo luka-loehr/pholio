@@ -281,6 +281,7 @@ class Builder
             'baseUrl' => $config['baseUrl'],
             'searchIndexUrl' => $config['search']['indexUrl'],
             'icons' => $config['head']['icons'],
+            'preload' => $config['head']['preload'] ?? [],
             'manifest' => $config['head']['manifest'],
             'themeColor' => $config['head']['themeColor'],
         ];
