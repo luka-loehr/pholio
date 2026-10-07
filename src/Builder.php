@@ -95,6 +95,7 @@ class Builder
     {
         $this->loadGenerator();
         I18n::use($this->config['lang'], $this->config['translations']);
+        \Pholio\Highlight\Shiki::useThemes($this->config['theme']['code'] ?? ['light' => 'github-light', 'dark' => 'github-dark']);
 
         $config = $this->config;
         $tree = $this->tree();
