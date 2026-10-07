@@ -996,10 +996,11 @@ html > body[data-scroll-locked] {
 
 /* The font family, directly on html. font-feature-settings and
  * font-variation-settings stay unset (the preflight in reset.css sets them to
- * `normal` through the variable fallback).
+ * `normal` through the variable fallback). A site sets its own text font with
+ * the design token --font-text (theme.tokens.font-text); without it, Inter.
  */
 html {
-  font-family: Inter, Inter Fallback;
+  font-family: var(--font-text, Inter, Inter Fallback);
   font-style: normal;
 }
 
