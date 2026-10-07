@@ -484,6 +484,7 @@ class Builder
         if (str_contains($css, self::PALETTE_MARKER)) {
             $css = str_replace(self::PALETTE_MARKER, rtrim($this->palette()), $css);
         }
+        $css .= $this->customCss();
         Fs::write($assetDir, 'css/notebook.css', $css);
 
         Fs::copyDir($theme . '/fonts', $assetDir . '/fonts');
@@ -502,11 +503,25 @@ class Builder
         }
     }
 
-    /** Generated :root and .dark token blocks followed by `theme.palette_css`. */
+    /**
+     * Generated token blocks followed by `theme.palette_css`: `theme.tokens` as
+     * custom properties of :root (fonts, radii and any other design token, both
+     * schemes), then the colour tokens of :root and .dark.
+     */
     public function palette(): string
     {
         $theme = $this->config['theme'];
         $out = '';
+        if (($theme['tokens'] ?? []) !== []) {
+            $out .= ":root {\n";
+            foreach ($theme['tokens'] as $token => $value) {
+                if (preg_match('/^[a-z][a-z0-9-]*$/', (string) $token) !== 1 || preg_match('/[;{}]/', $value) === 1) {
+                    throw new ConfigException("theme.tokens: invalid token {$token}: {$value}", $this->config['configFile'] ?: null);
+                }
+                $out .= '  --' . $token . ': ' . $value . ";\n";
+            }
+            $out .= "}\n";
+        }
         foreach ([':root' => $theme['light'], '.dark' => $theme['dark']] as $selector => $tokens) {
             if ($tokens === []) {
                 continue;
@@ -528,6 +543,24 @@ class Builder
         }
 
         return $out;
+    }
+
+    /**
+     * `theme.custom_css`, appended after the whole theme stylesheet (unlayered, so
+     * it wins over every theme rule), or "" without one. url() values in it are
+     * written as published URLs, such as /assets/fonts/x.woff2.
+     */
+    public function customCss(): string
+    {
+        $file = $this->config['theme']['customCss'] ?? null;
+        if ($file === null) {
+            return '';
+        }
+        if (!is_file($file)) {
+            throw new ConfigException('theme.custom_css not found: ' . $file, $this->config['configFile'] ?: null);
+        }
+
+        return "\n/* ---- theme.custom_css ---- */\n" . rtrim((string) file_get_contents($file)) . "\n";
     }
 
     /** The `copy` directories, verbatim and without *.md files; a missing optional one is skipped. */
