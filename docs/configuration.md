@@ -133,7 +133,8 @@ first content page the root.
 
 The theme has a light and a dark color scheme with static colors. `theme.light`
 and `theme.dark` map single color token names, without the `--color-fd-` prefix,
-to CSS colors, and `theme.palette_css` adds a stylesheet of your own. The build
+to CSS colors, `theme.tokens` sets fonts, radii and other design tokens,
+and `theme.palette_css` adds a stylesheet of your own. The build
 writes the token maps and then the stylesheet at the palette marker
 `/* @pholio:palette */` in `theme/css/tokens.css`. The block is unlayered, so it
 wins over the default tokens, and the stylesheet wins over the token maps.
@@ -143,11 +144,12 @@ Anything you leave out keeps its default.
 | --- | --- | --- |
 | `theme.light` | `[]` | Token => color for the light scheme |
 | `theme.dark` | `[]` | Token => color for the dark scheme |
+| `theme.tokens` | `[]` | Design token => CSS value for both schemes: fonts, radii and any other custom property of the theme |
 | `theme.palette_css` | `null` | Stylesheet inserted after the token maps, for palettes a token map can't express |
 | `theme.font_class` | `''` | Extra class on `<html>` |
 | `theme.hotkey` | `d` | Key that toggles the color scheme |
 | `theme.default_scheme` | `system` | Planned: `light` or `dark` as the scheme before the visitor chooses |
-| `theme.custom_css` | `null` | Planned: stylesheet appended after the theme CSS |
+| `theme.custom_css` | `null` | Stylesheet appended after the whole theme CSS, for rules of your own |
 
 The tokens are `background`, `foreground`, `muted`, `muted-foreground`,
 `popover`, `popover-foreground`, `card`, `card-foreground`, `border`, `primary`,
@@ -160,6 +162,41 @@ The tokens are `background`, `foreground`, `muted`, `muted-foreground`,
     'dark' => ['primary' => 'hsl(220 90% 70%)'],
 ],
 ```
+
+### Design tokens
+
+`theme.tokens` sets the theme's other custom properties, without the leading
+`--`, for both color schemes. The ones a brand usually changes:
+
+| Token | Default | Meaning |
+| --- | --- | --- |
+| `font-sans` | the system UI font stack | Text font |
+| `font-mono` | the system monospace stack | Code font |
+| `radius-sm`, `radius-md`, `radius-lg`, `radius-xl`, `radius-2xl` | `.25rem` … `1rem` | Corner radii, from small controls to cards and dialogs |
+| `tracking-tight` | `-.025em` | Letter spacing of large headings |
+
+```php title="pholio.config.php"
+'theme' => [
+    'tokens' => [
+        'font-sans' => '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
+        'radius-lg' => '.3rem',
+    ],
+    'custom_css' => 'theme.css',
+],
+```
+
+A token name is lowercase letters, digits and hyphens; a value can't contain
+`;`, `{` or `}`. Tokens are written as a `:root` block at the palette marker,
+before the color maps.
+
+### Your own rules
+
+`theme.custom_css` is appended after the whole theme stylesheet, unlayered, so
+its rules win over the theme's. Use it for what a token can't express, such as
+`@font-face` rules for a font you serve yourself. Write `url()` values as
+published URLs, for example `url("/assets/fonts/plex-sans-400.woff2")` for a
+file in the copied `assets/` folder, because the stylesheet is served from the
+theme's asset directory.
 
 <Callout type="warn" title="Give tokens as opaque colors">
 The theme derives translucent variants of a token with `color-mix(in oklab, …)`,
