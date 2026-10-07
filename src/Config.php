@@ -116,6 +116,7 @@ require_once __DIR__ . '/I18n.php';
  *                                   radius-lg) => CSS value, for both schemes
  *     paletteCss: ?string,          absolute path of a stylesheet inserted at the palette marker
  *     customCss: ?string,           absolute path of a stylesheet appended after the theme CSS
+ *     code: array{light:string, dark:string}, bundled Shiki theme name or absolute path of a .json theme
  *     fontClass: string,            extra class on <html>, default ""
  *     hotkey: string,               theme toggle key, default "d"
  *     defaultScheme: 'system',
@@ -258,6 +259,10 @@ final class Config
                 'hotkey' => ['string', 'd'],
                 'default_scheme' => ['enum', ['system', 'light', 'dark'], 'system'],
                 'custom_css' => ['?string', null],
+                'code' => [
+                    'light' => ['string', 'github-light'],
+                    'dark' => ['string', 'github-dark'],
+                ],
             ],
             'head' => [
                 'icons' => ['list', [
@@ -752,6 +757,20 @@ final class Config
             $copy[] = ['from' => rtrim((string) $path((string) $from), '/'), 'to' => (string) $url($to), 'optional' => false];
         }
 
+        // A code theme is a bundled Shiki theme by name or a TextMate theme file (.json) of the site.
+        $codeTheme = static function (string $value, string $key) use ($path, $configFile): string {
+            if (str_ends_with(strtolower($value), '.json')) {
+                return (string) $path($value);
+            }
+            $bundled = dirname(__DIR__) . '/vendor-data/shiki/themes/' . $value . '.json';
+            if (preg_match('/^[a-z0-9-]+$/', $value) !== 1 || !is_file($bundled)) {
+                $names = array_map(static fn(string $f): string => basename($f, '.json'), glob(dirname(__DIR__) . '/vendor-data/shiki/themes/*.json') ?: []);
+                throw new ConfigException('theme.code.' . $key . ': unknown code theme ' . self::show($value) . '; bundled: ' . implode(', ', $names) . ', or a path to a .json theme', $configFile);
+            }
+
+            return $value;
+        };
+
         $siteUrl = $c['site']['url'] === null ? null : rtrim($c['site']['url'], '/');
         if ($siteUrl !== null && preg_match('#^https?://[^/?\#\s]+$#i', $siteUrl) !== 1) {
             throw new ConfigException(
@@ -818,6 +837,10 @@ final class Config
                 'tokens' => $c['theme']['tokens'],
                 'paletteCss' => $path($c['theme']['palette_css']),
                 'customCss' => $path($c['theme']['custom_css']),
+                'code' => [
+                    'light' => $codeTheme($c['theme']['code']['light'], 'light'),
+                    'dark' => $codeTheme($c['theme']['code']['dark'], 'dark'),
+                ],
                 'fontClass' => $c['theme']['font_class'],
                 'hotkey' => $c['theme']['hotkey'],
                 'defaultScheme' => $c['theme']['default_scheme'],
