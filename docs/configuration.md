@@ -170,7 +170,7 @@ The tokens are `background`, `foreground`, `muted`, `muted-foreground`,
 
 | Token | Default | Meaning |
 | --- | --- | --- |
-| `font-sans` | the system UI font stack | Text font |
+| `font-text` | `Inter, Inter Fallback` | Text font of the whole site |
 | `font-mono` | the system monospace stack | Code font |
 | `radius-sm`, `radius-md`, `radius-lg`, `radius-xl`, `radius-2xl` | `.25rem` … `1rem` | Corner radii, from small controls to cards and dialogs |
 | `tracking-tight` | `-.025em` | Letter spacing of large headings |
@@ -178,7 +178,7 @@ The tokens are `background`, `foreground`, `muted`, `muted-foreground`,
 ```php title="pholio.config.php"
 'theme' => [
     'tokens' => [
-        'font-sans' => '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
+        'font-text' => '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
         'radius-lg' => '.3rem',
     ],
     'custom_css' => 'theme.css',
