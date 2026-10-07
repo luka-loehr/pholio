@@ -67,6 +67,17 @@ function nd_document(array $head, string $body): string
     // The theme as one file: the builder concatenates theme/css/*.css in the
     // order of notebook.css and places the result here.
     $out .= '<link rel="stylesheet" href="' . Html::e($assets . '/css/notebook.css') . '">';
+    // `head.preload`: files the stylesheet would only ask for late, such as a web font,
+    // so the text doesn't shift when they arrive. Fonts are fetched in CORS mode.
+    foreach ($head['preload'] ?? [] as $preload) {
+        $out .= Html::voidTag('link', [
+            'rel' => 'preload',
+            'href' => $preload['href'],
+            'as' => $preload['as'],
+            'type' => $preload['type'] ?? null,
+            'crossorigin' => $preload['as'] === 'font' ? 'anonymous' : null,
+        ]);
+    }
     // Where js/search-dialog.js fetches the search index.
     $out .= '<meta name="nd-search-index" content="' . Html::e($head['searchIndexUrl']) . '">';
     foreach ($head['icons'] as $icon) {
