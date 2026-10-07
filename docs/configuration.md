@@ -150,6 +150,8 @@ Anything you leave out keeps its default.
 | `theme.hotkey` | `d` | Key that toggles the color scheme |
 | `theme.default_scheme` | `system` | Planned: `light` or `dark` as the scheme before the visitor chooses |
 | `theme.custom_css` | `null` | Stylesheet appended after the whole theme CSS, for rules of your own |
+| `theme.code.light` | `github-light` | Code highlighting theme of the light scheme: a bundled theme's name or the path of a TextMate theme file (`.json`) |
+| `theme.code.dark` | `github-dark` | The same for the dark scheme |
 
 The tokens are `background`, `foreground`, `muted`, `muted-foreground`,
 `popover`, `popover-foreground`, `card`, `card-foreground`, `border`, `primary`,
@@ -197,6 +199,33 @@ its rules win over the theme's. Use it for what a token can't express, such as
 published URLs, for example `url("/assets/fonts/plex-sans-400.woff2")` for a
 file in the copied `assets/` folder, because the stylesheet is served from the
 theme's asset directory.
+
+### Code themes
+
+Fenced code is colored at build time with a light and a dark TextMate theme.
+The bundled ones are `github-light` and `github-dark`. For colors of your own,
+such as a monochrome scheme, give the path of a theme file in the format VS Code
+and Shiki use, relative to the configuration file:
+
+```php title="pholio.config.php"
+'theme' => [
+    'code' => ['light' => 'code-light.json', 'dark' => 'code-dark.json'],
+],
+```
+
+```json title="code-light.json"
+{
+  "name": "mono-light",
+  "type": "light",
+  "colors": { "editor.foreground": "#0a0a0a", "editor.background": "#ffffff" },
+  "tokenColors": [
+    { "scope": ["comment", "punctuation.definition.comment"], "settings": { "foreground": "#686868" } }
+  ]
+}
+```
+
+Scopes without a rule take `editor.foreground`. Check that every color reaches a
+contrast of 4.5:1 against the code block's background.
 
 <Callout type="warn" title="Give tokens as opaque colors">
 The theme derives translucent variants of a token with `color-mix(in oklab, …)`,
