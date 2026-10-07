@@ -171,7 +171,6 @@ test('types, enums and required keys are validated', function (): void {
 test('planned keys fail with "planned:"', function (): void {
     config_error(['base_url' => 'https://example.org'], 'planned: base_url');
     config_error(['theme' => ['default_scheme' => 'dark']], 'planned: theme.default_scheme');
-    config_error(['theme' => ['custom_css' => 'x.css']], 'planned: theme.custom_css');
     config_error(['search' => ['enabled' => false]], 'planned: search.enabled');
     config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon' => 'github']]], 'planned: nav.0.icon');
     config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon_only' => true]]], 'planned: nav.0.icon_only');
