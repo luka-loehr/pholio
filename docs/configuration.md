@@ -242,8 +242,24 @@ those steps and ends up fainter than intended.
 | `head.icons[].type` | `null` | MIME type |
 | `head.icons[].sizes` | `null` | `sizes` attribute |
 | `head.icons[].href` | required | Icon URL |
+| `head.preload` | `[]` | Files to fetch early, in this order |
+| `head.preload[].href` | required | File URL |
+| `head.preload[].as` | `font` | `font`, `style`, `script` or `image` |
+| `head.preload[].type` | `null` | MIME type, such as `font/woff2` |
 | `head.manifest` | `null` | Web app manifest URL |
 | `head.theme_color` | `null` | `<meta name="theme-color">` |
+
+Preload the web fonts a site loads through `theme.custom_css`, so the text
+doesn't jump when they arrive. A font is fetched in CORS mode
+(`crossorigin="anonymous"`), as the browser requires for fonts:
+
+```php title="pholio.config.php"
+'head' => [
+    'preload' => [
+        ['href' => '/assets/fonts/plex-sans-400.woff2', 'type' => 'font/woff2'],
+    ],
+],
+```
 
 ## Search
 
