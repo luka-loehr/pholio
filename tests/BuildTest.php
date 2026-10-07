@@ -242,6 +242,11 @@ test('theme.tokens and theme.custom_css reach the stylesheet: tokens at the pale
     assert_true($tokens !== false && $colors !== false && $tokens < $colors, 'tokens precede the colour maps');
     assert_contains("  --radius-lg: .3rem;\n", $css);
     assert_contains('font-family: var(--font-text, Inter, Inter Fallback);', $css);
+
+    $preload = build_pages(['index.md' => "Start.\n"], "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'head' => ['preload' => [['href' => '/assets/f.woff2', 'type' => 'font/woff2']]]]");
+    [$code, , $err] = build_cli(['build', '--config', $preload . '/pholio.config.php', '--quiet']);
+    assert_same(0, $code, $err);
+    assert_contains('<link rel="preload" href="/assets/f.woff2" as="font" type="font/woff2" crossorigin="anonymous">', (string) file_get_contents($preload . '/out/index.html'));
     assert_true(str_ends_with(rtrim($css), ".nd-home-kicker { letter-spacing: 0; }"), 'custom CSS comes last');
 
     $bad = build_pages(['index.md' => "Start.\n"], "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'theme' => ['tokens' => ['Font' => 'x']]]");
