@@ -158,7 +158,7 @@ return [
         // Other design tokens for both schemes, as custom properties without "--":
         // fonts, radii, letter spacing.
         'tokens' => [
-            // 'font-sans' => '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
+            // 'font-text' => '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
             // 'radius-lg' => '.3rem',
         ],
 
