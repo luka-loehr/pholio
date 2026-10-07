@@ -108,8 +108,9 @@ final class Registry
         }
     }
 
+    /** A bundled theme by name, or a theme file by its absolute path. */
     public function theme(string $name): Theme
     {
-        return $this->themes[$name] ??= Theme::fromFile($this->dir . '/themes/' . $name . '.json');
+        return $this->themes[$name] ??= Theme::fromFile(str_starts_with($name, '/') ? $name : $this->dir . '/themes/' . $name . '.json');
     }
 }
