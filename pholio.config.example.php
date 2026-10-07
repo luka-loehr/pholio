@@ -187,6 +187,10 @@ return [
         'icons' => [
             // ['rel' => 'icon', 'type' => 'image/svg+xml', 'sizes' => null, 'href' => '/assets/images/logo.svg'],
         ],
+        // Files fetched early, such as the web fonts of theme.custom_css.
+        'preload' => [
+            // ['href' => '/assets/fonts/x.woff2', 'as' => 'font', 'type' => 'font/woff2'],
+        ],
         'manifest' => null,
         'theme_color' => null,
     ],
