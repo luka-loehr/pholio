@@ -230,6 +230,30 @@ test('absolute links to site.url are checked; other hosts, --only and --no-link-
     assert_same(0, $code, $err);
 });
 
+test('theme.tokens and theme.custom_css reach the stylesheet: tokens at the palette marker, custom CSS last', function (): void {
+    $config = "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'theme' => ['tokens' => ['font-sans' => '\"IBM Plex Sans\", sans-serif', 'radius-lg' => '.3rem'], 'light' => ['background' => '#fff'], 'custom_css' => 'theme.css']]";
+    $dir = build_pages(['index.md' => "Start.\n"], $config);
+    file_put_contents($dir . '/theme.css', ".nd-home-kicker { letter-spacing: 0; }\n");
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+    assert_same(0, $code, $err);
+    $css = (string) file_get_contents($dir . '/out/pholio/css/notebook.css');
+    $tokens = strpos($css, "--font-sans: \"IBM Plex Sans\", sans-serif;");
+    $colors = strpos($css, '--color-fd-background: #fff;');
+    assert_true($tokens !== false && $colors !== false && $tokens < $colors, 'tokens precede the colour maps');
+    assert_contains("  --radius-lg: .3rem;\n", $css);
+    assert_true(str_ends_with(rtrim($css), ".nd-home-kicker { letter-spacing: 0; }"), 'custom CSS comes last');
+
+    $bad = build_pages(['index.md' => "Start.\n"], "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'theme' => ['tokens' => ['Font' => 'x']]]");
+    [$code, , $err] = build_cli(['build', '--config', $bad . '/pholio.config.php', '--quiet']);
+    assert_same(2, $code, $err);
+    assert_contains('theme.tokens: invalid token Font', $err);
+
+    $missing = build_pages(['index.md' => "Start.\n"], "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'theme' => ['custom_css' => 'nope.css']]");
+    [$code, , $err] = build_cli(['build', '--config', $missing . '/pholio.config.php', '--quiet']);
+    assert_same(2, $code, $err);
+    assert_contains('theme.custom_css not found', $err);
+});
+
 // ------------------------------------------------------------------ exit 4: I/O
 
 test('an output directory that cannot be created exits 4', function (): void {
