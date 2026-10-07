@@ -241,6 +241,7 @@ test('theme.tokens and theme.custom_css reach the stylesheet: tokens at the pale
     $colors = strpos($css, '--color-fd-background: #fff;');
     assert_true($tokens !== false && $colors !== false && $tokens < $colors, 'tokens precede the colour maps');
     assert_contains("  --radius-lg: .3rem;\n", $css);
+    assert_contains('font-family: var(--font-text, Inter, Inter Fallback);', $css);
     assert_true(str_ends_with(rtrim($css), ".nd-home-kicker { letter-spacing: 0; }"), 'custom CSS comes last');
 
     $bad = build_pages(['index.md' => "Start.\n"], "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'theme' => ['tokens' => ['Font' => 'x']]]");
