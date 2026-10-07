@@ -123,6 +123,7 @@ require_once __DIR__ . '/I18n.php';
  *   },
  *   head: array{
  *     icons: list<array{rel:string, type:?string, sizes:?string, href:string}>,
+ *     preload: list<array{href:string, as:string, type:?string}>, files fetched before the stylesheet asks
  *     manifest: ?string,            manifest URL
  *     themeColor: ?string,
  *   },
@@ -270,6 +271,11 @@ final class Config
                     'type' => ['?string', null],
                     'sizes' => ['?string', null],
                     'href' => 'string!',
+                ]],
+                'preload' => ['list', [
+                    'href' => 'string!',
+                    'as' => ['enum', ['font', 'style', 'script', 'image'], 'font'],
+                    'type' => ['?string', null],
                 ]],
                 'manifest' => ['?string', null],
                 'theme_color' => ['?string', null],
@@ -852,6 +858,11 @@ final class Config
                     'sizes' => $i['sizes'],
                     'href' => (string) $url($i['href']),
                 ], $c['head']['icons']),
+                'preload' => array_map(static fn(array $p): array => [
+                    'href' => (string) $url($p['href']),
+                    'as' => $p['as'],
+                    'type' => $p['type'],
+                ], $c['head']['preload']),
                 'manifest' => $url($c['head']['manifest']),
                 'themeColor' => $c['head']['theme_color'],
             ],
