@@ -155,6 +155,13 @@ return [
             'primary' => 'hsl(220 90% 70%)',
         ],
 
+        // Other design tokens for both schemes, as custom properties without "--":
+        // fonts, radii, letter spacing.
+        'tokens' => [
+            // 'font-sans' => '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
+            // 'radius-lg' => '.3rem',
+        ],
+
         // Stylesheet inserted at the same marker, after the token maps.
         'palette_css' => null,
 
@@ -167,7 +174,8 @@ return [
         // Planned: "light" or "dark" as the initial scheme.
         'default_scheme' => 'system',
 
-        // Planned: stylesheet appended after the theme CSS.
+        // Stylesheet appended after the whole theme CSS; its rules win. Write
+        // url() values as published URLs, e.g. /assets/fonts/x.woff2.
         'custom_css' => null,
     ],
 
