@@ -255,6 +255,27 @@ test('theme.tokens and theme.custom_css reach the stylesheet: tokens at the pale
     assert_contains('theme.custom_css not found', $err);
 });
 
+test('theme.code takes a bundled theme by name or a TextMate theme file; an unknown name exits 2', function (): void {
+    $config = "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'theme' => ['code' => ['light' => 'mono-light.json', 'dark' => 'github-dark']]]";
+    $dir = build_pages(['index.md' => "```bash\n# a comment\necho hi\n```\n"], $config);
+    file_put_contents($dir . '/mono-light.json', json_encode([
+        'name' => 'mono-light', 'type' => 'light',
+        'colors' => ['editor.foreground' => '#0a0a0a', 'editor.background' => '#ffffff'],
+        'tokenColors' => [['scope' => ['comment', 'punctuation.definition.comment'], 'settings' => ['foreground' => '#686868']]],
+    ]));
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+    assert_same(0, $code, $err);
+    $html = (string) file_get_contents($dir . '/out/index.html');
+    assert_contains('shiki-themes mono-light github-dark', $html);
+    assert_contains('--shiki-light:#686868', $html);
+    assert_contains('--shiki-light:#0a0a0a', $html);
+
+    $bad = build_pages(['index.md' => "Start.\n"], "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'theme' => ['code' => ['light' => 'nord']]]");
+    [$code, , $err] = build_cli(['build', '--config', $bad . '/pholio.config.php', '--quiet']);
+    assert_same(2, $code, $err);
+    assert_contains('theme.code.light: unknown code theme', $err);
+});
+
 // ------------------------------------------------------------------ exit 4: I/O
 
 test('an output directory that cannot be created exits 4', function (): void {
