@@ -56,8 +56,9 @@ directory stops the build. Sites with their own layout keep using `copy` and
 
 Fenced code is highlighted at build time with the bundled TextMate grammars and
 GitHub light and dark themes: `css`, `diff`, `html`, `java`, `javascript` (`js`),
-`json`, `php`, `shellscript` (`bash`, `sh`), `sql`, `typescript` (`ts`), `xml` and
-`yaml`. Any other language stops the build.
+`json`, `markdown` (`md`), `php`, `shellscript` (`bash`, `sh`), `sql`, `typescript`
+(`ts`), `xml` and `yaml`. Any other language stops the build. Inside a `markdown`
+block, fenced code in one of these languages is highlighted too.
 
 ````text
 ```ts title="search.ts" lineNumbers
@@ -111,7 +112,7 @@ Icons are lucide names such as `book-open`; an unknown name stops the build.
 | `InlineTOC` | `label` | none |
 | `DynamicCodeBlock` | `lang` (required) | verbatim code |
 
-```text
+```markdown
 <Callout type="warning" title="Before you start">
 Back up your configuration.
 </Callout>
