@@ -30,8 +30,11 @@ copy.
 ### Grammars
 
 The grammars are byte-for-byte what `@shikijs/langs` 4.4.3 ships. That release
-was built from `tm-grammars` 1.32.3; Shiki's only change to the upstream JSON is
-an added `aliases` list on `javascript`, `shellscript`, `typescript` and `yaml`.
+was built from `tm-grammars` 1.32.3. Shiki changes no rule of the upstream JSON;
+it only adds metadata: an `aliases` list on `javascript`, `markdown`,
+`shellscript`, `typescript` and `yaml`, and the embedded languages to load with a
+grammar (`embeddedLangs` on `html`, `markdown`, `php` and `xml`,
+`embeddedLangsLazy` on `markdown`).
 The packaging in both `@shikijs/langs` and `tm-grammars` is MIT, © 2021 Pine Wu
 and © 2023 Anthony Fu ([`licenses/shiki-MIT.txt`](licenses/shiki-MIT.txt)).
 
@@ -43,6 +46,7 @@ and © 2023 Anthony Fu ([`licenses/shiki-MIT.txt`](licenses/shiki-MIT.txt)).
 | Java | [microsoft/vscode `extensions/java/syntaxes/java.tmLanguage.json` @ `3c86ede`](https://github.com/microsoft/vscode/blob/3c86ede5f554f6e196c832394e126b291a1de606/extensions/java/syntaxes/java.tmLanguage.json) | MIT | © 2015-present Microsoft Corporation | [`licenses/vscode-MIT.txt`](licenses/vscode-MIT.txt) |
 | JavaScript | [microsoft/vscode `extensions/javascript/syntaxes/JavaScript.tmLanguage.json` @ `2105419`](https://github.com/microsoft/vscode/blob/210541906e5a96ab39f9c753f921b1bd35f4138b/extensions/javascript/syntaxes/JavaScript.tmLanguage.json) | MIT | © 2015-present Microsoft Corporation | [`licenses/vscode-MIT.txt`](licenses/vscode-MIT.txt) |
 | JSON | [microsoft/vscode `extensions/json/syntaxes/JSON.tmLanguage.json` @ `d6af489`](https://github.com/microsoft/vscode/blob/d6af4893ed9a3545163a4cb748fa5548bd1e51a5/extensions/json/syntaxes/JSON.tmLanguage.json) | MIT | © 2015-present Microsoft Corporation | [`licenses/vscode-MIT.txt`](licenses/vscode-MIT.txt) |
+| Markdown | [microsoft/vscode `extensions/markdown-basics/syntaxes/markdown.tmLanguage.json` @ `6d8ab97`](https://github.com/microsoft/vscode/blob/6d8ab9737d58fc5eaf07e2ae6553b38183a5de47/extensions/markdown-basics/syntaxes/markdown.tmLanguage.json) | MIT | © 2015-present Microsoft Corporation | [`licenses/vscode-MIT.txt`](licenses/vscode-MIT.txt) |
 | PHP | [microsoft/vscode `extensions/php/syntaxes/php.tmLanguage.json` @ `af60048`](https://github.com/microsoft/vscode/blob/af600487b1e94374d9f48f57cbf2cad24656b07f/extensions/php/syntaxes/php.tmLanguage.json) | MIT | © 2015-present Microsoft Corporation | [`licenses/vscode-MIT.txt`](licenses/vscode-MIT.txt) |
 | Shell | [microsoft/vscode `extensions/shellscript/syntaxes/shell-unix-bash.tmLanguage.json` @ `9473445`](https://github.com/microsoft/vscode/blob/9473445f7d3dcb5c579f42ece8b6c18c43c63ed3/extensions/shellscript/syntaxes/shell-unix-bash.tmLanguage.json) | MIT | © 2015-present Microsoft Corporation | [`licenses/vscode-MIT.txt`](licenses/vscode-MIT.txt) |
 | SQL | [microsoft/vscode `extensions/sql/syntaxes/sql.tmLanguage.json` @ `af60048`](https://github.com/microsoft/vscode/blob/af600487b1e94374d9f48f57cbf2cad24656b07f/extensions/sql/syntaxes/sql.tmLanguage.json) | MIT | © 2015-present Microsoft Corporation | [`licenses/vscode-MIT.txt`](licenses/vscode-MIT.txt) |
