@@ -11,7 +11,7 @@ produced it underneath. The attributes are listed in
 
 <InlineTOC label="On this page" />
 
-````text
+````markdown
 <InlineTOC label="On this page" />
 ````
 
@@ -56,7 +56,7 @@ A suggestion worth trying.
 `icon` replaces the type's icon with any lucide icon.
 </Callout>
 
-````text
+````markdown
 <Callout>
 A callout without a type or a title.
 </Callout>
@@ -106,7 +106,7 @@ static.
   <Card title="With an icon" description="A static card with an icon." icon="sparkles" />
 </Cards>
 
-````text
+````markdown
 <Cards>
   <Card title="Getting started" description="Install Pholio and build a first site." href="/docs/getting-started" icon="rocket" />
   <Card title="Configuration" description="Every key of pholio.config.php." href="/docs/configuration" icon="settings" />
@@ -133,7 +133,7 @@ Use WSL and run the installer there.
 </Tab>
 </Tabs>
 
-````text
+````markdown
 <Tabs items="macOS|Linux|Windows" defaultIndex="1" updateAnchor>
 <Tab value="macOS">
 Run the installer in Terminal.
@@ -174,7 +174,7 @@ Run `php bin/pholio` from the clone.
 </Tab>
 </Tabs>
 
-`````text
+`````markdown
 <Tabs groupId="package" items="curl|Git" persist>
 <Tab value="curl">
 ```bash
@@ -230,7 +230,7 @@ pholio build my-docs
 </Step>
 </Steps>
 
-`````text
+`````markdown
 <Steps>
 <Step>
 
@@ -280,7 +280,7 @@ Every page also exists as Markdown, listed in `llms.txt`.
 </Accordion>
 </Accordions>
 
-````text
+````markdown
 <Accordions type="single" defaultValue="What does Pholio need?">
 <Accordion title="What does Pholio need?">
 PHP 8.2 with `mbstring` and `ctype`. Nothing else.
@@ -317,7 +317,7 @@ keeps it closed, `icon` sets a file's icon.
   </Folder>
 </Files>
 
-````text
+````markdown
 <Files>
   <Folder name="my-docs" defaultOpen>
     <File name="pholio.config.php" icon="settings" />
@@ -353,7 +353,7 @@ Options of an API, with types, defaults and expandable descriptions.
   </TypeProp>
 </TypeTable>
 
-````text
+````markdown
 <TypeTable>
   <TypeProp name="title" type="string" required>
   Site name, shown in the header and in `<title>`.
@@ -379,7 +379,7 @@ Switch the theme to see both.
 
 <Screenshot src="./assets/components/pipeline-light.svg" dark="./assets/components/pipeline-dark.svg" alt="Markdown goes through pholio build and comes out as a static site" />
 
-````text
+````markdown
 <Screenshot src="./assets/components/pipeline-light.svg" dark="./assets/components/pipeline-dark.svg" alt="Markdown goes through pholio build and comes out as a static site" />
 ````
 
@@ -390,7 +390,7 @@ by itself, so one file works in light and dark.
 
 <ImageZoom src="./assets/components/pipeline.svg" alt="The build pipeline, enlarged on click" width="720" height="200" />
 
-````text
+````markdown
 <ImageZoom src="./assets/components/pipeline.svg" alt="The build pipeline, enlarged on click" width="720" height="200" />
 ````
 
@@ -400,7 +400,7 @@ A plain Markdown image renders as one bordered image, sized from the file.
 
 ![The build pipeline](./assets/components/pipeline.svg)
 
-````text
+````markdown
 ![The build pipeline](./assets/components/pipeline.svg)
 ````
 
@@ -415,7 +415,7 @@ const search = createSearch(index);
 const hits = search.query('install');
 ```
 
-`````text
+`````markdown
 ```ts title="search.ts" lineNumbers
 import { createSearch } from './search.js';
 
@@ -432,7 +432,7 @@ return [
 ];
 ```
 
-`````text
+`````markdown
 ```php lineNumbers=40
 return [
     'title' => 'My docs',
@@ -500,7 +500,7 @@ theme:
   'title' => 'Handbuch',
 ```
 
-`````text
+`````markdown
 ```diff
 - 'language' => 'en',
 + 'language' => 'de',
@@ -524,7 +524,7 @@ pholio check
 pholio dev
 ```
 
-`````text
+`````markdown
 ```bash tab="Build"
 pholio build
 ```
@@ -549,7 +549,7 @@ pholio dev
 }
 </DynamicCodeBlock>
 
-````text
+````markdown
 <DynamicCodeBlock lang="json">
 {
   "title": "Pholio",
@@ -568,7 +568,7 @@ Columns align left, center or right.
 | `check` | nothing | 1 on differences |
 | `dev` | the site, with drafts | 0 |
 
-````text
+````markdown
 | Command | Writes | Exit code |
 | :--- | :---: | ---: |
 | `build` | the site | 0 |
@@ -584,7 +584,7 @@ Columns align left, center or right.
 [internal link](/docs/configuration) and an
 [external link](https://commonmark.org).
 
-````text
+````markdown
 **Bold**, *italic*, ***both***, ~~strikethrough~~, `inline code`, an
 [internal link](/docs/configuration) and an
 [external link](https://commonmark.org).
@@ -595,7 +595,7 @@ Columns align left, center or right.
 Two trailing spaces end a line  
 without starting a new paragraph.
 
-````text
+````markdown
 Two trailing spaces end a line··
 without starting a new paragraph.
 ````
@@ -606,7 +606,7 @@ The `··` above stands for the two trailing spaces.
 
 > Write the page you wish you had found the first time.
 
-````text
+````markdown
 > Write the page you wish you had found the first time.
 ````
 
@@ -621,7 +621,7 @@ The `··` above stands for the two trailing spaces.
 - [x] Task lists
 - [ ] with open items
 
-````text
+````markdown
 1. Ordered lists count themselves.
 2. They nest:
    - an unordered item
@@ -639,7 +639,7 @@ Search runs in a Web Worker[^worker] and needs no backend[^backend].
 [^worker]: So typing never blocks the page.
 [^backend]: The index is a static JSON file.
 
-````text
+````markdown
 Search runs in a Web Worker[^worker] and needs no backend[^backend].
 
 [^worker]: So typing never blocks the page.
@@ -652,7 +652,7 @@ The footnotes are collected at the end of the page.
 
 ---
 
-````text
+````markdown
 ---
 ````
 
@@ -663,7 +663,7 @@ one to copy its link.
 
 #### A fourth-level heading
 
-````text
+````markdown
 ## Headings
 
 #### A fourth-level heading
@@ -674,7 +674,7 @@ one to copy its link.
 A `Banner` is an announcement bar across the top of the page, so it sits
 outside this showcase. Its source looks like this:
 
-````text
+````markdown
 <Banner id="release" variant="rainbow">
 Pholio 0.1.0 is out.
 </Banner>
