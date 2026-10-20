@@ -21,6 +21,9 @@ or the configuration schema; such changes are listed under **Changed**.
 - **Code themes of your own.** `theme.code.light` and `theme.code.dark` choose
   the highlighting themes: a bundled one by name, or a TextMate theme file of
   the site, for example a monochrome scheme.
+- **Markdown code blocks.** `markdown` (alias `md`) is a bundled language, so a
+  page can show Markdown and component examples highlighted. Fenced code inside
+  them is highlighted in its own language.
 
 - **Link checks.** After the pages are written, every link and image in the
   prose and on the start page is checked against the finished site: absolute
