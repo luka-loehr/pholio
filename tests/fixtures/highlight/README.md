@@ -20,11 +20,13 @@ Every language directory covers the same structural cases:
 `json/05-invalid.json` and `json/06-content-tree.json` add invalid JSON and a deep real-world tree,
 `text/05-no-trailing-newline.txt` and `text/06-guide.txt` do the same for plain text. `php/04-heredoc.php`
 covers heredoc, nowdoc and embedded SQL. `diff/05-multi.diff` combines a mail patch, several files and
-`\ No newline at end of file`.
+`\ No newline at end of file`. `markdown/01-basics.md` includes GFM strikethrough, whose rule has a backreference
+inside a lookbehind, and `markdown/06-front-matter-components.md` adds front matter, component tags and fenced
+code in the bundled languages.
 
 `catalogue/` holds the code blocks of a component page (titles, `{1,3-4}` line highlights, tabs, `lineNumbers`,
 one `DynamicCodeBlock`). `special/` holds the edge cases of the info string: an unknown language (an error), no
-language, the aliases `sh`, `yml`, `mjs` and `plaintext`, an empty block, mixed meta
+language, the aliases `sh`, `yml`, `mjs`, `md` and `plaintext`, an empty block, mixed meta
 (`lineNumbers=5 noCopy title="a b.php" {2}`) and a `title` next to a `tab`.
 
 `scripts/lint.sh` skips this directory, because some samples are invalid PHP on purpose.
