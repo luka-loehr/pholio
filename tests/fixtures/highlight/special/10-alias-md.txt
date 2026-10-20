@@ -1,0 +1,1 @@
+See [the guide](./guide.md) and ~~old~~ **new** syntax.
