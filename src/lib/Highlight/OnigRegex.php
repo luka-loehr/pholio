@@ -22,6 +22,9 @@ use RuntimeException;
  *   after a fixed-width element never holds, and in all other cases the "clip" strategy applies: the search runs on
  *   the string cut at the start position, and `\G` is its beginning.
  * - Backreferences to groups that are not yet closed or never participate match empty (JavaScript behaviour).
+ * - Unbounded quantifiers in lookbehinds get a maximum, because PCRE2 needs one. So do the unbounded quantifiers in a
+ *   group that a backreference inside a lookbehind refers to (Markdown's strikethrough rule), because PCRE2 needs
+ *   that group's maximum length too. The largest bound with which the pattern compiles wins (see run()).
  * - Non-recursive subroutine calls `\g<name>` are inserted as a copy of the group; its captured value is transferred
  *   to the original group as in `EmulatedRegExp`.
  * - Class intersections `&&` and nested classes are expressed with lookaheads.
@@ -95,6 +98,10 @@ final class OnigRegex
     private int $lookbehindBound = 200;
     private int $lookbehindDepth = 0;
     private bool $unboundedInLookbehind = false;
+    /** @var array<int, true> Oniguruma numbers of the groups that a backreference inside a lookbehind refers to */
+    private array $lookbehindRefs = [];
+    /** lookbehind nesting while link() walks the tree */
+    private int $linkBehind = 0;
 
     /**
      * @return array{pattern:string, strategy:?string, groups:int, map:list<?int>, transfers:array<int,int>, disabled:bool}
@@ -838,6 +845,10 @@ final class OnigRegex
         if ($parent !== null) {
             $this->info[$parent]['kids'][] = $id;
         }
+        $behind = $node['t'] === 'look' && $node['behind'];
+        if ($behind) {
+            $this->linkBehind++;
+        }
         if (isset($node['alts'])) {
             foreach ($node['alts'] as &$alt) {
                 $alt['id'] = ++$this->nextId;
@@ -849,6 +860,14 @@ final class OnigRegex
                 unset($child);
             }
             unset($alt);
+        }
+        if ($behind) {
+            $this->linkBehind--;
+        }
+        if ($node['t'] === 'bref' && $this->linkBehind > 0) {
+            foreach ($node['refs'] as $ref) {
+                $this->lookbehindRefs[$ref] = true;
+            }
         }
         if ($node['t'] === 'quant') {
             $this->link($node['body'], $id);
@@ -1086,7 +1105,15 @@ final class OnigRegex
                     $this->onigToPcre[$node['num']] = $num;
                 }
                 $f = $flags;
+                // A backreference inside a lookbehind needs the maximum length of its group: bound it like a lookbehind.
+                $bounded = isset($this->lookbehindRefs[$node['num']]);
+                if ($bounded) {
+                    $this->lookbehindDepth++;
+                }
                 $inner = $this->joinAlts($node['alts'], $f, $supported, [...$ancestors, $node['id']]);
+                if ($bounded) {
+                    $this->lookbehindDepth--;
+                }
                 return '(' . $inner . ')';
             case 'quant':
                 $inner = $this->gen($node['body'], $flags, $supported, [...$ancestors, $node['id']], []);
