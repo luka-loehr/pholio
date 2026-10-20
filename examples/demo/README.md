@@ -50,5 +50,5 @@ folders come out as the content expects. `tests/snapshots/demo` holds the
 committed build.
 
 Code fences use only the bundled grammars: css, diff, html, java, javascript
-(`js`), json, php, shellscript (`bash`, `sh`), sql, typescript (`ts`), xml and
-yaml. Any other language fails the build.
+(`js`), json, markdown (`md`), php, shellscript (`bash`, `sh`), sql, typescript
+(`ts`), xml and yaml. Any other language fails the build.
