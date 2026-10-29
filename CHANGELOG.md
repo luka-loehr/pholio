@@ -9,6 +9,17 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Added
+
+- **A command in the hero.** `home.hero.command` shows a shell command, such
+  as the install line, under the lead as a code block with a copy button.
+
+### Fixed
+
+- The copy buttons of code blocks copy again. They were never connected: the
+  script looked for an attribute the code blocks don't carry. After a copy the
+  clipboard icon turns into a check mark for a moment.
+
 ## [0.2.0] - 2026-10-29
 
 ### Added
