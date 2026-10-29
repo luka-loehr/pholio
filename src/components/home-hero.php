@@ -6,14 +6,18 @@ namespace Pholio;
 
 require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
+require_once __DIR__ . '/../lib/Highlight.php';
+require_once __DIR__ . '/../I18n.php';
+require_once __DIR__ . '/codeblock.php';
 
 /**
  * The hero of the start page: a background
  * image (light and dark as two images), two gradients on top, then kicker,
- * headline, lead paragraph and the buttons.
+ * headline, lead paragraph, the command and the buttons.
  *
  * Configuration: `home.hero` in the internal shape. Images and the icon are
- * optional; each omitted one leaves out its `img`. `headline` separates lines
+ * optional; each omitted one leaves out its `img`. `command`, a shell command
+ * such as an install line, is shown as a code block with a copy button. `headline` separates lines
  * with "\n", which become `<br>`.
  *
  * Buttons keep a fixed spacing: a primary button is label,
@@ -59,12 +63,22 @@ function nd_home_hero(array $config): string
 
     $lead = Html::tag('p', ['class' => 'nd-hero-lead'], Html::e($hero['lead']));
 
+    $command = '';
+    if ($hero['command'] !== null) {
+        $result = Highlight::code($hero['command'], 'bash', []);
+        $command = Html::tag('div', ['class' => 'nd-hero-command'], nd_code_block([
+            'variant' => 'dynamic',
+            'figureClass' => [(string) $result['preClass']],
+            'style' => (string) $result['preStyle'],
+        ], (string) $result['code'], I18n::t('Copy Text(code block)(aria-label)')));
+    }
+
     $buttons = '';
     foreach ($hero['buttons'] as $button) {
         $buttons .= nd_home_hero_button($button);
     }
 
-    $content = Html::tag('div', ['class' => 'nd-hero-inner'], $kicker . $headline . $lead
+    $content = Html::tag('div', ['class' => 'nd-hero-inner'], $kicker . $headline . $lead . $command
         . Html::tag('div', ['class' => 'nd-hero-actions'], $buttons));
 
     return Html::tag('section', ['class' => 'nd-hero'], $images . $gradients . $content);

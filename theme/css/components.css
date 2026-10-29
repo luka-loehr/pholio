@@ -1774,6 +1774,12 @@
     }
   }
 
+  /* The command under the lead: a code block as wide as the lead, with its copy button. */
+  .nd-hero-command {
+    width: 100%;
+    max-width: var(--container-xl);
+  }
+
   /* .nd-hero-actions  <-  flex flex-wrap gap-3 mt-2 */
   .nd-hero-actions {
     margin-top: calc(var(--spacing) * 2);

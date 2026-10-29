@@ -220,6 +220,16 @@ test('hero: lines, optional images and icon, button order per variant', function
     ]]]));
     assert_contains('<img src="/l.png" alt="" class="nd-hero-img nd-hero-img-light"><img src="/d.png" alt="" class="nd-hero-img nd-hero-img-dark">', $images);
     assert_contains('<img src="/i.png" alt="" width="40" height="40" class="nd-hero-icon">', $images);
+    assert_true(!str_contains($images, 'nd-hero-command'), 'no command configured');
+});
+
+test('hero command: a copyable code block between the lead and the buttons', function (): void {
+    $html = Pholio\nd_home_hero(render_config(['home' => ['hero' => [
+        'headline' => 'H', 'lead' => 'L', 'command' => 'curl -fsSL https://example.org/install.sh | sh',
+        'buttons' => [['label' => 'Start', 'href' => '/start']],
+    ]]]));
+    assert_same(1, preg_match('#<p class="nd-hero-lead">L</p><div class="nd-hero-command"><figure[^>]*class="nd-codeblock[^"]*".*?nd-codeblock-copy.*?</figure></div><div class="nd-hero-actions">#s', $html));
+    assert_contains('example.org/install.sh', strip_tags($html));
 });
 
 test('cards from the tree: one per root folder with its meta.json title, description and icon', function (): void {

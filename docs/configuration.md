@@ -110,6 +110,7 @@ first content page the root.
 | `home.hero.kicker` | `''` | Small line above the headline |
 | `home.hero.headline` | required | The headline. `\n` starts a new line |
 | `home.hero.lead` | `''` | Paragraph under the headline |
+| `home.hero.command` | `null` | A shell command under the lead, such as the install line, as a code block with a copy button |
 | `home.hero.image` | `null` | Background image URL |
 | `home.hero.image_dark` | `null` | Background image URL for the dark scheme |
 | `home.hero.icon` | `null` | Square icon URL above the kicker |
