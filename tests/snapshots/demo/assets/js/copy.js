@@ -13,6 +13,7 @@ import { icon } from './util.js';
 
 const ICON_LINK = '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>'
   + '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>';
+const ICON_CHECK = '<path d="M20 6 9 17l-5-5"></path>';
 const ICON_COPY_CHECK = '<path d="m12 15 2 2 4-4"></path>'
   + '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>'
   + '<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>';
@@ -51,15 +52,23 @@ export function initCopyButtons(root = document) {
     void anchor;
   }
 
-  // Code block buttons use the same check-mark cycle.
-  for (const button of root.querySelectorAll('button[data-copy-code]')) {
-    const pre = button.closest('figure, div')?.querySelector('pre');
+  // Code block buttons (codeblock.php) use the same check-mark cycle: the
+  // clipboard icon becomes a check mark, and the text of the block is copied.
+  for (const button of root.querySelectorAll('button.nd-codeblock-copy')) {
+    const pre = button.closest('figure')?.querySelector('pre');
     if (!pre) continue;
+    const idle = button.innerHTML;
     copyButton(
       button,
       () => navigator.clipboard.writeText(pre.textContent ?? ''),
-      () => button.setAttribute('data-checked', ''),
-      () => button.removeAttribute('data-checked'),
+      () => {
+        button.setAttribute('data-checked', '');
+        button.innerHTML = icon('check', '', ICON_CHECK);
+      },
+      () => {
+        button.removeAttribute('data-checked');
+        button.innerHTML = idle;
+      },
     );
   }
 }
