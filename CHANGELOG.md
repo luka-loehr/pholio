@@ -9,6 +9,8 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-29
+
 ### Added
 
 - **Design tokens and your own CSS.** `theme.tokens` sets fonts, radii and any
