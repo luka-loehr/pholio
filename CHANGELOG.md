@@ -33,6 +33,14 @@ or the configuration schema; such changes are listed under **Changed**.
   `build --no-link-check`, meant for test builds whose content is moved below
   another base path.
 
+### Changed
+
+- **The sidebar ends in a hairline.** On wide screens the sidebar is closed off
+  from the page by a 1 px border in the header's colour, from the header to the
+  bottom of the window. It no longer draws a scrollbar of its own, which used to
+  appear over that edge; it still scrolls by wheel, trackpad and keyboard. The
+  drawer on narrow screens keeps its scrollbar.
+
 ### Fixed
 
 - The table of contents and `InlineTOC` link the generated footnotes heading to
