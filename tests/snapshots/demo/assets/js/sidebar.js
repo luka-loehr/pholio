@@ -103,11 +103,11 @@ export class Sidebar {
 
   // ---- ScrollArea ----------------------------------------------------------
 
+  // Only the drawer gets a scrollbar of its own. The desktop sidebar scrolls
+  // without one, so its edge stays the plain border to the page.
   setupScrollAreas() {
-    for (const aside of [this.aside, this.drawer]) {
-      const viewport = aside?.querySelector('[data-id$="-viewport"]');
-      if (viewport?.parentElement) ScrollArea.attach(viewport.parentElement);
-    }
+    const viewport = this.drawer?.querySelector('[data-id$="-viewport"]');
+    if (viewport?.parentElement) ScrollArea.attach(viewport.parentElement);
   }
 
   // ---- Folders -------------------------------------------------------------

@@ -353,6 +353,8 @@
     line-height: var(--tw-leading, var(--text-sm--line-height));
     --tw-duration: .25s;
     transition-duration: .25s;
+    /* The sidebar ends in the header's hairline, from the header to the bottom. */
+    border-inline-end: 1px solid var(--color-fd-border);
   }
   :is(.nd-sidebar > *) {
     width: var(--fd-sidebar-width);
