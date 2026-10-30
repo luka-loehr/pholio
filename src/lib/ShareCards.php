@@ -97,8 +97,11 @@ final class ShareCards
     public function head(string $url): array
     {
         $page = $this->page($url);
+        // The docs root published at the start page's URL stands for the site: its link shows the
+        // site's name, as the site card does, not a page title such as "Home".
+        $title = ($this->outputPath)($url, false) === 'index.html' ? $this->config['title'] : $page['title'];
 
-        return $this->tags($page['title'], $page['description'], $url, false);
+        return $this->tags($title, $page['description'], $url, false);
     }
 
     /** @return list<array{0:string, 1:string, 2:string}> */
