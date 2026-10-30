@@ -7,6 +7,9 @@ icon: rocket
 ## Requirements
 
 - PHP 8.2 or newer, command line, with `mbstring` and `ctype`.
+- `zlib` for the [share cards](/docs/configuration#share-cards), the PNG
+  images a link to the site shows, which are drawn when `site.url` is set. Nearly
+  every PHP build has it (`php -m | grep zlib`).
 - PCRE2 10.43 or newer is recommended for full syntax highlighting. It is bundled
   with PHP (`php -r 'echo PCRE_VERSION;'`). On an older PCRE2 the build still
   succeeds; the few grammar patterns that need lookbehinds of variable length are
