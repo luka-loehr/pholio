@@ -15,8 +15,8 @@ you, keyboard shortcuts and instant search. You write Markdown; Pholio takes
 care of the rest.
 
 <Callout type="info" title="Status">
-Pholio 0.1.0 builds complete documentation sites. What comes next is on the
-[roadmap](/docs/roadmap).
+Pholio 0.4 builds complete documentation sites, with share cards, design
+tokens and link checks. What comes next is on the [roadmap](/docs/roadmap).
 </Callout>
 
 ## What you get
@@ -24,8 +24,9 @@ Pholio 0.1.0 builds complete documentation sites. What comes next is on the
 <Cards>
   <Card title="Markdown in, HTML out" description="A strict Markdown subset plus a few declarative component tags. Anything unrecognized stops the build." href="/docs/content-format" icon="file-text" />
   <Card title="Components" description="Callouts, cards, tabs, steps, accordions, file trees, type tables and highlighted code, each shown with its source." href="/docs/components" icon="blocks" />
-  <Card title="One configuration file" description="Title, logo, navigation, start page, palette, search, redirects, profiles. Plain PHP data, validated before the build." href="/docs/configuration" icon="settings" />
+  <Card title="One configuration file" description="Title, logo, navigation, start page, colors, design tokens, code themes, search, redirects, profiles. Plain PHP data, validated before the build." href="/docs/configuration" icon="settings" />
   <Card title="Ready for agents" description="Markdown for every page, llms.txt, skill.md and content negotiation, generated from your content." href="/docs/agents" icon="bot" />
+  <Card title="Share cards" description="Open Graph and X tags on every page, and a 1200 × 630 card per page, drawn in plain PHP at build time." href="/docs/configuration#share-cards" icon="image" />
   <Card title="Search without a backend" description="An index built at compile time and ranked in the browser, with typo, prefix and umlaut matching." href="/docs/configuration#search" icon="search" />
 </Cards>
 
