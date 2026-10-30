@@ -9,6 +9,8 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-30
+
 ### Fixed
 
 - The documentation's start page and roadmap name the current release instead
