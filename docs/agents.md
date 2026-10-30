@@ -34,7 +34,8 @@ Paths are relative to `base_path`. A site served under `/manuals/` publishes
 | `sitemap.xml` | Every indexable page | `site.url` |
 | `_headers` | Discovery headers for Cloudflare Pages and Netlify | |
 
-Every HTML page also gets JSON-LD (`WebSite`, `TechArticle`, `BreadcrumbList`), a
+Every HTML page also gets JSON-LD (`WebSite`, `TechArticle` with the page's
+[share card](/docs/configuration#share-cards) as `image`, `BreadcrumbList`), a
 `<link rel="alternate" type="text/markdown">` to its twin and the page actions next
 to its title.
 
