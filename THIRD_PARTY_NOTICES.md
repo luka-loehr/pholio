@@ -18,6 +18,7 @@ unchanged. Every generated site also receives the license texts from
 | --- | --- | --- | --- | --- | --- |
 | Lucide icons | `lucide-react` 1.45.0 | ISC; icons derived from Feather are MIT | https://github.com/lucide-icons/lucide | SVG path data of the complete icon set (1834 icons, 428 aliases) in `vendor-data/lucide/icons.json` with the license alongside; the icons a page uses are inlined into its HTML | [`licenses/lucide-ISC.txt`](licenses/lucide-ISC.txt) |
 | Inter | 4.001 (Google Fonts `v20`, git `66647c0bb`) | SIL Open Font License 1.1 | https://github.com/rsms/inter | Seven variable woff2 subsets, unmodified, renamed only | [`licenses/inter-OFL-1.1.txt`](licenses/inter-OFL-1.1.txt) |
+| Inter (TrueType) | 4.1 (release `Inter-4.1.zip`, SHA-256 `9883fdd4a49d4fb66bd8177ba6625ef9a64aa45899767dde3d36aa425756b11e`) | SIL Open Font License 1.1 | https://github.com/rsms/inter/releases/tag/v4.1 | `extras/ttf/Inter-Regular.ttf` and `Inter-SemiBold.ttf`, unmodified, in `vendor-data/inter/` with the release's `LICENSE.txt`; the generator draws share cards with them and never copies them into a site | [`licenses/inter-OFL-1.1.txt`](licenses/inter-OFL-1.1.txt) |
 | TextMate grammars | as bundled in `@shikijs/langs` 4.4.3 | see the grammar table below | https://github.com/shikijs/shiki | JSON grammars for syntax highlighting at build time | see below |
 | TextMate themes | as bundled in `@shikijs/themes` 4.4.3 | MIT | https://github.com/shikijs/shiki | JSON color themes for syntax highlighting | see below |
 
