@@ -9,6 +9,8 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-30
+
 ### Added
 
 - **Share cards.** With `site.url` set, every page gets Open Graph and X tags
