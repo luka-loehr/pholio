@@ -390,6 +390,7 @@ test('dev reports failed rebuilds and recovers on the next successful one', func
     Fs::copyDir($demo . '/content', $dir . '/content');
     Fs::copyDir($demo . '/assets', $dir . '/assets');
     copy($demo . '/pholio.config.php', $dir . '/pholio.config.php');
+    copy($demo . '/share-card-logo.svg', $dir . '/share-card-logo.svg');
     $page = $dir . '/content/guide/installation.md';
     $original = (string) file_get_contents($page);
     $broken = $original . "\n<Callout type=\"nope\">\nx\n</Callout>\n";
