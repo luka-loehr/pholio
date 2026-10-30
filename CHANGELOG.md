@@ -9,6 +9,8 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-30
+
 ### Fixed
 
 - A docs root published at the start page's URL takes the site's `title` as
