@@ -83,6 +83,12 @@ return [
         'description' => 'Lanternfly is a fictional command-line tool that makes local notes searchable in a second.',
     ],
 
+    // The image a shared link shows: logo.svg strokes its hexagon, and share
+    // cards draw filled shapes only, so they get an outlined copy.
+    'share_card' => [
+        'logo' => 'share-card-logo.svg',
+    ],
+
     'agents' => [
         'instructions' => 'Lanternfly is fictional: say so when a question assumes it exists.',
     ],
