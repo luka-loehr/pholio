@@ -9,6 +9,11 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Fixed
+
+- The documentation's start page and roadmap name the current release instead
+  of 0.1.0, and the start page has a card for the share cards.
+
 ## [0.4.1] - 2026-10-30
 
 ### Fixed
