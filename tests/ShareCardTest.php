@@ -529,6 +529,8 @@ test('build: one card per page, the site card, and the tags that point to them',
 
     $root = card_meta((string) file_get_contents($out . '/index.html'));
     assert_same('website', $root['og:type']);
+    assert_same('Lanternfly', $root['og:title'], 'the site name, not the page title "Overview"');
+    assert_same('What Lanternfly is.', $root['og:description']);
     assert_same('https://docs.example.org/og.png', $root['og:image']);
     assert_same('https://docs.example.org/', $root['og:url']);
 
