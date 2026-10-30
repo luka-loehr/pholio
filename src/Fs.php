@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pholio;
 
 require_once __DIR__ . '/Exceptions.php';
+require_once __DIR__ . '/lib/Card/Png.php';
 
 /**
  * File system helpers for the build: writing, copying, temporary directories
@@ -18,6 +19,16 @@ final class Fs
         $file = rtrim($root, '/') . '/' . ltrim($relative, '/');
         self::mkdir(dirname($file));
         if (@file_put_contents($file, $content . "\n") === false) {
+            throw new IoException('file not writable: ' . $file);
+        }
+    }
+
+    /** Write $content to $root/$relative as it is, without a final newline: binary files such as images. */
+    public static function writeBytes(string $root, string $relative, string $content): void
+    {
+        $file = rtrim($root, '/') . '/' . ltrim($relative, '/');
+        self::mkdir(dirname($file));
+        if (@file_put_contents($file, $content) === false) {
             throw new IoException('file not writable: ' . $file);
         }
     }
@@ -102,7 +113,9 @@ final class Fs
      *
      * Lines are `missing: <path>` (built but absent from $existing),
      * `stale: <path>` (contents differ) and `extra: <path>` (in $existing, not
-     * built and not kept).
+     * built and not kept). PNG files are compared by their decompressed image
+     * data (Card\Png::sameImage()), because the compressed bytes depend on the
+     * zlib library that wrote them.
      *
      * @param list<string> $keep paths under $existing that the build never writes
      * @return list<string>
@@ -167,6 +180,11 @@ final class Fs
 
     private static function sameContents(string $a, string $b): bool
     {
-        return filesize($a) === filesize($b) && hash_file('xxh128', $a) === hash_file('xxh128', $b);
+        if (filesize($a) === filesize($b) && hash_file('xxh128', $a) === hash_file('xxh128', $b)) {
+            return true;
+        }
+
+        return str_ends_with(strtolower($a), '.png')
+            && Card\Png::sameImage((string) file_get_contents($a), (string) file_get_contents($b));
     }
 }
