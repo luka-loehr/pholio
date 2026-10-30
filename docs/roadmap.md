@@ -6,13 +6,13 @@ icon: map
 
 ## Now
 
-**Status: 0.1.0.** `pholio init` creates a project, `pholio dev` previews it
+**Status: 0.4.** `pholio init` creates a project, `pholio dev` previews it
 while you edit, `pholio build` writes the static site and `pholio check`
 compares a build with committed output. A build stops on a broken link, fragment
-or image. The content format covers every
-component on the
+or image. The content format covers every component on the
 [components page](/docs/components), and every build publishes the files AI
-agents look for.
+agents look for and a share card for every page. Design tokens, your own CSS
+and code themes let a site take on its brand.
 
 ## Next
 
