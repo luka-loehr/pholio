@@ -21,8 +21,10 @@ require_once __DIR__ . '/Htaccess.php';
  *   <docs>/search-index.json             search index
  *   .htaccess                            hardening, redirects, slashless URLs, agent headers
  *   <page>.md, llms.txt, skill.md, …     files for AI agents (lib/AgentSite.php, docs/agents.md)
+ *   og.png, og/<page>.png                share cards, with site.url (lib/ShareCards.php)
  *
- * Seams. The parsing, tree, rendering and search libraries live in src/lib,
+ * Seams. The parsing, tree, rendering and search libraries live in src/lib
+ * (share card drawing in src/lib/Card),
  * the components in src/components and the document shell in src/templates.
  * They are loaded on demand by loadGenerator(), which requires every PHP file
  * found there. The calls this class makes are the contract with them:
@@ -34,8 +36,10 @@ require_once __DIR__ . '/Htaccess.php';
  *   RenderContext::replacePrefix(string $value, string $from, string $to)
  *   Render::body(Document, RenderContext)
  *   SearchIndex::build(Tree, callable $load, string $baseUrl, ?array $order, bool $includeDrafts, string $tokenizer)
- *   new AgentSite(array $config, Tree, Closure $parse, Closure $asset, Closure $outputPath),
+ *   new AgentSite(array $config, Tree, Closure $parse, Closure $asset, Closure $outputPath, ?Closure $image),
  *   AgentSite::pageActions($url), ::head($url), ::homeHead(), ::write($target, Closure $authored)
+ *   new ShareCards(array $config, Tree, Closure $parse, Closure $outputPath),
+ *   ShareCards::imageUrl($url), ::head($url), ::homeHead(), ::write($target, $urls, $home, Closure $authored)
  *   nd_header($config, $url, $tabs, $selected), nd_sidebar($config, $tree, $url, $groups),
  *   nd_toc_popover($toc, $pageName), nd_page($data, $breadcrumb, $body, $footerItems, $actions),
  *   nd_page_actions($actions), nd_toc($toc),
@@ -100,20 +104,24 @@ class Builder
         $config = $this->config;
         $tree = $this->tree();
         $this->checkDocsRoot($tree);
-        $agents = $this->agentSite($tree);
+        $cards = $this->shareCards($tree);
+        $agents = $this->agentSite($tree, $cards);
 
         $pages = 0;
         $written = [];
+        $rendered = [];
         foreach ($tree->pages() as $page) {
             if ($this->only !== null && !str_contains($page['url'], $this->only)) {
                 continue;
             }
-            Fs::write($target, $this->outputPath($page['url']), $this->renderPage($tree, $page, $agents));
+            Fs::write($target, $this->outputPath($page['url']), $this->renderPage($tree, $page, $agents, $cards));
+            $rendered[] = $page['url'];
             $written[] = ['url' => $page['url'], 'html' => $target . '/' . $this->outputPath($page['url']), 'file' => $config['contentDir'] . '/' . ltrim($page['file'], '/'), 'prose' => true];
             $pages++;
         }
-        if ($config['home'] !== null && ($this->only === null || str_contains($config['homeUrl'], $this->only))) {
-            Fs::write($target, $this->outputPath($config['homeUrl'], true), $this->renderHome($tree, $agents));
+        $home = $config['home'] !== null && ($this->only === null || str_contains($config['homeUrl'], $this->only));
+        if ($home) {
+            Fs::write($target, $this->outputPath($config['homeUrl'], true), $this->renderHome($tree, $agents, $cards));
             $written[] = ['url' => $config['homeUrl'], 'html' => $target . '/' . $this->outputPath($config['homeUrl'], true), 'file' => $config['configFile'] ?: null];
             $pages++;
         }
@@ -123,6 +131,7 @@ class Builder
         $indexed = $this->writeSearchIndex($tree, $target);
         $redirects = Htaccess::write($config, $target);
         $warnings = $agents->write($target, fn(string $relative): bool => $this->authored($relative));
+        $cards->write($target, $rendered, $home, fn(string $relative): bool => $this->authored($relative));
         if ($this->only === null && $this->checkLinks) {
             $this->checkLinks($target, $written);
         }
@@ -158,7 +167,7 @@ class Builder
         if ($missing !== []) {
             throw new \LogicException('generator incomplete, missing: ' . implode(', ', $missing));
         }
-        foreach (['src/lib', 'src/lib/Highlight', 'src/templates', 'src/components'] as $dir) {
+        foreach (['src/lib', 'src/lib/Highlight', 'src/lib/Card', 'src/templates', 'src/components'] as $dir) {
             foreach (glob(self::root() . '/' . $dir . '/*.php') ?: [] as $file) {
                 require_once $file;
             }
@@ -186,7 +195,7 @@ class Builder
         return $this->documents[$file] = Markdown::parse((string) file_get_contents($file), $file, $this->config['content']['frontmatterAliases']);
     }
 
-    protected function agentSite(Tree $tree): AgentSite
+    protected function agentSite(Tree $tree, ?ShareCards $cards = null): AgentSite
     {
         return new AgentSite(
             $this->config,
@@ -194,13 +203,24 @@ class Builder
             fn(string $file): Document => $this->parse($file),
             fn(string $src, string $pageFile): string => $this->resolveAsset($src, $pageFile)['url'],
             fn(string $url, bool $isHome): string => $this->outputPath($url, $isHome),
+            $cards?->enabled() ? fn(string $url): ?string => $cards->imageUrl($url) : null,
+        );
+    }
+
+    protected function shareCards(Tree $tree): ShareCards
+    {
+        return new ShareCards(
+            $this->config,
+            $tree,
+            fn(string $file): Document => $this->parse($file),
+            fn(string $url, bool $isHome): string => $this->outputPath($url, $isHome),
         );
     }
 
     /**
      * Whether the site provides a file below the start page's directory itself:
      * it is kept (`output.keep`) or a `copy` directory holds it. Agent files
-     * such as robots.txt are then not generated.
+     * such as robots.txt and share cards are then not generated.
      */
     protected function authored(string $relative): bool
     {
@@ -219,7 +239,7 @@ class Builder
     }
 
     /** @param array{url:string, slugs:list<string>, file:string} $page */
-    protected function renderPage(Tree $tree, array $page, ?AgentSite $agents = null): string
+    protected function renderPage(Tree $tree, array $page, ?AgentSite $agents = null, ?ShareCards $cards = null): string
     {
         Ids::reset();
         $config = $this->config;
@@ -250,18 +270,18 @@ class Builder
             . nd_toc($toc);
 
         $title = str_replace('{title}', (string) ($frontmatter['title'] ?? $data['title']), $config['titleTemplate']);
-        $head = $this->head($title, $data['description'], true) + ($agents?->head($url) ?? []);
+        $head = $this->head($title, $data['description'], true) + ($agents?->head($url) ?? []) + ['social' => $cards?->head($url) ?? []];
 
         return nd_document($head, nd_search_dialog_portal() . nd_layout($inner));
     }
 
-    protected function renderHome(Tree $tree, ?AgentSite $agents = null): string
+    protected function renderHome(Tree $tree, ?AgentSite $agents = null, ?ShareCards $cards = null): string
     {
         Ids::reset();
 
         // The start page has no ScrollArea, so no scrollbar <style> either.
         return nd_document(
-            $this->head($this->config['homeTitle'], null, false) + ($agents?->homeHead() ?? []),
+            $this->head($this->config['homeTitle'], null, false) + ($agents?->homeHead() ?? []) + ['social' => $cards?->homeHead() ?? []],
             nd_search_dialog_portal() . nd_home_layout($this->config, $tree),
         );
     }
