@@ -9,6 +9,12 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Fixed
+
+- A docs root published at the start page's URL takes the site's `title` as
+  `og:title` and `twitter:title`, as its share card shows, instead of its page
+  title such as "Home".
+
 ## [0.4.0] - 2026-10-30
 
 ### Added
