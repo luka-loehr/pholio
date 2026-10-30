@@ -9,6 +9,20 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Added
+
+- **Share cards.** With `site.url` set, every page gets Open Graph and X tags
+  (`og:title`, `og:description`, `og:url`, `og:image`, `twitter:card`, …), and
+  the build draws one 1200 × 630 PNG per page into `og/<page>.png` plus a site
+  card `og.png` for the start page: logo and brand, the page title shrunk to
+  fit up to three lines, the description and the page's address. Drawn in
+  plain PHP from TrueType fonts (Inter by default) and an SVG logo, without GD
+  or a browser; needs the `zlib` extension. The new `share_card` section sets
+  the logo, brand, fonts and colours, which default to the header logo, the
+  title and the light scheme. A character the fonts lack stops the build with
+  the page and the character. The page's JSON-LD names its card as `image`.
+- `pholio check` compares PNG files by their pixels, not their compressed bytes.
+
 ## [0.3.0] - 2026-10-29
 
 ### Added
