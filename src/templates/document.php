@@ -25,11 +25,14 @@ require_once __DIR__ . '/../lib/Html.php';
  *   lang:string, fontClass:string, title:string, description:?string,
  *   scrollArea:bool, assetBase:string, baseUrl:string, searchIndexUrl:string,
  *   icons:list<array{rel:string, type:?string, sizes:?string, href:string}>,
- *   manifest:?string, themeColor:?string, markdownUrl?:?string, robots?:?string, jsonLd?:?string
+ *   manifest:?string, themeColor:?string, markdownUrl?:?string, robots?:?string, jsonLd?:?string,
+ *   social?:list<array{0:string, 1:string, 2:string}>
  * } $head `icons`, `manifest` and `themeColor`
  *   come from the `head` config and are emitted in this order after the search index,
  *   followed by the agent additions (lib/AgentSite.php): the alternate link to the
- *   page's Markdown twin, `<meta name="robots">` and the JSON-LD block.
+ *   page's Markdown twin, `<meta name="robots">` and the JSON-LD block; then the
+ *   Open Graph and X tags (lib/ShareCards.php), each `[attribute, name, content]`
+ *   as `<meta property="og:…">` or `<meta name="twitter:…">`.
  */
 
 /** The style Base UI puts into <head> when a ScrollArea first renders. */
@@ -103,6 +106,9 @@ function nd_document(array $head, string $body): string
     if (($head['jsonLd'] ?? null) !== null) {
         // A data block, not a script: the Content-Security-Policy's script-src does not apply.
         $out .= '<script type="application/ld+json">' . $head['jsonLd'] . '</script>';
+    }
+    foreach ($head['social'] ?? [] as [$attribute, $name, $content]) {
+        $out .= Html::voidTag('meta', [$attribute => $name, 'content' => $content]);
     }
     $out .= '</head>';
 
