@@ -69,6 +69,8 @@ final class AgentSite
      * @param Closure(string, string):string $asset image source, absolute page file => published URL path
      * @param Closure(string, bool):string $outputPath page URL, whether it is the start page => HTML file
      *        relative to the start page's directory (Builder::outputPath)
+     * @param ?Closure(string):?string $image page URL => absolute URL of its share card, null without cards
+     *        (ShareCards::imageUrl), the `image` of the page's JSON-LD
      */
     public function __construct(
         private readonly array $config,
@@ -76,6 +78,7 @@ final class AgentSite
         private readonly Closure $parse,
         private readonly Closure $asset,
         private readonly Closure $outputPath,
+        private readonly ?Closure $image = null,
     ) {
         foreach ($tree->pages() as $page) {
             $this->built[$page['url']] = $page;
@@ -705,6 +708,7 @@ final class AgentSite
             'url' => $pageUrl,
             'inLanguage' => $this->config['lang'],
             'dateModified' => self::isoDate($page['updated']),
+            'image' => $this->image === null ? null : ($this->image)($url),
             'isPartOf' => ['@id' => $website['@id']],
         ], static fn(mixed $value): bool => $value !== null);
 
@@ -820,10 +824,20 @@ final class AgentSite
         return $this->config['contentDir'] . '/' . ltrim($this->built[$url]['file'], '/');
     }
 
-    /** site.description, else the lead of the start page, else the description of the root meta.json. */
     private function siteDescription(): ?string
     {
-        foreach ([$this->config['site']['description'], $this->config['home']['hero']['lead'] ?? null, $this->tree->root()->description] as $candidate) {
+        return self::describe($this->config, $this->tree);
+    }
+
+    /**
+     * One line about the site: site.description, else the lead of the start
+     * page, else the description of the root meta.json.
+     *
+     * @param array<string,mixed> $config normalised
+     */
+    public static function describe(array $config, Tree $tree): ?string
+    {
+        foreach ([$config['site']['description'], $config['home']['hero']['lead'] ?? null, $tree->root()->description] as $candidate) {
             if ($candidate !== null && trim($candidate) !== '') {
                 return self::oneLine($candidate);
             }
