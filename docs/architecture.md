@@ -17,6 +17,7 @@ lib/Toc.php, Ids.php  headings                 ->  table of contents, stable ids
 lib/Highlight.php     fenced code              ->  highlighted tokens (TextMate grammars)
 lib/SearchIndex.php   blocks                   ->  index documents
 lib/AgentSite.php     page tree + AST          ->  Markdown twins, llms.txt, skill.md, sitemap, JSON-LD
+lib/ShareCards.php    frontmatter + fonts      ->  Open Graph tags, one PNG share card per page (lib/Card/)
   |
   v
 lib/Render.php        AST                      ->  HTML, via the components
@@ -25,7 +26,7 @@ templates/document.php  the html shell
   |
   v
 output_dir/**         index.html and <page>.md per page, search-index.json, agent files,
-                      theme assets, .htaccess, _headers
+                      og.png and og/<page>.png, theme assets, .htaccess, _headers
 ```
 
 The files for AI agents are described in [Agents](/docs/agents). They come
@@ -36,7 +37,19 @@ maintaining by hand.
 stage is a pure transformation: nothing reads the filesystem except the tree,
 the parser and the image sizes, and nothing writes it except the builder. That
 is what lets `pholio check` render into a temporary directory and compare the
-result with a committed build byte for byte.
+result with a committed build byte for byte; PNG files are compared by their
+decompressed pixels, because the compressed bytes depend on the zlib version.
+
+**Share cards without an image library.** `lib/Card/` draws the card of every
+page in plain PHP: `TrueType.php` reads glyph outlines, metrics and `GPOS` pair
+kerning from a `.ttf`, `Svg.php` reads a logo made of filled shapes,
+`Raster.php` turns outlines into anti-aliased coverage masks (exact signed area
+per pixel, nonzero winding), `Text.php` measures, wraps and caches glyphs,
+`Layout.php` places them on 1200 × 630 pixels, and `Png.php` writes the result
+with `gzcompress`. No GD, Imagick or browser: GD's text rendering depends on its
+FreeType build, and a headless browser needs a network and a runtime. A build of
+a hundred pages draws its cards in a few seconds, and the same inputs give the
+same pixels on every machine.
 
 ## Why it is shaped this way
 
@@ -83,7 +96,7 @@ internal shape documented in `src/Config.php`.
 | `theme/css/` | `notebook.css` and its parts, hand-written in cascade order |
 | `theme/js/` | ES modules, one per behavior |
 | `theme/fonts/` | Inter |
-| `vendor-data/` | Shiki grammars and themes, lucide icon data |
+| `vendor-data/` | Shiki grammars and themes, lucide icon data, Inter TrueType files for share cards |
 | `licenses/` | License texts of the vendored material, copied into every build |
 | `verify/` | Node checks of the search engine, the search dialog, the agent files and the icons, never shipped |
 | `tests/` | PHP tests, fixtures and the demo snapshot |
@@ -132,6 +145,12 @@ softened by restoring the sidebar's scroll position and open folders from
   they can't drift from the pages or invent anything. Content negotiation lives
   in the server configuration Pholio already generates, so the output stays
   static; an MCP server would need a runtime and is left to hosts that have one.
+- **2026-10-30 — Share cards are drawn in PHP.** Every page gets an
+  `og:image`, drawn at build time from TrueType fonts and an SVG logo by a small
+  rasterizer in `lib/Card/`, instead of a dependency on GD or a headless
+  browser. The SVG subset is filled shapes only and fails loud on anything
+  else, and a character the font lacks stops the build: a card that differs
+  from the site, or shows empty boxes, is worse than no card.
 - **2026-09-12 — One file per commit.** Long history, but every change is
   readable and revertible on its own. It has already paid for itself while
   moving code between repositories with `git subtree split`.
