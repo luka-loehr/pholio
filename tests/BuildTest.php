@@ -115,7 +115,7 @@ test('--set language=de switches the interface and the tokenizer', function (): 
     $dir = build_temp();
     $config = (string) file_get_contents(BUILD_DEMO_CONFIG);
     file_put_contents($dir . '/pholio.config.php', str_replace("'tokenizer' => 'english',", '', $config));
-    foreach (['content', 'assets'] as $link) {
+    foreach (['content', 'assets', 'share-card-logo.svg'] as $link) {
         symlink(dirname(BUILD_DEMO_CONFIG) . '/' . $link, $dir . '/' . $link);
     }
     [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--set', 'language=de', '--quiet']);
