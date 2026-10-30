@@ -331,7 +331,8 @@ What a link to the site shows in chat apps, social networks and search results.
 With `site.url` set, every page's `<head>` gets the Open Graph tags (`og:type`,
 `og:site_name`, `og:title`, `og:description`, `og:url`) and the X tags
 (`twitter:card`, `twitter:title`, `twitter:description`), from the page's
-frontmatter `title` and `description`. The share cards are on by default then:
+frontmatter `title` and `description`; the docs root, when it is published at
+the start page's URL, takes the site's `title` as `og:title`. The share cards are on by default then:
 the build draws one PNG per page, 1200 × 630 pixels, and the tags name it as
 `og:image` and `twitter:image` with `twitter:card` `summary_large_image`.
 
