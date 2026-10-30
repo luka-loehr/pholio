@@ -6,6 +6,7 @@ namespace Pholio;
 
 require_once __DIR__ . '/Exceptions.php';
 require_once __DIR__ . '/I18n.php';
+require_once __DIR__ . '/lib/Card/Color.php';
 
 /**
  * Loads `pholio.config.php`, validates it and normalises it into the internal
@@ -157,6 +158,15 @@ require_once __DIR__ . '/I18n.php';
  *     instructions: ?string,        "## Notes for agents" block of llms.txt and skill.md (heading in the site language)
  *     exclude: list<string>,        fnmatch globs on page URLs and content file paths
  *   },                              every flag is false when agents.enabled is false
+ *
+ *   // share cards (lib/ShareCards.php), null when they are off; on by default with site.url
+ *   shareCard: null|array{
+ *     logo: ?string,                absolute path of the SVG logo, null: no logo
+ *     logoKey: string,              the key the logo came from, for messages: "share_card.logo" or "logo"
+ *     brand: string,                name next to the logo (share_card.brand, default title)
+ *     fonts: array{text:string, heading:string}, absolute paths of TrueType files
+ *     colors: array{background:array{0:int,1:int,2:int}, foreground:…, muted:…, accent:…}, RGB bytes
+ *   },
  * }
  */
 final class Config
@@ -177,7 +187,8 @@ final class Config
      * The public schema. A leaf is a type string, optionally with a default:
      *   'string!'           required string
      *   'string', '?string' string with default, nullable string
-     *   'int', 'bool'
+     *   '?string|false'     nullable string, or false
+     *   'int', 'bool', '?bool'
      *   'list<string>'      list of strings
      *   'map<string>'       string keys => string values
      *   'redirects'         map old => new, or list of {from, to, reason}
@@ -314,6 +325,22 @@ final class Config
                 'page_actions' => ['bool', true],
                 'instructions' => ['?string', null],
                 'exclude' => ['list<string>', []],
+            ],
+
+            'share_card' => [
+                'enabled' => ['?bool', null],
+                'logo' => ['?string|false', null],
+                'brand' => ['?string', null],
+                'fonts' => [
+                    'text' => ['?string', null],
+                    'heading' => ['?string', null],
+                ],
+                'colors' => [
+                    'background' => ['?string', null],
+                    'foreground' => ['?string', null],
+                    'muted' => ['?string', null],
+                    'accent' => ['?string', null],
+                ],
             ],
 
             'profiles' => ['profiles', []],
@@ -539,8 +566,10 @@ final class Config
         $ok = match ($type) {
             'string' => is_string($value),
             '?string' => $value === null || is_string($value),
+            '?string|false' => $value === null || $value === false || is_string($value),
             'int' => is_int($value),
             'bool' => is_bool($value),
+            '?bool' => $value === null || is_bool($value),
             'list<string>' => is_array($value) && array_is_list($value) && self::allStrings($value),
             'map<string>' => is_array($value) && ($value === [] || !array_is_list($value)) && self::allStrings($value),
             'any-map', 'profiles' => is_array($value),
@@ -549,7 +578,8 @@ final class Config
         };
         if (!$ok) {
             $expected = [
-                'string' => 'a string', '?string' => 'a string or null', 'int' => 'an integer', 'bool' => 'true or false',
+                'string' => 'a string', '?string' => 'a string or null', '?string|false' => 'a string, false or null',
+                'int' => 'an integer', 'bool' => 'true or false', '?bool' => 'true, false or null',
                 'list<string>' => 'a list of strings', 'map<string>' => 'an array of string keys => strings',
                 'any-map' => 'an array', 'profiles' => 'an array', 'redirects' => 'a map or a list',
             ][$type];
@@ -790,6 +820,8 @@ final class Config
         $agents = $c['agents'];
         $on = static fn(string $key): bool => $agents['enabled'] && $agents[$key];
 
+        $shareCard = self::shareCard($c, $siteUrl, $copy, $text, $path, $url($c['logo']), $configFile);
+
         $indexPath = trim($c['search']['index_path'], '/');
         if ($indexPath === '' || str_contains($indexPath, '..')) {
             throw new ConfigException('search.index_path: expected a relative file path', $configFile);
@@ -900,6 +932,107 @@ final class Config
                 'instructions' => $agents['instructions'] === null ? null : $text($agents['instructions']),
                 'exclude' => $agents['exclude'],
             ],
+
+            'shareCard' => $shareCard,
+        ];
+    }
+
+    /** Colours of Pholio's light scheme (theme/css/tokens.css), the share card's defaults. */
+    public const LIGHT_DEFAULTS = [
+        'background' => '#f5f5f5',
+        'foreground' => '#0a0a0a',
+        'muted-foreground' => '#737373',
+        'primary' => '#171717',
+    ];
+
+    /**
+     * The normalised `share_card` section, or null when the cards are off.
+     *
+     * @param array<string, mixed> $c validated public config
+     * @param list<array{from:string, to:string, optional:bool}> $copy
+     * @param \Closure(string):string $text
+     * @param \Closure(?string):?string $path
+     * @param ?string $logoUrl the header logo's URL, placeholders resolved
+     * @return array<string, mixed>|null
+     */
+    private static function shareCard(array $c, ?string $siteUrl, array $copy, \Closure $text, \Closure $path, ?string $logoUrl, ?string $configFile): ?array
+    {
+        $card = $c['share_card'];
+        if ($card['enabled'] === false || ($card['enabled'] === null && $siteUrl === null)) {
+            return null;
+        }
+        if ($siteUrl === null) {
+            throw new ConfigException('share_card.enabled: share cards need site.url, because og:image must be an absolute URL', $configFile);
+        }
+        if (!function_exists('gzcompress') || !function_exists('gzuncompress')) {
+            throw new ConfigException(
+                'share_card: writing the cards as PNG needs the PHP extension zlib; install it, or set share_card.enabled to false',
+                $configFile,
+            );
+        }
+
+        // The logo: share_card.logo, else the file behind the header's logo URL in a copy directory.
+        $logo = null;
+        $logoKey = 'share_card.logo';
+        if (is_string($card['logo'])) {
+            $logo = (string) $path($card['logo']);
+        } elseif ($card['logo'] === null && $logoUrl !== null) {
+            $logoKey = 'logo';
+            foreach ($copy as $entry) {
+                $to = rtrim($entry['to'], '/');
+                if (str_starts_with($logoUrl, $to . '/')) {
+                    $logo = $entry['from'] . '/' . substr($logoUrl, strlen($to) + 1);
+                    break;
+                }
+            }
+            if ($logo === null) {
+                throw new ConfigException(
+                    'share_card.logo: the header logo ' . self::show($c['logo']) . ' is not in a copy directory, so its file is unknown; '
+                    . 'set share_card.logo to the SVG file, or to false for a card without a logo',
+                    $configFile,
+                );
+            }
+        }
+        if ($logo !== null && strtolower(pathinfo($logo, PATHINFO_EXTENSION)) !== 'svg') {
+            throw new ConfigException(
+                $logoKey . ': ' . self::show($logo) . ' is not an SVG file; share cards draw the logo from SVG'
+                . ($logoKey === 'logo' ? ': set share_card.logo to an SVG version, or to false for a card without a logo' : ''),
+                $configFile,
+            );
+        }
+
+        $fonts = [];
+        foreach (['text' => 'Inter-Regular.ttf', 'heading' => 'Inter-SemiBold.ttf'] as $role => $bundled) {
+            $fonts[$role] = $card['fonts'][$role] === null
+                ? dirname(__DIR__) . '/vendor-data/inter/' . $bundled
+                : (string) $path($card['fonts'][$role]);
+        }
+
+        // Colours: share_card.colors, else the light scheme's tokens, else Pholio's light defaults.
+        $colors = [];
+        foreach (['background' => 'background', 'foreground' => 'foreground', 'muted' => 'muted-foreground', 'accent' => 'primary'] as $key => $token) {
+            [$value, $source] = $card['colors'][$key] !== null
+                ? [$card['colors'][$key], 'share_card.colors.' . $key]
+                : (isset($c['theme']['light'][$token])
+                    ? [$c['theme']['light'][$token], 'theme.light.' . $token]
+                    : [self::LIGHT_DEFAULTS[$token], 'default']);
+            try {
+                $colors[$key] = Card\Color::parse($value);
+            } catch (\InvalidArgumentException $e) {
+                throw new ConfigException(
+                    'share_card.colors.' . $key . ': ' . ($source === 'share_card.colors.' . $key ? '' : 'taken from ' . $source . ', which is not usable: ')
+                    . $e->getMessage() . ($source === 'share_card.colors.' . $key ? '' : '; set share_card.colors.' . $key),
+                    $configFile,
+                );
+            }
+        }
+
+        return [
+            'logo' => $logo,
+            'logoKey' => $logoKey,
+            'brand' => $text($card['brand'] ?? $c['title']),
+            'fonts' => $fonts,
+            'colors' => $colors,
         ];
     }
 
