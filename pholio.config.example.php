@@ -35,7 +35,7 @@ return [
     // Where the wordmark links.
     'home_link' => '{home}',
 
-    // Planned: absolute origin for canonical links, Open Graph and a sitemap.
+    // Planned: absolute origin for canonical links (Open Graph and the sitemap use site.url).
     'base_url' => null,
 
     // URL of the start page ({home}) and of the docs root ({docs}). docs_path
@@ -252,6 +252,24 @@ return [
         'page_actions' => true,     // "Copy page" and its menu next to the page title
         'instructions' => null,     // "## Notes for agents" in llms.txt and skill.md
         'exclude' => [],            // globs on page URLs and content files, e.g. 'internal/*'
+    ],
+
+    // Share cards: the og:image of every page, drawn as PNG at build time
+    // (docs/configuration.md, "Share cards"). Need site.url and ext-zlib.
+    'share_card' => [
+        'enabled' => null,          // null: on when site.url is set
+        'logo' => null,             // SVG file; null: the file behind logo; false: no logo
+        'brand' => null,            // name next to the logo; null: title
+        'fonts' => [
+            'text' => null,         // TrueType file; null: bundled Inter Regular
+            'heading' => null,      // TrueType file; null: bundled Inter SemiBold
+        ],
+        'colors' => [               // null: the theme.light colours
+            'background' => null,
+            'foreground' => null,
+            'muted' => null,
+            'accent' => null,       // the bar along the bottom edge
+        ],
     ],
 
     // ------------------------------------------------------------ profiles --
