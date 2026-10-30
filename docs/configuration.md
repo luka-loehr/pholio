@@ -25,7 +25,7 @@ stops the command with exit code 2 and names the key path, for example
 ## Rules for values
 
 **Paths** (`content_dir`, `output_dir`, `copy` sources, `content.asset_root`,
-`theme.palette_css`, `redirects_file`) are absolute or relative to the directory
+`theme.palette_css`, `redirects_file`, `share_card.logo`, `share_card.fonts.*`) are absolute or relative to the directory
 of the configuration file, not to the directory you run `pholio` from.
 
 **URL paths** start with `/`. Trailing slashes are optional and removed: every
@@ -52,7 +52,7 @@ only their default value until the feature exists.
 | `logo` | `null` | Logo URL next to the wordmark. `null` shows the wordmark only |
 | `logo_size` | `24` | Logo width and height in pixels |
 | `home_link` | `{home}` | Where the wordmark links |
-| `base_url` | `null` | Planned: absolute origin for canonical links, Open Graph and a sitemap |
+| `base_url` | `null` | Planned: absolute origin for canonical links. Open Graph and the sitemap use `site.url` |
 | `base_path` | `/` | URL of the start page. `/docs/` when the site sits in a subfolder |
 | `docs_path` | `null` | URL of the docs root. `null` uses `base_path` |
 | `docs_root_suffix` | `null` | Path appended to the docs root page, e.g. `/overview`. Needed when the docs root and the start page would share one URL |
@@ -305,8 +305,8 @@ the discovery headers. [Agents](agents.md) describes each file.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `site.url` | `null` | Origin the site is served from, e.g. `https://docs.example.org`, without a path (`base_path` adds it). Makes the URLs in the agent files absolute. `sitemap.xml` and `.well-known/agent-card.json` need it and are skipped with a warning while it is `null` |
-| `site.description` | `null` | One sentence about the site for `llms.txt`, `skill.md`, the agent card and JSON-LD. `null` uses `home.hero.lead`, then the root `meta.json` description |
+| `site.url` | `null` | Origin the site is served from, e.g. `https://docs.example.org`, without a path (`base_path` adds it). Makes the URLs in the agent files absolute. `sitemap.xml` and `.well-known/agent-card.json` need it and are skipped with a warning while it is `null`; the Open Graph tags and [share cards](#share-cards) need it too |
+| `site.description` | `null` | One sentence about the site for `llms.txt`, `skill.md`, the agent card, JSON-LD and the site's share card. `null` uses `home.hero.lead`, then the root `meta.json` description |
 | `agents.enabled` | `true` | `false` turns every agent file and the page actions off |
 | `agents.markdown` | `true` | `<page>.md` next to every page, and `index.md` for the start page |
 | `agents.llms_txt` | `true` | `llms.txt` and `.well-known/llms.txt` |
@@ -324,6 +324,69 @@ the discovery headers. [Agents](agents.md) describes each file.
 A page with `noindex: true` in its frontmatter is still built, but left out of
 `llms.txt`, `llms-full.txt`, `skill.md` and `sitemap.xml`, and gets
 `<meta name="robots" content="noindex">`.
+
+## Share cards
+
+What a link to the site shows in chat apps, social networks and search results.
+With `site.url` set, every page's `<head>` gets the Open Graph tags (`og:type`,
+`og:site_name`, `og:title`, `og:description`, `og:url`) and the X tags
+(`twitter:card`, `twitter:title`, `twitter:description`), from the page's
+frontmatter `title` and `description`. The share cards are on by default then:
+the build draws one PNG per page, 1200 × 630 pixels, and the tags name it as
+`og:image` and `twitter:image` with `twitter:card` `summary_large_image`.
+
+- **`og.png`** next to the start page is the site card: logo and brand large,
+  `site.description`, the host. The start page uses it, or the docs root when it
+  is published at the start page's URL.
+- **`og/<page>.png`** is a page's card, at its published path: `/guide/install`
+  gets `og/guide/install.png`. Logo and brand at the top, the title large (up to
+  three lines, shrinking from 72 to 40 pixels until it fits), the description
+  muted (up to two lines, then an ellipsis), host and path at the bottom.
+
+The cards are drawn in PHP while the site builds, from TrueType fonts and an
+SVG logo, so they need no browser, network or image library; writing PNG needs
+the PHP extension `zlib`, which nearly every PHP build has. A build with cards
+and without `zlib` stops with exit code 2. A card is not drawn when a `copy`
+directory or `output.keep` provides its file, so a hand-made `og.png` replaces
+the generated one.
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `share_card.enabled` | `null` | `null` draws the cards when `site.url` is set. `false` draws none; the Open Graph tags stay, with `twitter:card` `summary`. `true` without `site.url` is an error |
+| `share_card.logo` | `null` | SVG file of the logo on the cards. `null` uses the file behind `logo` when a `copy` directory holds it, and an error names the key when that is not an SVG. `false` draws the cards without a logo |
+| `share_card.brand` | `null` | Name next to the logo. `null` uses `title` |
+| `share_card.fonts.text` | `null` | TrueType file (`.ttf` with `glyf` outlines) for the description and the URL. `null` uses the bundled Inter Regular |
+| `share_card.fonts.heading` | `null` | TrueType file for the title and the brand. `null` uses the bundled Inter SemiBold |
+| `share_card.colors.background` | `null` | Card background. `null` uses `theme.light.background`, else the light scheme's default |
+| `share_card.colors.foreground` | `null` | Title and brand. `null` uses `theme.light.foreground` |
+| `share_card.colors.muted` | `null` | Description and URL. `null` uses `theme.light.muted-foreground` |
+| `share_card.colors.accent` | `null` | The bar along the bottom edge. `null` uses `theme.light.primary` |
+
+Colours are opaque CSS colours: `#rgb`, `#rrggbb`, `rgb()` or `hsl()`. A colour
+taken from `theme.light` in another form, such as `oklch()`, is an error that
+names the `share_card.colors` key to set.
+
+**The logo** is an SVG of filled shapes: `<svg>`, `<g>`, `<rect>` (also with
+`rx`/`ry`), `<circle>`, `<ellipse>`, `<polygon>` and `<path>` (every command but
+arcs), filled with a colour, `none` or `currentColor` (the foreground colour).
+Anything else that changes what is painted, such as strokes, transforms,
+gradients, opacity, `style`, text or `evenodd`, is an error with its line
+number, so the card never shows a logo that differs from the browser's; convert
+strokes to outlines first. `shape-rendering="crispEdges"` on the root keeps a
+pixel-art logo sharp by snapping it to whole pixels.
+
+**Fonts** must be static TrueType fonts: WOFF, WOFF2, CFF-flavoured OpenType
+(`.otf`) and collections are refused with a message. Kerning comes from the
+font's `GPOS` `kern` feature. There is no fallback font: when a title,
+description, URL or brand contains a character the font has no glyph for, the
+build stops with exit code 3, the page file and the character
+(`"漢" (U+6F22)`), instead of drawing an empty box. Point
+`share_card.fonts` at fonts that cover the site's languages, or set
+`share_card.enabled` to `false`.
+
+A card's pixels depend only on its text, the fonts, the logo and the colours.
+The PNG's compressed bytes can differ between zlib versions, so `pholio check`
+compares PNG files by their decompressed image data.
 
 ## Profiles
 
