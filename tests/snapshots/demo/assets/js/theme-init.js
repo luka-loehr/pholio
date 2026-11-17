@@ -8,9 +8,10 @@
 // 'unsafe-inline', so an inline bootstrap script cannot be used. Runtime behaviour (switching,
 // storage, matchMedia listener, view transition) lives in theme.js.
 //
-// The expression below is the bootstrap script of next-themes, unchanged.
+// The expression below is the bootstrap script of next-themes, unchanged except for its
+// defaultTheme argument, which comes from `data-default-scheme` on <html> (theme.default_scheme).
 // Arguments:
-//   attribute "class", storageKey "theme", defaultTheme "system", forcedTheme null,
+//   attribute "class", storageKey "theme", defaultTheme from <html> or "system", forcedTheme null,
 //   themes ["light","dark"], value null, enableSystem true, enableColorScheme true
 // Effect: class `light` or `dark` on <html>, plus style.colorScheme; with
 // `system` (or empty storage) prefers-color-scheme decides; if storage is
@@ -39,4 +40,4 @@
         let n = localStorage.getItem(i) || s, y = l && n === "system" ? c() : n;
         p(y);
     } catch (n) {}
-})("class","theme","system",null,["light","dark"],null,true,true);
+})("class","theme",document.documentElement.dataset.defaultScheme||"system",null,["light","dark"],null,true,true);

@@ -362,8 +362,6 @@ final class Config
     {
         return [
             [['base_url'], null],
-            [['theme', 'default_scheme'], 'system'],
-            [['search', 'enabled'], true],
             [['nav', '[]', 'icon'], null],
             [['nav', '[]', 'icon_only'], false],
             [['slots'], []],

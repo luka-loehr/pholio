@@ -128,7 +128,8 @@ class Builder
 
         $this->writeTheme($target);
         $this->writeCopies($target);
-        $indexed = $this->writeSearchIndex($tree, $target);
+        // search.enabled false: no index file, no dialog, no triggers, no hotkey.
+        $indexed = ($this->config['search']['enabled'] ?? true) ? $this->writeSearchIndex($tree, $target) : 0;
         $redirects = Htaccess::write($config, $target);
         $warnings = $agents->write($target, fn(string $relative): bool => $this->authored($relative));
         $cards->write($target, $rendered, $home, fn(string $relative): bool => $this->authored($relative));
@@ -272,7 +273,7 @@ class Builder
         $title = str_replace('{title}', (string) ($frontmatter['title'] ?? $data['title']), $config['titleTemplate']);
         $head = $this->head($title, $data['description'], true) + ($agents?->head($url) ?? []) + ['social' => $cards?->head($url) ?? []];
 
-        return nd_document($head, nd_search_dialog_portal() . nd_layout($inner));
+        return nd_document($head, $this->searchPortal() . nd_layout($inner));
     }
 
     protected function renderHome(Tree $tree, ?AgentSite $agents = null, ?ShareCards $cards = null): string
@@ -282,7 +283,7 @@ class Builder
         // The start page has no ScrollArea, so no scrollbar <style> either.
         return nd_document(
             $this->head($this->config['homeTitle'], null, false) + ($agents?->homeHead() ?? []) + ['social' => $cards?->homeHead() ?? []],
-            nd_search_dialog_portal() . nd_home_layout($this->config, $tree),
+            $this->searchPortal() . nd_home_layout($this->config, $tree),
         );
     }
 
@@ -294,12 +295,13 @@ class Builder
         return [
             'lang' => $config['lang'],
             'fontClass' => $config['theme']['fontClass'],
+            'defaultScheme' => $config['theme']['defaultScheme'] ?? 'system',
             'title' => $title,
             'description' => $description,
             'scrollArea' => $scrollArea,
             'assetBase' => $config['assetBase'],
             'baseUrl' => $config['baseUrl'],
-            'searchIndexUrl' => $config['search']['indexUrl'],
+            'searchIndexUrl' => ($config['search']['enabled'] ?? true) ? $config['search']['indexUrl'] : null,
             'icons' => $config['head']['icons'],
             'preload' => $config['head']['preload'] ?? [],
             'manifest' => $config['head']['manifest'],
@@ -601,6 +603,12 @@ class Builder
                 static fn(string $relative): bool => !str_ends_with(strtolower($relative), '.md'),
             );
         }
+    }
+
+    /** The search dialog's portal, or nothing when search.enabled is false. */
+    protected function searchPortal(): string
+    {
+        return ($this->config['search']['enabled'] ?? true) ? nd_search_dialog_portal() : '';
     }
 
     /** @return int number of indexed pages */

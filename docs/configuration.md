@@ -149,7 +149,7 @@ Anything you leave out keeps its default.
 | `theme.palette_css` | `null` | Stylesheet inserted after the token maps, for palettes a token map can't express |
 | `theme.font_class` | `''` | Extra class on `<html>` |
 | `theme.hotkey` | `d` | Key that toggles the color scheme |
-| `theme.default_scheme` | `system` | Planned: `light` or `dark` as the scheme before the visitor chooses |
+| `theme.default_scheme` | `system` | Scheme before the visitor chooses one: `system` follows the device, `light` or `dark` sets it (and is the static state without JavaScript). A visitor's own choice still wins |
 | `theme.custom_css` | `null` | Stylesheet appended after the whole theme CSS, for rules of your own |
 | `theme.code.light` | `github-light` | Code highlighting theme of the light scheme: a bundled theme's name or the path of a TextMate theme file (`.json`) |
 | `theme.code.dark` | `github-dark` | The same for the dark scheme |
@@ -269,7 +269,7 @@ search dialog opens.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `search.enabled` | `true` | Planned: `false` to remove the search field, the hotkey and the index |
+| `search.enabled` | `true` | `false` removes the search field and its small trigger, the search dialog, the ⌘K hotkey (it stays the browser's) and the index file |
 | `search.index_path` | `search-index.json` | Index file, relative to the docs root |
 | `search.tokenizer` | `null` | `english` or `german`. `null` follows `language`: a language starting with `de` gives `german`, anything else `english` |
 | `search.hotkey` | `['⌘', 'K']` | Keys shown in the search field |

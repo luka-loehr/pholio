@@ -40,9 +40,11 @@ function nd_home_header(array $config, string $url): string
     }
     $list = Html::tag('ul', ['class' => 'nd-home-nav-list'], $items);
 
+    // search.enabled false: no search field, no small trigger.
+    $search = $config['search']['enabled'] ?? true;
     $wide = Html::tag('div', [
         'class' => 'nd-home-nav-wide',
-    ], nd_search_trigger_full($config, 'home') . nd_theme_switch()
+    ], ($search ? nd_search_trigger_full($config, 'home') : '') . nd_theme_switch()
         . Html::tag('ul', ['class' => 'nd-home-nav-icons'], ''));
 
     $menuTrigger = Html::tag('button', [
@@ -53,7 +55,7 @@ function nd_home_header(array $config, string $url): string
         'class' => ND_BUTTON_BASE . ' nd-btn-ghost nd-btn-sm',
     ], Icons::svg('chevron-down', 'nd-home-menu-chevron'));
 
-    $narrow = Html::tag('div', ['class' => 'nd-home-nav-narrow'], nd_search_trigger_small('home') . $menuTrigger);
+    $narrow = Html::tag('div', ['class' => 'nd-home-nav-narrow'], ($search ? nd_search_trigger_small('home') : '') . $menuTrigger);
 
     $row = Html::tag('div', [
         'class' => 'nd-home-nav-row',

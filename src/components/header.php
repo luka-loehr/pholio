@@ -60,12 +60,14 @@ function nd_header(array $config, string $url, array $tabs, int $selected): stri
         'class' => ND_BUTTON_BASE . ' nd-btn-secondary nd-btn-icon-sm nd-header-trigger',
     ], Icons::svg('sidebar'));
 
+    // search.enabled false: no search field, no small trigger.
+    $search = $config['search']['enabled'] ?? true;
     $right = Html::tag('div', ['class' => 'nd-nav-links'], $links)
-        . Html::tag('div', ['class' => 'nd-header-mobile'], nd_search_trigger_small('notebook') . $sidebarTrigger)
+        . Html::tag('div', ['class' => 'nd-header-mobile'], ($search ? nd_search_trigger_small('notebook') : '') . $sidebarTrigger)
         . Html::tag('div', ['class' => 'nd-header-desktop'], nd_theme_switch() . $collapseTrigger);
 
     $body = Html::tag('div', ['class' => 'nd-header-start'], nd_nav_title($config))
-        . nd_search_trigger_full($config, 'notebook')
+        . ($search ? nd_search_trigger_full($config, 'notebook') : '')
         . Html::tag('div', ['class' => 'nd-header-end'], $right);
 
     $rows = Html::tag('div', [

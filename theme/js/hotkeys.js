@@ -19,8 +19,9 @@ import { isTypingTarget } from './util.js';
 export function initHotkeys({ searchHandle = null, theme = null, themeHotKey = 'd' } = {}) {
   window.addEventListener('keydown', (event) => {
     // "K" as well: Caps Lock and some synthetic key events report the uppercase key.
-    if ((event.metaKey || event.ctrlKey) && event.key?.toLowerCase() === 'k') {
-      searchHandle?.toggle();
+    // Without a search (search.enabled false) ⌘K stays the browser's.
+    if (searchHandle && (event.metaKey || event.ctrlKey) && event.key?.toLowerCase() === 'k') {
+      searchHandle.toggle();
       event.preventDefault();
       return;
     }

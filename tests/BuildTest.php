@@ -124,6 +124,25 @@ test('--set language=de switches the interface and the tokenizer', function (): 
     assert_same('german', json_decode((string) file_get_contents($dir . '/out/search-index.json'), true)['tokenizer']);
 });
 
+test('search.enabled false: no index, no dialog, no triggers, no index meta', function (): void {
+    $on = build_site("---\ntitle: Hello\n---\n\nText.\n");
+    [$code, $out, $err] = build_cli(['build', '--config', $on . '/pholio.config.php']);
+    assert_same(0, $code, $err);
+    $html = (string) file_get_contents($on . '/out/index.html');
+    assert_true(is_file($on . '/out/search-index.json'), 'index written by default');
+    assert_contains('name="nd-search-index"', $html);
+    assert_contains('data-search', $html);
+
+    $off = build_site("---\ntitle: Hello\n---\n\nText.\n", "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'search' => ['enabled' => false]]");
+    [$code, $out, $err] = build_cli(['build', '--config', $off . '/pholio.config.php']);
+    assert_same(0, $code, $err);
+    assert_contains('0 in the search index', $out . $err);
+    $html = (string) file_get_contents($off . '/out/index.html');
+    assert_true(!is_file($off . '/out/search-index.json'), 'no index file');
+    assert_true(!str_contains($html, 'nd-search-index'), 'no index meta');
+    assert_true(!str_contains($html, 'data-search'), 'no search trigger');
+});
+
 // ------------------------------------------------------------------ exit 2: usage and configuration
 
 test('a bad config exits 2 and names the key', function (): void {

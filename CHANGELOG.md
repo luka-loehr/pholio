@@ -9,6 +9,14 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Added
+
+- `theme.default_scheme`: `light` or `dark` sets the scheme a visitor sees
+  before choosing one (and the static state without JavaScript); `system`, the
+  default, still follows the device. A stored choice still wins.
+- `search.enabled`: `false` builds a site without search: no search field or
+  small trigger, no search dialog, no index file, and ⌘K stays the browser's.
+
 ## [0.4.2] - 2026-10-30
 
 ### Fixed

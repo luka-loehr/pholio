@@ -23,7 +23,7 @@ require_once __DIR__ . '/../lib/Html.php';
  *
  * @param array{
  *   lang:string, fontClass:string, title:string, description:?string,
- *   scrollArea:bool, assetBase:string, baseUrl:string, searchIndexUrl:string,
+ *   scrollArea:bool, assetBase:string, baseUrl:string, searchIndexUrl:?string,
  *   icons:list<array{rel:string, type:?string, sizes:?string, href:string}>,
  *   manifest:?string, themeColor:?string, markdownUrl?:?string, robots?:?string, jsonLd?:?string,
  *   social?:list<array{0:string, 1:string, 2:string}>
@@ -43,16 +43,23 @@ function nd_document(array $head, string $body): string
 {
     $assets = rtrim($head['assetBase'], '/');
 
+    // theme.default_scheme: the scheme before the visitor chooses one. `system` follows the
+    // device; `light` or `dark` is also the static state for visitors without JavaScript.
+    $default = $head['defaultScheme'] ?? 'system';
+    $static = $default === 'dark' ? 'dark' : 'light';
+
     $out = '<!DOCTYPE html>';
     $out .= '<html' . Html::attrs([
         'lang' => $head['lang'],
-        // theme-init.js sets the class `light` and `color-scheme` at runtime.
-        'class' => [$head['fontClass'], 'light'],
+        // theme-init.js sets the class `light`/`dark` and `color-scheme` at runtime.
+        'class' => [$head['fontClass'], $static],
         // A finished string instead of Html::style(): theme-init.js writes this value
         // through the CSSOM (`style.colorScheme`), and the browser serialises it as
         // `color-scheme: light;` with a space and a semicolon, so the static and the
         // scripted attribute are the same string.
-        'style' => 'color-scheme: light;',
+        'style' => 'color-scheme: ' . $static . ';',
+        // Read by theme-init.js and theme.js when nothing is stored; absent means `system`.
+        'data-default-scheme' => $default === 'system' ? null : $default,
     ]) . '>';
 
     $out .= '<head>';
@@ -81,8 +88,10 @@ function nd_document(array $head, string $body): string
             'crossorigin' => $preload['as'] === 'font' ? 'anonymous' : null,
         ]);
     }
-    // Where js/search-dialog.js fetches the search index.
-    $out .= '<meta name="nd-search-index" content="' . Html::e($head['searchIndexUrl']) . '">';
+    // Where js/search-dialog.js fetches the search index; absent with search.enabled false.
+    if (($head['searchIndexUrl'] ?? null) !== null) {
+        $out .= '<meta name="nd-search-index" content="' . Html::e($head['searchIndexUrl']) . '">';
+    }
     foreach ($head['icons'] as $icon) {
         $out .= Html::voidTag('link', [
             'rel' => $icon['rel'],

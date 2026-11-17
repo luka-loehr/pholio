@@ -55,7 +55,8 @@ export function boot(doc = document) {
     triggers.forEach((trigger) => dialog.addTrigger(trigger));
   }
 
-  initHotkeys({ searchHandle, theme });
+  // Without triggers (search.enabled false) the search hotkey stays unbound.
+  initHotkeys({ searchHandle: triggers.length ? searchHandle : null, theme });
   initCopyButtons(doc);
 
   // Section switcher (popover) in the desktop sidebar and in the drawer. Below

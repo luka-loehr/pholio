@@ -43,11 +43,16 @@ function systemTheme() {
   return window.matchMedia(MEDIA).matches ? 'dark' : 'light';
 }
 
+// theme.default_scheme, written on <html> by the generator; absent means `system`.
+function defaultTheme() {
+  return document.documentElement.dataset.defaultScheme || 'system';
+}
+
 function readStored() {
   try {
-    return localStorage.getItem(STORAGE_KEY) || 'system';
+    return localStorage.getItem(STORAGE_KEY) || defaultTheme();
   } catch {
-    return 'system';
+    return defaultTheme();
   }
 }
 

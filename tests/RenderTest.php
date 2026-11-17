@@ -181,6 +181,19 @@ test('document head: favicons, manifest and theme colour only when configured', 
     );
 });
 
+test('theme.default_scheme: dark is the static state and the default the scripts read', function (): void {
+    $head = [
+        'lang' => 'en', 'fontClass' => '', 'title' => 'T', 'description' => null,
+        'scrollArea' => false, 'assetBase' => '/assets', 'baseUrl' => '/', 'searchIndexUrl' => '/search-index.json',
+        'icons' => [], 'manifest' => null, 'themeColor' => null,
+    ];
+    assert_contains('<html lang="en" class="light" style="color-scheme: light;">', Pholio\nd_document($head + ['defaultScheme' => 'system'], ''));
+    assert_contains('<html lang="en" class="dark" style="color-scheme: dark;" data-default-scheme="dark">', Pholio\nd_document(['defaultScheme' => 'dark'] + $head, ''));
+    assert_contains('<html lang="en" class="light" style="color-scheme: light;" data-default-scheme="light">', Pholio\nd_document(['defaultScheme' => 'light'] + $head, ''));
+    $init = (string) file_get_contents(__DIR__ . '/../theme/js/theme-init.js');
+    assert_contains('document.documentElement.dataset.defaultScheme||"system"', $init);
+});
+
 test('nav title prints the logo only when one is configured', function (): void {
     assert_true(!str_contains(Pholio\nd_nav_title(render_config([])), '<img'));
     assert_contains('<img src="/logo.svg" alt="" width="32" height="32" class="nd-nav-logo">', Pholio\nd_nav_title(render_config(['logo' => '/logo.svg', 'logo_size' => 32])));
