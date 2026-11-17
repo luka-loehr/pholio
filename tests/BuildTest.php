@@ -143,6 +143,35 @@ test('search.enabled false: no index, no dialog, no triggers, no index meta', fu
     assert_true(!str_contains($html, 'data-search'), 'no search trigger');
 });
 
+test('base_url: canonical links on every page, falling back to site.url', function (): void {
+    $page = "---\ntitle: Hello\n---\n\nText.\n";
+    $none = build_site($page);
+    [$code, , $err] = build_cli(['build', '--config', $none . '/pholio.config.php']);
+    assert_same(0, $code, $err);
+    assert_true(!str_contains((string) file_get_contents($none . '/out/index.html'), 'rel="canonical"'), 'no canonical without base_url and site.url');
+
+    $site = build_site($page, "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'site' => ['url' => 'https://docs.example.org']]");
+    [$code, , $err] = build_cli(['build', '--config', $site . '/pholio.config.php']);
+    assert_same(0, $code, $err);
+    assert_contains('<link rel="canonical" href="https://docs.example.org/">', (string) file_get_contents($site . '/out/index.html'));
+
+    $base = build_site($page, "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'base_path' => '/docs/', 'base_url' => 'https://example.org/', 'site' => ['url' => 'https://mirror.example.net']]");
+    mkdir($base . '/content/guide');
+    file_put_contents($base . '/content/guide/setup.md', "---\ntitle: Setup\n---\n\nSteps.\n");
+    [$code, , $err] = build_cli(['build', '--config', $base . '/pholio.config.php']);
+    assert_same(0, $code, $err);
+    $files = glob($base . '/out/{,*/,*/*/,*/*/*/}index.html', GLOB_BRACE) ?: [];
+    $all = implode("\n", array_map(static fn(string $f): string => (string) file_get_contents($f), $files));
+    assert_contains('<link rel="canonical" href="https://example.org/docs">', $all);
+    assert_contains('<link rel="canonical" href="https://example.org/docs/guide/setup">', $all);
+    assert_true(!str_contains($all, 'rel="canonical" href="https://mirror.example.net'), 'base_url wins over site.url');
+
+    $bad = build_site($page, "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'base_url' => 'https://example.org/docs']");
+    [$code, , $err] = build_cli(['build', '--config', $bad . '/pholio.config.php']);
+    assert_same(2, $code, $err);
+    assert_contains('base_url: expected the origin', $err);
+});
+
 // ------------------------------------------------------------------ exit 2: usage and configuration
 
 test('a bad config exits 2 and names the key', function (): void {
@@ -151,7 +180,7 @@ test('a bad config exits 2 and names the key', function (): void {
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'titel' => 'x']" => 'unknown key: titel (did you mean "title"?)',
         "['title' => 42, 'content_dir' => 'content', 'output_dir' => 'out']" => 'title: expected a string, got 42',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'logo_size' => '24']" => 'logo_size: expected an integer, got "24"',
-        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'base_url' => 'https://example.org']" => 'planned: base_url is not implemented yet',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'strict_content' => true]" => 'planned: strict_content is not implemented yet',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'nav' => [['title' => 'A', 'href' => '/a', 'active' => 'all']]]" => 'nav.0.active: expected one of exact, prefix, got "all"',
         "['title' => 'Site', 'content_dir' => 'missing', 'output_dir' => 'out']" => 'content directory not found: ',
         "'not an array'" => 'the config file must return an array',

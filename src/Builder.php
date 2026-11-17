@@ -271,7 +271,7 @@ class Builder
             . nd_toc($toc);
 
         $title = str_replace('{title}', (string) ($frontmatter['title'] ?? $data['title']), $config['titleTemplate']);
-        $head = $this->head($title, $data['description'], true) + ($agents?->head($url) ?? []) + ['social' => $cards?->head($url) ?? []];
+        $head = $this->head($title, $data['description'], true, $this->canonical($url, false)) + ($agents?->head($url) ?? []) + ['social' => $cards?->head($url) ?? []];
 
         return nd_document($head, $this->searchPortal() . nd_layout($inner));
     }
@@ -282,17 +282,36 @@ class Builder
 
         // The start page has no ScrollArea, so no scrollbar <style> either.
         return nd_document(
-            $this->head($this->config['homeTitle'], null, false) + ($agents?->homeHead() ?? []) + ['social' => $cards?->homeHead() ?? []],
+            $this->head($this->config['homeTitle'], null, false, $this->canonical($this->config['homeUrl'], true)) + ($agents?->homeHead() ?? []) + ['social' => $cards?->homeHead() ?? []],
             $this->searchPortal() . nd_home_layout($this->config, $tree),
         );
     }
 
+    /**
+     * Absolute URL of a page for <link rel="canonical">, in the form the sitemap and og:url use;
+     * null without base_url and site.url.
+     */
+    protected function canonical(string $url, bool $isHome): ?string
+    {
+        $origin = $this->config['canonicalOrigin'] ?? null;
+        if ($origin === null) {
+            return null;
+        }
+        $html = $this->outputPath($url, $isHome);
+        $path = $html === 'index.html'
+            ? $this->config['homeUrl']
+            : rtrim($this->config['homeUrl'], '/') . '/' . substr($html, 0, -strlen('/index.html'));
+
+        return $origin . $path;
+    }
+
     /** @return array<string, mixed> the $head argument of nd_document() */
-    protected function head(string $title, ?string $description, bool $scrollArea): array
+    protected function head(string $title, ?string $description, bool $scrollArea, ?string $canonical = null): array
     {
         $config = $this->config;
 
         return [
+            'canonical' => $canonical,
             'lang' => $config['lang'],
             'fontClass' => $config['theme']['fontClass'],
             'defaultScheme' => $config['theme']['defaultScheme'] ?? 'system',

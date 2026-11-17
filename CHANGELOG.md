@@ -14,6 +14,8 @@ or the configuration schema; such changes are listed under **Changed**.
 - `theme.default_scheme`: `light` or `dark` sets the scheme a visitor sees
   before choosing one (and the static state without JavaScript); `system`, the
   default, still follows the device. A stored choice still wins.
+- `base_url`: every page gets a `<link rel="canonical">` to its address under
+  this origin. Without it, `site.url` is used; with neither, none is written.
 - `search.enabled`: `false` builds a site without search: no search field or
   small trigger, no search dialog, no index file, and ⌘K stays the browser's.
 

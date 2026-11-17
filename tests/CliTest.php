@@ -165,11 +165,11 @@ test('build takes the project directory as argument or from the working director
 });
 
 test('planned key exits 2 with "planned:"', function (): void {
-    $dir = site(['base_url' => 'https://example.org']);
+    $dir = site(['strict_content' => true]);
     try {
         [$code, , $err] = pholio(['build', '--config', $dir . '/pholio.config.php']);
         assert_same(2, $code);
-        assert_contains('pholio: ' . $dir . '/pholio.config.php: planned: base_url', $err);
+        assert_contains('pholio: ' . $dir . '/pholio.config.php: planned: strict_content', $err);
     } finally {
         Fs::removeDir($dir);
     }

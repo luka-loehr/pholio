@@ -169,7 +169,6 @@ test('types, enums and required keys are validated', function (): void {
 });
 
 test('planned keys fail with "planned:"', function (): void {
-    config_error(['base_url' => 'https://example.org'], 'planned: base_url');
     config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon' => 'github']]], 'planned: nav.0.icon');
     config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon_only' => true]]], 'planned: nav.0.icon_only');
     config_error(['slots' => ['nav' => 'x.php']], 'planned: slots');

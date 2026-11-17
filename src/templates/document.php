@@ -22,7 +22,7 @@ require_once __DIR__ . '/../lib/Html.php';
  * - `notebook.js` as a module at the end of <body>.
  *
  * @param array{
- *   lang:string, fontClass:string, title:string, description:?string,
+ *   lang:string, fontClass:string, title:string, description:?string, canonical?:?string,
  *   scrollArea:bool, assetBase:string, baseUrl:string, searchIndexUrl:?string,
  *   icons:list<array{rel:string, type:?string, sizes:?string, href:string}>,
  *   manifest:?string, themeColor:?string, markdownUrl?:?string, robots?:?string, jsonLd?:?string,
@@ -72,6 +72,10 @@ function nd_document(array $head, string $body): string
         $out .= '<meta name="description" content="' . Html::e($head['description']) . '">';
     }
     $out .= '<title>' . Html::e($head['title']) . '</title>';
+    // base_url (else site.url): the one address search engines should index for this page.
+    if (($head['canonical'] ?? null) !== null) {
+        $out .= '<link rel="canonical" href="' . Html::e($head['canonical']) . '">';
+    }
     // Before the first paint: theme class on <html>.
     $out .= '<script src="' . Html::e($assets . '/js/theme-init.js') . '"></script>';
     // The theme as one file: the builder concatenates theme/css/*.css in the

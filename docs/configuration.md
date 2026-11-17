@@ -52,7 +52,7 @@ only their default value until the feature exists.
 | `logo` | `null` | Logo URL next to the wordmark. `null` shows the wordmark only |
 | `logo_size` | `24` | Logo width and height in pixels |
 | `home_link` | `{home}` | Where the wordmark links |
-| `base_url` | `null` | Planned: absolute origin for canonical links. Open Graph and the sitemap use `site.url` |
+| `base_url` | `null` | Origin for `<link rel="canonical">` on every page, e.g. `https://docs.example.org` without a path (`base_path` adds it). `null` uses `site.url`; with neither, no canonical link is written. Open Graph and the sitemap use `site.url` |
 | `base_path` | `/` | URL of the start page. `/docs/` when the site sits in a subfolder |
 | `docs_path` | `null` | URL of the docs root. `null` uses `base_path` |
 | `docs_root_suffix` | `null` | Path appended to the docs root page, e.g. `/overview`. Needed when the docs root and the start page would share one URL |

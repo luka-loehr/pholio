@@ -361,7 +361,6 @@ final class Config
     private static function planned(): array
     {
         return [
-            [['base_url'], null],
             [['nav', '[]', 'icon'], null],
             [['nav', '[]', 'icon_only'], false],
             [['slots'], []],
@@ -815,6 +814,14 @@ final class Config
                 $configFile,
             );
         }
+        $canonicalOrigin = $c['base_url'] === null ? null : rtrim($c['base_url'], '/');
+        if ($canonicalOrigin !== null && preg_match('#^https?://[^/?\#\s]+$#i', $canonicalOrigin) !== 1) {
+            throw new ConfigException(
+                'base_url: expected the origin canonical links point to, like "https://docs.example.org", without a path (base_path adds it), got '
+                . self::show($c['base_url']),
+                $configFile,
+            );
+        }
         $agents = $c['agents'];
         $on = static fn(string $key): bool => $agents['enabled'] && $agents[$key];
 
@@ -911,6 +918,8 @@ final class Config
             'redirectsFile' => $path($c['redirects_file']),
             'server' => $c['server'],
 
+            // Origin of <link rel="canonical">: base_url, else site.url; null writes none.
+            'canonicalOrigin' => $canonicalOrigin ?? $siteUrl,
             'site' => [
                 'url' => $siteUrl,
                 'description' => $c['site']['description'] === null ? null : $text($c['site']['description']),
