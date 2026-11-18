@@ -316,6 +316,10 @@ TEXT;
         $config = $this->config($options);
         self::requireContent($config);
         $against = rtrim(isset($options['against']) ? Config::absolute($options['against'], (string) getcwd()) : $config['outDir'], '/');
+        // A mistyped --against would otherwise report every file of the site as missing.
+        if (isset($options['against']) && !is_dir($against)) {
+            throw new ConfigException('--against: directory not found: ' . $against);
+        }
 
         $root = Fs::tempDir();
         try {

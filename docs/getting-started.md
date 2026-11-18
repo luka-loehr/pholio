@@ -146,7 +146,7 @@ arguments prints a short overview and exits 0.
 | `--config <file>` | Configuration file. Default: `<dir>/pholio.config.php` if present, otherwise the defaults. Can't be combined with `[dir]` |
 | `--profile <name>` | Merge `profiles.<name>` over the configuration |
 | `--content <dir>`, `--out <dir>` | Override `content_dir` and `output_dir`, relative to the current directory |
-| `--against <dir>` | Directory `check` compares with |
+| `--against <dir>` | Directory `check` compares with. It must exist |
 | `--only <url-part>` | Render only pages whose URL contains this text. For iteration, not for deployment |
 | `--dev` | Include drafts, the pages whose file name starts with `_` |
 | `--quiet` | No summary line |

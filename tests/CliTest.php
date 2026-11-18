@@ -317,6 +317,26 @@ test('Fs::compare honours keep paths as directory prefixes', function (): void {
     assert_true(!Fs::isKept('a.png', ['']));
 });
 
+test('check --against a directory that does not exist is a usage error, an unbuilt output_dir a difference', function (): void {
+    $dir = site();
+    try {
+        file_put_contents($dir . '/content/index.md', "---\ntitle: Start\n---\n\nText\n");
+        file_put_contents($dir . '/afile', '');
+        foreach (['/nowhere' => $dir . '/nowhere', '/afile' => $dir . '/afile'] as $name => $against) {
+            [$code, $out, $err] = pholio_inline(['check', $dir, '--against', $dir . $name]);
+            assert_same(2, $code, $err);
+            assert_contains('pholio: --against: directory not found: ' . $against, $err);
+            assert_same('', $out);
+        }
+        // Without --against the comparison is with output_dir; nothing built yet means everything is missing.
+        [$code, $out] = pholio_inline(['check', $dir]);
+        assert_same(1, $code);
+        assert_contains('missing: index.html', $out);
+    } finally {
+        Fs::removeDir($dir);
+    }
+});
+
 test('dev watches everything a build reads from the project', function (): void {
     $dir = site([
         'copy' => ['assets' => 'assets', 'downloads' => 'files'],

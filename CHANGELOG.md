@@ -28,6 +28,8 @@ or the configuration schema; such changes are listed under **Changed**.
   `output_dir` must not be empty; `content.extensions` needs at least one
   entry; `output_dir` must not be `content_dir` or lie inside it, because the
   next build would read the generated Markdown as content.
+- `pholio check --against <dir>` with a directory that does not exist is a
+  usage error (exit 2) instead of a list of every file as missing.
 - Redirects are checked: a redirect loop (`/a` to `/b` to `/a`, or a path to
   itself) and a redirect whose `from` is a page of the build stop it with
   exit 2. Chains that end are still fine.
