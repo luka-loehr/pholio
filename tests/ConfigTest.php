@@ -173,7 +173,6 @@ test('planned keys fail with "planned:"', function (): void {
     config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon_only' => true]]], 'planned: nav.0.icon_only');
     config_error(['slots' => ['nav' => 'x.php']], 'planned: slots');
     config_error(['components' => ['Download' => 'x']], 'planned: components');
-    config_error(['strict_content' => true], 'planned: strict_content');
     // Default values of planned keys are accepted.
     config(['base_url' => null, 'theme' => ['default_scheme' => 'system'], 'slots' => [], 'strict_content' => false]);
 });

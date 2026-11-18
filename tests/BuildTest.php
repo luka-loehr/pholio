@@ -172,6 +172,23 @@ test('base_url: canonical links on every page, falling back to site.url', functi
     assert_contains('base_url: expected the origin', $err);
 });
 
+test('strict_content: pages without a description stop the build and are all listed', function (): void {
+    $cfg = "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'strict_content' => true]";
+    $dir = build_site("---\ntitle: Start\n---\n\nText.\n", $cfg);
+    file_put_contents($dir . '/content/other.md', "---\ntitle: Other\n---\n\nText.\n");
+    file_put_contents($dir . '/content/good.md', "---\ntitle: Good\ndescription: Has one.\n---\n\nText.\n");
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php']);
+    assert_same(3, $code, $err);
+    assert_contains('strict_content: 2 pages without a description', $err);
+    assert_contains('content/index.md', $err);
+    assert_contains('content/other.md', $err);
+    assert_true(!str_contains($err, 'good.md'), 'a page with a description is not listed');
+
+    $ok = build_site("---\ntitle: Start\ndescription: The start.\n---\n\nText.\n", $cfg);
+    [$code, , $err] = build_cli(['build', '--config', $ok . '/pholio.config.php']);
+    assert_same(0, $code, $err);
+});
+
 // ------------------------------------------------------------------ exit 2: usage and configuration
 
 test('a bad config exits 2 and names the key', function (): void {
@@ -180,7 +197,7 @@ test('a bad config exits 2 and names the key', function (): void {
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'titel' => 'x']" => 'unknown key: titel (did you mean "title"?)',
         "['title' => 42, 'content_dir' => 'content', 'output_dir' => 'out']" => 'title: expected a string, got 42',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'logo_size' => '24']" => 'logo_size: expected an integer, got "24"',
-        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'strict_content' => true]" => 'planned: strict_content is not implemented yet',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'slots' => ['nav' => 'x.php']]" => 'planned: slots is not implemented yet',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'nav' => [['title' => 'A', 'href' => '/a', 'active' => 'all']]]" => 'nav.0.active: expected one of exact, prefix, got "all"',
         "['title' => 'Site', 'content_dir' => 'missing', 'output_dir' => 'out']" => 'content directory not found: ',
         "'not an array'" => 'the config file must return an array',

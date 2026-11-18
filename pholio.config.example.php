@@ -35,7 +35,7 @@ return [
     // Where the wordmark links.
     'home_link' => '{home}',
 
-    // Planned: absolute origin for canonical links (Open Graph and the sitemap use site.url).
+    // Origin for <link rel="canonical"> on every page; null uses site.url (Open Graph and the sitemap use site.url).
     'base_url' => null,
 
     // URL of the start page ({home}) and of the docs root ({docs}). docs_path
@@ -171,7 +171,7 @@ return [
         // Key that toggles the color scheme.
         'hotkey' => 'd',
 
-        // Planned: "light" or "dark" as the initial scheme.
+        // "light" or "dark" as the scheme before the visitor chooses; "system" follows the device.
         'default_scheme' => 'system',
 
         // Code highlighting themes: bundled names (github-light, github-dark) or
@@ -198,7 +198,7 @@ return [
     // -------------------------------------------------------------- search --
 
     'search' => [
-        // Planned: false removes the field, the hotkey and the index.
+        // false removes the search field, the dialog, the ⌘K hotkey and the index.
         'enabled' => true,
 
         // Index file, relative to the docs root.
@@ -282,9 +282,11 @@ return [
         ],
     ],
 
+    // true: a page without a description in its frontmatter stops the build.
+    'strict_content' => false,
+
     // ------------------------------------------------------------- planned --
 
     'slots' => [],
     'components' => [],
-    'strict_content' => false,
 ];

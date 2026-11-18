@@ -16,9 +16,9 @@ and code themes let a site take on its brand.
 
 ## Next
 
-1. **The planned keys.** Icon links in `nav`; `strict_content`.
-   (`base_url`, `theme.default_scheme` and `search.enabled` work since the
-   next release.)
+1. **The planned keys.** Icon links in `nav`. (`base_url`,
+   `theme.default_scheme`, `search.enabled` and `strict_content` work since
+   the next release.)
 2. **Extension points.** `slots` for sidebar, table of contents and page footer,
    and `components` for tags registered in PHP.
 3. **More languages.** Interface translations beyond English and German, and

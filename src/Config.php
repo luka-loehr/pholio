@@ -365,7 +365,6 @@ final class Config
             [['nav', '[]', 'icon_only'], false],
             [['slots'], []],
             [['components'], []],
-            [['strict_content'], false],
         ];
     }
 
@@ -924,6 +923,7 @@ final class Config
                 'url' => $siteUrl,
                 'description' => $c['site']['description'] === null ? null : $text($c['site']['description']),
             ],
+            'strictContent' => $c['strict_content'],
             'agents' => [
                 'markdown' => $on('markdown'),
                 'llmsTxt' => $on('llms_txt'),

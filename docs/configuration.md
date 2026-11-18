@@ -406,4 +406,4 @@ selected, and profiles can't be nested.
 | --- | --- | --- |
 | `slots` | `[]` | Planned: slot name => PHP file returning HTML |
 | `components` | `[]` | Planned: custom content tags registered in PHP |
-| `strict_content` | `false` | Planned: stricter content checks, such as a required description |
+| `strict_content` | `false` | `true`: a page without a `description` in its frontmatter stops the build (exit 3), listing every such page |

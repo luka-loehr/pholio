@@ -16,6 +16,8 @@ or the configuration schema; such changes are listed under **Changed**.
   default, still follows the device. A stored choice still wins.
 - `base_url`: every page gets a `<link rel="canonical">` to its address under
   this origin. Without it, `site.url` is used; with neither, none is written.
+- `strict_content`: `true` stops the build (exit 3) when a page has no
+  `description` in its frontmatter, and lists every such page.
 - `search.enabled`: `false` builds a site without search: no search field or
   small trigger, no search dialog, no index file, and ⌘K stays the browser's.
 

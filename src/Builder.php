@@ -104,6 +104,7 @@ class Builder
         $config = $this->config;
         $tree = $this->tree();
         $this->checkDocsRoot($tree);
+        $this->checkStrictContent($tree);
         $cards = $this->shareCards($tree);
         $agents = $this->agentSite($tree, $cards);
 
@@ -154,6 +155,30 @@ class Builder
         if ($findings !== []) {
             throw new ContentException(
                 count($findings) . ' broken link' . (count($findings) === 1 ? '' : 's') . ":\n  " . implode("\n  ", $findings),
+            );
+        }
+    }
+
+    /**
+     * strict_content: every page needs a description in its frontmatter (search results,
+     * the agent files and share cards show it). All missing ones are listed at once.
+     *
+     * @throws ContentException listing every page without a description
+     */
+    protected function checkStrictContent(Tree $tree): void
+    {
+        if (!($this->config['strictContent'] ?? false)) {
+            return;
+        }
+        $missing = [];
+        foreach ($tree->pages() as $page) {
+            if (trim((string) ($page['data']['description'] ?? '')) === '') {
+                $missing[] = $this->relativeToProject($this->config['contentDir'] . '/' . ltrim((string) $page['file'], '/'));
+            }
+        }
+        if ($missing !== []) {
+            throw new ContentException(
+                'strict_content: ' . count($missing) . ' page' . (count($missing) === 1 ? '' : 's') . ' without a description in the frontmatter:' . "\n  " . implode("\n  ", $missing),
             );
         }
     }
