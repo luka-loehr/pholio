@@ -201,12 +201,22 @@ test('a bad config exits 2 and names the key', function (): void {
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'nav' => [['title' => 'A', 'href' => '/a', 'active' => 'all']]]" => 'nav.0.active: expected one of exact, prefix, got "all"',
         "['title' => 'Site', 'content_dir' => 'missing', 'output_dir' => 'out']" => 'content directory not found: ',
         "'not an array'" => 'the config file must return an array',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'content/out']" => 'output_dir: must not be the content directory or lie inside it',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'nav' => [['title' => 'A', 'href' => '/a', 'icon' => 'no-such-icon-here']]]" => 'nav.0.icon: unknown icon "no-such-icon-here"',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'redirects' => ['/a' => '/b', '/b' => '/a']]" => 'redirect 0: loop: /a -> /b -> /a',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'redirects' => ['/a/' => '/a']]" => 'redirect 0: loop: /a -> /a',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'redirects' => ['/x' => '/a', '/a' => '/b', '/b' => '/c', '/c' => '/b']]" => 'redirect 2: loop: /b -> /c -> /b',
+        // The file is PHP: its own errors are configuration errors with its file and line.
+        "['title' => 'Site', 'content_dir' => ]" => 'pholio.config.php:2: the config file could not be loaded: ',
+        "['title' => intdiv(1, 0), 'content_dir' => 'content']" => 'pholio.config.php:2: the config file could not be loaded: Division by zero',
+        "['title' => (function () { throw new \\RuntimeException('no token'); })()]" => 'pholio.config.php:2: the config file could not be loaded: no token',
     ];
     foreach ($cases as $config => $message) {
         $dir = build_site($page, $config);
         [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php']);
         assert_same(2, $code, $config . "\n" . $err);
         assert_contains($message, $err, $config);
+        assert_true(!str_contains($err, 'internal error'), $config . "\n" . $err);
     }
 
     [$code, , $err] = build_cli(['build', '--config', build_temp() . '/none.php']);
@@ -251,6 +261,24 @@ function build_pages(array $pages, string $config = "['title' => 'Site', 'conten
 
     return $dir;
 }
+
+test('a redirect away from a published page exits 2, redirect chains and old addresses pass', function (): void {
+    $base = "'title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out'";
+    $pages = ['index.md' => "Start\n", 'guide/setup.md' => "Setup\n"];
+
+    foreach (["['/guide/setup' => '/']", "['/old' => '/', '/guide/setup/' => '/']"] as $n => $redirects) {
+        $dir = build_pages($pages, "[{$base}, 'redirects' => {$redirects}]");
+        [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php']);
+        assert_same(2, $code, $err);
+        assert_contains("pholio.config.php: redirect {$n}: a page is published at /guide/setup", $err);
+        assert_contains('the redirect would hide it; remove the redirect or the page', $err);
+    }
+
+    $dir = build_pages($pages, "[{$base}, 'redirects' => ['/older' => '/old', '/old' => '/guide/setup', '/guide/setup-2' => '/guide/setup']]");
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php']);
+    assert_same(0, $code, $err);
+    assert_contains('3 redirects', $err);
+});
 
 test('broken links, anchors and images exit 3 with file and line, and all of them are listed', function (): void {
     $dir = build_pages([

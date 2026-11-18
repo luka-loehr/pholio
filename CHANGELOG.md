@@ -28,6 +28,15 @@ or the configuration schema; such changes are listed under **Changed**.
   `output_dir` must not be empty; `content.extensions` needs at least one
   entry; `output_dir` must not be `content_dir` or lie inside it, because the
   next build would read the generated Markdown as content.
+- Redirects are checked: a redirect loop (`/a` to `/b` to `/a`, or a path to
+  itself) and a redirect whose `from` is a page of the build stop it with
+  exit 2. Chains that end are still fine.
+
+### Fixed
+
+- A syntax error or an exception in `pholio.config.php` was reported as an
+  internal error (exit 70). It is now a configuration error (exit 2) with the
+  file and line.
 
 ## [0.5.0] - 2026-11-18
 

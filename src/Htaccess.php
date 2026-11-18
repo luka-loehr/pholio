@@ -39,6 +39,37 @@ final class Htaccess
     }
 
     /**
+     * A redirect to itself or a chain that returns to its start would send the
+     * browser in circles. Paths are compared without their trailing slash.
+     *
+     * @param list<array{from:string, to:string}> $redirects
+     * @throws ConfigException
+     */
+    private static function checkLoops(array $redirects): void
+    {
+        $norm = static fn(string $path): string => rtrim($path, '/') === '' ? '/' : rtrim($path, '/');
+        $next = [];
+        foreach ($redirects as $entry) {
+            $next[$norm($entry['from'])] = $norm($entry['to']);
+        }
+        foreach ($redirects as $i => $entry) {
+            $start = $norm($entry['from']);
+            $chain = [$start];
+            $at = $start;
+            while (isset($next[$at])) {
+                $at = $next[$at];
+                $chain[] = $at;
+                if ($at === $start) {
+                    throw new ConfigException("redirect {$i}: loop: " . implode(' -> ', $chain));
+                }
+                if (count($chain) > count($next) + 1) {
+                    break; // runs into a loop that does not include this entry; its own entry reports it
+                }
+            }
+        }
+    }
+
+    /**
      * The redirects from the config followed by those from `redirects_file`.
      *
      * @return list<array{from:string, to:string, reason:?string}>
@@ -167,6 +198,8 @@ RULES;
                 : '^' . preg_quote($relative) . '$';
             $rules[] = '    RewriteRule ' . $pattern . ' ' . $to . ' [R=301,L]';
         }
+
+        self::checkLoops($redirects);
 
         $redirectBlock = $rules === [] ? '    # No redirects configured.' : implode("\n", $rules);
 

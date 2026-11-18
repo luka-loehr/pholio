@@ -164,7 +164,7 @@ note.
 | --- | --- |
 | `0` | Success; `check` found no difference |
 | `1` | `check` found differences |
-| `2` | Usage or configuration error: unknown command, flag or key, a planned key, an invalid value, a missing config file, a directory with neither `pholio.config.php` nor `content/`, an unknown profile, `init` refusing to overwrite |
+| `2` | Usage or configuration error: unknown command, flag or key, a planned key, an invalid value, an unknown icon in the configuration, a redirect loop, a config file with a PHP error, a missing config file, a directory with neither `pholio.config.php` nor `content/`, an unknown profile, `init` refusing to overwrite |
 | `3` | Content error: Markdown, component tags, frontmatter, `meta.json`, icons, code languages, an image path outside a copied directory |
 | `4` | I/O error: the output can't be written or a copy failed |
 | `70` | Internal error. `PHOLIO_DEBUG=1` prints the stack trace |

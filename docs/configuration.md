@@ -21,7 +21,9 @@ is a usage error.
 a value of the wrong type, an empty required value, an unknown icon name or a
 planned key set to anything but its default stops the command with exit code 2
 and names the key path, for example
-`pholio: unknown key: search.tokenize (did you mean "tokenizer"?)`.
+`pholio: unknown key: search.tokenize (did you mean "tokenizer"?)`. The file
+is PHP: a syntax error or an exception in it is reported the same way, with
+the file and line it happened at.
 
 ## Rules for values
 
@@ -304,7 +306,10 @@ use itself can be added with the `keywords` frontmatter key.
 The generated `.htaccess` is the only server file Pholio writes. It sets
 security headers and MIME types, maps slashless page URLs to their
 `index.html`, and turns every redirect into a 301 rule. A redirect's `from` must
-lie below `base_path`, and its `to` must be a path.
+lie below `base_path`, and its `to` must be a path. A redirect may point at
+another redirect, but a chain that returns to its start stops the build, and so
+does a redirect whose `from` is a page of this build: the server would answer
+with the redirect and never show the page.
 
 ## Agents
 

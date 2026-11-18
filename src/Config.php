@@ -382,9 +382,22 @@ final class Config
             throw new ConfigException('config file not found: ' . $file);
         }
 
-        $raw = (static function (string $__file) {
-            return require $__file;
-        })($path);
+        // The file is PHP: a syntax error or an exception in it is the configuration's
+        // error, reported with its own file and line, not an internal one.
+        try {
+            $raw = (static function (string $__file) {
+                return require $__file;
+            })($path);
+        } catch (Exception $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new ConfigException(
+                'the config file could not be loaded: ' . $e->getMessage(),
+                $e->getFile(),
+                $e->getLine(),
+                $e,
+            );
+        }
         if (!is_array($raw)) {
             throw new ConfigException('the config file must return an array', $path);
         }

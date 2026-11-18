@@ -84,6 +84,30 @@ class Builder
         return dirname(__DIR__);
     }
 
+    /**
+     * A redirect away from an address this build publishes would hide that page:
+     * the server answers with the redirect before it looks at the file.
+     *
+     * @param list<array{url:string}> $written
+     * @throws ConfigException
+     */
+    private function checkRedirectSources(array $written): void
+    {
+        $norm = static fn(string $path): string => rtrim($path, '/') === '' ? '/' : rtrim($path, '/');
+        $published = [];
+        foreach ($written as $page) {
+            $published[$norm($page['url'])] = true;
+        }
+        foreach (Htaccess::redirects($this->config) as $i => $entry) {
+            if (isset($published[$norm($entry['from'])])) {
+                throw new ConfigException(
+                    "redirect {$i}: a page is published at {$entry['from']} and the redirect would hide it; remove the redirect or the page",
+                    $this->config['configFile'] ?: null,
+                );
+            }
+        }
+    }
+
     /** @return list<string> required generator files that are not present */
     public static function missingParts(): array
     {
@@ -132,6 +156,7 @@ class Builder
         // search.enabled false: no index file, no dialog, no triggers, no hotkey.
         $indexed = ($this->config['search']['enabled'] ?? true) ? $this->writeSearchIndex($tree, $target) : 0;
         $redirects = Htaccess::write($config, $target);
+        $this->checkRedirectSources($written);
         $warnings = $agents->write($target, fn(string $relative): bool => $this->authored($relative));
         $cards->write($target, $rendered, $home, fn(string $relative): bool => $this->authored($relative));
         if ($this->only === null && $this->checkLinks) {
