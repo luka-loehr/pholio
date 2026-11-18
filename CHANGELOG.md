@@ -21,6 +21,13 @@ or the configuration schema; such changes are listed under **Changed**.
 - An unknown icon name in `nav`, `home.hero.buttons` or `home.cards.items` is
   now a configuration error (exit 2) that names the key and the closest icons,
   instead of a build error without a location.
+- The configuration is stricter, each case with exit 2 and the key in the
+  message: a required value (`nav[].title`, `nav[].href`,
+  `home.hero.headline`, button and card labels and targets, `head` hrefs,
+  redirect paths) must not be empty or blank; `title`, `content_dir` and
+  `output_dir` must not be empty; `content.extensions` needs at least one
+  entry; `output_dir` must not be `content_dir` or lie inside it, because the
+  next build would read the generated Markdown as content.
 
 ## [0.5.0] - 2026-11-18
 

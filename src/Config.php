@@ -501,6 +501,9 @@ final class Config
             if (!$present || $value === null) {
                 throw new ConfigException('missing required key: ' . $path, $file);
             }
+            if (is_string($value) && trim($value) === '') {
+                throw new ConfigException($path . ': must not be empty', $file);
+            }
             $spec = [substr($spec, 0, -1)];
         }
         if (!is_array($spec) || !is_string($spec[0] ?? null)) {
@@ -595,6 +598,9 @@ final class Config
             foreach ($value as $from => $to) {
                 if (!is_string($to)) {
                     throw new ConfigException("{$path}.{$from}: expected the target path as a string", $file);
+                }
+                if (trim((string) $from) === '' || trim($to) === '') {
+                    throw new ConfigException("{$path}.{$from}: the old and the new path must not be empty", $file);
                 }
                 $out[] = ['from' => (string) $from, 'to' => $to, 'reason' => null];
             }
@@ -757,6 +763,24 @@ final class Config
         }
         if (str_contains($c['server']['csp'], '"')) {
             throw new ConfigException('server.csp: must not contain double quotes', $configFile);
+        }
+        foreach (['title', 'content_dir', 'output_dir'] as $key) {
+            if (trim($c[$key]) === '') {
+                throw new ConfigException($key . ': must not be empty', $configFile);
+            }
+        }
+        // A build inside the content directory would be read as content by the next one.
+        $contentDir = self::lexical(self::absolute($c['content_dir'], $baseDir));
+        $outDir = self::lexical(self::absolute($c['output_dir'], $baseDir));
+        if ($outDir === $contentDir || str_starts_with($outDir . '/', rtrim($contentDir, '/') . '/')) {
+            throw new ConfigException(
+                'output_dir: must not be the content directory or lie inside it, got ' . self::show($c['output_dir'])
+                . ' with content_dir ' . self::show($c['content_dir']),
+                $configFile,
+            );
+        }
+        if ($c['content']['extensions'] === []) {
+            throw new ConfigException('content.extensions: expected at least one extension', $configFile);
         }
         foreach ($c['content']['extensions'] as $extension) {
             if (preg_match('/^[a-z0-9]+$/', $extension) !== 1) {
@@ -1115,6 +1139,26 @@ final class Config
         }
 
         return rtrim($baseDir, '/') . '/' . $path;
+    }
+
+    /** A path with "." and ".." segments and doubled slashes resolved, without touching the disk. */
+    private static function lexical(string $path): string
+    {
+        $path = str_replace('\\', '/', $path);
+        $root = str_starts_with($path, '/') ? '/' : '';
+        $out = [];
+        foreach (explode('/', $path) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..' && $out !== [] && end($out) !== '..') {
+                array_pop($out);
+            } elseif ($segment !== '..' || $root === '') {
+                $out[] = $segment;
+            }
+        }
+
+        return $root . implode('/', $out);
     }
 
     // ------------------------------------------------------------ helpers

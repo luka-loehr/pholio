@@ -18,11 +18,16 @@ relative to the project directory. `--config` together with a `[dir]` argument
 is a usage error.
 
 `src/Config.php` validates the file before anything is built. An unknown key,
-a value of the wrong type or a planned key set to anything but its default
-stops the command with exit code 2 and names the key path, for example
+a value of the wrong type, an empty required value, an unknown icon name or a
+planned key set to anything but its default stops the command with exit code 2
+and names the key path, for example
 `pholio: unknown key: search.tokenize (did you mean "tokenizer"?)`.
 
 ## Rules for values
+
+**Required** keys must be set and must not be empty or blank. `title`,
+`content_dir` and `output_dir` have defaults but must not be set to an empty
+string either.
 
 **Paths** (`content_dir`, `output_dir`, `copy` sources, `content.asset_root`,
 `theme.palette_css`, `redirects_file`, `share_card.logo`, `share_card.fonts.*`) are absolute or relative to the directory
@@ -69,8 +74,8 @@ asks for `docs_root_suffix`, a different `docs_path`, or `home => null`.
 | Key | Default | Meaning |
 | --- | --- | --- |
 | `content_dir` | `content` | Markdown sources and `meta.json` tree files |
-| `output_dir` | `public` | Directory of the start page's `index.html`. `pholio build` writes into it and deletes nothing |
-| `content.extensions` | `['md']` | File extensions read as pages, without the dot |
+| `output_dir` | `public` | Directory of the start page's `index.html`. `pholio build` writes into it and deletes nothing. Must not be `content_dir` or a directory inside it: the next build would read the output as content |
+| `content.extensions` | `['md']` | File extensions read as pages, without the dot. At least one |
 | `content.link_prefix` | `null` | URL prefix of internal links in the content that is rewritten to the docs root. With `'/handbook'`, a link to `/handbook/guide` in the content points at `{docs}/guide` in the output. `null` leaves links as written |
 | `content.asset_prefix` | `null` | URL prefix of image sources in the content that is rewritten to `content.asset_target`. `null` leaves image sources as written |
 | `content.asset_target` | `{docs}` | URL that `content.asset_prefix` maps to |

@@ -197,6 +197,37 @@ test('home icons are checked when the configuration loads', function (): void {
     config(['home' => ['cards' => ['items' => [['title' => 'A', 'href' => '/', 'icon' => 'book-open']]]]]);
 });
 
+test('required values must not be empty', function (): void {
+    config_error(['nav' => [['title' => '', 'href' => '/']]], 'nav.0.title: must not be empty');
+    config_error(['nav' => [['title' => 'a', 'href' => "  \t"]]], 'nav.0.href: must not be empty');
+    config_error(['home' => ['hero' => ['headline' => ' ']]], 'home.hero.headline: must not be empty');
+    config_error(['home' => ['hero' => ['headline' => 'x', 'buttons' => [['label' => '', 'href' => '/']]]]], 'home.hero.buttons.0.label: must not be empty');
+    config_error(['home' => ['cards' => ['items' => [['title' => 'A', 'href' => '']]]]], 'home.cards.items.0.href: must not be empty');
+    config_error(['head' => ['icons' => [['rel' => '', 'href' => '/x.svg']]]], 'head.icons.0.rel: must not be empty');
+    config_error(['redirects' => [['from' => '/old', 'to' => '']]], 'redirects.0.to: must not be empty');
+    config_error(['redirects' => ['/old' => '']], 'redirects./old: the old and the new path must not be empty');
+    config_error(['redirects' => ['' => '/new']], 'the old and the new path must not be empty');
+    config_error(['title' => ''], 'title: must not be empty');
+    config_error(['content_dir' => ''], 'content_dir: must not be empty');
+    config_error(['output_dir' => ' '], 'output_dir: must not be empty');
+    config_error(['content' => ['extensions' => []]], 'content.extensions: expected at least one extension');
+    // Optional texts may stay empty.
+    config(['home' => ['title' => '', 'hero' => ['headline' => 'x', 'kicker' => '', 'lead' => '']]]);
+});
+
+test('output_dir must lie outside the content directory', function (): void {
+    config_error(['content_dir' => 'content', 'output_dir' => 'content'], 'output_dir: must not be the content directory or lie inside it, got "content" with content_dir "content"');
+    config_error(['content_dir' => 'content', 'output_dir' => 'content/public'], 'output_dir: must not be the content directory');
+    config_error(['content_dir' => 'content', 'output_dir' => './content/../content//site/'], 'output_dir: must not be the content directory');
+    config_error(['content_dir' => '.', 'output_dir' => 'public'], 'output_dir: must not be the content directory');
+    config_error(['content_dir' => 'content'], 'output_dir: must not be the content directory', null, ['output_dir' => '/site/content/out']);
+    // Next to it, above it or with a name that only starts the same is fine.
+    config(['content_dir' => 'content', 'output_dir' => 'content-site']);
+    config(['content_dir' => 'content', 'output_dir' => 'content/../public']);
+    config(['content_dir' => 'docs/content', 'output_dir' => '.']);
+    config(['content_dir' => 'content', 'output_dir' => '/tmp/elsewhere']);
+});
+
 test('planned keys fail with "planned:"', function (): void {
     config_error(['slots' => ['nav' => 'x.php']], 'planned: slots');
     config_error(['components' => ['Download' => 'x']], 'planned: components');
