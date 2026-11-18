@@ -6,7 +6,7 @@ icon: map
 
 ## Now
 
-**Status: 0.4.** `pholio init` creates a project, `pholio dev` previews it
+**Status: 0.5.** `pholio init` creates a project, `pholio dev` previews it
 while you edit, `pholio build` writes the static site and `pholio check`
 compares a build with committed output. A build stops on a broken link, fragment
 or image. The content format covers every component on the
@@ -18,7 +18,7 @@ and code themes let a site take on its brand.
 
 1. **The planned keys.** Icon links in `nav`. (`base_url`,
    `theme.default_scheme`, `search.enabled` and `strict_content` work since
-   the next release.)
+   0.5.)
 2. **Extension points.** `slots` for sidebar, table of contents and page footer,
    and `components` for tags registered in PHP.
 3. **More languages.** Interface translations beyond English and German, and
