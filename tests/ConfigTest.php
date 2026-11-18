@@ -287,10 +287,21 @@ test('--set: only known string keys, and never a PHP warning', function (): void
 });
 
 test('planned keys fail with "planned:"', function (): void {
-    config_error(['slots' => ['nav' => 'x.php']], 'planned: slots');
     config_error(['components' => ['Download' => 'x']], 'planned: components');
     // Default values of planned keys are accepted.
     config(['base_url' => null, 'theme' => ['default_scheme' => 'system'], 'slots' => [], 'strict_content' => false]);
+});
+
+test('slots: known names resolve against the config directory, unknown names and blank paths fail', function (): void {
+    assert_same([], config()['slots']);
+    assert_same(
+        ['footer' => '/site/slots/footer.php', 'sidebar' => '/abs/sidebar.php'],
+        config(['slots' => ['footer' => 'slots/footer.php', 'sidebar' => '/abs/sidebar.php']])['slots'],
+    );
+    config_error(['slots' => ['nav' => 'x.php']], 'slots: unknown slot "nav", expected one of sidebar, toc, footer');
+    config_error(['slots' => ['toc' => ' ']], 'slots.toc: expected the path of a PHP file, got " "');
+    config_error(['slots' => ['toc' => 42]], 'slots');
+    config_error(['slots' => 'footer.php'], 'slots');
 });
 
 test('profiles merge recursively and unknown profiles fail', function (): void {

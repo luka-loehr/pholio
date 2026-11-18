@@ -287,8 +287,13 @@ return [
     // true: a page without a description in its frontmatter stops the build.
     'strict_content' => false,
 
+    // Slot name => PHP file that returns a string of HTML, placed on every docs
+    // page: 'sidebar' (below the page tree), 'toc' (below the table of contents),
+    // 'footer' (below the previous and next links).
+    // 'slots' => ['footer' => 'slots/footer.php'],
+    'slots' => [],
+
     // ------------------------------------------------------------- planned --
 
-    'slots' => [],
     'components' => [],
 ];

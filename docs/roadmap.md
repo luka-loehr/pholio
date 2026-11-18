@@ -12,12 +12,13 @@ compares a build with committed output. A build stops on a broken link, fragment
 or image. The content format covers every component on the
 [components page](/docs/components), and every build publishes the files AI
 agents look for and a share card for every page. Design tokens, your own CSS
-and code themes let a site take on its brand.
+and code themes let a site take on its brand, and `slots` put HTML of its own
+into the sidebar, the table of contents and the page footer.
 
 ## Next
 
-1. **Extension points.** `slots` for sidebar, table of contents and page footer,
-   and `components` for tags registered in PHP. These are the last planned keys.
+1. **Custom tags.** `components` for tags registered in PHP. This is the last
+   planned key.
 2. **More languages.** Interface translations beyond English and German, and
    more bundled grammars for code blocks.
 3. **More consumers,** to find the assumptions that only look general.

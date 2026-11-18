@@ -7,6 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/../I18n.php';
 require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
+require_once __DIR__ . '/slot.php';
 
 /** Indentation of the entry text per heading depth. */
 function nd_toc_item_offset(int $depth): int
@@ -36,8 +37,10 @@ function nd_toc_line_offset(int $depth): int
  * it has measured the elements.
  *
  * @param list<array{depth:int, title:string, url:string}> $items
+ * @param string $slot HTML of the `toc` slot, placed below the list; a page without headings has
+ *        no table of contents and so no slot
  */
-function nd_toc(array $items): string
+function nd_toc(array $items, string $slot = ''): string
 {
     if ($items === []) {
         return Html::tag('div', [
@@ -61,7 +64,7 @@ function nd_toc(array $items): string
     return Html::tag('div', [
         'id' => 'nd-toc',
         'class' => 'nd-toc',
-    ], $title . $scroll);
+    ], $title . $scroll . nd_slot('toc', $slot));
 }
 
 /** `TOCScrollArea`: the scrollable area with a 16 px mask at the top and bottom. */

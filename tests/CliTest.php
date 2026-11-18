@@ -165,11 +165,11 @@ test('build takes the project directory as argument or from the working director
 });
 
 test('planned key exits 2 with "planned:"', function (): void {
-    $dir = site(['slots' => ['nav' => 'x.php']]);
+    $dir = site(['components' => ['Download' => 'x']]);
     try {
         [$code, , $err] = pholio(['build', '--config', $dir . '/pholio.config.php']);
         assert_same(2, $code);
-        assert_contains('pholio: ' . $dir . '/pholio.config.php: planned: slots', $err);
+        assert_contains('pholio: ' . $dir . '/pholio.config.php: planned: components', $err);
     } finally {
         Fs::removeDir($dir);
     }

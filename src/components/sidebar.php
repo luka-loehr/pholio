@@ -9,6 +9,7 @@ require_once __DIR__ . '/../lib/Html.php';
 require_once __DIR__ . '/../lib/Icons.php';
 require_once __DIR__ . '/../lib/Ids.php';
 require_once __DIR__ . '/../lib/Tree.php';
+require_once __DIR__ . '/slot.php';
 require_once __DIR__ . '/tabs-dropdown.php';
 require_once __DIR__ . '/theme-switch.php';
 
@@ -38,8 +39,9 @@ function nd_item_offset(int $depth): string
  * The sidebar always shows the children of the current page's root folder.
  *
  * @param list<array{active:Node, options:list<array<string,mixed>>}> $groups tab groups from Tree::tabsFor()
+ * @param string $slot HTML of the `sidebar` slot, placed below the page tree in both variants
  */
-function nd_sidebar(array $config, Tree $tree, string $url, array $groups): string
+function nd_sidebar(array $config, Tree $tree, string $url, array $groups, string $slot = ''): string
 {
     $path = $tree->pathTo($url);
 
@@ -49,7 +51,7 @@ function nd_sidebar(array $config, Tree $tree, string $url, array $groups): stri
         'data-hovered' => 'false',
         'class' => 'nd-sidebar',
     ], nd_sidebar_head($groups, $path, true, '')
-        . nd_sidebar_scroll($config, $tree, $url, $path)
+        . nd_sidebar_scroll($config, $tree, $url, $path, null, null, $slot)
         // Footer for icon links; without such links it stays empty and hidden.
         . Html::tag('div', ['class' => 'nd-sidebar-foot'], ''));
 
@@ -59,7 +61,7 @@ function nd_sidebar(array $config, Tree $tree, string $url, array $groups): stri
     ], $aside);
 
     return $desktop
-        . nd_sidebar_drawer($config, $tree, $url, $groups, $path)
+        . nd_sidebar_drawer($config, $tree, $url, $groups, $path, $slot)
         . '<script src="' . Html::e(rtrim($config['assetBase'], '/') . '/js/sidebar-restore.js') . '"></script>';
 }
 
@@ -97,6 +99,7 @@ function nd_sidebar_scroll(
     array $path,
     ?\Closure $ids = null,
     ?string $viewportId = null,
+    string $slot = '',
 ): string {
     $menu = '';
     $last = count($config['links']) - 1;
@@ -112,7 +115,7 @@ function nd_sidebar_scroll(
         );
     }
 
-    $tocTree = $menu . nd_sidebar_nodes($tree->rootFor($url)->children, 0, $path, $url, $ids);
+    $tocTree = $menu . nd_sidebar_nodes($tree->rootFor($url)->children, 0, $path, $url, $ids) . nd_slot('sidebar', $slot);
     $viewport = Html::tag('div', [
         'class' => 'base-ui-disable-scrollbar nd-scroll-viewport',
         'data-id' => $viewportId ?? Ids::next() . '-viewport',
@@ -141,7 +144,7 @@ function nd_sidebar_scroll(
  * @param list<array{active:Node, options:list<array<string,mixed>>}> $groups
  * @param list<Node> $path
  */
-function nd_sidebar_drawer(array $config, Tree $tree, string $url, array $groups, array $path): string
+function nd_sidebar_drawer(array $config, Tree $tree, string $url, array $groups, array $path, string $slot = ''): string
 {
     $overlay = Html::tag('template', ['data-sidebar-overlay' => true], Html::tag('div', [
         'class' => 'nd-drawer-overlay',
@@ -160,7 +163,7 @@ function nd_sidebar_drawer(array $config, Tree $tree, string $url, array $groups
         'data-state' => 'closed',
         'class' => 'nd-invisible nd-drawer',
     ], nd_sidebar_head($groups, $path, false, $close)
-        . nd_sidebar_scroll($config, $tree, $url, $path)
+        . nd_sidebar_scroll($config, $tree, $url, $path, null, null, $slot)
         . Html::tag('div', ['class' => 'nd-drawer-foot'], nd_theme_switch()));
 
     return $overlay . $aside;

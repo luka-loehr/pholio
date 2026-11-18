@@ -362,7 +362,6 @@ final class Config
     private static function planned(): array
     {
         return [
-            [['slots'], []],
             [['components'], []],
         ];
     }
@@ -1001,6 +1000,7 @@ final class Config
                 'url' => $siteUrl,
                 'description' => $c['site']['description'] === null ? null : $text($c['site']['description']),
             ],
+            'slots' => self::slots($c['slots'], $path, $configFile),
             'strictContent' => $c['strict_content'],
             'agents' => [
                 'markdown' => $on('markdown'),
@@ -1040,6 +1040,32 @@ final class Config
      * @param ?string $logoUrl the header logo's URL, placeholders resolved
      * @return array<string, mixed>|null
      */
+    /** Slot names of `slots`: where the HTML of a slot file is placed on every docs page. */
+    public const SLOTS = ['sidebar', 'toc', 'footer'];
+
+    /**
+     * `slots`: slot name => PHP file. Unknown names and blank paths are errors; the
+     * files themselves are read by the Builder.
+     *
+     * @param array<string, string> $slots
+     * @return array<string, string> slot name => absolute file
+     */
+    private static function slots(array $slots, \Closure $path, ?string $configFile): array
+    {
+        $out = [];
+        foreach ($slots as $name => $file) {
+            if (!in_array($name, self::SLOTS, true)) {
+                throw new ConfigException('slots: unknown slot ' . self::show((string) $name) . ', expected one of ' . implode(', ', self::SLOTS), $configFile);
+            }
+            if (trim($file) === '') {
+                throw new ConfigException("slots.{$name}: expected the path of a PHP file, got " . self::show($file), $configFile);
+            }
+            $out[$name] = (string) $path($file);
+        }
+
+        return $out;
+    }
+
     private static function shareCard(array $c, ?string $siteUrl, array $copy, \Closure $text, \Closure $path, ?string $logoUrl, ?string $configFile): ?array
     {
         $card = $c['share_card'];

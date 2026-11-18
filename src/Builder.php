@@ -40,9 +40,9 @@ require_once __DIR__ . '/Htaccess.php';
  *   AgentSite::pageActions($url), ::head($url), ::homeHead(), ::write($target, Closure $authored)
  *   new ShareCards(array $config, Tree, Closure $parse, Closure $outputPath),
  *   ShareCards::imageUrl($url), ::head($url), ::homeHead(), ::write($target, $urls, $home, Closure $authored)
- *   nd_header($config, $url, $tabs, $selected), nd_sidebar($config, $tree, $url, $groups),
- *   nd_toc_popover($toc, $pageName), nd_page($data, $breadcrumb, $body, $footerItems, $actions),
- *   nd_page_actions($actions), nd_toc($toc),
+ *   nd_header($config, $url, $tabs, $selected), nd_sidebar($config, $tree, $url, $groups, $slot),
+ *   nd_toc_popover($toc, $pageName), nd_page($data, $breadcrumb, $body, $footerItems, $actions, $slot),
+ *   nd_page_actions($actions), nd_toc($toc, $slot),
  *   nd_layout($inner), nd_search_dialog_portal(), nd_home_layout($config, $tree), nd_document($head, $body)
  *
  * Tests replace individual steps by subclassing; every step is a protected method.
@@ -60,6 +60,9 @@ class Builder
     ];
 
     private static bool $loaded = false;
+
+    /** @var ?array<string, string> slot name => HTML, null until the slot files have run */
+    private ?array $slotHtml = null;
 
     /** @var array<string, Document> parsed pages by file */
     private array $documents = [];
@@ -314,11 +317,13 @@ class Builder
 
         $actions = $agents?->pageActions($url);
 
+        $slots = $this->slots();
+
         $inner = nd_header($config, $url, $tabs['tabs'], $tabs['selected'])
-            . nd_sidebar($config, $tree, $url, $tabs['groups'])
+            . nd_sidebar($config, $tree, $url, $tabs['groups'], $slots['sidebar'])
             . nd_toc_popover($toc, $pageName)
-            . nd_page($data, $tree->breadcrumb($url), $this->body($document, $file), $tree->footerItems($url), $actions === null ? '' : nd_page_actions($actions))
-            . nd_toc($toc);
+            . nd_page($data, $tree->breadcrumb($url), $this->body($document, $file), $tree->footerItems($url), $actions === null ? '' : nd_page_actions($actions), $slots['footer'])
+            . nd_toc($toc, $slots['toc']);
 
         $title = str_replace('{title}', (string) ($frontmatter['title'] ?? $data['title']), $config['titleTemplate']);
         $head = $this->head($title, $data['description'], true, $this->canonical($url, false)) + ($agents?->head($url) ?? []) + ['social' => $cards?->head($url) ?? []];
@@ -654,6 +659,42 @@ class Builder
         }
 
         return "\n/* ---- theme.custom_css ---- */\n" . rtrim((string) file_get_contents($file)) . "\n";
+    }
+
+    /**
+     * `slots`: the HTML of every slot, "" for a slot that is not set. Each file is
+     * run once per build, in a scope of its own, and has to return a string; the
+     * same HTML goes on every docs page, verbatim.
+     *
+     * @return array{sidebar:string, toc:string, footer:string}
+     */
+    public function slots(): array
+    {
+        if ($this->slotHtml !== null) {
+            return $this->slotHtml;
+        }
+        $configFile = $this->config['configFile'] ?: null;
+        $html = array_fill_keys(Config::SLOTS, '');
+        foreach ($this->config['slots'] ?? [] as $name => $file) {
+            if (!is_file($file)) {
+                throw new ConfigException("slots.{$name} not found: " . $file, $configFile);
+            }
+            try {
+                $value = (static function (string $__file) {
+                    return require $__file;
+                })($file);
+            } catch (Exception $e) {
+                throw $e;
+            } catch (\Throwable $e) {
+                throw new ConfigException("slots.{$name}: the slot file could not be loaded: " . $e->getMessage(), $e->getFile(), $e->getLine(), $e);
+            }
+            if (!is_string($value)) {
+                throw new ConfigException("slots.{$name}: the slot file must return a string of HTML, got " . get_debug_type($value) . ': ' . $file, $configFile);
+            }
+            $html[$name] = trim($value);
+        }
+
+        return $this->slotHtml = $html;
     }
 
     /** The `copy` directories, verbatim and without *.md files; a missing optional one is skipped. */

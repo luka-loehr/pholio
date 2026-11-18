@@ -197,7 +197,8 @@ test('a bad config exits 2 and names the key', function (): void {
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'titel' => 'x']" => 'unknown key: titel (did you mean "title"?)',
         "['title' => 42, 'content_dir' => 'content', 'output_dir' => 'out']" => 'title: expected a string, got 42',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'logo_size' => '24']" => 'logo_size: expected an integer, got "24"',
-        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'slots' => ['nav' => 'x.php']]" => 'planned: slots is not implemented yet',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'components' => ['Download' => 'x']]" => 'planned: components is not implemented yet',
+        "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'slots' => ['nav' => 'x.php']]" => 'slots: unknown slot "nav", expected one of sidebar, toc, footer',
         "['title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out', 'nav' => [['title' => 'A', 'href' => '/a', 'active' => 'all']]]" => 'nav.0.active: expected one of exact, prefix, got "all"',
         "['title' => 'Site', 'content_dir' => 'missing', 'output_dir' => 'out']" => 'content directory not found: ',
         "'not an array'" => 'the config file must return an array',
@@ -351,6 +352,75 @@ test('theme.tokens and theme.custom_css reach the stylesheet: tokens at the pale
     [$code, , $err] = build_cli(['build', '--config', $missing . '/pholio.config.php', '--quiet']);
     assert_same(2, $code, $err);
     assert_contains('theme.custom_css not found', $err);
+});
+
+test('slots: the HTML of each slot file lands in its place on every docs page, verbatim and static', function (): void {
+    $base = "'title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out'";
+    $pages = ['index.md' => "## Heading\n\nStart.\n", 'plain.md' => "No headings here.\n"];
+    $dir = build_pages($pages, "[{$base}, 'slots' => ['sidebar' => 'slots/sidebar.php', 'toc' => 'slots/toc.php', 'footer' => 'slots/footer.php']]");
+    mkdir($dir . '/slots');
+    file_put_contents($dir . '/slots/sidebar.php', "<?php\nreturn '<p>v' . implode('.', [1, 2]) . '</p>';\n");
+    file_put_contents($dir . '/slots/toc.php', "<?php\nreturn \"\\n<a href=\\\"https://example.com/edit\\\">Edit</a>\\n\";\n");
+    file_put_contents($dir . '/slots/footer.php', "<?php\nreturn '<p>&copy; Site <?php echo 1; ?></p>';\n");
+    [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+    assert_same(0, $code, $err);
+
+    $html = (string) file_get_contents($dir . '/out/index.html');
+    $sidebar = '<div class="nd-slot nd-slot-sidebar" data-slot="sidebar"><p>v1.2</p></div>';
+    // Desktop sidebar and drawer: below the page tree, inside the scrolling list.
+    assert_same(2, substr_count($html, $sidebar));
+    assert_same(2, substr_count($html, $sidebar . '</div></div></div>'));
+    assert_contains('<div class="nd-slot nd-slot-toc" data-slot="toc"><a href="https://example.com/edit">Edit</a></div></div>', $html);
+    assert_true(strpos($html, 'nd-slot-toc') > strpos($html, 'nd-toc-list'), 'the toc slot follows the list');
+    // Verbatim: what the file returns is not escaped and not evaluated a second time.
+    $footer = '<div class="nd-slot nd-slot-footer" data-slot="footer"><p>&copy; Site <?php echo 1; ?></p></div></article>';
+    assert_contains($footer, $html);
+    assert_true(strpos($html, 'nd-slot-footer') > strpos($html, 'class="nd-pager'), 'the footer slot follows the footer navigation');
+
+    // A page without headings has no table of contents, so no toc slot; the others stay.
+    $plain = (string) file_get_contents($dir . '/out/plain/index.html');
+    assert_true(!str_contains($plain, 'nd-slot-toc'));
+    assert_same(2, substr_count($plain, $sidebar));
+    assert_contains($footer, $plain);
+
+    // Without slots a page carries no slot markup.
+    $none = build_pages($pages);
+    [$code, , $err] = build_cli(['build', '--config', $none . '/pholio.config.php', '--quiet']);
+    assert_same(0, $code, $err);
+    assert_true(!str_contains((string) file_get_contents($none . '/out/index.html'), 'nd-slot'));
+
+    // A slot that returns "" or blank text prints nothing.
+    $empty = build_pages($pages, "[{$base}, 'slots' => ['footer' => 'footer.php']]");
+    file_put_contents($empty . '/footer.php', "<?php\nreturn \" \\n\";\n");
+    [$code, , $err] = build_cli(['build', '--config', $empty . '/pholio.config.php', '--quiet']);
+    assert_same(0, $code, $err);
+    assert_true(!str_contains((string) file_get_contents($empty . '/out/index.html'), 'nd-slot'));
+});
+
+test('slots: a missing file, a file that returns no string and a PHP error exit 2 and name the slot', function (): void {
+    $base = "'title' => 'Site', 'content_dir' => 'content', 'output_dir' => 'out'";
+    $cases = [
+        null => 'slots.footer not found: ',
+        "<?php\nreturn ['<p>x</p>'];\n" => 'slots.footer: the slot file must return a string of HTML, got array',
+        "<p>plain HTML, no return</p>\n" => 'slots.footer: the slot file must return a string of HTML, got int',
+        "<?php\nreturn missing_function();\n" => 'slots.footer: the slot file could not be loaded: Call to undefined function missing_function()',
+        "<?php\nreturn 'x' .;\n" => 'slots.footer: the slot file could not be loaded: ',
+    ];
+    foreach ($cases as $source => $message) {
+        $dir = build_pages(['index.md' => "Start.\n"], "[{$base}, 'slots' => ['footer' => 'footer.php']]");
+        if ($source !== '') {
+            file_put_contents($dir . '/footer.php', $source);
+        }
+        ob_start();
+        try {
+            [$code, , $err] = build_cli(['build', '--config', $dir . '/pholio.config.php', '--quiet']);
+        } finally {
+            ob_end_clean();
+        }
+        assert_same(2, $code, $err);
+        assert_contains($message, $err);
+        assert_true(!is_file($dir . '/out/index.html'), 'nothing is published');
+    }
 });
 
 test('theme.code takes a bundled theme by name or a TextMate theme file; an unknown name exits 2', function (): void {

@@ -418,6 +418,43 @@ selected, and profiles can't be nested.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `slots` | `[]` | Planned: slot name => PHP file returning HTML |
+| `slots` | `[]` | Slot name (`sidebar`, `toc`, `footer`) => PHP file returning HTML |
 | `components` | `[]` | Planned: custom content tags registered in PHP |
 | `strict_content` | `false` | `true`: a page without a `description` in its frontmatter stops the build (exit 3), listing every such page |
+
+### Slots
+
+A slot puts HTML of your own at a fixed place on every docs page:
+
+| Slot | Place |
+| --- | --- |
+| `sidebar` | Below the page tree, in the sidebar and in the drawer on small screens |
+| `toc` | Below the table of contents; a page without headings has no table of contents and so no slot |
+| `footer` | Below the previous and next links, at the end of the article |
+
+```php
+'slots' => [
+    'footer' => 'slots/footer.php',
+],
+```
+
+```php
+<?php
+// slots/footer.php
+
+return '<p class="site-note">Found a mistake? <a href="https://example.com/edit">Edit this page</a></p>';
+```
+
+The file is PHP, like the configuration file: the build runs it once and it
+returns one string. That string goes on every docs page as it is, not escaped
+and not passed through Markdown, inside
+`<div class="nd-slot nd-slot-footer" data-slot="footer">`; style it through
+`theme.custom_css`. A slot that returns an empty string prints nothing. The
+start page has no slots.
+
+The output stays static: the HTML is fixed at build time and the same on every
+page, and no PHP reaches the output. An unknown slot name, a missing file, a
+file that returns something other than a string and a PHP error in the file
+stop the command with exit code 2 and the slot's key. `pholio dev` rebuilds
+when a slot file changes. Links and images in a slot are checked like those of
+a page.

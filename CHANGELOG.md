@@ -9,6 +9,22 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Added
+
+- `slots`: HTML of your own at three fixed places of every docs page. `sidebar`
+  (below the page tree, also in the drawer), `toc` (below the table of contents)
+  and `footer` (below the previous and next links) each name a PHP file that
+  returns one string; the build runs it once and prints the string as it is, in
+  `<div class="nd-slot nd-slot-<name>" data-slot="<name>">`. The output stays
+  static. An unknown slot name, a missing file, a file that returns no string
+  and a PHP error in it are configuration errors (exit 2) that name the slot;
+  `pholio dev` rebuilds when a slot file changes.
+
+### Changed
+
+- `slots` is no longer a planned key: a value other than `[]` used to stop with
+  `planned: slots is not implemented yet`. `components` is the last planned key.
+
 ## [0.6.0] - 2026-11-18
 
 ### Added
