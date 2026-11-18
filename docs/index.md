@@ -15,7 +15,7 @@ you, keyboard shortcuts and instant search. You write Markdown; Pholio takes
 care of the rest.
 
 <Callout type="info" title="Status">
-Pholio 0.5 builds complete documentation sites, with share cards, design
+Pholio 0.6 builds complete documentation sites, with share cards, design
 tokens and link checks. What comes next is on the [roadmap](/docs/roadmap).
 </Callout>
 

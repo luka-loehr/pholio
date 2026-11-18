@@ -6,7 +6,7 @@ icon: map
 
 ## Now
 
-**Status: 0.5.** `pholio init` creates a project, `pholio dev` previews it
+**Status: 0.6.** `pholio init` creates a project, `pholio dev` previews it
 while you edit, `pholio build` writes the static site and `pholio check`
 compares a build with committed output. A build stops on a broken link, fragment
 or image. The content format covers every component on the
