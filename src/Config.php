@@ -666,19 +666,24 @@ final class Config
             }
             $spec = $spec[$segment];
         }
-        $type = is_array($spec) ? $spec[0] : rtrim($spec, '!');
+        // A section ("search") has no type of its own: only its string keys can be set.
+        $type = is_array($spec) ? ($spec[0] ?? null) : rtrim($spec, '!');
         if (!in_array($type, ['string', '?string', 'enum', '?enum'], true)) {
             throw new ConfigException("--set {$keyPath}: only string keys can be set from the command line", $file);
         }
 
+        $leaf = array_pop($segments);
         $cursor = &$raw;
         foreach ($segments as $segment) {
-            if (!isset($cursor[$segment]) || !is_array($cursor[$segment])) {
-                $cursor[$segment] = $cursor[$segment] ?? [];
+            if (!isset($cursor[$segment])) {
+                $cursor[$segment] = [];
+            } elseif (!is_array($cursor[$segment])) {
+                // The file holds a value where a section belongs; validation names it.
+                return $raw;
             }
             $cursor = &$cursor[$segment];
         }
-        $cursor = $value;
+        $cursor[$leaf] = $value;
         unset($cursor);
 
         return $raw;

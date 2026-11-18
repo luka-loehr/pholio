@@ -228,6 +228,64 @@ test('output_dir must lie outside the content directory', function (): void {
     config(['content_dir' => 'content', 'output_dir' => '/tmp/elsewhere']);
 });
 
+test('structure errors name the key and what was expected', function (): void {
+    config_error(['nav' => 'x'], 'nav: expected a list');
+    config_error(['nav' => ['a' => ['title' => 'a', 'href' => '/']]], 'nav: expected a list');
+    config_error(['nav' => ['x']], 'nav.0: expected an array');
+    config_error(['home' => false], 'home: expected an array or null');
+    config_error(['home' => ['hero' => ['x']]], 'home.hero: expected keys, got a list');
+    config_error(['search' => true], 'search: expected an array');
+    config_error(['theme' => null], 'theme: expected an array');
+    config_error(['search' => ['hotkey' => ['a', 1]]], 'search.hotkey: expected a list of strings');
+    config_error(['search' => ['hotkey' => ['a' => 'b']]], 'search.hotkey: expected a list of strings');
+    config_error(['theme' => ['tokens' => ['a', 'b']]], 'theme.tokens: expected an array of string keys => strings');
+    config_error(['theme' => ['tokens' => ['--x' => 1]]], 'theme.tokens: expected an array of string keys => strings');
+    config_error(['output' => ['keep' => 'x']], 'output.keep: expected a list of strings, got "x"');
+    config_error(['strict_content' => 1], 'strict_content: expected true or false, got 1');
+    config_error(['share_card' => ['enabled' => 'yes']], 'share_card.enabled: expected true, false or null, got "yes"');
+    config_error([0 => 'x'], 'unknown key: 0');
+    config_error(['redirects' => ['/a' => 5]], 'redirects./a: expected the target path as a string');
+    config_error(['redirects' => ['x']], 'redirects.0: expected {from, to, reason}');
+    config_error(['redirects' => [['from' => '/a', 'to' => '/b', 'why' => 'x']]], 'unknown key: redirects.0.why');
+    config_error(['logo_size' => 0], 'logo_size and home.hero.icon_size must be positive');
+    config_error(['home' => ['hero' => ['headline' => 'x', 'icon_size' => -1]]], 'logo_size and home.hero.icon_size must be positive');
+    config_error(['search' => ['index_path' => '/']], 'search.index_path: expected a relative file path');
+    config_error(['search' => ['index_path' => '../x.json']], 'search.index_path: expected a relative file path');
+});
+
+test('profiles: shape errors, and a profile is type-checked once it is selected', function (): void {
+    config_error(['profiles' => 'x'], 'profiles: expected an array of profile name => config');
+    config_error(['profiles' => ['a' => 'x']], 'profiles.a: expected an array');
+    config_error(['profiles' => ['a' => ['profiles' => []]]], 'profiles.a.profiles: profiles cannot be nested', 'a');
+    config_error(['profiles' => ['a' => []]], 'unknown profile "b" (known: a)', 'b');
+    config_error([], 'unknown profile "b" (none defined)', 'b');
+    config_error(['profiles' => ['a' => ['search' => ['x' => 1]]]], 'unknown key: profiles.a.search.x');
+    $raw = ['profiles' => ['a' => ['logo_size' => 'x']]];
+    config($raw);
+    config_error($raw, 'logo_size: expected an integer, got "x"', 'a');
+});
+
+test('--set: only known string keys, and never a PHP warning', function (): void {
+    set_error_handler(static function (int $no, string $message): never {
+        throw new \ErrorException($message, 0, $no);
+    });
+    try {
+        assert_same('german', config([], null, ['search.tokenizer' => 'german'])['search']['tokenizer']);
+        assert_same('Other', config(['title' => 'Site'], null, ['title' => 'Other'])['title']);
+        config_error([], '--set serch.tokenizer: unknown key', null, ['serch.tokenizer' => 'german']);
+        config_error([], '--set search.tokenizer.x: unknown key', null, ['search.tokenizer.x' => 'german']);
+        config_error([], '--set logo_size: only string keys can be set from the command line', null, ['logo_size' => '3']);
+        // A section is not a string key.
+        config_error([], '--set search: only string keys can be set from the command line', null, ['search' => 'x']);
+        config_error([], '--set nav: only string keys can be set from the command line', null, ['nav' => 'x']);
+        config_error([], 'search.tokenizer: expected one of english, german, got "french"', null, ['search.tokenizer' => 'french']);
+        // The file holds a scalar where the section belongs: the file's error is reported.
+        config_error(['search' => 'x'], 'search: expected an array', null, ['search.tokenizer' => 'german']);
+    } finally {
+        restore_error_handler();
+    }
+});
+
 test('planned keys fail with "planned:"', function (): void {
     config_error(['slots' => ['nav' => 'x.php']], 'planned: slots');
     config_error(['components' => ['Download' => 'x']], 'planned: components');

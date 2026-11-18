@@ -37,6 +37,8 @@ or the configuration schema; such changes are listed under **Changed**.
 - A syntax error or an exception in `pholio.config.php` was reported as an
   internal error (exit 70). It is now a configuration error (exit 2) with the
   file and line.
+- `--set` with the name of a section (`--set search=x`) printed a PHP warning
+  before its error; it now only says that string keys alone can be set.
 
 ## [0.5.0] - 2026-11-18
 
