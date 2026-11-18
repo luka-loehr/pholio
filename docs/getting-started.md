@@ -101,7 +101,8 @@ pholio build
 ```
 
 `dev` builds with drafts, serves the site at `http://127.0.0.1:8080` and
-rebuilds when the content, the config or `assets/` changes. `build` writes the
+rebuilds when the content, the config, a copied directory such as `assets/`,
+`skill.md`, `skills/`, the theme's CSS files or the redirects file change. `build` writes the
 site into `public/`. Commands without a directory argument work on the current
 directory; `pholio build my-docs` does the same from the parent. Deploy by copying
 `public/`; nothing runs on the server.

@@ -8,7 +8,8 @@ on plausible prose than on "lorem ipsum". Lanternfly does not exist.
 
 | Path | Contents |
 | --- | --- |
-| `pholio.config.php` | Configuration: title, logo, nav, start page hero and cards, palette, search, one redirect; images published under `/images` |
+| `pholio.config.php` | Configuration: title, logo, nav with an icon link and an icon button, start page hero and cards, palette, search, one redirect, site URL and share card; images published under `/images` |
+| `share-card-logo.svg` | The logo drawn on the share cards |
 | `content/meta.json` | Two root areas, Guide and Reference |
 | `content/guide/` | Overview, installation, writing pages, callouts and cards, tabs and accordions, steps and files |
 | `content/reference/` | Overview, code blocks, API types, Markdown extras |

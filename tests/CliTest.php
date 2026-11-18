@@ -317,6 +317,21 @@ test('Fs::compare honours keep paths as directory prefixes', function (): void {
     assert_true(!Fs::isKept('a.png', ['']));
 });
 
+test('dev watches everything a build reads from the project', function (): void {
+    $dir = site([
+        'copy' => ['assets' => 'assets', 'downloads' => 'files'],
+        'theme' => ['palette_css' => 'palette.css', 'custom_css' => 'brand.css'],
+        'redirects_file' => 'redirects.json',
+    ]);
+    foreach (['palette.css', 'brand.css'] as $file) {
+        file_put_contents($dir . '/' . $file, '');
+    }
+    $watched = (new \ReflectionMethod(Cli::class, 'watchedPaths'))->invoke(new Cli(), \Pholio\Config::load($dir . '/pholio.config.php'));
+    foreach (['pholio.config.php', 'content', 'assets', 'downloads', 'skill.md', 'skills', 'palette.css', 'brand.css', 'redirects.json'] as $path) {
+        assert_true(in_array($dir . '/' . $path, $watched, true), "{$path} is not watched");
+    }
+});
+
 test('Htaccess renders redirects, CSP and rejects invalid entries', function (): void {
     $text = \Pholio\Htaccess::render('/docs', [
         ['from' => '/docs/install/', 'to' => '/docs/guide/installation'],

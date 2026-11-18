@@ -24,7 +24,7 @@ objects and anchors are errors, and so is any key outside this table
 | Key | Required | Meaning |
 | --- | --- | --- |
 | `title` | yes | Page title, used in the tree, the breadcrumb and `<title>` |
-| `description` | no | Shown under the heading and indexed for search |
+| `description` | no, yes with [`strict_content`](/docs/configuration) | Shown under the heading and indexed for search |
 | `keywords` | no | Search terms the page text does not use, such as synonyms or English words: a comma-separated string (`keywords: "herunterladen, download, dark mode"`) or a list of strings (`keywords: [herunterladen, "dark mode"]`, or `- herunterladen` lines below the key); both index the same. Anything else is an error. Only indexed for search, weighted like the title |
 | `heading` | no | Visible `h1` when it should differ from `title` |
 | `icon` | no | lucide icon name, used in the sidebar and in cards |
@@ -158,8 +158,9 @@ Entries in `pages`:
 Exit code 3 with file and line: unknown frontmatter keys or YAML constructs, a
 `#` heading, unknown component tags or attributes, a tag inside a parent it
 doesn't belong to, unknown lucide icons, unknown code languages, invalid
-`meta.json`, duplicate slugs, a folder group name used as a file name, and
-broken links, fragments and images.
+`meta.json`, duplicate slugs, a folder group name used as a file name,
+broken links, fragments and images, and, with `strict_content`, a page without
+a `description`.
 
 After the pages are written, every link and image in the prose and on the
 start page is checked against the finished site, the way a browser resolves it:

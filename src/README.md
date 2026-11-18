@@ -5,10 +5,12 @@ the build instead of degrading silently.
 
 | Path | What lives there |
 | --- | --- |
-| `Cli.php` | `pholio build`, `check` and `dev`: argument parsing and the mapping of errors to exit codes |
+| `Cli.php` | `pholio init`, `build`, `check` and `dev`: argument parsing and the mapping of errors to exit codes |
 | `Config.php` | Loads `pholio.config.php`, validates it against the schema and normalizes it. Its docblock documents the internal shape every other file reads |
-| `Builder.php` | One build run: pages, start page, theme assets with the palette inserted, `copy` directories, search index, `.htaccess` |
-| `Htaccess.php` | The generated `.htaccess`: hardening, redirects, slashless URLs |
+| `Builder.php` | One build run: pages, start page, theme assets with the palette inserted, `copy` directories, search index, `.htaccess`, agent files, share cards, and the link check at the end |
+| `Init.php`, `init-template/` | `pholio init`: the sample site and how it is written into a new project |
+| `Htaccess.php` | The generated `.htaccess`: hardening, redirects (checked for loops), slashless URLs, agent headers and Markdown content negotiation |
+| `AgentHeaders.php` | The `Link` and `Vary` headers for agents, shared by `.htaccess`, `_headers` and the dev server |
 | `DevServer.php` | Router for PHP's built-in server, used by `pholio dev` |
 | `Fs.php` | Writing, copying and the two-way comparison behind `pholio check` |
 | `Exceptions.php` | `ConfigException` (exit 2), `ContentException` and `MarkdownException` (3), `IoException` (4) |
@@ -19,6 +21,9 @@ the build instead of degrading silently.
 | `lib/Highlight.php`, `lib/Highlight/` | TextMate grammars translated to PCRE2, with the GitHub light and dark themes |
 | `lib/Render.php`, `lib/RenderCatalogue.php` | AST to HTML through the components |
 | `lib/SearchIndex.php` | Search index documents and the tokenizer profile |
+| `lib/LinkCheck.php` | Every link, fragment and image of the written pages, checked against what the build published |
+| `lib/AgentSite.php`, `lib/AgentSkills.php`, `lib/LlmsTxt.php`, `lib/PageMarkdown.php` | The files for AI agents: Markdown twins, `llms.txt`, `skill.md`, agent card, `robots.txt`, `sitemap.xml` |
+| `lib/ShareCards.php`, `lib/Card/` | Open Graph tags and the PNG share cards, drawn in plain PHP |
 | `lib/Html.php`, `lib/Icons.php` | Escaping and attributes, lucide icons |
 | `components/*.php` | One file per component, pure functions: props in, HTML string out |
 | `templates/document.php` | The `<html>` shell: head, theme bootstrap, stylesheet, scripts |

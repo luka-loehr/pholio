@@ -531,7 +531,7 @@ TEXT;
         foreach ($config['copy'] as $copy) {
             $paths[] = $copy['from'];
         }
-        foreach ([$config['theme']['paletteCss'], $config['redirectsFile']] as $file) {
+        foreach ([$config['theme']['paletteCss'], $config['theme']['customCss'], $config['redirectsFile']] as $file) {
             if ($file !== null) {
                 $paths[] = $file;
             }

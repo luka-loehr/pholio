@@ -28,11 +28,13 @@ marks where the build writes the site palette: unlayered, after the default
 dark palette and the sidebar overrides, before the `@property` registrations.
 It writes, in this order:
 
-1. `:root { --color-fd-* }` and `.dark { … }` from `theme.light` and `theme.dark`;
-2. the contents of the file named in `theme.palette_css`.
+1. `:root { … }` with the design tokens from `theme.tokens`;
+2. `:root { --color-fd-* }` and `.dark { … }` from `theme.light` and `theme.dark`;
+3. the contents of the file named in `theme.palette_css`.
 
 Later declarations win, so a site can override single tokens or add its own
-rules.
+rules. The file named in `theme.custom_css` is appended after the whole
+stylesheet, unlayered.
 
 ## Files
 

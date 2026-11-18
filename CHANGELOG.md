@@ -37,6 +37,7 @@ or the configuration schema; such changes are listed under **Changed**.
 - A syntax error or an exception in `pholio.config.php` was reported as an
   internal error (exit 70). It is now a configuration error (exit 2) with the
   file and line.
+- `pholio dev` now rebuilds when the file named in `theme.custom_css` changes.
 - `--set` with the name of a section (`--set search=x`) printed a PHP warning
   before its error; it now only says that string keys alone can be set.
 

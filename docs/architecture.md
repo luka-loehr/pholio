@@ -25,8 +25,9 @@ components/*.php      pure functions, one file per component
 templates/document.php  the html shell
   |
   v
-output_dir/**         index.html and <page>.md per page, search-index.json, agent files,
-                      og.png and og/<page>.png, theme assets, .htaccess, _headers
+output_dir/**         index.html and <page>.md per page, search-index.json (with search on),
+                      agent files, og.png and og/<page>.png (with share cards on),
+                      theme assets, .htaccess, _headers
 ```
 
 The files for AI agents are described in [Agents](/docs/agents). They come
@@ -34,8 +35,10 @@ from the same page tree as the sidebar and the search index, so they never need
 maintaining by hand.
 
 `Builder.php` drives the run and `Cli.php` maps its errors to exit codes. Every
-stage is a pure transformation: nothing reads the filesystem except the tree,
-the parser and the image sizes, and nothing writes it except the builder. That
+stage is a pure transformation. Only a few read the filesystem (the tree, the
+parser, the image sizes, the share card fonts and logo, a hand-written
+`skill.md` and the CSS files named in `theme`), and nothing writes it except
+the builder. That
 is what lets `pholio check` render into a temporary directory and compare the
 result with a committed build byte for byte; PNG files are compared by their
 decompressed pixels, because the compressed bytes depend on the zlib version.
@@ -88,22 +91,22 @@ internal shape documented in `src/Config.php`.
 | Path | Contents |
 | --- | --- |
 | `bin/pholio` | CLI entry point |
-| `src/` | `Cli.php`, `Config.php`, `Builder.php`, `Htaccess.php`, `AgentHeaders.php`, `DevServer.php`, `Fs.php`, `I18n.php` |
-| `src/lib/` | Parser, tree, ids, table of contents, highlighter, search index, rendering, agent files, HTML helpers |
+| `src/` | `Cli.php`, `Config.php`, `Builder.php`, `Htaccess.php`, `AgentHeaders.php`, `DevServer.php`, `Fs.php`, `I18n.php`, `Exceptions.php`, and `Init.php` with `init-template/`, the sample site of `pholio init` |
+| `src/lib/` | Parser, tree, ids, table of contents, highlighter, search index, rendering, link check, agent files, share cards, icons, HTML helpers |
 | `src/components/` | One PHP file per component, pure functions |
 | `src/templates/` | The document shell |
 | `src/i18n/` | Interface strings: `en.php` (every key), `de.php` |
 | `theme/css/` | `notebook.css` and its parts, hand-written in cascade order |
 | `theme/js/` | ES modules, one per behavior |
 | `theme/fonts/` | Inter |
-| `vendor-data/` | Shiki grammars and themes, lucide icon data, Inter TrueType files for share cards |
+| `vendor-data/` | Shiki grammars and themes, lucide icon data, Inter TrueType files for share cards, the two brand marks of the page menu |
 | `licenses/` | License texts of the vendored material, copied into every build |
 | `verify/` | Node checks of the search engine, the search dialog, the agent files and the icons, never shipped |
 | `tests/` | PHP tests, fixtures and the demo snapshot |
 | `docs/` | This documentation, in Pholio's content format |
 | `examples/demo/` | A demo site covering every component |
 | `examples/cloudflare-worker/` | Content negotiation for agents on Cloudflare Workers static assets |
-| `scripts/` | Local checks, run by hand |
+| `scripts/` | The checks that run locally and in CI, the snapshot update, the release script and the installer |
 
 ## Known limits
 

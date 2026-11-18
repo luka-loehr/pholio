@@ -37,5 +37,6 @@ reference generation, no expression evaluation in content. Your documentation
 is written by you; Pholio renders it.
 
 It is also not MDX. Component tags are data, not programs: they carry
-attributes, they nest, and they can't import or execute anything. New tags are
-registered in PHP, where code belongs.
+attributes, they nest, and they can't import or execute anything. Tags of your
+own will be registered in PHP, where code belongs; that is on the
+[roadmap](/docs/roadmap).
