@@ -36,9 +36,9 @@ return [
     ],
 
     'nav' => [
-        ['title' => 'Guide', 'href' => '/guide', 'active' => 'prefix'],
+        ['title' => 'Guide', 'href' => '/guide', 'active' => 'prefix', 'icon' => 'book-open'],
         ['title' => 'Reference', 'href' => '/reference', 'active' => 'prefix'],
-        ['title' => 'Pholio', 'href' => 'https://github.com/luka-loehr/pholio', 'external' => true],
+        ['title' => 'Pholio on GitHub', 'href' => 'https://github.com/luka-loehr/pholio', 'external' => true, 'icon' => 'git-branch', 'icon_only' => true],
     ],
 
     'home' => [

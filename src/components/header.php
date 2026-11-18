@@ -36,13 +36,10 @@ function nd_header(array $config, string $url, array $tabs, int $selected): stri
 {
     $links = '';
     foreach ($config['links'] as $link) {
-        $links .= Html::tag('a', [
-            'class' => 'nd-nav-link',
-            'data-active' => nd_nav_link_active($link, $url) ? 'true' : 'false',
-            'href' => $link['href'],
-            'target' => $link['external'] ? '_blank' : null,
-            'rel' => $link['external'] ? 'noreferrer noopener' : null,
-        ], Html::e($link['title']));
+        $links .= Html::tag('a', nd_nav_link_attrs($link, $url, [
+            'nd-nav-link',
+            $link['icon'] === null ? null : 'nd-nav-link-icon',
+        ]), nd_nav_link_label($link));
     }
 
     $sidebarTrigger = Html::tag('button', [
@@ -82,6 +79,39 @@ function nd_header(array $config, string $url, array $tabs, int $selected): stri
         'data-transparent' => 'false',
         'class' => ['nd-header', $tabs === [] ? null : 'nd-header-tabs'],
     ], $rows);
+}
+
+/**
+ * The attributes of a nav link in the header rows. An icon-only link has no
+ * text, so its title becomes the accessible name.
+ *
+ * @param array{title:string, href:string, active:string, external:bool, icon:?string, iconOnly:bool} $link
+ * @param string|list<?string> $class
+ * @return array<string, mixed>
+ */
+function nd_nav_link_attrs(array $link, string $url, string|array $class): array
+{
+    return [
+        'class' => $class,
+        'data-active' => nd_nav_link_active($link, $url) ? 'true' : 'false',
+        'href' => $link['href'],
+        'target' => $link['external'] ? '_blank' : null,
+        'rel' => $link['external'] ? 'noreferrer noopener' : null,
+        'aria-label' => $link['iconOnly'] ? $link['title'] : null,
+    ];
+}
+
+/**
+ * What a nav link shows: the icon before the title, or the icon alone for an
+ * icon-only link.
+ *
+ * @param array{title:string, icon:?string, iconOnly:bool} $link
+ */
+function nd_nav_link_label(array $link): string
+{
+    $icon = $link['icon'] === null ? '' : Icons::svg($link['icon']);
+
+    return $link['iconOnly'] ? $icon : $icon . Html::e($link['title']);
 }
 
 /**

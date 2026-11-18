@@ -81,9 +81,9 @@ test('URL paths are normalised and placeholders resolved', function (): void {
     assert_same('/docs/pholio/logo.svg', $c['nav']['logo']);
     assert_same('/docs', $c['nav']['url']);
     assert_same([
-        ['title' => 'Home', 'href' => '/docs', 'active' => 'exact', 'external' => false],
-        ['title' => 'Guide', 'href' => '/docs/manual/guide', 'active' => 'prefix', 'external' => false],
-        ['title' => 'Paper', 'href' => '/paper.pdf', 'active' => 'exact', 'external' => true],
+        ['title' => 'Home', 'href' => '/docs', 'active' => 'exact', 'external' => false, 'icon' => null, 'iconOnly' => false],
+        ['title' => 'Guide', 'href' => '/docs/manual/guide', 'active' => 'prefix', 'external' => false, 'icon' => null, 'iconOnly' => false],
+        ['title' => 'Paper', 'href' => '/paper.pdf', 'active' => 'exact', 'external' => true, 'icon' => null, 'iconOnly' => false],
     ], $c['links']);
     assert_same('Lanternfly – Docs', $c['homeTitle']);
     assert_same("One\nTwo", $c['home']['hero']['headline']);
@@ -168,9 +168,36 @@ test('types, enums and required keys are validated', function (): void {
     assert_same(null, $e->sourceFile);
 });
 
+test('nav icons: lucide names pass through, unknown names and icon_only without icon fail', function (): void {
+    $c = config(['nav' => [
+        ['title' => 'Guide', 'href' => '/guide', 'icon' => 'book-open'],
+        ['title' => 'Source', 'href' => 'https://example.org', 'external' => true, 'icon' => 'git-branch', 'icon_only' => true],
+        ['title' => 'Plain', 'href' => '/plain'],
+    ]]);
+    assert_same(['book-open', 'git-branch', null], array_map(static fn(array $l): ?string => $l['icon'], $c['links']));
+    // React names are accepted, as in meta.json and the home cards.
+    assert_same('book-open', config(['nav' => [['title' => 'a', 'href' => '/', 'icon' => 'BookOpen']]])['links'][0]['icon']);
+    assert_same([false, true, false], array_column($c['links'], 'iconOnly'));
+    config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon' => 'book-opne']]], 'nav.0.icon: unknown icon "book-opne"; did you mean: book-open');
+    config_error(['nav' => [['title' => 'a', 'href' => '/'], ['title' => 'b', 'href' => '/b', 'icon_only' => true]]], 'nav.1.icon_only: needs nav.1.icon');
+    config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon' => 7]]], 'nav.0.icon: expected');
+    config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon_only' => 'yes']]], 'nav.0.icon_only: expected');
+    // A profile can switch a link to an icon button, and is validated after the merge.
+    $raw = ['nav' => [['title' => 'a', 'href' => '/']], 'profiles' => [
+        'icons' => ['nav' => [0 => ['icon' => 'house', 'icon_only' => true]]],
+        'broken' => ['nav' => [0 => ['icon_only' => true]]],
+    ]];
+    assert_same(true, config($raw, 'icons')['links'][0]['iconOnly']);
+    config_error($raw, 'nav.0.icon_only: needs nav.0.icon', 'broken');
+});
+
+test('home icons are checked when the configuration loads', function (): void {
+    config_error(['home' => ['hero' => ['headline' => 'x', 'buttons' => [['label' => 'Go', 'href' => '/', 'icon' => 'arow-right']]]]], 'home.hero.buttons.0.icon: unknown icon "arow-right"; did you mean: arrow-right');
+    config_error(['home' => ['cards' => ['items' => [['title' => 'A', 'href' => '/', 'icon' => 'nope-nope-nope']]]]], 'home.cards.items.0.icon: unknown icon "nope-nope-nope"');
+    config(['home' => ['cards' => ['items' => [['title' => 'A', 'href' => '/', 'icon' => 'book-open']]]]]);
+});
+
 test('planned keys fail with "planned:"', function (): void {
-    config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon' => 'github']]], 'planned: nav.0.icon');
-    config_error(['nav' => [['title' => 'a', 'href' => '/', 'icon_only' => true]]], 'planned: nav.0.icon_only');
     config_error(['slots' => ['nav' => 'x.php']], 'planned: slots');
     config_error(['components' => ['Download' => 'x']], 'planned: components');
     // Default values of planned keys are accepted.

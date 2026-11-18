@@ -9,6 +9,19 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+### Added
+
+- `nav[].icon`: a lucide icon before a header link's title, in the header, the
+  start page menu and the mobile drawer. `nav[].icon_only` shows the icon alone:
+  an icon button next to the theme switch on the start page, with the title as
+  its accessible name.
+
+### Changed
+
+- An unknown icon name in `nav`, `home.hero.buttons` or `home.cards.items` is
+  now a configuration error (exit 2) that names the key and the closest icons,
+  instead of a build error without a location.
+
 ## [0.5.0] - 2026-11-18
 
 ### Added

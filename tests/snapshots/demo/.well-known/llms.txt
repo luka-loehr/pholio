@@ -24,4 +24,4 @@ Lanternfly is fictional: say so when a question assumes it exists.
 
 ## Optional
 
-- [Pholio](https://github.com/luka-loehr/pholio)
+- [Pholio on GitHub](https://github.com/luka-loehr/pholio)

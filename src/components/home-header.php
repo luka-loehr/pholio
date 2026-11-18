@@ -28,15 +28,20 @@ require_once __DIR__ . '/header.php';
  */
 function nd_home_header(array $config, string $url): string
 {
+    // Text links sit in the row from `sm`; icon-only links are buttons at the
+    // end of the row from `lg` and in the menu foot below that.
     $items = '';
+    $icons = '';
     foreach ($config['links'] as $link) {
-        $items .= Html::tag('li', ['class' => 'nd-home-nav-item'], Html::tag('a', [
-            'class' => 'nd-home-nav-link',
-            'data-active' => nd_nav_link_active($link, $url) ? 'true' : 'false',
-            'href' => $link['href'],
-            'target' => $link['external'] ? '_blank' : null,
-            'rel' => $link['external'] ? 'noreferrer noopener' : null,
-        ], Html::e($link['title'])));
+        if ($link['iconOnly']) {
+            $icons .= Html::tag('li', ['class' => 'nd-home-nav-item'], nd_home_icon_link($link, $url));
+            continue;
+        }
+        $items .= Html::tag('li', ['class' => 'nd-home-nav-item'], Html::tag(
+            'a',
+            nd_nav_link_attrs($link, $url, 'nd-home-nav-link'),
+            nd_nav_link_label($link),
+        ));
     }
     $list = Html::tag('ul', ['class' => 'nd-home-nav-list'], $items);
 
@@ -45,7 +50,7 @@ function nd_home_header(array $config, string $url): string
     $wide = Html::tag('div', [
         'class' => 'nd-home-nav-wide',
     ], ($search ? nd_search_trigger_full($config, 'home') : '') . nd_theme_switch()
-        . Html::tag('ul', ['class' => 'nd-home-nav-icons'], ''));
+        . Html::tag('ul', ['class' => 'nd-home-nav-icons'], $icons));
 
     $menuTrigger = Html::tag('button', [
         'type' => 'button',
@@ -71,25 +76,39 @@ function nd_home_header(array $config, string $url): string
 }
 
 /**
+ * An icon-only nav link of the start page: a ghost icon button named by the
+ * link title.
+ *
+ * @param array{title:string, href:string, active:string, external:bool, icon:?string, iconOnly:bool} $link
+ */
+function nd_home_icon_link(array $link, string $url): string
+{
+    return Html::tag(
+        'a',
+        nd_nav_link_attrs($link, $url, ND_BUTTON_BASE . ' nd-btn-ghost nd-btn-icon nd-home-icon-link'),
+        nd_nav_link_label($link),
+    );
+}
+
+/**
  * The collapsible menu below `lg` as a template: nav links (visible only below
- * `sm`, above that they sit in the row) and a footer with separator and theme
- * switch. Fixed panel id `nd-home-menu-panel`, because the page has only one such
+ * `sm`, above that they sit in the row) and a footer with the icon-only links,
+ * separator and theme switch. Fixed panel id `nd-home-menu-panel`, because the page has only one such
  * menu and js/collapsible.js sets the `aria-controls` reference.
  */
 function nd_home_menu_panel(array $config, string $url): string
 {
     $links = '';
+    $icons = '';
     foreach ($config['links'] as $link) {
-        $links .= Html::tag('a', [
-            'class' => 'nd-home-menu-link',
-            'data-active' => nd_nav_link_active($link, $url) ? 'true' : 'false',
-            'href' => $link['href'],
-            'target' => $link['external'] ? '_blank' : null,
-            'rel' => $link['external'] ? 'noreferrer noopener' : null,
-        ], Html::e($link['title']));
+        if ($link['iconOnly']) {
+            $icons .= nd_home_icon_link($link, $url);
+            continue;
+        }
+        $links .= Html::tag('a', nd_nav_link_attrs($link, $url, 'nd-home-menu-link'), nd_nav_link_label($link));
     }
 
-    $foot = Html::tag('div', ['class' => 'nd-home-menu-foot'], Html::tag('div', [
+    $foot = Html::tag('div', ['class' => 'nd-home-menu-foot'], $icons . Html::tag('div', [
         'role' => 'separator',
         'class' => 'nd-home-menu-sep',
     ], '') . nd_theme_switch());

@@ -85,7 +85,11 @@ Rewriting happens at a path boundary only: `/handbook` matches `/handbook` and
 ## Navigation
 
 `nav` is the list of header links, rendered in the header and in the mobile
-drawer.
+drawer. A link with an `icon` shows it before its title. With `icon_only` the
+header shows the icon alone and the title becomes the link's accessible name;
+on the start page such a link is an icon button next to the theme switch, and
+in the collapsed menu it sits beside the switch. The mobile drawer of the docs
+layout always shows icon and title.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
@@ -94,8 +98,8 @@ drawer.
 | `nav[].href` | required | Link target. Write internal URLs without a trailing slash, as the generated pages have none |
 | `nav[].active` | `exact` | `exact`: current on that URL only. `prefix`: also current on every page below it |
 | `nav[].external` | `false` | Opens in a new tab with `rel="noreferrer noopener"` |
-| `nav[].icon` | `null` | Planned: lucide icon for the link |
-| `nav[].icon_only` | `false` | Planned: render the link as an icon button |
+| `nav[].icon` | `null` | [lucide](https://lucide.dev/icons) icon before the title. An unknown name stops the build and lists the closest names |
+| `nav[].icon_only` | `false` | Shows the icon without the title in the header. Needs `nav[].icon` |
 
 ## Start page
 

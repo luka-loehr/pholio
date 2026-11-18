@@ -7,6 +7,7 @@ namespace Pholio;
 require_once __DIR__ . '/Exceptions.php';
 require_once __DIR__ . '/I18n.php';
 require_once __DIR__ . '/lib/Card/Color.php';
+require_once __DIR__ . '/lib/Icons.php';
 
 /**
  * Loads `pholio.config.php`, validates it and normalises it into the internal
@@ -361,8 +362,6 @@ final class Config
     private static function planned(): array
     {
         return [
-            [['nav', '[]', 'icon'], null],
-            [['nav', '[]', 'icon_only'], false],
             [['slots'], []],
             [['components'], []],
         ];
@@ -696,6 +695,29 @@ final class Config
         }
     }
 
+    /**
+     * A lucide icon name from the configuration: null or a known name, else an
+     * error with the closest names. React names ("BookOpen") are accepted and
+     * returned in kebab-case, the way the components look them up.
+     */
+    private static function icon(?string $name, string $key, ?string $file): ?string
+    {
+        if ($name === null) {
+            return null;
+        }
+        $kebab = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '-$0', $name));
+        if (in_array($kebab, Icons::names(), true)) {
+            return $kebab;
+        }
+        $closest = Icons::closest($kebab, 5);
+        throw new ConfigException(
+            "{$key}: unknown icon " . self::show($name)
+            . ($closest === [] ? '' : '; did you mean: ' . implode(', ', $closest))
+            . '. Names: https://lucide.dev/icons',
+            $file,
+        );
+    }
+
     // ------------------------------------------------------------ normalising
 
     /**
@@ -720,6 +742,18 @@ final class Config
         }
         if ($c['logo_size'] <= 0 || ($c['home']['hero']['icon_size'] ?? 1) <= 0) {
             throw new ConfigException('logo_size and home.hero.icon_size must be positive', $configFile);
+        }
+        foreach ($c['nav'] as $i => $link) {
+            self::icon($link['icon'], "nav.{$i}.icon", $configFile);
+            if ($link['icon_only'] && $link['icon'] === null) {
+                throw new ConfigException("nav.{$i}.icon_only: needs nav.{$i}.icon, an icon button has nothing else to show", $configFile);
+            }
+        }
+        foreach ($c['home']['hero']['buttons'] ?? [] as $i => $button) {
+            self::icon($button['icon'], "home.hero.buttons.{$i}.icon", $configFile);
+        }
+        foreach ($c['home']['cards']['items'] ?? [] as $i => $item) {
+            self::icon($item['icon'], "home.cards.items.{$i}.icon", $configFile);
         }
         if (str_contains($c['server']['csp'], '"')) {
             throw new ConfigException('server.csp: must not contain double quotes', $configFile);
@@ -871,6 +905,8 @@ final class Config
                 'href' => (string) $url($l['href']),
                 'active' => $l['active'],
                 'external' => $l['external'],
+                'icon' => self::icon($l['icon'], 'nav.icon', $configFile),
+                'iconOnly' => $l['icon_only'],
             ], $c['nav']),
 
             'home' => $home,

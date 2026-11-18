@@ -16,14 +16,11 @@ and code themes let a site take on its brand.
 
 ## Next
 
-1. **The planned keys.** Icon links in `nav`. (`base_url`,
-   `theme.default_scheme`, `search.enabled` and `strict_content` work since
-   0.5.)
-2. **Extension points.** `slots` for sidebar, table of contents and page footer,
-   and `components` for tags registered in PHP.
-3. **More languages.** Interface translations beyond English and German, and
+1. **Extension points.** `slots` for sidebar, table of contents and page footer,
+   and `components` for tags registered in PHP. These are the last planned keys.
+2. **More languages.** Interface translations beyond English and German, and
    more bundled grammars for code blocks.
-4. **More consumers,** to find the assumptions that only look general.
+3. **More consumers,** to find the assumptions that only look general.
 
 ## Out of scope
 

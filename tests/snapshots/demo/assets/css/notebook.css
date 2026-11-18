@@ -1347,6 +1347,17 @@ html {
     color: var(--color-fd-primary);
   }
 
+  /* .nd-nav-link-icon: a header link with an icon (nav[].icon), with or without its title. */
+  .nd-nav-link-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing);
+  }
+  .nd-nav-link-icon svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+
   /* ====================================================================
      Section tabs
      ==================================================================== */

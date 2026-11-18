@@ -107,7 +107,7 @@ function nd_sidebar_scroll(
             Tree::isActive($link['href'], $url, $link['active'] === 'prefix'),
             0,
             $link['external'],
-            null,
+            $link['icon'],
             'nd-sidebar-menu' . ($i === $last ? ' nd-sidebar-menu-last' : ''),
         );
     }

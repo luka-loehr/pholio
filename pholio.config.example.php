@@ -107,7 +107,9 @@ return [
     'nav' => [
         ['title' => 'Guide', 'href' => '/guide', 'active' => 'prefix'],
         ['title' => 'Source', 'href' => 'https://example.org/source', 'external' => true],
-        // Planned: 'icon' => null, 'icon_only' => false.
+        // 'icon' is a lucide name shown before the title. 'icon_only' shows the icon
+        // alone in the header (the title is then its accessible name) and needs 'icon'.
+        // ['title' => 'Repository', 'href' => 'https://example.org/repo', 'external' => true, 'icon' => 'git-branch', 'icon_only' => true],
     ],
 
     // ---------------------------------------------------------- start page --

@@ -211,6 +211,30 @@ test('nav links: exact matches the URL, prefix also the pages below', function (
     assert_contains('href="https://example.com" target="_blank" rel="noreferrer noopener">Out</a>', $html);
 });
 
+test('nav icons: icon before the title, icon-only links are named by their title', function (): void {
+    $config = render_config(['nav' => [
+        ['title' => 'Guide', 'href' => '/guide', 'active' => 'prefix', 'icon' => 'book-open'],
+        ['title' => 'Source <code>', 'href' => 'https://example.com', 'external' => true, 'icon' => 'git-branch', 'icon_only' => true],
+        ['title' => 'Plain', 'href' => '/plain'],
+    ]]);
+
+    $header = Pholio\nd_header($config, '/guide/install', [], 0);
+    assert_true(preg_match('#<a class="nd-nav-link nd-nav-link-icon" data-active="true" href="/guide"><svg [^>]*lucide-book-open[^>]*>.*?</svg>Guide</a>#', $header) === 1, 'header: icon before the title');
+    assert_true(preg_match('#<a class="nd-nav-link nd-nav-link-icon" data-active="false" href="https://example.com" target="_blank" rel="noreferrer noopener" aria-label="Source &lt;code&gt;"><svg [^>]*lucide-git-branch[^>]*>.*?</svg></a>#', $header) === 1, 'header: icon-only link');
+    assert_contains('<a class="nd-nav-link" data-active="false" href="/plain">Plain</a>', $header);
+
+    $home = Pholio\nd_home_header($config, '/');
+    // The row lists the text links; the icon-only link is a button in the icon list and in the menu foot.
+    assert_true(preg_match('#<ul class="nd-home-nav-list"><li class="nd-home-nav-item"><a class="nd-home-nav-link" data-active="false" href="/guide"><svg [^>]*lucide-book-open[^>]*>.*?</svg>Guide</a></li><li class="nd-home-nav-item"><a class="nd-home-nav-link" data-active="false" href="/plain">Plain</a></li></ul>#', $home) === 1, 'home: text links');
+    assert_true(preg_match('#<ul class="nd-home-nav-icons"><li class="nd-home-nav-item"><a class="nd-btn nd-btn-ghost nd-btn-icon nd-home-icon-link" data-active="false" href="https://example.com" target="_blank" rel="noreferrer noopener" aria-label="Source &lt;code&gt;"><svg [^>]*lucide-git-branch#', $home) === 1, 'home: icon list');
+    assert_true(preg_match('#<div class="nd-home-menu-foot"><a class="nd-btn nd-btn-ghost nd-btn-icon nd-home-icon-link"[^>]*aria-label="Source &lt;code&gt;"><svg [^>]*lucide-git-branch[^>]*>.*?</svg></a><div role="separator"#', $home) === 1, 'home: menu foot');
+    assert_same(2, substr_count($home, 'Source &lt;code&gt;'));
+    assert_same(2, substr_count($home, '<a class="nd-home-menu-link"'), 'menu: two text links');
+
+    // Without icons the icon list stays empty, so its :empty rule hides it.
+    assert_contains('<ul class="nd-home-nav-icons"></ul>', Pholio\nd_home_header(render_config(['nav' => [['title' => 'A', 'href' => '/a']]]), '/'));
+});
+
 test('hero: lines, optional images and icon, button order per variant', function (): void {
     $config = render_config(['home' => ['hero' => [
         'kicker' => 'K',
