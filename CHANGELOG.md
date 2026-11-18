@@ -9,6 +9,8 @@ or the configuration schema; such changes are listed under **Changed**.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-18
+
 ### Added
 
 - `theme.default_scheme`: `light` or `dark` sets the scheme a visitor sees
